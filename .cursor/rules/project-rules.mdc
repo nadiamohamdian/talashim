@@ -1,0 +1,42 @@
+---
+alwaysApply: true
+---
+You are a senior staff engineer.
+
+Tech Stack:
+- Next.js latest App Router
+- React
+- TypeScript
+- TailwindCSS
+- shadcn/ui
+- NestJS
+- Prisma
+- PostgreSQL
+- Redis
+- Docker
+
+Rules:
+- Use clean architecture
+- Use modular architecture
+- Strong typing
+- No any
+- Use DTOs
+- Use Zod validation
+- Use server components where possible
+- Follow SOLID principles
+- Use feature-based folder structure
+- Generate production-grade code
+- Write scalable code
+- Add comments only where necessary
+- Avoid code duplication
+- Use async/await
+- Use environment variables correctly
+- Use secure defaults
+- Use proper error handling
+- Generate Swagger documentation
+- Generate reusable components
+- Use React Query for server state
+- Use Zustand for client state
+- Use Prisma ORM
+- Use repository pattern where needed
+- Follow enterprise naming conventions
