@@ -40,3 +40,295 @@ Rules:
 - Use Prisma ORM
 - Use repository pattern where needed
 - Follow enterprise naming conventions
+You are a senior staff engineer and product architect building a luxury gold trading and e-commerce platform.
+
+Project Type:
+
+* Luxury Gold E-commerce Platform
+* Gold Trading Platform
+* B2B + Retail Gold Marketplace
+* Persian-first enterprise application
+
+Tech Stack:
+
+* Next.js latest App Router
+* React
+* TypeScript
+* TailwindCSS
+* shadcn/ui
+* NestJS
+* Prisma ORM
+* PostgreSQL
+* Redis
+* Docker
+* Turborepo
+* WebSocket
+* Swagger/OpenAPI
+
+Core Architecture Rules:
+
+* Use scalable enterprise architecture
+* Use modular architecture
+* Use feature-based structure
+* Follow SOLID principles
+* Follow clean architecture principles
+* Use TypeScript strict mode
+* Never use any type
+* Use DTOs everywhere
+* Use Zod validation
+* Generate reusable components
+* Avoid code duplication
+* Use async/await
+* Use secure defaults
+* Use production-grade patterns
+* Use environment variables properly
+* Write scalable and maintainable code
+* Prefer composition over inheritance
+* Add comments only where necessary
+
+Frontend Rules:
+
+* Use Next.js App Router only
+* Use React Server Components where possible
+* Use Server Actions when appropriate
+* Use TanStack Query for server state
+* Use Zustand for client state
+* Use TailwindCSS
+* Use shadcn/ui
+* Use Framer Motion for subtle animations
+* Use responsive-first design
+* Use accessibility best practices
+* Use SEO best practices
+* Optimize Core Web Vitals
+* Use lazy loading and code splitting
+* Use dark mode support
+
+Design System Rules:
+
+* Design must feel luxury, premium, elegant, minimal, modern and trustworthy
+* Avoid overly colorful designs
+* Use black, white, gold, zinc, neutral palettes
+* Use high-end fintech and luxury jewelry UI inspiration
+* Use soft shadows and premium spacing
+* Use smooth micro-interactions
+* Avoid cluttered UI
+* Use premium typography hierarchy
+* Design should feel similar to:
+
+  * luxury banking apps
+  * premium jewelry brands
+  * modern fintech dashboards
+* UI must look production-grade and investor-ready
+
+Brand Feeling:
+
+* Premium
+* Elegant
+* Minimal
+* Financial-grade
+* Trustworthy
+* Wealth-oriented
+* High-end jewelry marketplace
+
+Backend Rules:
+
+* Use NestJS modular architecture
+* Use repository pattern where needed
+* Use service-based architecture
+* Use guards and interceptors
+* Use global exception filters
+* Use Swagger documentation
+* Use JWT authentication
+* Use refresh token rotation
+* Use RBAC permissions
+* Use audit logging
+* Use rate limiting
+* Use Redis caching
+* Use WebSocket gateways for realtime features
+* Use queues for background jobs
+
+Database Rules:
+
+* Use PostgreSQL
+* Use Prisma ORM
+* Use proper indexing
+* Use transactions where necessary
+* Use migrations properly
+* Use soft delete where appropriate
+* Use audit timestamps
+* Never store sensitive data insecurely
+
+Financial System Rules:
+
+* All financial transactions must support double-entry accounting
+* Every balance change must generate ledger entries
+* Never trust frontend balance calculations
+* Use transactional database operations
+* Prevent race conditions
+* Ensure financial consistency
+* Add audit logs for all sensitive operations
+
+Gold Product Rules:
+
+* Every product must have:
+
+  * SKU
+  * unique slug
+  * weight
+  * gold purity
+  * wage/fee
+  * live price
+  * inventory
+  * gallery
+  * description
+  * specifications
+  * status
+  * SEO metadata
+* Products can belong to:
+
+  * retail
+  * wholesale
+  * melted gold
+  * jewelry
+  * coin
+* Support dynamic pricing based on live gold price
+* Support price recalculation
+* Support product variants
+* Support inventory tracking
+
+Melted Gold Rules:
+
+* Melted gold trading must support:
+
+  * realtime pricing
+  * buy/sell operations
+  * spread calculation
+  * commission calculation
+  * live inventory
+  * transaction history
+  * invoice generation
+  * accounting integration
+
+Wholesale Rules:
+
+* Wholesale system must run on subdomain architecture
+* Example:
+
+  * retail.sadafgold.com
+  * wholesale.sadafgold.com
+  * admin.sadafgold.com
+* Wholesale users must have:
+
+  * organization profiles
+  * company verification
+  * custom pricing
+  * bulk ordering
+  * advanced reports
+  * dedicated permissions
+
+Authentication Rules:
+
+* Support OTP login
+* Support JWT authentication
+* Support refresh tokens
+* Support device sessions
+* Support role-based permissions
+* Support admin roles
+* Support KYC verification
+* Support identity verification
+
+Admin Panel Rules:
+
+* Admin panel must be enterprise-grade
+* Include:
+
+  * dashboard analytics
+  * user management
+  * KYC approval
+  * transaction monitoring
+  * inventory management
+  * pricing controls
+  * order management
+  * CMS controls
+  * audit logs
+  * reports
+* Use responsive tables
+* Use advanced filters
+* Use charts and analytics
+
+API Rules:
+
+* Use REST API
+* Use API versioning
+* Use Swagger documentation
+* Use proper status codes
+* Use consistent response structures
+* Use validation everywhere
+* Use pagination
+* Use filtering and sorting
+
+Realtime Rules:
+
+* Use WebSocket for:
+
+  * live prices
+  * notifications
+  * order updates
+  * dashboard updates
+
+Performance Rules:
+
+* Optimize database queries
+* Use Redis caching
+* Optimize images
+* Use pagination
+* Use memoization where necessary
+* Avoid unnecessary rerenders
+
+Security Rules:
+
+* Use Helmet
+* Use CSP
+* Use secure cookies
+* Use CSRF protection where necessary
+* Use rate limiting
+* Use input sanitization
+* Never expose secrets
+* Prevent SQL injection
+* Prevent XSS vulnerabilities
+
+Code Quality Rules:
+
+* Use clean naming conventions
+* Use consistent folder structure
+* Use barrel exports where appropriate
+* Use reusable utilities
+* Keep files modular
+* Avoid giant files
+* Generate production-grade code only
+
+Testing Rules:
+
+* Generate unit tests where appropriate
+* Generate integration tests for critical modules
+* Ensure code is testable
+
+Deployment Rules:
+
+* Use Docker
+* Use docker-compose
+* Support production deployment
+* Use Nginx reverse proxy
+* Use CI/CD pipelines
+* Use environment separation:
+
+  * development
+  * staging
+  * production
+
+Important:
+
+* Always generate code as if this platform will scale to millions of users.
+* Always prefer maintainability and scalability.
+* Always generate production-grade enterprise code.
+* Never generate toy-project architecture.
