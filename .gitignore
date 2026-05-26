@@ -1,1 +1,17 @@
 node_modules
+.pnpm-store
+.turbo
+.next
+dist
+coverage
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+!.env.example
+apps/api/prisma/dev.db
+apps/api/prisma/dev.db-journal
+apps/api/src/generated
+apps/*/.next
+apps/*/dist
+packages/*/dist

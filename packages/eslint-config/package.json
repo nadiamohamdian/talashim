@@ -1,0 +1,11 @@
+{
+  "name": "@gold/eslint-config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./base.mjs",
+    "./nextjs": "./nextjs.mjs",
+    "./nestjs": "./nestjs.mjs"
+  }
+}

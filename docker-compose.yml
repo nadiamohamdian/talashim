@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: sadaf-gold-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sadaf_gold
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sadaf_gold"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: sadaf-gold-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/sadaf_gold?schema=public
+      DIRECT_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/sadaf_gold?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    command: >
+      sh -c "pnpm prisma:migrate:deploy && pnpm prisma:seed && pnpm start:prod"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: sadaf-gold-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
