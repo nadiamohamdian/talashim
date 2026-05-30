@@ -1,4 +1,4 @@
-import type { ProductDetails, ProductSummary } from "@gold/contracts";
+import type { ProductDetails, ProductSummary } from "@gold/types";
 
 export const fallbackFeaturedProducts: ProductSummary[] = [
   {

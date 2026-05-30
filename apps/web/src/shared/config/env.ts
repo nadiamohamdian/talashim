@@ -1,4 +1,4 @@
-import { webEnvSchema } from "@gold/config/web-env";
+import { webEnvSchema } from "@gold/shared/web-env";
 
 export const webEnv = webEnvSchema.parse({
   NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,

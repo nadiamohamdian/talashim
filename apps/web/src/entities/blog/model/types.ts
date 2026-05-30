@@ -1,4 +1,4 @@
-import type { BlogPostDetails, BlogPostSummary } from "@gold/contracts";
+import type { BlogPostDetails, BlogPostSummary } from "@gold/types";
 
 export const fallbackBlogPosts: BlogPostSummary[] = [
   {

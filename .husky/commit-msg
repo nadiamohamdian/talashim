@@ -1,0 +1,2 @@
+#!/bin/sh
+pnpm --silent commitlint --edit "$1"

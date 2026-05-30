@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Badge, Card } from "@gold/ui";
-import type { ProductSummary } from "@gold/contracts";
+import type { ProductSummary } from "@gold/types";
 import { formatPrice } from "@/shared/lib/format-price";
 
 interface FeaturedProductsProps {

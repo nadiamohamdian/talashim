@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@gold/contracts", "@gold/ui"],
+  transpilePackages: ["@gold/types", "@gold/ui", "@gold/shared"],
   typedRoutes: true,
   images: {
     remotePatterns: [

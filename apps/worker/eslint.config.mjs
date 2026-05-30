@@ -2,5 +2,4 @@ import { createNestConfig } from "@gold/eslint-config/nestjs";
 
 export default createNestConfig({
   tsconfigRootDir: import.meta.dirname,
-  ignores: ['eslint.config.mjs', 'src/generated/prisma/**', 'dist/**'],
 });

@@ -8,23 +8,19 @@ RUN corepack enable
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.base.json ./
-COPY apps/web/package.json apps/web/package.json
+COPY apps/worker/package.json apps/worker/package.json
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/types/package.json packages/types/package.json
-COPY packages/ui/package.json packages/ui/package.json
 
-COPY apps/web apps/web
+COPY apps/worker apps/worker
 COPY packages packages
 
 RUN pnpm install --frozen-lockfile
 
 RUN pnpm --filter @gold/shared build \
   && pnpm --filter @gold/types build \
-  && pnpm --filter @gold/ui build \
-  && pnpm --filter @gold/web build
+  && pnpm --filter @gold/worker build
 
-WORKDIR /app/apps/web
+WORKDIR /app/apps/worker
 
-EXPOSE 3000
-
-CMD ["pnpm", "start"]
+CMD ["node", "dist/main.js"]
