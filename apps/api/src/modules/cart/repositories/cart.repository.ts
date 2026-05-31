@@ -82,4 +82,19 @@ export class CartRepository {
       },
     });
   }
+
+  findActiveCartByUserId(userId: string) {
+    return this.prisma.cart.findFirst({
+      where: { userId, status: CartStatus.ACTIVE },
+      include: {
+        items: { include: { product: true } },
+      },
+    });
+  }
+
+  removeCartItem(cartId: string, productId: string) {
+    return this.prisma.cartItem.deleteMany({
+      where: { cartId, productId },
+    });
+  }
 }

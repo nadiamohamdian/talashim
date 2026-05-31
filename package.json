@@ -3,12 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": ">=9.12.0"
+  },
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "dev:web": "pnpm --filter @gold/web dev",
-    "dev:admin": "pnpm --filter @gold/admin dev",
-    "dev:api": "pnpm --filter @gold/api start:dev",
-    "dev:worker": "pnpm --filter @gold/worker start:dev",
+    "dev:web": "pnpm --filter @sadafgold/web dev",
+    "dev:store": "pnpm --filter @sadafgold/web dev",
+    "dev:admin": "pnpm --filter @sadafgold/admin dev",
+    "dev:api": "pnpm --filter @sadafgold/api start:dev",
+    "dev:worker": "pnpm --filter @sadafgold/worker start:dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
@@ -16,7 +21,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "clean": "rimraf .turbo \"apps/*/.next\" \"apps/*/dist\" \"packages/*/dist\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docker:dev": "docker compose up --build",
+    "docker:prod": "docker compose -f docker-compose.prod.yml --env-file .env.production up --build -d",
+    "docker:prod:ssl": "docker compose -f docker-compose.prod.yml -f docker-compose.ssl.yml --env-file .env.production up -d",
+    "deploy": "bash scripts/deploy.sh",
+    "deploy:health": "bash scripts/health-check.sh"
   },
   "lint-staged": {
     "*.{js,cjs,mjs,ts,tsx}": [
@@ -27,26 +37,36 @@
       "prettier --write"
     ]
   },
+  "pnpm": {
+    "overrides": {
+      "react": "19.2.6",
+      "react-dom": "19.2.6",
+      "typescript": "6.0.3"
+    }
+  },
   "devDependencies": {
-    "@commitlint/cli": "^19",
-    "@commitlint/config-conventional": "^19",
-    "@eslint/js": "^9",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^24",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "eslint-config-prettier": "^10",
-    "globals": "^16",
-    "husky": "^9",
-    "lint-staged": "^16",
-    "prettier": "^3",
-    "rimraf": "^6",
-    "tailwindcss": "^4",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.39.4",
+    "@tailwindcss/postcss": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-next": "catalog:",
+    "eslint-config-prettier": "^10.1.5",
+    "globals": "^17.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "catalog:",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "catalog:",
     "tsx": "^4.22.3",
-    "turbo": "^2.9.14",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8"
+    "turbo": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "catalog:"
   }
 }

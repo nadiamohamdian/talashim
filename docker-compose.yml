@@ -1,87 +1,180 @@
+name: sadaf-gold-dev
+
 services:
   postgres:
-    image: postgres:16
-    container_name: sadaf-gold-postgres
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: sadaf_gold
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-sadaf_gold}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sadafgold
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d sadaf_gold"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-sadaf_gold}"]
       interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - sadafgold
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - sadafgold
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
       timeout: 5s
       retries: 5
 
   api:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
-    container_name: sadaf-gold-api
+      dockerfile: apps/api/Dockerfile.dev
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/sadaf_gold?schema=public
-      DIRECT_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/sadaf_gold?schema=public
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-sadaf_gold}?schema=public
+      DIRECT_DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-sadaf_gold}?schema=public
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages/shared/src:/app/packages/shared/src
+      - ./packages/types/src:/app/packages/types/src
     depends_on:
       postgres:
         condition: service_healthy
-    ports:
-      - "4000:4000"
-    command: >
-      sh -c "pnpm prisma:migrate:deploy && pnpm prisma:seed && pnpm start:prod"
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - sadafgold
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/v1/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
-    container_name: sadaf-gold-web
+      dockerfile: apps/web/Dockerfile.dev
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://api.localhost/api/v1}
+    volumes:
+      - ./apps/web/src:/app/apps/web/src
+      - ./packages/ui/src:/app/packages/ui/src
+      - ./packages/shared/src:/app/packages/shared/src
+      - ./packages/types/src:/app/packages/types/src
     depends_on:
       api:
-        condition: service_started
-    ports:
-      - "3000:3000"
+        condition: service_healthy
+    networks:
+      - sadafgold
 
   admin:
     build:
       context: .
-      dockerfile: apps/admin/Dockerfile
-    container_name: sadaf-gold-admin
+      dockerfile: apps/admin/Dockerfile.dev
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://api.localhost/api/v1}
+    volumes:
+      - ./apps/admin/src:/app/apps/admin/src
+      - ./packages/ui/src:/app/packages/ui/src
+      - ./packages/shared/src:/app/packages/shared/src
+      - ./packages/types/src:/app/packages/types/src
     depends_on:
       api:
-        condition: service_started
-    ports:
-      - "3001:3001"
+        condition: service_healthy
+    networks:
+      - sadafgold
 
   worker:
     build:
       context: .
-      dockerfile: apps/worker/Dockerfile
-    container_name: sadaf-gold-worker
+      dockerfile: apps/worker/Dockerfile.dev
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      NODE_ENV: development
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+    volumes:
+      - ./apps/worker/src:/app/apps/worker/src
+      - ./packages/shared/src:/app/packages/shared/src
+      - ./packages/types/src:/app/packages/types/src
     depends_on:
+      redis:
+        condition: service_healthy
       api:
-        condition: service_started
+        condition: service_healthy
+    networks:
+      - sadafgold
 
-  redis:
-    image: redis:7-alpine
-    container_name: sadaf-gold-redis
+  nginx:
+    image: nginx:1.27-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${NGINX_PORT:-8080}:80"
+    volumes:
+      - ./docker/nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web
+      - admin
+      - api
+    networks:
+      - sadafgold
+
+networks:
+  sadafgold:
+    driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:
+  minio_data:

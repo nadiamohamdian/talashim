@@ -2,7 +2,12 @@
   "extends": "../tsconfig/library.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "lib": ["ES2022", "DOM"],
+    "skipLibCheck": true,
+    "composite": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"],
+  "references": [{ "path": "../types" }]
 }

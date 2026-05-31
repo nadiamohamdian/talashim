@@ -1,3 +1,33 @@
 packages:
   - apps/*
   - packages/*
+
+# Centralized production versions — use "catalog:" in package.json dependencies
+catalog:
+  # Frontend core (Next.js 16 + React 19.2)
+  next: 16.2.6
+  react: 19.2.6
+  react-dom: 19.2.6
+  eslint-config-next: 16.2.6
+
+  # TypeScript & types
+  typescript: 6.0.3
+  '@types/node': 24.12.4
+  '@types/react': 19.2.15
+  '@types/react-dom': 19.2.3
+
+  # Styling (Tailwind CSS v4)
+  tailwindcss: 4.3.0
+  '@tailwindcss/postcss': 4.3.0
+  postcss: 8.5.15
+
+  # Shared runtime
+  '@tanstack/react-query': 5.100.14
+  zod: 4.4.3
+  axios: 1.13.5
+
+  # Tooling
+  eslint: 9.39.4
+  typescript-eslint: 8.60.0
+  prettier: 3.8.3
+  turbo: 2.9.14

@@ -1,4 +1,4 @@
-import { createNestConfig } from "@gold/eslint-config/nestjs";
+import { createNestConfig } from '../../packages/eslint-config/nestjs.mjs';
 
 export default createNestConfig({
   tsconfigRootDir: import.meta.dirname,

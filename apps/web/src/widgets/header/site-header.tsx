@@ -1,38 +1,37 @@
-import Link from "next/link";
-import type { Route } from "next";
-import { Button } from "@gold/ui";
-import { webEnv } from "@/shared/config/env";
-
-const navigation: Array<{ href: Route; label: string }> = [
-  { href: "/", label: "خانه" },
-  { href: "/blog", label: "مجله طلا" },
-  { href: "/login", label: "حساب کاربری" },
-];
+import Link from 'next/link';
+import { webEnv } from '@/shared/config/env';
+import { CategoryNavMenu, MainNavLinks } from '@/widgets/header/main-nav';
+import { HeaderActions } from '@/widgets/header/header-actions';
+import { StoreSearchBar } from '@/widgets/header/store-search-bar';
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-stone-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-amber-700">Gold House</p>
-          <Link href="/" className="text-lg font-bold text-stone-950">
+    <header className="header-glass sticky top-0 z-40 border-b border-nude-200/90 shadow-[var(--shadow-soft)]">
+      <div className="container-store flex items-center gap-5 py-4">
+        <Link href="/" className="group shrink-0">
+          <span className="block text-xs font-medium tracking-[0.2em] text-gold-dark/80">
+            GALLERY
+          </span>
+          <span className="text-xl font-bold tracking-tight text-foreground transition group-hover:text-gold-dark md:text-2xl">
             {webEnv.NEXT_PUBLIC_APP_NAME}
+          </span>
+        </Link>
+        <StoreSearchBar className="hidden flex-1 md:flex" />
+        <HeaderActions />
+      </div>
+
+      <div className="border-t border-nude-100 bg-nude-50/60">
+        <div className="container-store flex flex-wrap items-center gap-2 py-2.5 md:gap-3">
+          <CategoryNavMenu />
+          <MainNavLinks className="hidden lg:flex" />
+          <Link href="/products?sale=1" className="btn-gold mr-auto px-4 py-2 text-xs md:text-sm">
+            تخفیف‌های روز
           </Link>
         </div>
-        <nav className="hidden items-center gap-6 md:flex">
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm font-medium text-stone-700 transition hover:text-stone-950"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <Button variant="ghost" className="hidden md:inline-flex">
-          قیمت روز طلا
-        </Button>
+      </div>
+
+      <div className="border-t border-nude-100 px-4 py-3 md:hidden">
+        <StoreSearchBar />
       </div>
     </header>
   );

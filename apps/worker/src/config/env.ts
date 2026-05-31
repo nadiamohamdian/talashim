@@ -1,3 +1,5 @@
-import { apiEnvSchema } from '@sadafgold/shared/api-env';
+import { workerEnvSchema, type WorkerEnv } from '@sadafgold/shared/worker-env';
 
-export const workerEnv = apiEnvSchema.parse(process.env);
+export function getWorkerEnv(): WorkerEnv {
+  return workerEnvSchema.parse(process.env);
+}

@@ -1,30 +1,44 @@
-FROM node:22-bookworm-slim
-
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
+FROM node:22-bookworm-slim AS base
+ENV PNPM_HOME="/pnpm" PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json tsconfig.base.json ./
-COPY apps/admin/package.json apps/admin/package.json
-COPY packages/shared/package.json packages/shared/package.json
-COPY packages/types/package.json packages/types/package.json
-COPY packages/ui/package.json packages/ui/package.json
-
-COPY apps/admin apps/admin
-COPY packages packages
-
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/admin/package.json apps/admin/
+COPY packages/shared/package.json packages/shared/
+COPY packages/types/package.json packages/types/
+COPY packages/ui/package.json packages/ui/
+COPY packages/api-client/package.json packages/api-client/
 RUN pnpm install --frozen-lockfile
 
-RUN pnpm --filter @gold/shared build \
-  && pnpm --filter @gold/types build \
-  && pnpm --filter @gold/ui build \
-  && pnpm --filter @gold/admin build
+FROM deps AS build
+ARG NEXT_PUBLIC_API_BASE_URL=https://api.sadafgold.com/api/v1
+ARG NEXT_PUBLIC_ADMIN_APP_NAME=Sadaf Gold Admin
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_ADMIN_APP_NAME=$NEXT_PUBLIC_ADMIN_APP_NAME
+COPY tsconfig.base.json turbo.json ./
+COPY apps/admin apps/admin
+COPY packages/shared packages/shared
+COPY packages/types packages/types
+COPY packages/ui packages/ui
+COPY packages/api-client packages/api-client
+RUN pnpm --filter @sadafgold/types build \
+  && pnpm --filter @sadafgold/shared build \
+  && pnpm --filter @sadafgold/api-client build \
+  && pnpm --filter @sadafgold/ui build \
+  && pnpm --filter @sadafgold/admin build
 
+FROM base AS runner
+RUN groupadd --gid 1001 nodejs && useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3001
+COPY --from=build /app /app
+RUN chown -R nextjs:nodejs /app
 WORKDIR /app/apps/admin
-
+USER nextjs
 EXPOSE 3001
-
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=45s \
+  CMD node -e "require('http').get('http://127.0.0.1:3001',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
 CMD ["pnpm", "start"]

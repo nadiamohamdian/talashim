@@ -1,0 +1,91 @@
+# HTTPS production — replaces http template when using docker-compose.ssl.yml
+server {
+  listen 443 ssl http2;
+  server_name ${RETAIL_DOMAIN};
+
+  ssl_certificate /etc/letsencrypt/live/${CERT_NAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${CERT_NAME}/privkey.pem;
+  include /etc/nginx/snippets/ssl-params.conf;
+  include /etc/nginx/snippets/security-headers.conf;
+  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+  client_max_body_size 20m;
+
+  location / {
+    proxy_pass http://web_upstream;
+    include /etc/nginx/snippets/proxy.conf;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+  }
+}
+
+server {
+  listen 443 ssl http2;
+  server_name ${WHOLESALE_DOMAIN};
+
+  ssl_certificate /etc/letsencrypt/live/${CERT_NAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${CERT_NAME}/privkey.pem;
+  include /etc/nginx/snippets/ssl-params.conf;
+  include /etc/nginx/snippets/security-headers.conf;
+  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+  client_max_body_size 20m;
+
+  location / {
+    proxy_pass http://web_upstream;
+    include /etc/nginx/snippets/proxy.conf;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+  }
+}
+
+server {
+  listen 443 ssl http2;
+  server_name ${ADMIN_DOMAIN};
+
+  ssl_certificate /etc/letsencrypt/live/${CERT_NAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${CERT_NAME}/privkey.pem;
+  include /etc/nginx/snippets/ssl-params.conf;
+  include /etc/nginx/snippets/security-headers.conf;
+  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+  client_max_body_size 10m;
+
+  location / {
+    proxy_pass http://admin_upstream;
+    include /etc/nginx/snippets/proxy.conf;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+  }
+}
+
+server {
+  listen 443 ssl http2;
+  server_name ${API_DOMAIN};
+
+  ssl_certificate /etc/letsencrypt/live/${CERT_NAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${CERT_NAME}/privkey.pem;
+  include /etc/nginx/snippets/ssl-params.conf;
+  include /etc/nginx/snippets/security-headers.conf;
+  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+
+  client_max_body_size 5m;
+
+  location / {
+    proxy_pass http://api_upstream;
+    include /etc/nginx/snippets/proxy.conf;
+  }
+}
+
+server {
+  listen 80;
+  server_name ${RETAIL_DOMAIN} ${WHOLESALE_DOMAIN} ${ADMIN_DOMAIN} ${API_DOMAIN};
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}

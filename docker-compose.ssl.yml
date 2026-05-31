@@ -1,0 +1,27 @@
+# TLS overlay — use after: ./scripts/ssl-init.sh
+# docker compose -f docker-compose.prod.yml -f docker-compose.ssl.yml up -d
+
+name: sadaf-gold-prod
+
+services:
+  nginx:
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./docker/nginx/templates/00-upstreams.conf.template:/etc/nginx/templates/00-upstreams.conf.template:ro
+      - ./docker/nginx/templates/ssl/20-https.conf.template:/etc/nginx/templates/20-https.conf.template:ro
+      - ./docker/nginx/snippets:/etc/nginx/snippets:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    entrypoint: /bin/sh
+    command: -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $$!; done"
+    networks:
+      - sadafgold

@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class BlogQueryDto {
@@ -8,4 +8,8 @@ export class BlogQueryDto {
   @Min(1)
   @Max(50)
   limit?: number = 10;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
 }

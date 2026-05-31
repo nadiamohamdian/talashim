@@ -8,21 +8,35 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./providers/query-provider": {
+      "types": "./src/providers/query-provider.tsx",
+      "default": "./src/providers/query-provider.tsx"
     }
   },
   "files": ["dist"],
   "peerDependencies": {
-    "react": "*",
-    "react-dom": "*"
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "@tanstack/react-query": "^5.100.0"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-query": {
+      "optional": false
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"No tests for @gold/ui\""
+    "test": "echo \"No tests for @sadafgold/ui\""
   },
   "dependencies": {
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/react": "catalog:"
   }
 }

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@gold/ui", "@gold/shared", "@gold/types"],
+  transpilePackages: ["@sadafgold/ui", "@sadafgold/shared", "@sadafgold/types"],
   typedRoutes: true,
 };
 

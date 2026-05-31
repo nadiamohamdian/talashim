@@ -1,9 +1,4 @@
-import {
-  CartStatus,
-  OrderStatus,
-  PaymentStatus,
-  Prisma,
-} from '@/generated/prisma';
+import { CartStatus, OrderStatus, PaymentStatus, Prisma } from '@/generated/prisma';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 
@@ -56,6 +51,41 @@ export class OrdersRepository {
       });
 
       return order;
+    });
+  }
+
+  findByUserId(userId: string, skip: number, take: number, status?: OrderStatus) {
+    const where: Prisma.OrderWhereInput = { userId, status };
+    return Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          items: { include: { product: { select: { title: true, slug: true } } } },
+        },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+  }
+
+  countActiveByUserId(userId: string) {
+    return this.prisma.order.count({
+      where: {
+        userId,
+        status: { in: [OrderStatus.PENDING, OrderStatus.CONFIRMED] },
+      },
+    });
+  }
+
+  findByIdForUser(orderId: string, userId: string) {
+    return this.prisma.order.findFirst({
+      where: { id: orderId, userId },
+      include: {
+        items: { include: { product: { select: { title: true, slug: true } } } },
+        payments: true,
+      },
     });
   }
 }

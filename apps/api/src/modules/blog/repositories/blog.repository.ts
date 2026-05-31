@@ -5,10 +5,14 @@ import { PrismaService } from '@/infrastructure/database/prisma.service';
 export class BlogRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findLatest(limit = 10) {
+  findLatest(limit = 10, categorySlug?: string) {
     return this.prisma.blogPost.findMany({
+      where: categorySlug
+        ? { category: { slug: categorySlug } }
+        : undefined,
       orderBy: { publishedAt: 'desc' },
       take: limit,
+      include: { category: true },
     });
   }
 

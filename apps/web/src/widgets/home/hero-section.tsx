@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Badge, Button, Card } from "@gold/ui";
+import { Badge, Button, Card } from "@sadafgold/ui";
 
 export function HeroSection() {
   return (

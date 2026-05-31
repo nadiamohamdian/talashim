@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Card } from "@gold/ui";
-import type { BlogPostSummary } from "@gold/types";
+import { Card } from "@sadafgold/ui";
+import type { BlogPostSummary } from "@sadafgold/types";
 
 interface BlogListProps {
   posts: BlogPostSummary[];

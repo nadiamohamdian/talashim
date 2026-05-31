@@ -1,13 +1,10 @@
 {
-  
   "name": "@sadafgold/shared",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -21,18 +18,46 @@
       "types": "./dist/web-env.d.ts",
       "default": "./dist/web-env.js"
     },
-    "./shared": {
-      "types": "./dist/shared.d.ts",
-      "default": "./dist/shared.js"
+    "./worker-env": {
+      "types": "./dist/worker-env.d.ts",
+      "default": "./dist/worker-env.js"
+    },
+    "./admin-env": {
+      "types": "./dist/admin-env.d.ts",
+      "default": "./dist/admin-env.js"
+    },
+    "./api-error": {
+      "types": "./dist/api-error.d.ts",
+      "default": "./dist/api-error.js"
+    },
+    "./trade-quote": {
+      "types": "./dist/trade-quote.d.ts",
+      "default": "./dist/trade-quote.js"
+    },
+    "./validation/auth": {
+      "types": "./dist/validation/auth.d.ts",
+      "default": "./dist/validation/auth.js"
+    },
+    "./auth/map-session": {
+      "types": "./dist/auth/map-session.d.ts",
+      "default": "./dist/auth/map-session.js"
+    },
+    "./constants/auth": {
+      "types": "./dist/constants/auth.d.ts",
+      "default": "./dist/constants/auth.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"No tests for @gold/shared\""
-  }
-  ,"dependencies":{
-    "zod": "^4.4.3"
+    "test": "echo \"No tests for @sadafgold/shared\""
+  },
+  "dependencies": {
+    "@sadafgold/types": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
   }
 }

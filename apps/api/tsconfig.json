@@ -2,9 +2,10 @@
   "extends": "../../packages/tsconfig/nestjs.json",
   "compilerOptions": {
     "rootDir": ".",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolvePackageJsonExports": false,
+    "noEmit": false,
     "isolatedModules": true,
     "declaration": true,
     "removeComments": true,
@@ -16,7 +17,11 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@sadafgold/shared": ["../../packages/shared/dist/index"],
+      "@sadafgold/shared/*": ["../../packages/shared/dist/*"],
+      "@sadafgold/types": ["../../packages/types/dist/index"],
+      "@sadafgold/types/*": ["../../packages/types/dist/*"]
     },
     "types": ["node", "jest"],
     "incremental": true,

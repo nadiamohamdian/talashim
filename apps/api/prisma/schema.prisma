@@ -39,18 +39,26 @@ enum PaymentStatus {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  passwordHash  String
-  fullName      String
-  role          Role           @default(CUSTOMER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  addresses     Address[]
-  carts         Cart[]
-  orders        Order[]
-  refreshTokens RefreshToken[]
-  auditLogs     AuditLog[]
+  id               String            @id @default(cuid())
+  email            String            @unique
+  passwordHash     String
+  fullName         String
+  role             Role              @default(CUSTOMER)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  addresses        Address[]
+  carts            Cart[]
+  orders           Order[]
+  refreshTokens    RefreshToken[]
+  auditLogs        AuditLog[]
+  ledgerAccounts   LedgerAccount[]
+  walletTransactions WalletTransaction[]
+  walletAuditLogs  WalletAuditLog[]
+  goldTradeOrders    GoldTradeOrder[]
+  goldTradeAuditLogs GoldTradeAuditLog[]
+  kycVerification    KycVerification?
+  kycReviews         KycVerification[] @relation("KycReviewer")
+  wishlistItems      WishlistItem[]
 }
 
 model Address {
@@ -69,6 +77,7 @@ model Address {
 
 model Product {
   id               String          @id @default(cuid())
+  sku              String          @unique
   slug             String          @unique
   title            String
   description      String
@@ -85,6 +94,19 @@ model Product {
   inventoryItem    InventoryItem?
   cartItems        CartItem[]
   orderItems       OrderItem[]
+  wishlistItems    WishlistItem[]
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, createdAt])
 }
 
 model InventoryItem {
@@ -197,4 +219,203 @@ model RefreshToken {
   revokedAt  DateTime?
   createdAt  DateTime  @default(now())
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum WalletAssetType {
+  RIAL
+  GOLD
+}
+
+enum LedgerAccountCategory {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+enum LedgerSide {
+  DEBIT
+  CREDIT
+}
+
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  CONVERSION
+  FEE
+  ADJUSTMENT
+  TRADE_BUY
+  TRADE_SELL
+}
+
+enum WalletTransactionStatus {
+  PENDING
+  POSTED
+  FAILED
+  REVERSED
+}
+
+model LedgerAccount {
+  id        String                @id @default(cuid())
+  code      String                @unique
+  name      String
+  category  LedgerAccountCategory
+  assetType WalletAssetType?
+  userId    String?
+  isActive  Boolean               @default(true)
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  user      User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
+  entries   LedgerEntry[]
+
+  @@index([userId])
+}
+
+model WalletTransaction {
+  id             String                  @id @default(cuid())
+  reference      String                  @unique
+  idempotencyKey String                  @unique
+  type           WalletTransactionType
+  status         WalletTransactionStatus @default(PENDING)
+  description    String?
+  userId         String?
+  metadata       Json?
+  postedAt       DateTime?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  user           User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  entries        LedgerEntry[]
+  auditLogs      WalletAuditLog[]
+  goldTradeOrder GoldTradeOrder?
+
+  @@index([userId, createdAt])
+}
+
+model LedgerEntry {
+  id            String            @id @default(cuid())
+  transactionId String
+  accountId     String
+  side          LedgerSide
+  assetType     WalletAssetType
+  amount        Decimal           @db.Decimal(20, 6)
+  createdAt     DateTime          @default(now())
+  transaction   WalletTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  account       LedgerAccount     @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@index([accountId, createdAt])
+  @@index([transactionId])
+}
+
+model WalletAuditLog {
+  id            String             @id @default(cuid())
+  transactionId String?
+  actorId       String?
+  action        String
+  context       Json?
+  createdAt     DateTime           @default(now())
+  transaction   WalletTransaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  actor         User?              @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([transactionId])
+  @@index([actorId, createdAt])
+}
+
+enum GoldPriceSource {
+  PRIMARY
+  FALLBACK
+  MANUAL
+}
+
+model GoldPriceTick {
+  id            String          @id @default(cuid())
+  symbol        String          @default("XAU-IRR")
+  karat         Int             @default(18)
+  pricePerGram  Decimal         @db.Decimal(20, 2)
+  buyPrice      Decimal         @db.Decimal(20, 2)
+  sellPrice     Decimal         @db.Decimal(20, 2)
+  spreadPercent Decimal         @db.Decimal(6, 4)
+  source        GoldPriceSource
+  providerName  String
+  recordedAt    DateTime        @default(now())
+
+  @@index([symbol, karat, recordedAt])
+  @@index([recordedAt])
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model KycVerification {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  nationalId   String
+  phone        String
+  documentType String    @default("national_card")
+  documentUrl  String?
+  status       KycStatus @default(PENDING)
+  reviewNote   String?
+  reviewedById String?
+  submittedAt  DateTime  @default(now())
+  reviewedAt   DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reviewer     User?     @relation("KycReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status, submittedAt])
+}
+
+enum GoldTradeSide {
+  BUY
+  SELL
+}
+
+enum GoldTradeStatus {
+  PENDING
+  FILLED
+  FAILED
+}
+
+model GoldTradeOrder {
+  id                  String           @id @default(cuid())
+  orderNumber         String           @unique
+  userId              String
+  side                GoldTradeSide
+  status              GoldTradeStatus  @default(PENDING)
+  symbol              String           @default("XAU-IRR")
+  karat               Int              @default(18)
+  quantityGram        Decimal          @db.Decimal(20, 6)
+  unitPriceToman      Decimal          @db.Decimal(20, 2)
+  grossRial           Decimal          @db.Decimal(20, 2)
+  commissionRial      Decimal          @db.Decimal(20, 2)
+  netRial             Decimal          @db.Decimal(20, 2)
+  commissionPercent   Decimal          @db.Decimal(6, 4)
+  idempotencyKey      String           @unique
+  walletTransactionId String?          @unique
+  failureReason       String?
+  createdAt           DateTime         @default(now())
+  filledAt            DateTime?
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletTransaction   WalletTransaction? @relation(fields: [walletTransactionId], references: [id], onDelete: SetNull)
+  auditLogs           GoldTradeAuditLog[]
+
+  @@index([userId, createdAt])
+  @@index([userId, side, status])
+}
+
+model GoldTradeAuditLog {
+  id        String         @id @default(cuid())
+  orderId   String
+  actorId   String?
+  action    String
+  context   Json?
+  createdAt DateTime       @default(now())
+  order     GoldTradeOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  actor     User?          @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([orderId, createdAt])
+  @@index([actorId, createdAt])
 }

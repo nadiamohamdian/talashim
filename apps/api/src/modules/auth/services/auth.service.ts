@@ -1,24 +1,34 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
+import { randomInt } from 'node:crypto';
 import { getApiEnv } from '@/config/env';
+import { RedisService } from '@/infrastructure/redis/redis.service';
+import { KycRepository } from '@/modules/kyc/repositories/kyc.repository';
 import { AuthRepository } from '../repositories/auth.repository';
 import { UsersService } from '@/modules/users/services/users.service';
 import type { LoginDto } from '../dto/login.dto';
 import type { RegisterDto } from '../dto/register.dto';
 
+const OTP_TTL_SECONDS = 300;
+const OTP_KEY_PREFIX = 'auth:otp:';
+
 @Injectable()
 export class AuthService {
   private readonly env = getApiEnv();
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(
     private readonly usersService: UsersService,
     private readonly authRepository: AuthRepository,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
+    private readonly kycRepository: KycRepository,
   ) {}
 
   async register(payload: RegisterDto) {
@@ -98,6 +108,59 @@ export class AuthService {
     await this.authRepository.createAuditLog('auth.logout', decoded.sub);
 
     return { success: true };
+  }
+
+  async requestOtp(identifier: string) {
+    const user = await this.resolveUserByIdentifier(identifier);
+    if (!user) {
+      throw new BadRequestException('Account not found for this identifier');
+    }
+
+    const code = String(randomInt(100000, 999999));
+    const key = this.otpKey(identifier);
+    await this.redisService.set(key, await argon2.hash(code), OTP_TTL_SECONDS);
+
+    if (this.env.NODE_ENV !== 'production') {
+      this.logger.log(`OTP for ${identifier}: ${code}`);
+    }
+
+    await this.authRepository.createAuditLog('auth.otp_requested', user.id);
+
+    return { success: true, expiresInSeconds: OTP_TTL_SECONDS };
+  }
+
+  async verifyOtp(identifier: string, code: string) {
+    const key = this.otpKey(identifier);
+    const storedHash = await this.redisService.get(key);
+    if (!storedHash || !(await argon2.verify(storedHash, code))) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    const user = await this.resolveUserByIdentifier(identifier);
+    if (!user) {
+      throw new UnauthorizedException('Account not found');
+    }
+
+    await this.redisService.del(key);
+    await this.authRepository.createAuditLog('auth.otp_verified', user.id);
+
+    return this.issueSession(user.id, user.email, user.fullName, user.role);
+  }
+
+  private otpKey(identifier: string) {
+    return `${OTP_KEY_PREFIX}${identifier.trim().toLowerCase()}`;
+  }
+
+  private async resolveUserByIdentifier(identifier: string) {
+    const normalized = identifier.trim().toLowerCase();
+    if (normalized.includes('@')) {
+      return this.usersService.findByEmail(normalized);
+    }
+    const kyc = await this.kycRepository.findByPhone(normalized);
+    if (!kyc) {
+      return null;
+    }
+    return this.usersService.findById(kyc.userId);
   }
 
   private async issueSession(

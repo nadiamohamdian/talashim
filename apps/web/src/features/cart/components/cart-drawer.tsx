@@ -1,11 +1,18 @@
-"use client";
+'use client';
 
-import { Button, Card } from "@gold/ui";
-import { useCartStore } from "../model/cart-store";
-import { formatPrice } from "@/shared/lib/format-price";
+import Link from 'next/link';
+import { Card } from '@sadafgold/ui';
+import { buildLoginHref } from '@/shared/routing/safe-redirect';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+import { useCartStore } from '../model/cart-store';
+import { formatPrice } from '@/shared/lib/format-price';
 
 export function CartDrawer() {
-  const { items, total } = useCartStore();
+  const items = useCartStore((s) => s.items);
+  const total = useCartStore((s) =>
+    s.items.reduce((sum, line) => sum + line.quantity * line.priceToman, 0),
+  );
+  const { isAuthenticated } = useAuth();
 
   return (
     <Card className="w-full max-w-sm p-5">
@@ -35,9 +42,12 @@ export function CartDrawer() {
           {formatPrice(total)} تومان
         </p>
       </div>
-      <Button className="mt-4 w-full" variant="secondary">
-        ادامه فرایند سفارش
-      </Button>
+      <Link
+        href={isAuthenticated ? '/checkout' : buildLoginHref('/checkout')}
+        className="mt-4 block w-full rounded-full bg-stone-900 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-stone-800 dark:bg-zinc-100 dark:text-zinc-950"
+      >
+        {isAuthenticated ? 'ادامه فرایند سفارش' : 'ورود برای تسویه'}
+      </Link>
     </Card>
   );
 }

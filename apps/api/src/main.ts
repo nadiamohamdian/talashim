@@ -1,47 +1,24 @@
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { RequestIdInterceptor } from './common/interceptors/request-id.interceptor';
+import { configureApp } from './bootstrap/configure-app';
 import { getApiEnv } from './config/env';
+import { setupSwagger } from './swagger/setup-swagger';
 
 async function bootstrap() {
   const env = getApiEnv();
-  const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: [env.CORS_ORIGIN],
-    credentials: true,
-  });
-  app.use(helmet());
-  app.use(cookieParser());
-  app.setGlobalPrefix(env.API_PREFIX);
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: env.API_VERSION,
-  });
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-  app.useGlobalInterceptors(new RequestIdInterceptor());
-  app.useGlobalFilters(new HttpExceptionFilter());
+  const logger = new Logger('Bootstrap');
 
-  if (env.NODE_ENV !== 'production') {
-    const config = new DocumentBuilder()
-      .setTitle('Sadaf Gold API')
-      .setDescription('Modular NestJS API for the gold e-commerce platform.')
-      .setVersion(env.API_VERSION)
-      .build();
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, document);
-  }
+  const app = await NestFactory.create(AppModule, {
+    logger: [env.LOG_LEVEL, 'error', 'warn'],
+    bufferLogs: true,
+  });
+
+  configureApp(app, env);
+  setupSwagger(app, env);
 
   await app.listen(env.API_PORT);
+  logger.log(`API listening on port ${env.API_PORT} (${env.NODE_ENV})`);
 }
+
 void bootstrap();

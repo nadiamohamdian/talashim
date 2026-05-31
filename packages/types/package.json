@@ -4,9 +4,7 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -17,6 +15,9 @@
     "build": "tsc -p tsconfig.json",
     "lint": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"No tests for @gold/types\""
+    "test": "echo \"No tests for @sadafgold/types\""
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
   }
 }

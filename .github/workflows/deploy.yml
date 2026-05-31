@@ -1,0 +1,52 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag (e.g. sha-abc1234 or latest)'
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to server
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
+    steps:
+      - name: Resolve image tag
+        id: tag
+        run: |
+          if [ -n "${{ inputs.image_tag }}" ]; then
+            echo "value=${{ inputs.image_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_DEPLOY_TOKEN }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_SSH_PORT || 22 }}
+          envs: GHCR_TOKEN
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.DEPLOY_PATH }}"
+            export IMAGE_TAG="${{ steps.tag.outputs.value }}"
+            OWNER="${{ github.repository_owner }}"
+            export API_IMAGE="ghcr.io/${OWNER}/sadafgold-api:${IMAGE_TAG}"
+            export WEB_IMAGE="ghcr.io/${OWNER}/sadafgold-web:${IMAGE_TAG}"
+            export ADMIN_IMAGE="ghcr.io/${OWNER}/sadafgold-admin:${IMAGE_TAG}"
+            export WORKER_IMAGE="ghcr.io/${OWNER}/sadafgold-worker:${IMAGE_TAG}"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            ./scripts/deploy.sh

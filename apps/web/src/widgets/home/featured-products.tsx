@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Badge, Card } from "@gold/ui";
-import type { ProductSummary } from "@gold/types";
+import { Badge, Card } from "@sadafgold/ui";
+import type { ProductSummary } from "@sadafgold/types";
 import { formatPrice } from "@/shared/lib/format-price";
+import { StoreImage } from "@/shared/ui/store-image";
 
 interface FeaturedProductsProps {
   products: ProductSummary[];
@@ -17,7 +17,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
           <h2 className="mt-3 text-2xl font-bold text-stone-950">محصولات ویژه</h2>
         </div>
         <p className="text-sm text-stone-500">
-          داده‌ها می‌توانند از API واکشی شوند و در صورت عدم دسترسی fallback شوند.
+          {products.length} محصول منتخب
         </p>
       </div>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -25,7 +25,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
           <Link key={product.id} href={`/products/${product.slug}`}>
             <Card className="h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
               <div className="relative aspect-[4/3] bg-stone-100">
-                <Image
+                <StoreImage
                   src={product.imageUrl}
                   alt={product.title}
                   fill

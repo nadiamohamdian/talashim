@@ -7,7 +7,7 @@ export class BlogService {
   constructor(private readonly blogRepository: BlogRepository) {}
 
   async findLatest(query: BlogQueryDto) {
-    return this.blogRepository.findLatest(query.limit);
+    return this.blogRepository.findLatest(query.limit, query.category);
   }
 
   async findBySlug(slug: string) {

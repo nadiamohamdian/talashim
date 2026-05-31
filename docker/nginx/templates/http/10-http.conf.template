@@ -1,0 +1,55 @@
+# HTTP-only production (no TLS) — mounted as /etc/nginx/templates/10-http.conf.template
+server {
+  listen 80;
+  server_name ${RETAIL_DOMAIN} ${WHOLESALE_DOMAIN};
+
+  client_max_body_size 20m;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    proxy_pass http://web_upstream;
+    include /etc/nginx/snippets/proxy.conf;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+}
+
+server {
+  listen 80;
+  server_name ${ADMIN_DOMAIN};
+
+  client_max_body_size 10m;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    proxy_pass http://admin_upstream;
+    include /etc/nginx/snippets/proxy.conf;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+}
+
+server {
+  listen 80;
+  server_name ${API_DOMAIN};
+
+  client_max_body_size 5m;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    proxy_pass http://api_upstream;
+    include /etc/nginx/snippets/proxy.conf;
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+}

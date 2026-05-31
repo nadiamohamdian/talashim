@@ -1,0 +1,19 @@
+upstream web_upstream {
+  server web:3000;
+  keepalive 32;
+}
+
+upstream admin_upstream {
+  server admin:3001;
+  keepalive 16;
+}
+
+upstream api_upstream {
+  server api:4000;
+  keepalive 32;
+}
+
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  '' close;
+}
