@@ -6,7 +6,7 @@ interface FilterBarProps {
 
 export function FilterBar({ children }: FilterBarProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 dark:border-zinc-800 dark:bg-zinc-900/40 sm:flex-row sm:flex-wrap sm:items-end">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-4 shadow-[var(--shadow-soft)] sm:flex-row sm:flex-wrap sm:items-end">
       {children}
     </div>
   );

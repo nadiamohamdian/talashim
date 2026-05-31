@@ -7,7 +7,7 @@ import type {
   WalletBalances,
   WalletHistoryResponse,
 } from '@sadafgold/types';
-import type { GoldTickerPayload } from '@sadafgold/shared';
+import { buildFallbackGoldTicker, type GoldTickerPayload } from '@sadafgold/shared';
 import { apiGet, apiPost } from '@/lib/api/client';
 
 export interface MarketTradePayload {
@@ -59,14 +59,22 @@ export const marketApi = {
   },
 
   async getGoldTicker(signal?: AbortSignal): Promise<GoldTickerPayload> {
-    const response = await fetch('/api/market/gold-ticker', {
-      cache: 'no-store',
-      signal,
-    });
-    if (!response.ok) {
-      throw new Error('دریافت قیمت طلا ناموفق بود');
+    try {
+      const response = await fetch('/api/market/gold-ticker', {
+        cache: 'no-store',
+        signal,
+      });
+      if (!response.ok) {
+        return buildFallbackGoldTicker();
+      }
+      const payload = (await response.json()) as GoldTickerPayload;
+      if (!payload.items?.length) {
+        return buildFallbackGoldTicker();
+      }
+      return payload;
+    } catch {
+      return buildFallbackGoldTicker();
     }
-    return response.json() as Promise<GoldTickerPayload>;
   },
 
   getWalletBalances(userId: string, signal?: AbortSignal): Promise<WalletBalances> {
@@ -110,14 +118,12 @@ export const marketApi = {
   },
 };
 
-export const {
-  getLivePrice,
-  getPriceHistory,
-  getMarketPrices,
-  getGoldTicker,
-  getWalletBalances,
-  getWalletTransactions,
-  executeMarketBuy,
-  executeMarketSell,
-  getTradeHistory,
-} = marketApi;
+export const getLivePrice = marketApi.getLivePrice.bind(marketApi);
+export const getPriceHistory = marketApi.getPriceHistory.bind(marketApi);
+export const getMarketPrices = marketApi.getMarketPrices.bind(marketApi);
+export const getGoldTicker = marketApi.getGoldTicker.bind(marketApi);
+export const getWalletBalances = marketApi.getWalletBalances.bind(marketApi);
+export const getWalletTransactions = marketApi.getWalletTransactions.bind(marketApi);
+export const executeMarketBuy = marketApi.executeMarketBuy.bind(marketApi);
+export const executeMarketSell = marketApi.executeMarketSell.bind(marketApi);
+export const getTradeHistory = marketApi.getTradeHistory.bind(marketApi);

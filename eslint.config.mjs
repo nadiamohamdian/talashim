@@ -1,6 +1,6 @@
-import { createBaseConfig } from "./packages/eslint-config/base.mjs";
+import { createBaseConfig } from './packages/eslint-config/base.mjs';
 
 export default createBaseConfig({
   tsconfigRootDir: import.meta.dirname,
-  ignores: [".husky/**"]
+  ignores: ['.husky/**'],
 });

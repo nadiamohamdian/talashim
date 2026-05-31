@@ -2,56 +2,91 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { Button } from '@sadafgold/ui';
-import { adminEnv } from '@/shared/config/env';
+import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
+import { ADMIN_NAV_SECTIONS, type ApiAvailability } from '@/shared/config/admin-navigation';
+import { isNavItemActive } from '@/shared/lib/admin-route-resolver';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 
-const links = [
-  { href: '/', label: 'داشبورد' },
-  { href: '/users', label: 'کاربران' },
-  { href: '/kyc', label: 'احراز هویت' },
-  { href: '/transactions', label: 'تراکنش‌ها' },
-  { href: '/wallets', label: 'کیف پول' },
-  { href: '/audit', label: 'لاگ ممیزی' },
-] as const;
+const availabilityDot: Record<ApiAvailability, string> = {
+  live: 'bg-emerald-500',
+  partial: 'bg-amber-500',
+  pending: 'bg-nude-300',
+};
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  onNavigate?: () => void;
+}
+
+export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
   const clearSession = useAdminAuthStore((s) => s.clearSession);
   const user = useAdminAuthStore((s) => s.user);
+  const hasPermission = useAdminAuthStore((s) => s.hasPermission);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   return (
-    <aside className="flex h-full flex-col border-l border-stone-200 bg-zinc-950 text-zinc-100 dark:border-zinc-800">
-      <div className="border-b border-zinc-800 p-6">
-        <p className="text-xs uppercase tracking-[0.2em] text-amber-400">Enterprise</p>
-        <h1 className="mt-1 text-lg font-bold">{adminEnv.NEXT_PUBLIC_ADMIN_APP_NAME}</h1>
-        {user ? <p className="mt-2 truncate text-xs text-zinc-400">{user.email}</p> : null}
+    <aside className="flex h-full flex-col bg-nude-50 text-foreground">
+      <div className="border-b border-border bg-white/80 p-4">
+        <p className="text-xs text-muted">کاربر فعال</p>
+        {user ? (
+          <p className="mt-1 truncate text-sm font-medium text-stone-800">{user.email}</p>
+        ) : null}
       </div>
-      <nav className="flex-1 space-y-1 p-4">
-        {links.map((link) => {
-          const active =
-            link.href === '/'
-              ? pathname === '/'
-              : pathname.startsWith(link.href);
+
+      <nav className="flex-1 overflow-y-auto p-3" aria-label="منوی اصلی">
+        {ADMIN_NAV_SECTIONS.map((section) => {
+          const isSectionCollapsed = collapsed[section.id];
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`block rounded-xl px-4 py-2.5 text-sm font-medium transition ${
-                active
-                  ? 'bg-amber-500/15 text-amber-300'
-                  : 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100'
-              }`}
-            >
-              {link.label}
-            </Link>
+            <div key={section.id} className="mb-4">
+              <button
+                type="button"
+                className="mb-1 flex w-full items-center justify-between px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted hover:text-stone-700"
+                onClick={() =>
+                  setCollapsed((prev) => ({ ...prev, [section.id]: !prev[section.id] }))
+                }
+              >
+                {section.label}
+                <span className="text-nude-300">{isSectionCollapsed ? '+' : '−'}</span>
+              </button>
+              {!isSectionCollapsed ? (
+                <ul className="space-y-0.5">
+                  {section.items
+                    .filter((item) => hasPermission(item.permission as AdminPermissionKey))
+                    .map((item) => {
+                      const active = isNavItemActive(pathname, item.href);
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={onNavigate}
+                            className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${
+                              active
+                                ? 'border border-gold-light bg-white font-medium text-gold-dark shadow-sm'
+                                : 'text-stone-600 hover:bg-white/70 hover:text-stone-900'
+                            }`}
+                          >
+                            <span
+                              className={`h-1.5 w-1.5 shrink-0 rounded-full ${availabilityDot[item.availability]}`}
+                              title={item.availability}
+                            />
+                            <span className="truncate">{item.label}</span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                </ul>
+              ) : null}
+            </div>
           );
         })}
       </nav>
-      <div className="p-4">
+
+      <div className="border-t border-border bg-white/80 p-4">
         <Button
           variant="outline"
-          className="w-full border-zinc-700 text-zinc-200"
+          className="w-full border-border bg-white text-stone-700 hover:border-gold-light hover:bg-nude-50"
           onClick={() => {
             clearSession();
             window.location.href = '/login';

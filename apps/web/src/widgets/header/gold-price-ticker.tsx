@@ -13,8 +13,9 @@ function findPrimaryGold18(items: GoldTickerPayload['items']) {
 }
 
 export function GoldPriceTicker() {
-  const { data, isLoading } = useGoldTicker();
+  const { data, isPending } = useGoldTicker();
   const primary = data?.items ? findPrimaryGold18(data.items) : undefined;
+  const loading = isPending && !primary;
 
   return (
     <div
@@ -24,7 +25,7 @@ export function GoldPriceTicker() {
     >
       <div className="container-store flex items-center justify-center gap-2 py-2.5 text-sm">
         <span className="badge-gold hidden sm:inline-flex">قیمت روز</span>
-        {isLoading ? (
+        {loading ? (
           <span className="text-muted">در حال دریافت قیمت طلا...</span>
         ) : primary ? (
           <span>

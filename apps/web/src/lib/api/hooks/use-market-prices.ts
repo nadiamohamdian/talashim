@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { buildFallbackGoldTicker } from '@sadafgold/shared';
 import { marketApi } from '@/lib/api/market.api';
 import { queryKeys, type MarketHistoryParams, type MarketPriceParams } from '@/lib/api/query-keys';
 import { subscribeLivePrice } from '@/features/trading/lib/pricing-socket';
@@ -58,9 +59,10 @@ export function useGoldTicker() {
   return useQuery({
     queryKey: queryKeys.market.ticker(),
     queryFn: ({ signal }) => marketApi.getGoldTicker(signal),
+    placeholderData: buildFallbackGoldTicker(),
     refetchInterval: 60_000,
     staleTime: 30_000,
-    retry: 2,
+    retry: 1,
   });
 }
 

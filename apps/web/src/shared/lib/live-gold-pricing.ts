@@ -1,5 +1,6 @@
+import { buildFallbackGoldTicker } from '@sadafgold/shared';
 import type { ProductDetails, ProductPricing, ProductSummary } from '@sadafgold/types';
-import { serverFetch } from '@/lib/api/client';
+import { isApiUnreachableError, serverFetch } from '@/lib/api/client';
 
 function calculateJewelryPricing(input: {
   weightGram: number;
@@ -40,16 +41,31 @@ function formatPricingBreakdown(pricing: ProductPricing, weightGram: number) {
 
 export { formatPricingBreakdown };
 
+function getDevFallbackGoldPricePerGram(karat = 18): number {
+  const fallback = buildFallbackGoldTicker();
+  const quote =
+    fallback.items.find((item) => item.symbol === (karat >= 24 ? 'IR_GOLD_24K' : 'IR_GOLD_18K')) ??
+    fallback.items[0];
+  return quote?.price ?? 8_500_000;
+}
+
 export async function getLiveGoldPricePerGram(karat = 18): Promise<number> {
-  const live = await serverFetch<{ pricePerGram: string }>(
-    `/pricing/live?karat=${karat}&symbol=XAU-IRR`,
-    { revalidate: 30 },
-  );
-  const price = Number(live.pricePerGram);
-  if (!Number.isFinite(price) || price <= 0) {
-    throw new Error('Live gold price unavailable');
+  try {
+    const live = await serverFetch<{ pricePerGram: string }>(
+      `/pricing/live?karat=${karat}&symbol=XAU-IRR`,
+      { revalidate: 30, preserveConnectionError: true },
+    );
+    const price = Number(live.pricePerGram);
+    if (!Number.isFinite(price) || price <= 0) {
+      throw new Error('Live gold price unavailable');
+    }
+    return price;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development' && isApiUnreachableError(error)) {
+      return getDevFallbackGoldPricePerGram(karat);
+    }
+    throw error;
   }
-  return price;
 }
 
 export function buildProductPricing(
@@ -88,9 +104,7 @@ export function buildSpecifications(
   product: ProductSummary,
   pricing?: ProductPricing,
 ): Record<string, string> {
-  const metalValue = pricing
-    ? Math.round(product.weightGram * pricing.livePriceToman)
-    : undefined;
+  const metalValue = pricing ? Math.round(product.weightGram * pricing.livePriceToman) : undefined;
 
   return {
     وزن: `${product.weightGram} گرم`,
@@ -100,9 +114,7 @@ export function buildSpecifications(
     'قیمت هر گرم (لحظه‌ای)': pricing
       ? `${pricing.livePriceToman.toLocaleString('fa-IR')} تومان`
       : '—',
-    'ارزش خام طلا': metalValue
-      ? `${metalValue.toLocaleString('fa-IR')} تومان`
-      : '—',
+    'ارزش خام طلا': metalValue ? `${metalValue.toLocaleString('fa-IR')} تومان` : '—',
     'مبلغ اجرت': pricing?.wageFixedToman
       ? `${pricing.wageFixedToman.toLocaleString('fa-IR')} تومان`
       : '—',

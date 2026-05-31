@@ -1,13 +1,60 @@
 @import "tailwindcss";
 
+/* Admin is always light — ignore OS dark mode for `dark:` utilities */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #f4f4f5;
-  --foreground: #09090b;
+  --background: #ffffff;
+  --foreground: #3d3630;
+  --card: #faf6f2;
+  --muted: #8a7f75;
+  --border: #ebe3da;
+  --nude-50: #f5ede6;
+  --nude-100: #ebe0d6;
+  --nude-200: #ddd0c4;
+  --nude-300: #c9b8a8;
+  --rose-nude: #d4b5a8;
+  --gold: #c4a265;
+  --gold-light: #e8d5b5;
+  --gold-dark: #9a7b4f;
+  --accent: #9a7b4f;
+  --accent-hover: #826842;
+  --header-bg: rgba(255, 255, 255, 0.92);
+  --topbar-bg: linear-gradient(90deg, #f5ede6 0%, #faf6f2 50%, #f5ede6 100%);
+  --shadow-soft: 0 2px 16px rgba(61, 54, 48, 0.06);
+  --shadow-card: 0 4px 24px rgba(61, 54, 48, 0.06);
+  --shadow-hover: 0 12px 40px rgba(154, 123, 79, 0.1);
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --sidebar-width: 18rem;
 }
 
-.dark {
-  --background: #09090b;
-  --foreground: #fafafa;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-nude-50: var(--nude-50);
+  --color-nude-100: var(--nude-100);
+  --color-nude-200: var(--nude-200);
+  --color-nude-300: var(--nude-300);
+  --color-rose-nude: var(--rose-nude);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --font-sans: var(--font-sans-primary), 'IBM Plex Sans Arabic', Tahoma, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
 }
 
 body {
@@ -15,4 +62,89 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Nude page canvas */
+.admin-canvas {
+  background: var(--background);
+}
+
+.header-glass {
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.card-luxury {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-card-nude {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #ffffff 0%, var(--nude-50) 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fffbf7;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+}
+
+.btn-gold:hover {
+  filter: brightness(1.05);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+.badge-gold {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--nude-50);
+  padding: 0.125rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--gold-dark);
+  border: 1px solid var(--gold-light);
+}
+
+.section-heading {
+  position: relative;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.02em;
+}
+
+.section-heading::after {
+  content: "";
+  display: block;
+  margin-top: 0.5rem;
+  height: 2px;
+  width: 3rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+}
+
+* {
+  scrollbar-color: var(--nude-200) var(--nude-50);
+  scrollbar-width: thin;
 }

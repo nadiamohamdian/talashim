@@ -28,15 +28,6 @@
     "deploy": "bash scripts/deploy.sh",
     "deploy:health": "bash scripts/health-check.sh"
   },
-  "lint-staged": {
-    "*.{js,cjs,mjs,ts,tsx}": [
-      "eslint --fix --max-warnings=0",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "pnpm": {
     "overrides": {
       "react": "19.2.6",

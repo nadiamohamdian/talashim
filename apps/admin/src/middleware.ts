@@ -2,30 +2,32 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const ADMIN_COOKIE = 'sg-admin-access-token';
+const LOGIN_PATH = '/login';
 
-/** Dashboard routes only — not a global catch-all. */
-const PROTECTED_PREFIXES = [
-  '/',
-  '/users',
-  '/kyc',
-  '/transactions',
-  '/wallets',
-  '/audit',
-] as const;
+function isPublicPath(pathname: string): boolean {
+  return pathname === LOGIN_PATH || pathname.startsWith(`${LOGIN_PATH}/`);
+}
 
-function isProtectedAdminPath(pathname: string): boolean {
-  return PROTECTED_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+function isStaticAsset(pathname: string): boolean {
+  return (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/favicon') ||
+    /\.[a-zA-Z0-9]+$/.test(pathname)
   );
 }
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get(ADMIN_COOKIE)?.value;
   const { pathname } = request.nextUrl;
-  const isLogin = pathname === '/login' || pathname.startsWith('/login/');
 
-  if (isProtectedAdminPath(pathname) && !isLogin && !token) {
-    const loginUrl = new URL('/login', request.url);
+  if (isStaticAsset(pathname)) {
+    return NextResponse.next();
+  }
+
+  const token = request.cookies.get(ADMIN_COOKIE)?.value;
+  const isLogin = isPublicPath(pathname);
+
+  if (!isLogin && !token) {
+    const loginUrl = new URL(LOGIN_PATH, request.url);
     if (pathname !== '/') {
       loginUrl.searchParams.set('next', pathname);
     }
@@ -42,14 +44,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/',
-    '/login',
-    '/login/:path*',
-    '/users/:path*',
-    '/kyc/:path*',
-    '/transactions/:path*',
-    '/wallets/:path*',
-    '/audit/:path*',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

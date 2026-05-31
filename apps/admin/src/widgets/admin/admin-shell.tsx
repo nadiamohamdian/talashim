@@ -1,39 +1,44 @@
 'use client';
 
-import type { PropsWithChildren } from 'react';
+import { useState, type PropsWithChildren } from 'react';
 import { AdminGuard } from '@/features/auth/components/admin-guard';
 import { AdminSidebar } from './admin-sidebar';
+import { AdminTopbar } from './admin-topbar';
+import { AdminStoreHeader } from './admin-store-header';
 
 export function AdminShell({ children }: PropsWithChildren) {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <AdminGuard>
-      <div className="flex min-h-screen bg-stone-100 dark:bg-zinc-950">
-        <div className="hidden w-64 shrink-0 lg:block">
-          <AdminSidebar />
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="border-b border-stone-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900 lg:hidden">
-            <p className="text-sm font-semibold text-stone-900 dark:text-zinc-100">منوی ادمین</p>
-            <nav className="mt-2 flex gap-2 overflow-x-auto pb-1 text-xs">
-              {[
-                { href: '/', label: 'داشبورد' },
-                { href: '/users', label: 'کاربران' },
-                { href: '/kyc', label: 'KYC' },
-                { href: '/transactions', label: 'تراکنش' },
-                { href: '/wallets', label: 'کیف' },
-                { href: '/audit', label: 'لاگ' },
-              ].map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="whitespace-nowrap rounded-lg bg-stone-100 px-3 py-1.5 dark:bg-zinc-800"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-          </header>
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
+      <div className="flex min-h-screen flex-col bg-white">
+        <AdminStoreHeader />
+
+        <div className="flex min-h-0 flex-1 bg-white">
+          <div className="hidden w-72 shrink-0 border-l border-border lg:block">
+            <div className="sticky top-14 h-[calc(100vh-3.5rem)] bg-nude-50">
+              <AdminSidebar />
+            </div>
+          </div>
+
+          {mobileNavOpen ? (
+            <div className="fixed inset-0 z-40 lg:hidden">
+              <button
+                type="button"
+                className="absolute inset-0 bg-stone-900/30"
+                aria-label="بستن منو"
+                onClick={() => setMobileNavOpen(false)}
+              />
+              <div className="absolute inset-y-0 right-0 w-72 max-w-[85vw] border-l border-border bg-nude-50 shadow-xl">
+                <AdminSidebar onNavigate={() => setMobileNavOpen(false)} />
+              </div>
+            </div>
+          ) : null}
+
+          <div className="flex min-w-0 flex-1 flex-col bg-white">
+            <AdminTopbar onOpenSidebar={() => setMobileNavOpen(true)} />
+            <main className="flex-1 bg-white px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+          </div>
         </div>
       </div>
     </AdminGuard>

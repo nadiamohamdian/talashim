@@ -3,24 +3,26 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { Alert, Button, Card, Input, Label } from '@sadafgold/ui';
-import {
-  passwordLoginSchema,
-  type PasswordLoginValues,
-} from '@sadafgold/shared/validation/auth';
+import { Alert, Input, Label } from '@sadafgold/ui';
+import { passwordLoginSchema, type PasswordLoginValues } from '@sadafgold/shared/validation/auth';
+import { isAdminDevLoginEnabled } from '@/shared/config/env';
 import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { adminLogin } from '../api/auth-api';
 import { useAdminAuthStore } from '../model/admin-auth-store';
 
 export function AdminLoginForm() {
   const router = useRouter();
+  const devLogin = isAdminDevLoginEnabled();
   const setSession = useAdminAuthStore((s) => s.setSession);
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-  } = useForm<PasswordLoginValues>({ resolver: zodResolver(passwordLoginSchema) });
+  } = useForm<PasswordLoginValues>({
+    resolver: zodResolver(passwordLoginSchema),
+    defaultValues: { email: 'admin@sadafgold.local', password: 'test1234' },
+  });
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -35,27 +37,59 @@ export function AdminLoginForm() {
   });
 
   return (
-    <Card className="w-full max-w-md p-8">
-      <p className="text-xs uppercase tracking-[0.2em] text-amber-600">Enterprise Admin</p>
-      <h1 className="mt-2 text-2xl font-bold">ورود پنل مدیریت</h1>
-      <form className="mt-6 space-y-4" onSubmit={onSubmit}>
+    <div className="card-luxury w-full max-w-md p-6 sm:p-8">
+      <p className="text-sm font-medium text-amber-800">پنل مدیریت</p>
+      <h1 className="mt-3 text-2xl font-bold text-stone-950 sm:text-3xl">
+        ورود به Sadaf Gold Admin
+      </h1>
+      <p className="mt-3 text-sm leading-7 text-stone-600">
+        مدیریت محصولات، سفارش‌ها، معاملات طلا و عملیات پلتفرم.
+      </p>
+
+      {devLogin ? (
+        <Alert className="mt-4 border-amber-200/80 bg-amber-50/90 text-amber-950">
+          حالت تست: با هر ایمیل و رمز عبور می‌توانید وارد شوید. برای محدود کردن،{' '}
+          <code className="text-xs">NEXT_PUBLIC_ADMIN_DEV_LOGIN=false</code> تنظیم کنید.
+        </Alert>
+      ) : null}
+
+      <form className="mt-6 space-y-4" onSubmit={(event) => void onSubmit(event)}>
         <div>
           <Label htmlFor="email">ایمیل</Label>
-          <Input id="email" type="email" className="mt-2" {...register('email')} />
-          {errors.email ? <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p> : null}
+          <Input
+            id="email"
+            type="email"
+            className="mt-2 border-border bg-card"
+            placeholder="admin@sadafgold.local"
+            {...register('email')}
+          />
+          {errors.email ? (
+            <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p>
+          ) : null}
         </div>
         <div>
           <Label htmlFor="password">رمز عبور</Label>
-          <Input id="password" type="password" className="mt-2" {...register('password')} />
+          <Input
+            id="password"
+            type="password"
+            className="mt-2 border-border bg-card"
+            placeholder="هر رمزی برای تست"
+            {...register('password')}
+          />
           {errors.password ? (
             <p className="mt-1 text-xs text-rose-600">{errors.password.message}</p>
           ) : null}
         </div>
         {errors.root ? <Alert variant="destructive">{errors.root.message}</Alert> : null}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'در حال ورود...' : 'ورود'}
-        </Button>
+        <button type="submit" className="btn-gold w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'در حال ورود...' : 'ورود به پنل'}
+        </button>
+        <p className="text-center text-xs text-stone-500">
+          <a href="http://localhost:3001" className="font-semibold text-amber-800 hover:underline">
+            بازگشت به فروشگاه
+          </a>
+        </p>
       </form>
-    </Card>
+    </div>
   );
 }

@@ -15,13 +15,11 @@ export function fetchAnalytics() {
 }
 
 export function fetchUsers(params: { page?: number; search?: string; role?: string }) {
-  return axiosClient
-    .get<AdminPaginated<AdminUser>>('/admin/users', { params })
-    .then((r) => r.data);
+  return axiosClient.get<AdminPaginated<AdminUser>>('/admin/users', { params }).then((r) => r.data);
 }
 
 export function updateUserRole(userId: string, role: 'CUSTOMER' | 'ADMIN') {
-  return axiosClient.patch(`/admin/users/${userId}/role`, { role }).then((r) => r.data);
+  return axiosClient.patch<AdminUser>(`/admin/users/${userId}/role`, { role }).then((r) => r.data);
 }
 
 export function fetchKyc(params: { page?: number; status?: string }) {
@@ -30,15 +28,14 @@ export function fetchKyc(params: { page?: number; status?: string }) {
     .then((r) => r.data);
 }
 
-export function reviewKyc(id: string, payload: { status: 'APPROVED' | 'REJECTED'; reviewNote?: string }) {
-  return axiosClient.patch(`/admin/kyc/${id}/review`, payload).then((r) => r.data);
+export function reviewKyc(
+  id: string,
+  payload: { status: 'APPROVED' | 'REJECTED'; reviewNote?: string },
+) {
+  return axiosClient.patch<AdminKycItem>(`/admin/kyc/${id}/review`, payload).then((r) => r.data);
 }
 
-export function fetchWalletTransactions(params: {
-  page?: number;
-  type?: string;
-  userId?: string;
-}) {
+export function fetchWalletTransactions(params: { page?: number; type?: string; userId?: string }) {
   return axiosClient
     .get<AdminPaginated<AdminWalletTransaction>>('/admin/transactions/wallet', { params })
     .then((r) => r.data);
