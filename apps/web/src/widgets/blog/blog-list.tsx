@@ -1,6 +1,6 @@
-import Link from "next/link";
-import { Card } from "@sadafgold/ui";
-import type { BlogPostSummary } from "@sadafgold/types";
+import Link from 'next/link';
+import { Card } from '@sadafgold/ui';
+import type { BlogPostSummary } from '@sadafgold/types';
 
 interface BlogListProps {
   posts: BlogPostSummary[];
@@ -13,7 +13,7 @@ export function BlogList({ posts }: BlogListProps) {
         <Link key={post.id} href={`/blog/${post.slug}`}>
           <Card className="h-full p-6 transition hover:-translate-y-1 hover:shadow-lg">
             <p className="text-xs font-medium text-amber-700">
-              {new Intl.DateTimeFormat("fa-IR", { dateStyle: "medium" }).format(
+              {new Intl.DateTimeFormat('fa-IR', { dateStyle: 'medium' }).format(
                 new Date(post.publishedAt),
               )}
             </p>

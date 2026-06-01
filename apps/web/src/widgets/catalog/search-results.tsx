@@ -16,9 +16,7 @@ export function SearchResults({ query }: SearchResultsProps) {
   });
 
   if (query.length < 2) {
-    return (
-      <p className="text-sm text-muted">برای جستجو حداقل ۲ کاراکتر وارد کنید.</p>
-    );
+    return <p className="text-sm text-muted">برای جستجو حداقل ۲ کاراکتر وارد کنید.</p>;
   }
 
   if (isLoading) {
@@ -41,7 +39,9 @@ export function SearchResults({ query }: SearchResultsProps) {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted">{data.total} نتیجه برای «{query}»</p>
+      <p className="text-sm text-muted">
+        {data.total} نتیجه برای «{query}»
+      </p>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {data.items.map((product) => (
           <ProductCard key={product.id} product={product} />

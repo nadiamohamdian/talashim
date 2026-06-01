@@ -22,8 +22,8 @@ export function PromoHero() {
             <span className="mt-1 block text-gold-dark">در هر قطعه طلا</span>
           </h1>
           <p className="max-w-md text-sm leading-8 text-muted md:text-base">
-            گالری طلای صدف — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز،
-            وزن دقیق و خرید آنلاین امن.
+            گالری طلای صدف — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین
+            امن.
           </p>
           <div className="flex flex-wrap gap-3 pt-1">
             <Link href="/products" className="btn-gold px-7 py-3">

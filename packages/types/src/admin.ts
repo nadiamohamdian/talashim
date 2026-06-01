@@ -31,6 +31,13 @@ export interface AdminKycItem {
   user: { id: string; email: string; fullName: string };
 }
 
+export interface AdminWalletTransactionEntry {
+  accountCode: string;
+  side: string;
+  amount: string;
+  assetType: string;
+}
+
 export interface AdminWalletTransaction {
   id: string;
   reference: string;
@@ -40,6 +47,7 @@ export interface AdminWalletTransaction {
   userId: string | null;
   user: { id: string; email: string; fullName: string } | null;
   createdAt: string;
+  entries?: AdminWalletTransactionEntry[];
 }
 
 export interface AdminTradeOrder {

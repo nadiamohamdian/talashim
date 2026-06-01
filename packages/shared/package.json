@@ -4,7 +4,9 @@
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -45,6 +47,10 @@
     "./constants/auth": {
       "types": "./dist/constants/auth.d.ts",
       "default": "./dist/constants/auth.js"
+    },
+    "./admin-rbac": {
+      "types": "./dist/admin-rbac/index.d.ts",
+      "default": "./dist/admin-rbac/index.js"
     }
   },
   "scripts": {

@@ -4,7 +4,7 @@ export const platformConfig = {
   description: 'Luxury gold trading and e-commerce platform for retail and wholesale experiences.',
   locale: 'fa-IR',
   direction: 'rtl' as const,
-  currencyLabel: 'تومان'
+  currencyLabel: 'تومان',
 } as const;
 
 export const platformModules = [
@@ -13,5 +13,5 @@ export const platformModules = [
   'Inventory',
   'Customers',
   'Pricing',
-  'Content'
+  'Content',
 ] as const;

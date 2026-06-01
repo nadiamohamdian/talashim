@@ -8,6 +8,7 @@ import {
   GoldTradeStatus,
   LedgerSide,
   WalletAssetType,
+  WalletTransactionStatus,
   WalletTransactionType,
 } from '@/generated/prisma';
 import { getApiEnv } from '@/config/env';
@@ -67,7 +68,100 @@ export class TradingService {
     };
   }
 
-  private async executeMarketTrade(payload: MarketTradeDto, side: GoldTradeSide) {
+  async adminSettlePendingOrder(orderId: string, actorId: string) {
+    const order = await this.tradingRepository.findById(orderId);
+    if (!order) {
+      throw new NotFoundException('Trade order not found');
+    }
+    if (order.status !== GoldTradeStatus.PENDING) {
+      throw new BadRequestException(
+        'Only pending orders can be settled by admin',
+      );
+    }
+
+    const quantityGram = Number(order.quantityGram);
+    const netRial = Number(order.netRial);
+    const grossRial = Number(order.grossRial);
+    const commissionRial = Number(order.commissionRial);
+
+    await this.walletRepository.ensureUserWallets(order.userId);
+    await this.validateBalances(
+      order.userId,
+      order.side,
+      quantityGram,
+      netRial,
+    );
+    await this.tradingRepository.createAuditLog(
+      order.id,
+      TRADE_AUDIT_ACTIONS.BALANCE_VALIDATED,
+      actorId,
+      { side: order.side, admin: true },
+    );
+
+    const journal = await this.postTradeJournal({
+      userId: order.userId,
+      side: order.side,
+      quantityGram,
+      grossRial,
+      commissionRial,
+      netRial,
+      idempotencyKey: `admin-settle-${order.id}`,
+      orderId: order.id,
+      description: `Admin settlement for order ${order.orderNumber}`,
+    });
+
+    await this.tradingRepository.markFilled(order.id, journal.id);
+    await this.tradingRepository.createAuditLog(
+      order.id,
+      order.side === GoldTradeSide.BUY
+        ? TRADE_AUDIT_ACTIONS.BUY_FILLED
+        : TRADE_AUDIT_ACTIONS.SELL_FILLED,
+      actorId,
+      { walletTransactionId: journal.id, admin: true },
+    );
+    await this.tradingRepository.createAuditLog(
+      order.id,
+      TRADE_AUDIT_ACTIONS.ADMIN_SETTLED,
+      actorId,
+      { walletTransactionId: journal.id },
+    );
+
+    const detail = await this.tradingRepository.findById(order.id);
+    return this.mapOrderDetail(detail!);
+  }
+
+  async adminCancelPendingOrder(
+    orderId: string,
+    actorId: string,
+    reason?: string,
+  ) {
+    const order = await this.tradingRepository.findById(orderId);
+    if (!order) {
+      throw new NotFoundException('Trade order not found');
+    }
+    if (order.status !== GoldTradeStatus.PENDING) {
+      throw new BadRequestException(
+        'Only pending orders can be cancelled by admin',
+      );
+    }
+
+    const failureReason = reason?.trim() || 'Cancelled by administrator';
+    await this.tradingRepository.markFailed(order.id, failureReason);
+    await this.tradingRepository.createAuditLog(
+      order.id,
+      TRADE_AUDIT_ACTIONS.ADMIN_CANCELLED,
+      actorId,
+      { reason: failureReason },
+    );
+
+    const detail = await this.tradingRepository.findById(order.id);
+    return this.mapOrderDetail(detail!);
+  }
+
+  private async executeMarketTrade(
+    payload: MarketTradeDto,
+    side: GoldTradeSide,
+  ) {
     const existing = await this.tradingRepository.findByIdempotencyKey(
       payload.idempotencyKey,
     );
@@ -128,7 +222,12 @@ export class TradingService {
     );
 
     try {
-      await this.validateBalances(payload.userId, side, quantityGram, quote.netRial);
+      await this.validateBalances(
+        payload.userId,
+        side,
+        quantityGram,
+        quote.netRial,
+      );
       await this.tradingRepository.createAuditLog(
         order.id,
         TRADE_AUDIT_ACTIONS.BALANCE_VALIDATED,
@@ -152,7 +251,10 @@ export class TradingService {
             : `Market sell ${quantityGram}g gold`),
       });
 
-      const filled = await this.tradingRepository.markFilled(order.id, journal.id);
+      const filled = await this.tradingRepository.markFilled(
+        order.id,
+        journal.id,
+      );
       await this.tradingRepository.createAuditLog(
         order.id,
         side === GoldTradeSide.BUY
@@ -165,7 +267,8 @@ export class TradingService {
       const detail = await this.tradingRepository.findById(filled.id);
       return this.mapOrderDetail(detail!);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Trade execution failed';
+      const message =
+        error instanceof Error ? error.message : 'Trade execution failed';
       await this.tradingRepository.markFailed(order.id, message);
       await this.tradingRepository.createAuditLog(
         order.id,
@@ -186,7 +289,9 @@ export class TradingService {
     const codes = this.walletRepository.getUserWalletCodes(userId);
 
     if (side === GoldTradeSide.BUY) {
-      const rialAccount = await this.ledgerRepository.findAccountByCode(codes.rial);
+      const rialAccount = await this.ledgerRepository.findAccountByCode(
+        codes.rial,
+      );
       if (!rialAccount) {
         throw new NotFoundException('Rial wallet not found');
       }
@@ -194,21 +299,29 @@ export class TradingService {
         rialAccount.id,
       );
       if (rialBalance < netRial) {
-        throw new BadRequestException('Insufficient Rial balance for market buy');
+        throw new BadRequestException(
+          'Insufficient Rial balance for market buy',
+        );
       }
 
-      const vault = await this.ledgerRepository.findAccountByCode('PLATFORM_GOLD_VAULT');
+      const vault = await this.ledgerRepository.findAccountByCode(
+        'PLATFORM_GOLD_VAULT',
+      );
       if (!vault) {
         throw new NotFoundException('Platform gold vault not configured');
       }
-      const vaultBalance = await this.ledgerRepository.calculateAccountBalance(vault.id);
+      const vaultBalance = await this.ledgerRepository.calculateAccountBalance(
+        vault.id,
+      );
       if (vaultBalance < quantityGram) {
         throw new BadRequestException('Insufficient platform gold inventory');
       }
       return;
     }
 
-    const goldAccount = await this.ledgerRepository.findAccountByCode(codes.gold);
+    const goldAccount = await this.ledgerRepository.findAccountByCode(
+      codes.gold,
+    );
     if (!goldAccount) {
       throw new NotFoundException('Gold wallet not found');
     }
@@ -216,14 +329,19 @@ export class TradingService {
       goldAccount.id,
     );
     if (goldBalance < quantityGram) {
-      throw new BadRequestException('Insufficient Gold balance for market sell');
+      throw new BadRequestException(
+        'Insufficient Gold balance for market sell',
+      );
     }
 
-    const cash = await this.ledgerRepository.findAccountByCode('PLATFORM_CASH_RIAL');
+    const cash =
+      await this.ledgerRepository.findAccountByCode('PLATFORM_CASH_RIAL');
     if (!cash) {
       throw new NotFoundException('Platform cash account not configured');
     }
-    const cashBalance = await this.ledgerRepository.calculateAccountBalance(cash.id);
+    const cashBalance = await this.ledgerRepository.calculateAccountBalance(
+      cash.id,
+    );
     if (cashBalance < netRial) {
       throw new BadRequestException('Insufficient platform Rial liquidity');
     }
@@ -415,7 +533,7 @@ export class TradingService {
       id: string;
       reference: string;
       type: WalletTransactionType;
-      status: import('@/generated/prisma').WalletTransactionStatus;
+      status: WalletTransactionStatus;
       description: string | null;
       createdAt: Date;
     } | null;
@@ -443,7 +561,9 @@ export class TradingService {
         action: log.action,
         createdAt: log.createdAt.toISOString(),
         context:
-          log.context && typeof log.context === 'object' && !Array.isArray(log.context)
+          log.context &&
+          typeof log.context === 'object' &&
+          !Array.isArray(log.context)
             ? (log.context as Record<string, unknown>)
             : null,
       })),

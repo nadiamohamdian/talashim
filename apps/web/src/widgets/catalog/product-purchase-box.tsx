@@ -23,9 +23,7 @@ export function ProductPurchaseBox({ product, compact = false }: ProductPurchase
   const addWishlist = useAddWishlistMutation();
   const isWishlisted = wishlist?.some((item) => item.productId === product.id) ?? false;
   const pricing = product.pricing;
-  const breakdown = pricing
-    ? formatPricingBreakdown(pricing, product.weightGram)
-    : null;
+  const breakdown = pricing ? formatPricingBreakdown(pricing, product.weightGram) : null;
 
   const decrease = () => setQuantity((value) => Math.max(1, value - 1));
   const increase = () => setQuantity((value) => Math.min(product.inventory, value + 1));
@@ -120,7 +118,10 @@ export function ProductPurchaseBox({ product, compact = false }: ProductPurchase
             {isWishlisted ? 'در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی'}
           </button>
         ) : (
-          <Link href={buildLoginHref(`/products/${product.slug}`)} className="inline-flex items-center gap-1.5 hover:text-gold-dark">
+          <Link
+            href={buildLoginHref(`/products/${product.slug}`)}
+            className="inline-flex items-center gap-1.5 hover:text-gold-dark"
+          >
             <IconHeart className="h-4 w-4" />
             ورود برای علاقه‌مندی
           </Link>

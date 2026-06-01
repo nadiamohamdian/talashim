@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Badge, Button, Card } from "@sadafgold/ui";
+import Link from 'next/link';
+import { Badge, Button, Card } from '@sadafgold/ui';
 
 export function HeroSection() {
   return (
@@ -10,8 +10,8 @@ export function HeroSection() {
           فروشگاه طلا با معماری قابل توسعه، قیمت‌گذاری شفاف و تجربه خرید امن
         </h1>
         <p className="mt-4 max-w-2xl text-base leading-8 text-stone-300">
-          این اسکلت پروژه برای رشد سریع فیچرها طراحی شده: کاتالوگ، حساب کاربری،
-          سفارش، موجودی، محتوا و بعدا پنل ادمین و قیمت لحظه‌ای.
+          این اسکلت پروژه برای رشد سریع فیچرها طراحی شده: کاتالوگ، حساب کاربری، سفارش، موجودی، محتوا
+          و بعدا پنل ادمین و قیمت لحظه‌ای.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/products/royal-ring">

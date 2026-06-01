@@ -1,11 +1,24 @@
-import axios, {
-  type AxiosError,
-  type AxiosInstance,
-  type InternalAxiosRequestConfig,
-} from 'axios';
-import { parseApiErrorMessage } from '@sadafgold/shared/api-error';
+import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+interface ApiErrorBody {
+  message?: string | string[];
+}
+
+function parseApiErrorMessage(data: unknown, fallback = 'خطایی رخ داد'): string {
+  if (typeof data !== 'object' || data === null || !('message' in data)) {
+    return fallback;
+  }
+  const payload = (data as ApiErrorBody).message;
+  if (typeof payload === 'string') {
+    return payload;
+  }
+  if (Array.isArray(payload) && typeof payload[0] === 'string') {
+    return payload[0];
+  }
+  return fallback;
+}
 
 export interface ApiClientOptions {
   baseURL: string;

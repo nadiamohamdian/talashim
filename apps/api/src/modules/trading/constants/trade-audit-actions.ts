@@ -4,4 +4,6 @@ export const TRADE_AUDIT_ACTIONS = {
   SELL_FILLED: 'trade.sell.filled',
   ORDER_FAILED: 'trade.order.failed',
   BALANCE_VALIDATED: 'trade.balance.validated',
+  ADMIN_SETTLED: 'trade.admin.settled',
+  ADMIN_CANCELLED: 'trade.admin.cancelled',
 } as const;
