@@ -1,39 +1,19 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
-import { OrderStatus } from '@/generated/prisma';
-import type {
-  AdminOrderDetailDto,
-  AdminOrderListItemDto,
-} from '@sadafgold/types';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
+import type { AdminOrderDetailDto, AdminOrderListItemDto } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
+import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 import type {
   AdminOrdersQueryDto,
   UpdateAdminOrderStatusDto,
 } from '../dto/admin-commerce.dto';
 import { AdminOrdersRepository } from '../repositories/admin-orders.repository';
 
-type OrderListRow = Awaited<
-  ReturnType<AdminOrdersRepository['listOrders']>
->[0][number];
+type OrderListRow = Awaited<ReturnType<AdminOrdersRepository['listOrders']>>[0][number];
 type OrderDetailRow = NonNullable<
   Awaited<ReturnType<AdminOrdersRepository['findOrderById']>>
 >;
-
-const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  [OrderStatus.PENDING]: [
-    OrderStatus.CONFIRMED,
-    OrderStatus.PAID,
-    OrderStatus.CANCELLED,
-  ],
-  [OrderStatus.CONFIRMED]: [OrderStatus.PAID, OrderStatus.CANCELLED],
-  [OrderStatus.PAID]: [OrderStatus.CANCELLED],
-  [OrderStatus.CANCELLED]: [],
-};
 
 @Injectable()
 export class AdminOrdersService {
@@ -61,10 +41,7 @@ export class AdminOrdersService {
     };
   }
 
-  async getOrder(
-    id: string,
-    actor: AuthenticatedUser,
-  ): Promise<AdminOrderDetailDto> {
+  async getOrder(id: string, actor: AuthenticatedUser): Promise<AdminOrderDetailDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.orders.read);
 
     const order = await this.ordersRepository.findOrderById(id);
@@ -87,17 +64,7 @@ export class AdminOrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    const allowed = ALLOWED_TRANSITIONS[order.status] ?? [];
-    if (!allowed.includes(dto.status) && order.status !== dto.status) {
-      throw new BadRequestException(
-        `Cannot transition from ${order.status} to ${dto.status}`,
-      );
-    }
-
-    const updated = await this.ordersRepository.updateOrderStatus(
-      id,
-      dto.status,
-    );
+    const updated = await this.ordersRepository.updateOrderStatus(id, dto.status);
     return this.mapDetail(updated);
   }
 
@@ -106,10 +73,11 @@ export class AdminOrdersService {
       id: order.id,
       orderNumber: order.orderNumber,
       status: order.status,
-      subtotalToman: order.subtotalToman,
-      taxToman: order.taxToman,
-      totalToman: order.totalToman,
+      subtotalToman: tomanBigIntToNumber(order.subtotalToman),
+      taxToman: tomanBigIntToNumber(order.taxToman),
+      totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order._count.items,
+      paymentStatus: order.payments[0]?.status ?? null,
       user: order.user,
       createdAt: order.createdAt.toISOString(),
     };
@@ -120,10 +88,11 @@ export class AdminOrdersService {
       id: order.id,
       orderNumber: order.orderNumber,
       status: order.status,
-      subtotalToman: order.subtotalToman,
-      taxToman: order.taxToman,
-      totalToman: order.totalToman,
+      subtotalToman: tomanBigIntToNumber(order.subtotalToman),
+      taxToman: tomanBigIntToNumber(order.taxToman),
+      totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order.items.length,
+      paymentStatus: order.payments[0]?.status ?? null,
       user: order.user,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt.toISOString(),
@@ -134,15 +103,15 @@ export class AdminOrdersService {
         productSlug: item.product.slug,
         productSku: item.product.sku,
         quantity: item.quantity,
-        unitPriceToman: item.unitPriceToman,
-        lineTotalToman: item.quantity * item.unitPriceToman,
+        unitPriceToman: tomanBigIntToNumber(item.unitPriceToman),
+        lineTotalToman: item.quantity * tomanBigIntToNumber(item.unitPriceToman),
       })),
       payments: order.payments.map((payment) => ({
         id: payment.id,
         status: payment.status,
         provider: payment.provider,
         reference: payment.reference,
-        amountToman: payment.amountToman,
+        amountToman: tomanBigIntToNumber(payment.amountToman),
         createdAt: payment.createdAt.toISOString(),
       })),
     };

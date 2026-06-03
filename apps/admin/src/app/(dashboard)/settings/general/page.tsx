@@ -1,5 +1,10 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { GeneralSettingsForm } from '@/features/settings/components/general-settings-form';
+import { SettingsPageShell } from '@/features/settings/components/settings-page-shell';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="settings.general" />;
+  return (
+    <SettingsPageShell routeId="settings.general">
+      <GeneralSettingsForm />
+    </SettingsPageShell>
+  );
 }

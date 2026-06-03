@@ -1,4 +1,4 @@
-import { platformConfig } from '@sadafgold/shared';
+import { platformConfig } from '@talashim/shared';
 import type {
   CommerceSettings,
   FeatureFlagsSettings,

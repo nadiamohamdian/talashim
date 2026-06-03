@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { RulesPanel } from '@/features/notifications/components/rules-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="notifications.rules" />;
+  return <RulesPanel />;
 }

@@ -1,4 +1,8 @@
-export { ALL_ADMIN_PERMISSIONS, ADMIN_PERMISSIONS, type AdminPermissionKey } from './permissions';
+export {
+  ALL_ADMIN_PERMISSIONS,
+  ADMIN_PERMISSIONS,
+  type AdminPermissionKey,
+} from './permissions';
 
 export {
   ADMIN_ROLE_DEFINITIONS,

@@ -1,14 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { GoldTradeSide, GoldTradeStatus } from '@/generated/prisma';
-import {
-  IsDateString,
-  IsEnum,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDateString, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 import { PaginationQueryDto } from './admin-query.dto';
-import { TradingReportQueryDto } from './admin-reports-query.dto';
 
 export class AdminTradingOrdersQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ enum: GoldTradeSide })
@@ -49,4 +43,24 @@ export class AdminCancelTradeOrderDto {
   reason!: string;
 }
 
-export class AdminTradingReportQueryDto extends TradingReportQueryDto {}
+export class AdminTradingReportQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  from?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  to?: string;
+
+  @ApiPropertyOptional({ enum: GoldTradeSide })
+  @IsOptional()
+  @IsEnum(GoldTradeSide)
+  side?: GoldTradeSide;
+
+  @ApiPropertyOptional({ enum: GoldTradeStatus })
+  @IsOptional()
+  @IsEnum(GoldTradeStatus)
+  status?: GoldTradeStatus;
+}

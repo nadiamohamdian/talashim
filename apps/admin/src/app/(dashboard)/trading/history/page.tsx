@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { TradeOrdersPanel } from '@/features/trading/components/trade-orders-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="trading.history" />;
+  return <TradeOrdersPanel routeId="trading.history" showStatusFilter showDateFilter />;
 }

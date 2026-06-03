@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { LivePricingPanel } from '@/features/pricing/components/live-pricing-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="pricing.live" />;
+  return <LivePricingPanel />;
 }

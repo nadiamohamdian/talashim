@@ -4,8 +4,8 @@ import type {
   NotificationRuleDto,
   NotificationTemplateDto,
   StaffNotificationDto,
-} from '@sadafgold/types';
-import type { PaginatedResponse } from '@sadafgold/types';
+} from '@talashim/types';
+import type { PaginatedResponse } from '@talashim/types';
 
 export interface InboxResponse extends PaginatedResponse<StaffNotificationDto> {
   summary: { unreadCount: number; totalCount: number };
@@ -17,7 +17,9 @@ export function fetchNotificationInbox(params?: {
   channel?: string;
   category?: string;
 }) {
-  return axiosClient.get<InboxResponse>('/admin/notifications', { params }).then((r) => r.data);
+  return axiosClient
+    .get<InboxResponse>('/admin/notifications', { params })
+    .then((r) => r.data);
 }
 
 export function markNotificationRead(id: string) {
@@ -27,9 +29,7 @@ export function markNotificationRead(id: string) {
 }
 
 export function markAllNotificationsRead() {
-  return axiosClient
-    .patch<{ updated: number }>('/admin/notifications/read-all')
-    .then((r) => r.data);
+  return axiosClient.patch<{ updated: number }>('/admin/notifications/read-all').then((r) => r.data);
 }
 
 export function broadcastNotification(body: {
@@ -45,6 +45,7 @@ export function broadcastNotification(body: {
 
 export function fetchNotificationTemplates(params?: {
   page?: number;
+  limit?: number;
   search?: string;
   channel?: string;
 }) {
@@ -66,16 +67,10 @@ export function updateNotificationTemplate(id: string, body: Record<string, unkn
 }
 
 export function deleteNotificationTemplate(id: string) {
-  return axiosClient
-    .delete<{ ok: boolean }>(`/admin/notifications/templates/${id}`)
-    .then((r) => r.data);
+  return axiosClient.delete(`/admin/notifications/templates/${id}`).then((r) => r.data);
 }
 
-export function fetchNotificationRules(params?: {
-  page?: number;
-  search?: string;
-  trigger?: string;
-}) {
+export function fetchNotificationRules(params?: { page?: number; search?: string; trigger?: string }) {
   return axiosClient
     .get<PaginatedResponse<NotificationRuleDto>>('/admin/notifications/rules', { params })
     .then((r) => r.data);
@@ -94,9 +89,7 @@ export function updateNotificationRule(id: string, body: Record<string, unknown>
 }
 
 export function deleteNotificationRule(id: string) {
-  return axiosClient
-    .delete<{ ok: boolean }>(`/admin/notifications/rules/${id}`)
-    .then((r) => r.data);
+  return axiosClient.delete(`/admin/notifications/rules/${id}`).then((r) => r.data);
 }
 
 export interface DeliveryListResponse extends PaginatedResponse<NotificationDeliveryDto> {

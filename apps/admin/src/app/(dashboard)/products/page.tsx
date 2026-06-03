@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { ProductsListPanel } from '@/features/commerce/components/products-list-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="products.list" />;
+  return <ProductsListPanel />;
 }

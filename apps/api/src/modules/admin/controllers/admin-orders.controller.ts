@@ -1,21 +1,10 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { StaffRoleGuard } from '@/common/guards/staff-role.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
-import {
-  AdminOrdersQueryDto,
-  UpdateAdminOrderStatusDto,
-} from '../dto/admin-commerce.dto';
+import { AdminOrdersQueryDto, UpdateAdminOrderStatusDto } from '../dto/admin-commerce.dto';
 import { AdminOrdersService } from '../services/admin-orders.service';
 
 @ApiTags('admin-orders')
@@ -27,10 +16,7 @@ export class AdminOrdersController {
 
   @Get()
   @ApiOperation({ summary: 'List storefront orders' })
-  list(
-    @Query() query: AdminOrdersQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  list(@Query() query: AdminOrdersQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminOrdersService.listOrders(query, actor);
   }
 

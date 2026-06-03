@@ -7,8 +7,7 @@ import { RoutePermissionGuard } from '@/features/auth/components/route-permissio
 import { PageHeader } from '@/widgets/admin/page-header';
 
 const DESCRIPTIONS: Record<string, string> = {
-  'products.list':
-    'کاتالوگ تک‌فروشنده: جواهر، سکه و محصولات خرده‌فروشی (قیمت وابسته به طلای زنده).',
+  'products.list': 'مدیریت کاتالوگ طلا و جواهر — SKU، قیمت و موجودی.',
   'products.new': 'ثبت محصول جدید با موجودی اولیه.',
   'products.detail': 'جزئیات محصول، قیمت لحظه‌ای و موجودی.',
   'products.edit': 'ویرایش مشخصات و تصویر محصول.',

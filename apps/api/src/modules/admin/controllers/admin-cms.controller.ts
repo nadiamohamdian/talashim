@@ -8,9 +8,12 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { StaffRoleGuard } from '@/common/guards/staff-role.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
@@ -28,6 +31,8 @@ import {
   UpsertCmsStaticPageDto,
 } from '../dto/admin-cms.dto';
 import { AdminCmsService } from '../services/admin-cms.service';
+import type { UploadedImageFile } from '@/infrastructure/media/media-storage.service';
+import { BadRequestException } from '@nestjs/common';
 
 @ApiTags('admin-cms')
 @ApiProtected()
@@ -44,10 +49,7 @@ export class AdminCmsController {
 
   @Get('blog')
   @ApiOperation({ summary: 'List blog posts (admin)' })
-  listBlog(
-    @Query() query: AdminBlogQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listBlog(@Query() query: AdminBlogQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.listBlogPosts(query, actor);
   }
 
@@ -59,10 +61,7 @@ export class AdminCmsController {
 
   @Post('blog')
   @ApiOperation({ summary: 'Create blog post' })
-  createBlog(
-    @Body() dto: UpsertBlogPostDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  createBlog(@Body() dto: UpsertBlogPostDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.createBlogPost(dto, actor);
   }
 
@@ -84,19 +83,13 @@ export class AdminCmsController {
 
   @Get('faq')
   @ApiOperation({ summary: 'List FAQ entries' })
-  listFaq(
-    @Query() query: AdminBlogQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listFaq(@Query() query: AdminBlogQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.listFaq(query, actor);
   }
 
   @Post('faq')
   @ApiOperation({ summary: 'Create FAQ entry' })
-  createFaq(
-    @Body() dto: UpsertBlogPostDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  createFaq(@Body() dto: UpsertBlogPostDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.createFaqPost(dto, actor);
   }
 
@@ -124,28 +117,19 @@ export class AdminCmsController {
 
   @Patch('homepage')
   @ApiOperation({ summary: 'Update homepage CMS config' })
-  updateHomepage(
-    @Body() dto: UpdateCmsHomepageDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  updateHomepage(@Body() dto: UpdateCmsHomepageDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.updateHomepage(dto, actor);
   }
 
   @Get('banners')
   @ApiOperation({ summary: 'List CMS banners' })
-  listBanners(
-    @Query() query: AdminBannersQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listBanners(@Query() query: AdminBannersQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.listBanners(query, actor);
   }
 
   @Post('banners')
   @ApiOperation({ summary: 'Create banner' })
-  createBanner(
-    @Body() dto: UpsertCmsBannerDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  createBanner(@Body() dto: UpsertCmsBannerDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.createBanner(dto, actor);
   }
 
@@ -161,28 +145,19 @@ export class AdminCmsController {
 
   @Delete('banners/:id')
   @ApiOperation({ summary: 'Delete banner' })
-  deleteBanner(
-    @Param('id') id: string,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  deleteBanner(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.deleteBanner(id, actor);
   }
 
   @Get('pages')
   @ApiOperation({ summary: 'List static pages' })
-  listPages(
-    @Query() query: AdminStaticPagesQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listPages(@Query() query: AdminStaticPagesQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.listStaticPages(query, actor);
   }
 
   @Post('pages')
   @ApiOperation({ summary: 'Create static page' })
-  createPage(
-    @Body() dto: UpsertCmsStaticPageDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  createPage(@Body() dto: UpsertCmsStaticPageDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.createStaticPage(dto, actor);
   }
 
@@ -210,10 +185,7 @@ export class AdminCmsController {
 
   @Put('seo')
   @ApiOperation({ summary: 'Update global SEO settings' })
-  updateSeo(
-    @Body() dto: UpdateCmsSeoDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  updateSeo(@Body() dto: UpdateCmsSeoDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.updateSeo(dto, actor);
   }
 }
@@ -227,28 +199,43 @@ export class AdminMediaController {
 
   @Get()
   @ApiOperation({ summary: 'List media library assets' })
-  listMedia(
-    @Query() query: AdminMediaQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listMedia(@Query() query: AdminMediaQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.listMedia(query, actor);
   }
 
   @Post()
   @ApiOperation({ summary: 'Register media asset (URL)' })
-  registerMedia(
-    @Body() dto: RegisterMediaAssetDto,
+  registerMedia(@Body() dto: RegisterMediaAssetDto, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminCmsService.registerMedia(dto, actor);
+  }
+
+  @Post('upload')
+  @ApiOperation({ summary: 'Upload image file to media library' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadMedia(
+    @UploadedFile() file: UploadedImageFile | undefined,
+    @Query('folder') folder: string | undefined,
     @CurrentUser() actor: AuthenticatedUser,
   ) {
-    return this.adminCmsService.registerMedia(dto, actor);
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('فایل تصویر ارسال نشده است');
+    }
+    return this.adminCmsService.uploadMedia(
+      {
+        buffer: file.buffer,
+        mimetype: file.mimetype,
+        size: file.size,
+        originalname: file.originalname,
+      },
+      folder,
+      actor,
+    );
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete media asset' })
-  deleteMedia(
-    @Param('id') id: string,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  deleteMedia(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.deleteMedia(id, actor);
   }
 }

@@ -1,9 +1,18 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
+import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
+import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
+import { AdminSubnavLinks } from '@/features/admin/components/admin-subnav-links';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Badge, Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  Label,
+  Skeleton,
+} from '@talashim/ui';
 import {
   broadcastNotification,
   fetchNotificationInbox,
@@ -22,6 +31,9 @@ import {
 } from '../lib/labels';
 
 export function InboxPanel() {
+  const canManage = useAdminAuthStore((s) =>
+    s.hasPermission(ADMIN_PERMISSIONS.notifications.manage),
+  );
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [unreadOnly, setUnreadOnly] = useState(false);
@@ -68,39 +80,32 @@ export function InboxPanel() {
     <NotificationsPageShell
       routeId="notifications.inbox"
       actions={
-        <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href="/notifications/templates"
-            className="inline-flex h-9 items-center rounded-xl border border-border bg-white px-3 text-xs text-stone-700 hover:border-gold-light"
-          >
-            قالب‌ها
-          </Link>
-          <Link
-            href="/notifications/rules"
-            className="inline-flex h-9 items-center rounded-xl border border-border bg-white px-3 text-xs text-stone-700 hover:border-gold-light"
-          >
-            قوانین
-          </Link>
-          <Link
-            href="/notifications/delivery"
-            className="inline-flex h-9 items-center rounded-xl border border-border bg-white px-3 text-xs text-stone-700 hover:border-gold-light"
-          >
-            لاگ تحویل
-          </Link>
+        <div className="flex gap-2">
           <Button
             variant="outline"
-            className="h-9 px-3 text-xs"
+            className="h-10 px-4"
             disabled={markAllMutation.isPending}
             onClick={() => markAllMutation.mutate()}
           >
             خواندن همه
           </Button>
-          <Button className="h-9 px-3 text-xs" onClick={() => setShowBroadcast((v) => !v)}>
+          <Button className="h-10 px-4" onClick={() => setShowBroadcast((v) => !v)}>
             اعلان جدید
           </Button>
         </div>
       }
     >
+      {canManage ? (
+        <AdminSubnavLinks
+          links={[
+            { href: '/notifications', label: 'صندوق ورودی' },
+            { href: '/notifications/templates', label: 'قالب‌ها' },
+            { href: '/notifications/rules', label: 'قوانین' },
+            { href: '/notifications/delivery', label: 'لاگ ارسال' },
+          ]}
+        />
+      ) : null}
+
       {data?.summary ? (
         <div className="flex gap-4">
           <Card className="flex-1 border-border bg-white p-4">
@@ -120,11 +125,7 @@ export function InboxPanel() {
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div>
               <Label>عنوان</Label>
-              <Input
-                className="mt-1"
-                value={broadcast.title}
-                onChange={(e) => setBroadcast({ ...broadcast, title: e.target.value })}
-              />
+              <Input className="mt-1" value={broadcast.title} onChange={(e) => setBroadcast({ ...broadcast, title: e.target.value })} />
             </div>
             <div>
               <Label>نقش هدف (خالی = همه)</Label>
@@ -135,9 +136,7 @@ export function InboxPanel() {
               >
                 <option value="">همه نقش‌ها</option>
                 {Object.entries(STAFF_ROLE_FA).map(([k, l]) => (
-                  <option key={k} value={k}>
-                    {l}
-                  </option>
+                  <option key={k} value={k}>{l}</option>
                 ))}
               </select>
             </div>
@@ -150,11 +149,7 @@ export function InboxPanel() {
               />
             </div>
           </div>
-          <Button
-            className="mt-3 h-9 px-3 text-xs"
-            disabled={broadcastMutation.isPending}
-            onClick={() => broadcastMutation.mutate()}
-          >
+          <Button className="mt-3 h-9 px-3 text-xs" disabled={broadcastMutation.isPending} onClick={() => broadcastMutation.mutate()}>
             ارسال
           </Button>
         </Card>
@@ -162,31 +157,15 @@ export function InboxPanel() {
 
       <FilterBar>
         <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={unreadOnly}
-            onChange={(e) => {
-              setUnreadOnly(e.target.checked);
-              setPage(1);
-            }}
-          />
+          <input type="checkbox" checked={unreadOnly} onChange={(e) => { setUnreadOnly(e.target.checked); setPage(1); }} />
           فقط خوانده‌نشده
         </label>
         <div>
           <Label>کانال</Label>
-          <select
-            className={selectFieldClass}
-            value={channel}
-            onChange={(e) => {
-              setChannel(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select className={selectFieldClass} value={channel} onChange={(e) => { setChannel(e.target.value); setPage(1); }}>
             <option value="">همه</option>
             {Object.entries(NOTIFICATION_CHANNEL_FA).map(([k, l]) => (
-              <option key={k} value={k}>
-                {l}
-              </option>
+              <option key={k} value={k}>{l}</option>
             ))}
           </select>
         </div>
@@ -246,12 +225,7 @@ export function InboxPanel() {
       )}
 
       {data ? (
-        <PaginationBar
-          page={data.page}
-          total={data.total}
-          limit={data.limit}
-          onPageChange={setPage}
-        />
+        <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
     </NotificationsPageShell>
   );

@@ -1,5 +1,10 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { ProductFormPanel } from '@/features/commerce/components/product-form-panel';
 
-export default function Page() {
-  return <ModuleSkeletonPage routeId="products.edit" />;
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { slug } = await params;
+  return <ProductFormPanel mode="edit" slug={slug} />;
 }

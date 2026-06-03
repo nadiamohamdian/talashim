@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@sadafgold/ui';
+import { Button } from '@talashim/ui';
 
 interface SettingsFormFooterProps {
   canWrite: boolean;

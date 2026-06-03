@@ -1,4 +1,5 @@
-import type { AuthSession, UserProfile } from '@sadafgold/types';
+import { mapStaffRoleToSlug } from '../admin-rbac/roles';
+import type { AuthSession, UserProfile } from '@talashim/types';
 
 export interface ApiAuthUserDto {
   id: string;
@@ -12,18 +13,18 @@ export interface ApiAuthSessionDto {
   tokens: { accessToken: string; refreshToken: string };
 }
 
-function mapRole(role: string): UserProfile['role'] {
-  return role.toUpperCase() === 'ADMIN' ? 'admin' : 'customer';
-}
-
 export function mapApiAuthSession(data: ApiAuthSessionDto): AuthSession {
   return {
     user: {
       id: data.user.id,
       email: data.user.email,
       fullName: data.user.fullName,
-      role: mapRole(data.user.role),
+      role: mapStaffRoleToSlug(data.user.role),
     },
     tokens: data.tokens,
   };
+}
+
+export function isAdminPanelRole(role: UserProfile['role']): boolean {
+  return role !== 'customer';
 }

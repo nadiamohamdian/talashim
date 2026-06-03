@@ -1,10 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import {
-  InventoryMovementType,
-  Prisma,
-  ProductCategory,
-} from '@/generated/prisma';
+import { InventoryMovementType, Prisma, ProductCategory } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
+
+const productRelationsInclude = {
+  inventoryItem: true,
+  images: { orderBy: { sortOrder: 'asc' as const } },
+  variants: { orderBy: { sortOrder: 'asc' as const } },
+  videos: { orderBy: { sortOrder: 'asc' as const } },
+};
+
+export type ProductGalleryInput = { url: string; alt?: string; sortOrder?: number };
+export type ProductVariantInput = {
+  sku: string;
+  color?: string;
+  size?: string;
+  priceToman: number;
+  weightGram?: number;
+  makingFeePercent?: number;
+  imageUrl?: string;
+  quantity?: number;
+  sortOrder?: number;
+  isDefault?: boolean;
+};
+export type ProductVideoInput = {
+  title: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  sortOrder?: number;
+};
 
 @Injectable()
 export class AdminProductsRepository {
@@ -56,7 +79,7 @@ export class AdminProductsRepository {
   findProductById(id: string) {
     return this.prisma.product.findUnique({
       where: { id },
-      include: { inventoryItem: true },
+      include: productRelationsInclude,
     });
   }
 
@@ -64,10 +87,14 @@ export class AdminProductsRepository {
     return this.prisma.product.findUnique({ where: { sku } });
   }
 
+  findVariantBySku(sku: string) {
+    return this.prisma.productVariant.findUnique({ where: { sku } });
+  }
+
   findProductBySlug(slug: string) {
     return this.prisma.product.findUnique({
       where: { slug },
-      include: { inventoryItem: true },
+      include: productRelationsInclude,
     });
   }
 
@@ -75,12 +102,14 @@ export class AdminProductsRepository {
     data: Prisma.ProductCreateInput,
     initialQuantity: number,
     actorId: string | null,
+    relations?: {
+      galleryImages?: ProductGalleryInput[];
+      variants?: ProductVariantInput[];
+      videos?: ProductVideoInput[];
+    },
   ) {
     return this.prisma.$transaction(async (tx) => {
-      const product = await tx.product.create({
-        data,
-        include: { inventoryItem: true },
-      });
+      const product = await tx.product.create({ data });
 
       const inventory = await tx.inventoryItem.create({
         data: {
@@ -104,27 +133,109 @@ export class AdminProductsRepository {
         });
       }
 
-      return { ...product, inventoryItem: inventory };
+      await this.syncProductRelations(tx, product.id, relations);
+
+      const full = await tx.product.findUnique({
+        where: { id: product.id },
+        include: productRelationsInclude,
+      });
+
+      return { ...full!, inventoryItem: inventory };
     });
   }
 
-  updateProduct(id: string, data: Prisma.ProductUpdateInput) {
-    return this.prisma.product.update({
-      where: { id },
-      data,
-      include: { inventoryItem: true },
+  updateProduct(
+    id: string,
+    data: Prisma.ProductUpdateInput,
+    relations?: {
+      galleryImages?: ProductGalleryInput[];
+      variants?: ProductVariantInput[];
+      videos?: ProductVideoInput[];
+    },
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.product.update({ where: { id }, data });
+      if (relations) {
+        await this.syncProductRelations(tx, id, relations);
+      }
+      return tx.product.findUnique({
+        where: { id },
+        include: productRelationsInclude,
+      });
     });
+  }
+
+  private async syncProductRelations(
+    tx: Prisma.TransactionClient,
+    productId: string,
+    relations?: {
+      galleryImages?: ProductGalleryInput[];
+      variants?: ProductVariantInput[];
+      videos?: ProductVideoInput[];
+    },
+  ) {
+    if (!relations) {
+      return;
+    }
+
+    if (relations.galleryImages !== undefined) {
+      await tx.productImage.deleteMany({ where: { productId } });
+      if (relations.galleryImages.length > 0) {
+        await tx.productImage.createMany({
+          data: relations.galleryImages.map((image, index) => ({
+            productId,
+            url: image.url,
+            alt: image.alt ?? '',
+            sortOrder: image.sortOrder ?? index,
+          })),
+        });
+      }
+    }
+
+    if (relations.variants !== undefined) {
+      await tx.productVariant.deleteMany({ where: { productId } });
+      for (const [index, variant] of relations.variants.entries()) {
+        await tx.productVariant.create({
+          data: {
+            productId,
+            sku: variant.sku,
+            color: variant.color ?? null,
+            size: variant.size ?? null,
+            priceToman: variant.priceToman,
+            weightGram: variant.weightGram ?? null,
+            makingFeePercent: variant.makingFeePercent ?? null,
+            imageUrl: variant.imageUrl ?? null,
+            quantity: variant.quantity ?? 0,
+            sortOrder: variant.sortOrder ?? index,
+            isDefault: variant.isDefault ?? false,
+          },
+        });
+      }
+    }
+
+    if (relations.videos !== undefined) {
+      await tx.productVideo.deleteMany({ where: { productId } });
+      if (relations.videos.length > 0) {
+        for (const [index, video] of relations.videos.entries()) {
+          await tx.productVideo.create({
+            data: {
+              productId,
+              title: video.title,
+              videoUrl: video.videoUrl,
+              thumbnailUrl: video.thumbnailUrl ?? null,
+              sortOrder: video.sortOrder ?? index,
+            },
+          });
+        }
+      }
+    }
   }
 
   deleteProduct(id: string) {
     return this.prisma.product.delete({ where: { id } });
   }
 
-  listVideos(
-    skip: number,
-    take: number,
-    filters: { search?: string; productId?: string },
-  ) {
+  listVideos(skip: number, take: number, filters: { search?: string; productId?: string }) {
     const where: Prisma.ProductVideoWhereInput = {};
     if (filters.productId) {
       where.productId = filters.productId;
@@ -132,11 +243,7 @@ export class AdminProductsRepository {
     if (filters.search?.trim()) {
       where.OR = [
         { title: { contains: filters.search.trim(), mode: 'insensitive' } },
-        {
-          product: {
-            title: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
+        { product: { title: { contains: filters.search.trim(), mode: 'insensitive' } } },
       ];
     }
 

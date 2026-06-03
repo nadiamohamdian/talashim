@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { SettlementPanel } from '@/features/trading/components/settlement-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="trading.settlement" />;
+  return <SettlementPanel />;
 }

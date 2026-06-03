@@ -99,8 +99,7 @@ export class AdminCmsRepository {
       where.status = status as Prisma.EnumCmsBannerStatusFilter['equals'];
     }
     if (placement) {
-      where.placement =
-        placement as Prisma.EnumCmsBannerPlacementFilter['equals'];
+      where.placement = placement as Prisma.EnumCmsBannerPlacementFilter['equals'];
     }
 
     return this.prisma.$transaction([
@@ -131,9 +130,7 @@ export class AdminCmsRepository {
   }
 
   async getOrCreateHomepage() {
-    const existing = await this.prisma.cmsHomepage.findUnique({
-      where: { id: 'default' },
-    });
+    const existing = await this.prisma.cmsHomepage.findUnique({ where: { id: 'default' } });
     if (existing) {
       return existing;
     }
@@ -155,12 +152,7 @@ export class AdminCmsRepository {
     });
   }
 
-  listStaticPages(
-    skip: number,
-    take: number,
-    search?: string,
-    publishedFilter?: string,
-  ) {
+  listStaticPages(skip: number, take: number, search?: string, publishedFilter?: string) {
     const where: Prisma.CmsStaticPageWhereInput = {};
 
     if (search?.trim()) {
@@ -204,9 +196,7 @@ export class AdminCmsRepository {
   }
 
   async getOrCreateSeo() {
-    const existing = await this.prisma.cmsSeoSettings.findUnique({
-      where: { id: 'default' },
-    });
+    const existing = await this.prisma.cmsSeoSettings.findUnique({ where: { id: 'default' } });
     if (existing) {
       return existing;
     }
@@ -238,13 +228,7 @@ export class AdminCmsRepository {
     });
   }
 
-  listMedia(
-    skip: number,
-    take: number,
-    search?: string,
-    folder?: string,
-    mimeType?: string,
-  ) {
+  listMedia(skip: number, take: number, search?: string, folder?: string, mimeType?: string) {
     const where: Prisma.MediaAssetWhereInput = {};
 
     if (folder) {

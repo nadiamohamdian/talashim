@@ -14,14 +14,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
-import { createFaqEntry, deleteFaqEntry, fetchAdminFaq, updateFaqEntry } from '../api/cms-api';
+} from '@talashim/ui';
+import {
+  createFaqEntry,
+  deleteFaqEntry,
+  fetchAdminFaq,
+  updateFaqEntry,
+} from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
 import { PostEditorForm } from './post-editor-form';
-import type { AdminBlogPostDto } from '@sadafgold/types';
+import type { AdminBlogPostDto } from '@talashim/types';
 
 export function FaqPanel() {
   const [page, setPage] = useState(1);

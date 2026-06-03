@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { LoginHistoryPanel } from '@/features/security/components/login-history-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="security.loginHistory" />;
+  return <LoginHistoryPanel />;
 }

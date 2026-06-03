@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { MediaUploadPanel } from '@/features/cms/components/media-upload-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="media.upload" />;
+  return <MediaUploadPanel />;
 }

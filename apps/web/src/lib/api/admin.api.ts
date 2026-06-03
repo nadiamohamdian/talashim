@@ -7,7 +7,7 @@ import type {
   AdminUser,
   AdminWalletRow,
   AdminWalletTransaction,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import { apiGet, apiPatch } from '@/lib/api/client';
 import type { AdminUsersParams } from '@/lib/api/query-keys';
 
@@ -30,7 +30,10 @@ export const adminApi = {
     });
   },
 
-  updateUserRole(userId: string, role: 'CUSTOMER' | 'ADMIN'): Promise<AdminUser> {
+  updateUserRole(
+    userId: string,
+    role: 'CUSTOMER' | 'SUPER_ADMIN' | 'SUPPORT' | 'ACCOUNTANT' | 'EDITOR' | 'WAREHOUSE',
+  ): Promise<AdminUser> {
     return apiPatch<AdminUser>(`/admin/users/${userId}/role`, { role });
   },
 

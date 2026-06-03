@@ -7,10 +7,12 @@ export class BlogRepository {
 
   findLatest(limit = 10, categorySlug?: string) {
     return this.prisma.blogPost.findMany({
-      where: categorySlug
-        ? { category: { slug: categorySlug } }
-        : undefined,
-      orderBy: { publishedAt: 'desc' },
+      where: {
+        isPublished: true,
+        publishedAt: { lte: new Date() },
+        ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+      },
+      orderBy: [{ sortOrder: 'asc' }, { publishedAt: 'desc' }],
       take: limit,
       include: { category: true },
     });

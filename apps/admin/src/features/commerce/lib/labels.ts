@@ -1,4 +1,4 @@
-export { ORDER_STATUS_FA, PRODUCT_CATEGORY_FA, formatToman } from '@/features/reports/lib/format';
+export { ORDER_STATUS_FA, PAYMENT_STATUS_FA, PRODUCT_CATEGORY_FA, formatToman } from '@/features/reports/lib/format';
 
 export const selectFieldClass =
   'mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm';

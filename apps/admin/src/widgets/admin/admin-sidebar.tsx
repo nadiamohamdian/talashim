@@ -3,11 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from '@sadafgold/ui';
+import { Button } from '@talashim/ui';
+import { getRoleLabelFa } from '@talashim/shared/admin-rbac';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
 import { ADMIN_NAV_SECTIONS, type ApiAvailability } from '@/shared/config/admin-navigation';
 import { isNavItemActive } from '@/shared/lib/admin-route-resolver';
-import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
+import {
+  syncAdminAuthCookieFromStore,
+  useAdminAuthStore,
+} from '@/features/auth/model/admin-auth-store';
 
 const availabilityDot: Record<ApiAvailability, string> = {
   live: 'bg-emerald-500',
@@ -31,7 +35,10 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
       <div className="border-b border-border bg-white/80 p-4">
         <p className="text-xs text-muted">کاربر فعال</p>
         {user ? (
-          <p className="mt-1 truncate text-sm font-medium text-stone-800">{user.email}</p>
+          <>
+            <p className="mt-1 truncate text-sm font-medium text-stone-800">{user.email}</p>
+            <p className="mt-0.5 text-xs text-muted">{getRoleLabelFa(user.role)}</p>
+          </>
         ) : null}
       </div>
 
@@ -60,7 +67,10 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
                         <li key={item.href}>
                           <Link
                             href={item.href}
-                            onClick={onNavigate}
+                            onClick={() => {
+                              syncAdminAuthCookieFromStore();
+                              onNavigate?.();
+                            }}
                             className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${
                               active
                                 ? 'border border-gold-light bg-white font-medium text-gold-dark shadow-sm'

@@ -3,14 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import { Role } from '@/generated/prisma';
 import type {
   NotificationDeliveryDto,
   NotificationRuleDto,
   NotificationTemplateDto,
   StaffNotificationDto,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type {
@@ -26,14 +26,9 @@ import { AdminNotificationsRepository } from '../repositories/admin-notification
 
 @Injectable()
 export class AdminNotificationsService {
-  constructor(
-    private readonly notificationsRepository: AdminNotificationsRepository,
-  ) {}
+  constructor(private readonly notificationsRepository: AdminNotificationsRepository) {}
 
-  async listInbox(
-    query: AdminNotificationsInboxQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async listInbox(query: AdminNotificationsInboxQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.notifications.read);
 
     const page = query.page ?? 1;
@@ -41,18 +36,17 @@ export class AdminNotificationsService {
     const skip = (page - 1) * limit;
     const role = this.staffRole(actor.role);
 
-    const [items, total, unreadCount] =
-      await this.notificationsRepository.listInbox(
-        actor.id,
-        role,
-        skip,
-        limit,
-        {
-          unreadOnly: query.unreadOnly,
-          channel: query.channel,
-          category: query.category,
-        },
-      );
+    const [items, total, unreadCount] = await this.notificationsRepository.listInbox(
+      actor.id,
+      role,
+      skip,
+      limit,
+      {
+        unreadOnly: query.unreadOnly,
+        channel: query.channel,
+        category: query.category,
+      },
+    );
 
     return {
       page,
@@ -67,11 +61,7 @@ export class AdminNotificationsService {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.notifications.read);
 
     const role = this.staffRole(actor.role);
-    const item = await this.notificationsRepository.findInboxItem(
-      id,
-      actor.id,
-      role,
-    );
+    const item = await this.notificationsRepository.findInboxItem(id, actor.id, role);
     if (!item) {
       throw new NotFoundException('Notification not found');
     }
@@ -84,10 +74,7 @@ export class AdminNotificationsService {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.notifications.read);
 
     const role = this.staffRole(actor.role);
-    const result = await this.notificationsRepository.markAllRead(
-      actor.id,
-      role,
-    );
+    const result = await this.notificationsRepository.markAllRead(actor.id, role);
     return { updated: result.count };
   }
 
@@ -101,9 +88,7 @@ export class AdminNotificationsService {
       priority: dto.priority,
       category: dto.category ?? 'operational',
       targetRole: dto.targetRole,
-      recipient: dto.recipientUserId
-        ? { connect: { id: dto.recipientUserId } }
-        : undefined,
+      recipient: dto.recipientUserId ? { connect: { id: dto.recipientUserId } } : undefined,
     });
 
     return this.mapNotification(created);
@@ -116,14 +101,10 @@ export class AdminNotificationsService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.notificationsRepository.listTemplates(
-      skip,
-      limit,
-      {
-        search: query.search,
-        channel: query.channel,
-      },
-    );
+    const [items, total] = await this.notificationsRepository.listTemplates(skip, limit, {
+      search: query.search,
+      channel: query.channel,
+    });
 
     return {
       page,
@@ -133,15 +114,10 @@ export class AdminNotificationsService {
     };
   }
 
-  async createTemplate(
-    dto: UpsertNotificationTemplateDto,
-    actor: AuthenticatedUser,
-  ) {
+  async createTemplate(dto: UpsertNotificationTemplateDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.notifications.manage);
 
-    const existing = await this.notificationsRepository.findTemplateByKey(
-      dto.key,
-    );
+    const existing = await this.notificationsRepository.findTemplateByKey(dto.key);
     if (existing) {
       throw new ConflictException('Template key already exists');
     }
@@ -200,14 +176,10 @@ export class AdminNotificationsService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.notificationsRepository.listRules(
-      skip,
-      limit,
-      {
-        search: query.search,
-        trigger: query.trigger,
-      },
-    );
+    const [items, total] = await this.notificationsRepository.listRules(skip, limit, {
+      search: query.search,
+      trigger: query.trigger,
+    });
 
     return {
       page,
@@ -220,9 +192,7 @@ export class AdminNotificationsService {
   async createRule(dto: UpsertNotificationRuleDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.notifications.manage);
 
-    const template = await this.notificationsRepository.findTemplateById(
-      dto.templateId,
-    );
+    const template = await this.notificationsRepository.findTemplateById(dto.templateId);
     if (!template) {
       throw new NotFoundException('Template not found');
     }
@@ -238,11 +208,7 @@ export class AdminNotificationsService {
     return this.mapRule(rule);
   }
 
-  async updateRule(
-    id: string,
-    dto: UpsertNotificationRuleDto,
-    actor: AuthenticatedUser,
-  ) {
+  async updateRule(id: string, dto: UpsertNotificationRuleDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.notifications.manage);
 
     const existing = await this.notificationsRepository.findRuleById(id);
@@ -280,18 +246,13 @@ export class AdminNotificationsService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.notificationsRepository.listDeliveries(
-      skip,
-      limit,
-      {
-        status: query.status,
-        channel: query.channel,
-        search: query.search,
-      },
-    );
+    const [items, total] = await this.notificationsRepository.listDeliveries(skip, limit, {
+      status: query.status,
+      channel: query.channel,
+      search: query.search,
+    });
 
-    const statusCounts =
-      await this.notificationsRepository.countDeliveriesByStatus();
+    const statusCounts = await this.notificationsRepository.countDeliveriesByStatus();
 
     return {
       page,
@@ -367,9 +328,7 @@ export class AdminNotificationsService {
   }
 
   private mapDelivery(
-    d: Awaited<
-      ReturnType<AdminNotificationsRepository['listDeliveries']>
-    >[0][number],
+    d: Awaited<ReturnType<AdminNotificationsRepository['listDeliveries']>>[0][number],
   ): NotificationDeliveryDto {
     return {
       id: d.id,

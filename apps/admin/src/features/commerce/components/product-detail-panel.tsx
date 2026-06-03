@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { Badge, Card, Skeleton } from '@sadafgold/ui';
+import { Badge, Card, Skeleton } from '@talashim/ui';
 import { fetchAdminProductBySlug } from '../api/commerce-api';
 import { CatalogPageShell } from './catalog-page-shell';
 import { formatToman, PRODUCT_CATEGORY_FA } from '../lib/labels';
@@ -70,9 +70,53 @@ export function ProductDetailPanel({ slug }: ProductDetailPanelProps) {
                 </div>
               ) : null}
             </dl>
+
+            {data.galleryImages.length > 0 ? (
+              <div className="mt-8">
+                <h3 className="text-sm font-medium text-stone-800">گالری تصاویر</h3>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {data.galleryImages.map((image) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={image.id}
+                      src={image.url}
+                      alt={image.alt || data.title}
+                      className="aspect-square rounded-xl object-cover"
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {data.variants.length > 0 ? (
+              <div className="mt-8">
+                <h3 className="text-sm font-medium text-stone-800">واریانت‌ها</h3>
+                <div className="mt-3 space-y-2">
+                  {data.variants.map((variant) => (
+                    <div
+                      key={variant.id}
+                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border px-3 py-2 text-sm"
+                    >
+                      <div>
+                        <span className="font-mono text-xs">{variant.sku}</span>
+                        <span className="mx-2 text-stone-400">|</span>
+                        {[variant.color, variant.size].filter(Boolean).join(' — ') || '—'}
+                        {variant.isDefault ? (
+                          <Badge className="mr-2 bg-gold-50 text-gold-dark">پیش‌فرض</Badge>
+                        ) : null}
+                      </div>
+                      <div className="text-stone-600">
+                        {formatToman(variant.priceToman)} تومان — موجودی {variant.quantity}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </Card>
           <Card className="border-border bg-white p-6">
             {data.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={data.imageUrl}
                 alt={data.title}
@@ -88,7 +132,9 @@ export function ProductDetailPanel({ slug }: ProductDetailPanelProps) {
                 <span className="text-stone-500">رزرو</span>
                 <span>{data.inventory?.reserved ?? 0}</span>
               </div>
-              {data.featured ? <Badge className="bg-gold-50 text-gold-dark">ویژه</Badge> : null}
+              {data.featured ? (
+                <Badge className="bg-gold-50 text-gold-dark">ویژه</Badge>
+              ) : null}
             </div>
           </Card>
         </div>

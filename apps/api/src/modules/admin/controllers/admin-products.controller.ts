@@ -32,10 +32,7 @@ export class AdminProductsController {
 
   @Get()
   @ApiOperation({ summary: 'List products (admin)' })
-  list(
-    @Query() query: AdminProductsQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  list(@Query() query: AdminProductsQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminProductsService.listProducts(query, actor);
   }
 
@@ -69,19 +66,13 @@ export class AdminProductsController {
 
   @Delete('videos/:videoId')
   @ApiOperation({ summary: 'Delete product video' })
-  deleteVideo(
-    @Param('videoId') videoId: string,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  deleteVideo(@Param('videoId') videoId: string, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminProductsService.deleteVideo(videoId, actor);
   }
 
   @Get('by-slug/:slug')
   @ApiOperation({ summary: 'Get product by slug' })
-  getBySlug(
-    @Param('slug') slug: string,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  getBySlug(@Param('slug') slug: string, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminProductsService.getProductBySlug(slug, actor);
   }
 
@@ -93,10 +84,7 @@ export class AdminProductsController {
 
   @Post()
   @ApiOperation({ summary: 'Create product' })
-  create(
-    @Body() dto: CreateAdminProductDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  create(@Body() dto: CreateAdminProductDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminProductsService.createProduct(dto, actor);
   }
 

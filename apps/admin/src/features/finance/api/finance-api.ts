@@ -5,13 +5,8 @@ import type {
   LedgerAccountRow,
   LedgerEntryRow,
   PaginatedResponse,
-} from '@sadafgold/types';
-import type {
-  AdminPaginated,
-  AdminTradeOrder,
-  AdminWalletRow,
-  AdminWalletTransaction,
-} from '@sadafgold/types';
+} from '@talashim/types';
+import type { AdminPaginated, AdminTradeOrder, AdminWalletRow, AdminWalletTransaction } from '@talashim/types';
 
 export function fetchLedgerEntries(params?: {
   page?: number;

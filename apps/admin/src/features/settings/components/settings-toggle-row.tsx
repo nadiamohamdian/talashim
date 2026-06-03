@@ -1,6 +1,6 @@
 'use client';
 
-import { Label } from '@sadafgold/ui';
+import { Label } from '@talashim/ui';
 
 interface SettingsToggleRowProps {
   id: string;

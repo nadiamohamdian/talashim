@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { BannersPanel } from '@/features/cms/components/banners-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="cms.banners" />;
+  return <BannersPanel />;
 }

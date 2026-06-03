@@ -6,11 +6,11 @@ import {
   ADMIN_ACCESS_TOKEN_COOKIE,
   clearAccessTokenCookie,
   setAccessTokenCookie,
-} from '@sadafgold/shared/constants/auth';
+} from '@talashim/shared/constants/auth';
+import { isStaffRoleSlug, resolvePermissionsForRole } from '@talashim/shared/admin-rbac';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
 import { hasPermission as checkPermission } from '../lib/permission-resolver';
-import { resolvePermissionsForRole } from '../lib/permission-resolver';
-import type { AuthSession } from '@sadafgold/types';
+import type { AuthSession, StaffRoleSlug } from '@talashim/types';
 
 interface AdminAuthState {
   user: AuthSession['user'] | null;
@@ -18,6 +18,8 @@ interface AdminAuthState {
   permissions: AdminPermissionKey[];
   setSession: (session: AuthSession) => void;
   clearSession: () => void;
+  isStaffUser: () => boolean;
+  /** @deprecated Use isStaffUser — kept for existing callers */
   isAdmin: () => boolean;
   hasPermission: (key: AdminPermissionKey) => boolean;
 }
@@ -29,9 +31,8 @@ export const useAdminAuthStore = create<AdminAuthState>()(
       accessToken: null,
       permissions: [],
       setSession: (session) => {
-        const role = session.user.role.toLowerCase();
-        if (role !== 'admin') {
-          throw new Error('دسترسی ادمین مجاز نیست');
+        if (!isStaffRoleSlug(session.user.role)) {
+          throw new Error('دسترسی به پنل مدیریت مجاز نیست');
         }
         const permissions = resolvePermissionsForRole(session.user.role);
         set({
@@ -45,21 +46,43 @@ export const useAdminAuthStore = create<AdminAuthState>()(
         clearAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE);
         set({ user: null, accessToken: null, permissions: [] });
       },
-      isAdmin: () => get().user?.role.toLowerCase() === 'admin' && Boolean(get().accessToken),
+      isStaffUser: () =>
+        isStaffRoleSlug(get().user?.role) && Boolean(get().accessToken),
+      isAdmin: () => get().isStaffUser(),
       hasPermission: (key) => checkPermission(get().permissions, key),
     }),
     {
-      name: 'sadafgold-admin-auth',
+      name: 'talashim-admin-auth',
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
         permissions: state.permissions,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state?.user) {
+        if (state?.accessToken === 'dev-admin-access-token') {
+          state.user = null;
+          state.accessToken = null;
+          state.permissions = [];
+          clearAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE);
+          return;
+        }
+        if (state?.user && isStaffRoleSlug(state.user.role)) {
           state.permissions = resolvePermissionsForRole(state.user.role);
+        }
+        if (state?.accessToken) {
+          setAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE, state.accessToken);
         }
       },
     },
   ),
 );
+
+export type { StaffRoleSlug };
+
+/** Sync HTTP cookie for middleware — call before client navigations if needed. */
+export function syncAdminAuthCookieFromStore() {
+  const token = useAdminAuthStore.getState().accessToken;
+  if (token) {
+    setAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE, token);
+  }
+}

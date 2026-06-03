@@ -32,19 +32,9 @@ export class AdminOrdersRepository {
     }
     if (filters.search?.trim()) {
       where.OR = [
-        {
-          orderNumber: { contains: filters.search.trim(), mode: 'insensitive' },
-        },
-        {
-          user: {
-            email: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
-        {
-          user: {
-            fullName: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
+        { orderNumber: { contains: filters.search.trim(), mode: 'insensitive' } },
+        { user: { email: { contains: filters.search.trim(), mode: 'insensitive' } } },
+        { user: { fullName: { contains: filters.search.trim(), mode: 'insensitive' } } },
       ];
     }
 
@@ -57,6 +47,11 @@ export class AdminOrdersRepository {
         include: {
           user: { select: { id: true, email: true, fullName: true } },
           _count: { select: { items: true } },
+          payments: {
+            select: { status: true },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
         },
       }),
       this.prisma.order.count({ where }),
@@ -70,9 +65,7 @@ export class AdminOrdersRepository {
         user: { select: { id: true, email: true, fullName: true } },
         items: {
           include: {
-            product: {
-              select: { id: true, title: true, slug: true, sku: true },
-            },
+            product: { select: { id: true, title: true, slug: true, sku: true } },
           },
         },
         payments: true,
@@ -88,9 +81,7 @@ export class AdminOrdersRepository {
         user: { select: { id: true, email: true, fullName: true } },
         items: {
           include: {
-            product: {
-              select: { id: true, title: true, slug: true, sku: true },
-            },
+            product: { select: { id: true, title: true, slug: true, sku: true } },
           },
         },
         payments: true,

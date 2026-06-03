@@ -1,19 +1,16 @@
 import { axiosClient } from '@/shared/api/axios-client';
-import { isAdminDevLoginEnabled } from '@/shared/config/env';
-import { mapApiAuthSession, type ApiAuthSessionDto } from '@sadafgold/shared/auth/map-session';
-import type { AuthSession } from '@sadafgold/types';
-import type { PasswordLoginValues } from '@sadafgold/shared/validation/auth';
-import { createDevAdminSession } from '../lib/dev-admin-session';
+import { mapApiAuthSession, type ApiAuthSessionDto } from '@talashim/shared/auth/map-session';
+import { isStaffRoleSlug } from '@talashim/shared/admin-rbac';
+import type { AuthSession } from '@talashim/types';
+import type { PasswordLoginValues } from '@talashim/shared/validation/auth';
 
 export async function adminLogin(payload: PasswordLoginValues): Promise<AuthSession> {
-  if (isAdminDevLoginEnabled()) {
-    return createDevAdminSession(payload.email);
-  }
-
   const { data } = await axiosClient.post<ApiAuthSessionDto>('/auth/login', payload);
   const session = mapApiAuthSession(data);
-  if (session.user.role !== 'admin') {
-    throw new Error('دسترسی ادمین مجاز نیست');
+  if (!isStaffRoleSlug(session.user.role)) {
+    throw new Error(
+      'این حساب دسترسی پنل مدیریت ندارد. از admin@talashim.local / Admin12345! استفاده کنید.',
+    );
   }
   return session;
 }

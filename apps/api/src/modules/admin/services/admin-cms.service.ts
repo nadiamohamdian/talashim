@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import type {
   AdminBlogPostDto,
   CmsBannerDto,
@@ -12,7 +12,7 @@ import type {
   CmsSeoSettingsDto,
   CmsStaticPageDto,
   MediaAssetDto,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type { Prisma } from '@/generated/prisma';
@@ -29,14 +29,19 @@ import type {
   UpsertCmsStaticPageDto,
 } from '../dto/admin-cms.dto';
 import { AdminCmsRepository } from '../repositories/admin-cms.repository';
+import {
+  MediaStorageService,
+  type UploadedImageFile,
+} from '@/infrastructure/media/media-storage.service';
 
-type BlogPostWithCategory = Prisma.BlogPostGetPayload<{
-  include: { category: true };
-}>;
+type BlogPostWithCategory = Prisma.BlogPostGetPayload<{ include: { category: true } }>;
 
 @Injectable()
 export class AdminCmsService {
-  constructor(private readonly cmsRepository: AdminCmsRepository) {}
+  constructor(
+    private readonly cmsRepository: AdminCmsRepository,
+    private readonly mediaStorage: MediaStorageService,
+  ) {}
 
   listBlogCategories(actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.read);
@@ -88,19 +93,13 @@ export class AdminCmsService {
       publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : new Date(),
       isPublished: dto.isPublished ?? true,
       sortOrder: dto.sortOrder ?? 0,
-      category: dto.categoryId
-        ? { connect: { id: dto.categoryId } }
-        : undefined,
+      category: dto.categoryId ? { connect: { id: dto.categoryId } } : undefined,
     });
 
     return this.mapBlogPost(post);
   }
 
-  async updateBlogPost(
-    id: string,
-    dto: UpsertBlogPostDto,
-    actor: AuthenticatedUser,
-  ) {
+  async updateBlogPost(id: string, dto: UpsertBlogPostDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
     const existing = await this.cmsRepository.findBlogPostById(id);
@@ -195,11 +194,7 @@ export class AdminCmsService {
     return this.mapBanner(banner);
   }
 
-  async updateBanner(
-    id: string,
-    dto: UpsertCmsBannerDto,
-    actor: AuthenticatedUser,
-  ) {
+  async updateBanner(id: string, dto: UpsertCmsBannerDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
     const existing = await this.cmsRepository.findBannerById(id);
@@ -238,10 +233,7 @@ export class AdminCmsService {
     return this.mapHomepage(row);
   }
 
-  async updateHomepage(
-    dto: UpdateCmsHomepageDto,
-    actor: AuthenticatedUser,
-  ): Promise<CmsHomepageDto> {
+  async updateHomepage(dto: UpdateCmsHomepageDto, actor: AuthenticatedUser): Promise<CmsHomepageDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
     const row = await this.cmsRepository.updateHomepage(
@@ -252,10 +244,7 @@ export class AdminCmsService {
     return this.mapHomepage(row);
   }
 
-  async listStaticPages(
-    query: AdminStaticPagesQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async listStaticPages(query: AdminStaticPagesQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.read);
 
     const page = query.page ?? 1;
@@ -277,10 +266,7 @@ export class AdminCmsService {
     };
   }
 
-  async createStaticPage(
-    dto: UpsertCmsStaticPageDto,
-    actor: AuthenticatedUser,
-  ) {
+  async createStaticPage(dto: UpsertCmsStaticPageDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
     await this.assertUniquePageSlug(dto.slug);
 
@@ -296,11 +282,7 @@ export class AdminCmsService {
     return this.mapStaticPage(page);
   }
 
-  async updateStaticPage(
-    id: string,
-    dto: UpsertCmsStaticPageDto,
-    actor: AuthenticatedUser,
-  ) {
+  async updateStaticPage(id: string, dto: UpsertCmsStaticPageDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
     const existing = await this.cmsRepository.findStaticPageById(id);
@@ -340,10 +322,7 @@ export class AdminCmsService {
     return this.mapSeo(row);
   }
 
-  async updateSeo(
-    dto: UpdateCmsSeoDto,
-    actor: AuthenticatedUser,
-  ): Promise<CmsSeoSettingsDto> {
+  async updateSeo(dto: UpdateCmsSeoDto, actor: AuthenticatedUser): Promise<CmsSeoSettingsDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
     const row = await this.cmsRepository.updateSeo({
@@ -352,7 +331,7 @@ export class AdminCmsService {
       defaultOgImageUrl: dto.defaultOgImageUrl,
       robotsIndex: dto.robotsIndex,
       googleAnalyticsId: dto.googleAnalyticsId,
-      extraMeta: dto.extraMeta,
+      extraMeta: dto.extraMeta as Prisma.InputJsonValue | undefined,
     });
 
     return this.mapSeo(row);
@@ -391,6 +370,26 @@ export class AdminCmsService {
       sizeBytes: dto.sizeBytes,
       alt: dto.alt,
       folder: dto.folder ?? 'general',
+      uploader: { connect: { id: actor.id } },
+    });
+
+    return this.mapMedia(asset);
+  }
+
+  async uploadMedia(
+    file: UploadedImageFile,
+    folder: string | undefined,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.media.write);
+
+    const saved = await this.mediaStorage.saveImage(file, folder ?? 'general');
+    const asset = await this.cmsRepository.createMedia({
+      filename: saved.filename,
+      url: saved.url,
+      mimeType: saved.mimeType,
+      sizeBytes: saved.sizeBytes,
+      folder: folder ?? 'general',
       uploader: { connect: { id: actor.id } },
     });
 
@@ -457,9 +456,7 @@ export class AdminCmsService {
     };
   }
 
-  private mapHomepage(
-    row: Prisma.CmsHomepageGetPayload<object>,
-  ): CmsHomepageDto {
+  private mapHomepage(row: Prisma.CmsHomepageGetPayload<object>): CmsHomepageDto {
     return {
       hero: row.hero as unknown as CmsHomepageDto['hero'],
       sections: row.sections as unknown as CmsHomepageDto['sections'],
@@ -467,9 +464,7 @@ export class AdminCmsService {
     };
   }
 
-  private mapStaticPage(
-    page: Prisma.CmsStaticPageGetPayload<object>,
-  ): CmsStaticPageDto {
+  private mapStaticPage(page: Prisma.CmsStaticPageGetPayload<object>): CmsStaticPageDto {
     return {
       id: page.id,
       slug: page.slug,
@@ -483,9 +478,7 @@ export class AdminCmsService {
     };
   }
 
-  private mapSeo(
-    row: Prisma.CmsSeoSettingsGetPayload<object>,
-  ): CmsSeoSettingsDto {
+  private mapSeo(row: Prisma.CmsSeoSettingsGetPayload<object>): CmsSeoSettingsDto {
     return {
       siteTitle: row.siteTitle,
       siteDescription: row.siteDescription,

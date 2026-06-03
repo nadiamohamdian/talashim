@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from '@sadafgold/ui';
+import { Skeleton } from '@talashim/ui';
 import { fetchPermissionRegistry } from '@/features/admin/api/admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { SecurityPageShell } from './security-page-shell';
@@ -43,7 +43,11 @@ export function PermissionsPanel() {
                       return (
                         <td key={`${role.slug}-${permission}`} className="px-3 py-2.5 text-center">
                           <span
-                            className={allowed ? 'text-emerald-600' : 'text-stone-300'}
+                            className={
+                              allowed
+                                ? 'text-emerald-600'
+                                : 'text-stone-300'
+                            }
                             aria-label={allowed ? 'مجاز' : 'غیرمجاز'}
                           >
                             {allowed ? '✓' : '—'}

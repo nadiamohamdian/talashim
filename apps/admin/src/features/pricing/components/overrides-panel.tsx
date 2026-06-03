@@ -14,8 +14,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
-import type { GoldPriceOverrideDto } from '@sadafgold/types';
+} from '@talashim/ui';
+import type { GoldPriceOverrideDto } from '@talashim/types';
 import {
   createPriceOverride,
   deletePriceOverride,
@@ -211,7 +211,9 @@ export function OverridesPanel() {
                   <TableCell>{formatRial(row.pricePerGram)}</TableCell>
                   <TableCell>{row.isActive ? 'فعال' : 'غیرفعال'}</TableCell>
                   <TableCell className="text-xs">
-                    {row.expiresAt ? new Date(row.expiresAt).toLocaleString('fa-IR') : 'بدون انقضا'}
+                    {row.expiresAt
+                      ? new Date(row.expiresAt).toLocaleString('fa-IR')
+                      : 'بدون انقضا'}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">

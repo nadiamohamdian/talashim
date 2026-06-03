@@ -14,8 +14,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
-import type { CmsBannerDto } from '@sadafgold/types';
+} from '@talashim/ui';
+import type { CmsBannerDto } from '@talashim/types';
 import {
   createBanner,
   deleteBanner,

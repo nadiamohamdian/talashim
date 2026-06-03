@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import type {
   GoldPriceOverrideDto,
   GoldPriceHistoryItemDto,
   LiveGoldPriceDto,
   PricingMarginsDto,
   PricingProvidersResponseDto,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import { getApiEnv } from '@/config/env';
@@ -17,8 +17,12 @@ import { PricingConfigRepository } from '@/modules/pricing/repositories/pricing-
 import { PricingRepository } from '@/modules/pricing/repositories/pricing.repository';
 import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
 import { PricingGateway } from '@/modules/pricing/gateways/pricing.gateway';
-import { PrimaryGoldPriceProvider } from '@/modules/pricing/providers/primary-gold-price.provider';
-import { FallbackGoldPriceProvider } from '@/modules/pricing/providers/fallback-gold-price.provider';
+import {
+  PrimaryGoldPriceProvider,
+} from '@/modules/pricing/providers/primary-gold-price.provider';
+import {
+  FallbackGoldPriceProvider,
+} from '@/modules/pricing/providers/fallback-gold-price.provider';
 import type {
   AdminOverridesQueryDto,
   AdminPriceHistoryQueryDto,
@@ -44,10 +48,7 @@ export class AdminPricingService {
     actor: AuthenticatedUser,
   ): Promise<LiveGoldPriceDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.pricing.read);
-    const price = await this.pricingEngine.getLivePrice(
-      symbol ?? 'XAU-IRR',
-      karat ?? 18,
-    );
+    const price = await this.pricingEngine.getLivePrice(symbol ?? 'XAU-IRR', karat ?? 18);
     return this.mapLive(price);
   }
 
@@ -57,10 +58,7 @@ export class AdminPricingService {
     actor: AuthenticatedUser,
   ): Promise<LiveGoldPriceDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.pricing.configure);
-    const price = await this.pricingEngine.refreshLivePrice(
-      symbol ?? 'XAU-IRR',
-      karat ?? 18,
-    );
+    const price = await this.pricingEngine.refreshLivePrice(symbol ?? 'XAU-IRR', karat ?? 18);
     this.pricingGateway.broadcastPriceUpdate(price);
     return this.mapLive(price);
   }
@@ -113,9 +111,7 @@ export class AdminPricingService {
     return this.mapMargins(config);
   }
 
-  async getProviders(
-    actor: AuthenticatedUser,
-  ): Promise<PricingProvidersResponseDto> {
+  async getProviders(actor: AuthenticatedUser): Promise<PricingProvidersResponseDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.pricing.configure);
 
     const env = getApiEnv();
@@ -140,8 +136,7 @@ export class AdminPricingService {
         'primary',
         config.primaryProviderName,
         'primary',
-        config.brsEnabled &&
-          Boolean(env.BRS_API_KEY || env.GOLD_PRICE_PRIMARY_URL),
+        config.brsEnabled && Boolean(env.BRS_API_KEY || env.GOLD_PRICE_PRIMARY_URL),
         async () => {
           await this.primaryProvider.fetchSpotQuote('XAU-IRR', 18);
         },

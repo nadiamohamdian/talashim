@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { PermissionsPanel } from '@/features/security/components/permissions-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="security.permissions" />;
+  return <PermissionsPanel />;
 }

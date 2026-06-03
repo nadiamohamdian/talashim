@@ -9,6 +9,7 @@ import {
 } from '../interfaces/price-provider.interface';
 import type { LiveGoldPriceDto } from '../dto/gold-price.dto';
 import { PricingCacheService } from './pricing-cache.service';
+import { PricingConfigRepository } from '../repositories/pricing-config.repository';
 import { PricingRepository } from '../repositories/pricing.repository';
 
 @Injectable()
@@ -22,11 +23,12 @@ export class PricingEngineService {
     private readonly fallbackProvider: GoldPriceProvider,
     private readonly pricingCache: PricingCacheService,
     private readonly pricingRepository: PricingRepository,
+    private readonly pricingConfigRepository: PricingConfigRepository,
   ) {}
 
   async refreshLivePrice(symbol = 'XAU-IRR', karat = 18): Promise<LiveGoldPriceDto> {
     const quote = await this.resolveQuote(symbol, karat);
-    const livePrice = this.toLivePrice(quote);
+    const livePrice = await this.toLivePrice(quote);
 
     await this.pricingCache.setLatest(livePrice);
     await this.pricingRepository.saveTick({
@@ -45,6 +47,11 @@ export class PricingEngineService {
   }
 
   async getLivePrice(symbol = 'XAU-IRR', karat = 18): Promise<LiveGoldPriceDto> {
+    const override = await this.pricingConfigRepository.findActiveOverride(symbol, karat);
+    if (override) {
+      return this.overrideToLivePrice(override, symbol, karat);
+    }
+
     const cached = await this.pricingCache.getLatest(symbol, karat);
     if (cached) return cached;
 
@@ -79,9 +86,16 @@ export class PricingEngineService {
     }
   }
 
-  private toLivePrice(quote: GoldSpotQuote & { source: GoldPriceSource }): LiveGoldPriceDto {
-    const env = getApiEnv();
-    const spread = env.GOLD_SPREAD_PERCENT / 100;
+  private async getSpreadPercent(): Promise<number> {
+    const config = await this.pricingConfigRepository.getOrCreateConfig();
+    return Number(config.spreadPercent);
+  }
+
+  private async toLivePrice(
+    quote: GoldSpotQuote & { source: GoldPriceSource },
+  ): Promise<LiveGoldPriceDto> {
+    const spreadPercent = await this.getSpreadPercent();
+    const spread = spreadPercent / 100;
     const halfSpread = (quote.pricePerGramToman * spread) / 2;
 
     return {
@@ -90,10 +104,41 @@ export class PricingEngineService {
       pricePerGram: quote.pricePerGramToman.toFixed(0),
       buyPrice: Math.round(quote.pricePerGramToman - halfSpread).toFixed(0),
       sellPrice: Math.round(quote.pricePerGramToman + halfSpread).toFixed(0),
-      spreadPercent: env.GOLD_SPREAD_PERCENT.toFixed(4),
+      spreadPercent: spreadPercent.toFixed(4),
       source: quote.source,
       providerName: quote.providerName,
       recordedAt: quote.capturedAt.toISOString(),
+    };
+  }
+
+  private async overrideToLivePrice(
+    override: {
+      pricePerGram: { toString(): string };
+      buyPrice: { toString(): string } | null;
+      sellPrice: { toString(): string } | null;
+      updatedAt: Date;
+    },
+    symbol: string,
+    karat: number,
+  ): Promise<LiveGoldPriceDto> {
+    const spreadPercent = await this.getSpreadPercent();
+    const mid = Number(override.pricePerGram);
+    const halfSpread = (mid * (spreadPercent / 100)) / 2;
+
+    return {
+      symbol,
+      karat,
+      pricePerGram: mid.toFixed(0),
+      buyPrice: override.buyPrice
+        ? Number(override.buyPrice).toFixed(0)
+        : Math.round(mid - halfSpread).toFixed(0),
+      sellPrice: override.sellPrice
+        ? Number(override.sellPrice).toFixed(0)
+        : Math.round(mid + halfSpread).toFixed(0),
+      spreadPercent: spreadPercent.toFixed(4),
+      source: GoldPriceSource.MANUAL,
+      providerName: 'manual-override',
+      recordedAt: override.updatedAt.toISOString(),
     };
   }
 }

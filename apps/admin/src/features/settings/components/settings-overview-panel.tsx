@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ADMIN_ROUTES } from '@/shared/config/admin-routes';
+import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import { usePlatformSettingsStore } from '../model/settings-store';
 
@@ -18,7 +19,9 @@ export function SettingsOverviewPanel() {
   const hasPermission = useAdminAuthStore((s) => s.hasPermission);
   const { general, commerce, gold, featureFlags, updatedAt } = usePlatformSettingsStore();
 
-  const links = CHILD_ROUTES.filter((route) => hasPermission(route.permission));
+  const links = CHILD_ROUTES.filter((route) =>
+    hasPermission(route.permission as AdminPermissionKey),
+  );
 
   return (
     <div className="space-y-6">

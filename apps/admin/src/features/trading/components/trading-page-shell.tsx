@@ -7,11 +7,11 @@ import { RoutePermissionGuard } from '@/features/auth/components/route-permissio
 import { PageHeader } from '@/widgets/admin/page-header';
 
 const DESCRIPTIONS: Record<string, string> = {
-  'trading.buy': 'فیلتر خرید — از منوی «معاملات» در دسترس است.',
-  'trading.sell': 'فیلتر فروش — از منوی «معاملات» در دسترس است.',
-  'trading.history': 'خرید و فروش طلای آب‌شده (عمده و خرد) — جدا از سفارش‌های فروشگاه جواهر.',
+  'trading.buy': 'سفارش‌های خرید طلای آب‌شده ثبت‌شده در پلتفرم.',
+  'trading.sell': 'سفارش‌های فروش طلای آب‌شده ثبت‌شده در پلتفرم.',
+  'trading.history': 'تاریخچه کامل معاملات با فیلتر وضعیت و بازه زمانی.',
   'trading.settlement': 'صف تسویه دستی سفارش‌های معلق و ناموفق.',
-  'trading.reports': 'گزارش تحلیلی در بخش گزارش‌ها → طلای آب‌شده.',
+  'trading.reports': 'تحلیل حجم معاملات، کارمزد و روند روزانه.',
 };
 
 interface TradingPageShellProps {

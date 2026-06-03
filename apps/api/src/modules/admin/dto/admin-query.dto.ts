@@ -1,7 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { KycStatus, Role, GoldTradeSide, WalletTransactionType } from '@/generated/prisma';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({ default: 1 })
@@ -30,6 +31,12 @@ export class AdminUsersQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsEnum(Role)
   role?: Role;
+
+  @ApiPropertyOptional({ description: 'Exclude CUSTOMER role' })
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  staffOnly?: boolean;
 }
 
 export class AdminKycQueryDto extends PaginationQueryDto {

@@ -13,8 +13,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
-import { ADMIN_ROLE_DEFINITIONS, getRoleLabelFa } from '@sadafgold/shared/admin-rbac';
+} from '@talashim/ui';
+import { ADMIN_ROLE_DEFINITIONS, getRoleLabelFa } from '@talashim/shared/admin-rbac';
 import { fetchUsers, updateUserRole } from '@/features/admin/api/admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { SecurityPageShell } from './security-page-shell';
@@ -65,9 +65,7 @@ export function RolesManagementPanel({ routeId = 'security.roles' }: RolesManage
               className="rounded-xl border border-border bg-nude-50/80 px-3 py-2 text-sm"
             >
               <span className="font-medium text-stone-900">{role.labelFa}</span>
-              <span className="mt-0.5 block text-xs text-stone-500">
-                {role.permissions.length} مجوز
-              </span>
+              <span className="mt-0.5 block text-xs text-stone-500">{role.permissions.length} مجوز</span>
             </li>
           ))}
         </ul>

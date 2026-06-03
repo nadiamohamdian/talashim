@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Alert, Input, Label } from '@sadafgold/ui';
+import { Alert, Input, Label } from '@talashim/ui';
 import { SettingsTextarea } from './settings-textarea';
 import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
@@ -60,24 +60,14 @@ export function GeneralSettingsForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="storeName">نام فروشگاه</Label>
-            <Input
-              id="storeName"
-              className="mt-2"
-              disabled={!canWrite}
-              {...register('storeName')}
-            />
+            <Input id="storeName" className="mt-2" disabled={!canWrite} {...register('storeName')} />
             {errors.storeName ? (
               <p className="mt-1 text-xs text-rose-600">{errors.storeName.message}</p>
             ) : null}
           </div>
           <div>
             <Label htmlFor="legalName">نام حقوقی (اختیاری)</Label>
-            <Input
-              id="legalName"
-              className="mt-2"
-              disabled={!canWrite}
-              {...register('legalName')}
-            />
+            <Input id="legalName" className="mt-2" disabled={!canWrite} {...register('legalName')} />
           </div>
         </div>
         <div>
@@ -117,12 +107,7 @@ export function GeneralSettingsForm() {
           </div>
           <div>
             <Label htmlFor="supportPhone">تلفن</Label>
-            <Input
-              id="supportPhone"
-              className="mt-2"
-              disabled={!canWrite}
-              {...register('supportPhone')}
-            />
+            <Input id="supportPhone" className="mt-2" disabled={!canWrite} {...register('supportPhone')} />
           </div>
         </div>
         <div>
@@ -137,12 +122,7 @@ export function GeneralSettingsForm() {
         </div>
         <div>
           <Label htmlFor="businessHours">ساعات پاسخ‌گویی</Label>
-          <Input
-            id="businessHours"
-            className="mt-2"
-            disabled={!canWrite}
-            {...register('businessHours')}
-          />
+          <Input id="businessHours" className="mt-2" disabled={!canWrite} {...register('businessHours')} />
         </div>
       </SettingsSectionCard>
 

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Role } from '@/generated/prisma';
 import { UsersRepository } from '../repositories/users.repository';
-
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
@@ -13,8 +13,12 @@ export class UsersService {
     return this.usersRepository.findById(id);
   }
 
-  createUser(data: { email: string; fullName: string; passwordHash: string }) {
+  createUser(data: { email: string; fullName: string; passwordHash: string; role?: Role }) {
     return this.usersRepository.create(data);
+  }
+
+  updateStaffAccount(id: string, data: { role: Role; fullName?: string }) {
+    return this.usersRepository.updateStaffAccount(id, data);
   }
 
   async getProfile(userId: string) {

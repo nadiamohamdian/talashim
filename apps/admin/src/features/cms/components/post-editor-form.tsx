@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button, Card, Input, Label } from '@sadafgold/ui';
-import type { AdminBlogCategoryDto, AdminBlogPostDto } from '@sadafgold/types';
+import { Button, Card, Input, Label } from '@talashim/ui';
+import type { AdminBlogCategoryDto, AdminBlogPostDto } from '@talashim/types';
 import type { UpsertBlogPostPayload } from '../api/cms-api';
 import { selectFieldClass } from '../lib/labels';
 
@@ -11,8 +11,7 @@ const emptyPayload = (): UpsertBlogPostPayload => ({
   slug: '',
   excerpt: '',
   content: '',
-  coverImageUrl:
-    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
+  coverImageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
   isPublished: true,
   sortOrder: 0,
   publishedAt: new Date().toISOString().slice(0, 10),
@@ -119,7 +118,9 @@ export function PostEditorForm({
             className="mt-1"
             type="number"
             value={form.sortOrder ?? 0}
-            onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) || 0 }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, sortOrder: Number(e.target.value) || 0 }))
+            }
           />
         </div>
         <div className="flex items-end gap-2 pb-1">

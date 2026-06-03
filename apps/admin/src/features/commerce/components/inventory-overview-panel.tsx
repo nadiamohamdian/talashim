@@ -15,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { adjustInventory, fetchInventoryStock } from '../api/commerce-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
@@ -64,42 +64,19 @@ export function InventoryOverviewPanel() {
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
-          <Input
-            className="mt-1"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
+          <Input className="mt-1" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
         <div>
           <Label>دسته</Label>
-          <select
-            className={selectFieldClass}
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select className={selectFieldClass} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }}>
             <option value="">همه</option>
             {Object.entries(PRODUCT_CATEGORY_FA).map(([k, l]) => (
-              <option key={k} value={k}>
-                {l}
-              </option>
+              <option key={k} value={k}>{l}</option>
             ))}
           </select>
         </div>
         <label className="flex items-center gap-2 self-end pb-2 text-sm">
-          <input
-            type="checkbox"
-            checked={lowStockOnly}
-            onChange={(e) => {
-              setLowStockOnly(e.target.checked);
-              setPage(1);
-            }}
-          />
+          <input type="checkbox" checked={lowStockOnly} onChange={(e) => { setLowStockOnly(e.target.checked); setPage(1); }} />
           فقط کم‌موجودی
         </label>
       </FilterBar>
@@ -129,13 +106,7 @@ export function InventoryOverviewPanel() {
                   <TableCell>{row.quantity}</TableCell>
                   <TableCell>{row.reserved}</TableCell>
                   <TableCell>
-                    <Badge
-                      className={
-                        row.lowStock
-                          ? 'bg-amber-50 text-amber-900'
-                          : 'bg-emerald-50 text-emerald-800'
-                      }
-                    >
+                    <Badge className={row.lowStock ? 'bg-amber-50 text-amber-900' : 'bg-emerald-50 text-emerald-800'}>
                       {row.available}
                     </Badge>
                   </TableCell>
@@ -161,12 +132,7 @@ export function InventoryOverviewPanel() {
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             <div>
               <Label>تغییر (+/-)</Label>
-              <Input
-                className="mt-1"
-                type="number"
-                value={delta}
-                onChange={(e) => setDelta(e.target.value)}
-              />
+              <Input className="mt-1" type="number" value={delta} onChange={(e) => setDelta(e.target.value)} />
             </div>
             <div className="sm:col-span-2">
               <Label>یادداشت</Label>
@@ -174,18 +140,10 @@ export function InventoryOverviewPanel() {
             </div>
           </div>
           <div className="mt-3 flex gap-2">
-            <Button
-              className="h-8 px-3 text-xs"
-              disabled={adjustMutation.isPending}
-              onClick={() => adjustMutation.mutate()}
-            >
+            <Button className="h-8 px-3 text-xs" disabled={adjustMutation.isPending} onClick={() => adjustMutation.mutate()}>
               ثبت تعدیل
             </Button>
-            <Button
-              variant="ghost"
-              className="h-8 px-3 text-xs"
-              onClick={() => setAdjustProductId(null)}
-            >
+            <Button variant="ghost" className="h-8 px-3 text-xs" onClick={() => setAdjustProductId(null)}>
               بستن
             </Button>
           </div>
@@ -193,12 +151,7 @@ export function InventoryOverviewPanel() {
       ) : null}
 
       {data ? (
-        <PaginationBar
-          page={data.page}
-          total={data.total}
-          limit={data.limit}
-          onPageChange={setPage}
-        />
+        <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
     </CatalogPageShell>
   );

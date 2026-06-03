@@ -2,17 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Card,
-  Label,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@sadafgold/ui';
+import { Card, Label, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@talashim/ui';
 import {
   CartesianGrid,
   Line,
@@ -59,14 +49,16 @@ export function HistoryPricingPanel() {
     if (!data?.items.length) {
       return [];
     }
-    return [...data.items].reverse().map((row) => ({
-      label: new Date(row.recordedAt).toLocaleDateString('fa-IR', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-      }),
-      price: Number(row.pricePerGram),
-    }));
+    return [...data.items]
+      .reverse()
+      .map((row) => ({
+        label: new Date(row.recordedAt).toLocaleDateString('fa-IR', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+        }),
+        price: Number(row.pricePerGram),
+      }));
   }, [data?.items]);
 
   return (
@@ -120,13 +112,7 @@ export function HistoryPricingPanel() {
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 10 }} />
                   <Tooltip formatter={(v) => formatRial(Number(v))} />
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke="#b8860b"
-                    strokeWidth={2}
-                    dot={false}
-                  />
+                  <Line type="monotone" dataKey="price" stroke="#b8860b" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </div>

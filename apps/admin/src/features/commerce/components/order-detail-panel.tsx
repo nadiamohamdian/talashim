@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
@@ -15,10 +15,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchAdminOrder, updateAdminOrderStatus } from '../api/commerce-api';
 import { CommercePageShell } from './commerce-page-shell';
-import { formatToman, ORDER_STATUS_FA, selectFieldClass } from '../lib/labels';
+import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
 
 interface OrderDetailPanelProps {
   orderId: string;
@@ -35,11 +35,18 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
 
   const statusMutation = useMutation({
     mutationFn: (status: string) => updateAdminOrderStatus(orderId, status),
-    onSuccess: () => {
+    onSuccess: (updated) => {
+      setNextStatus(updated.status);
       void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'order', orderId] });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'orders'] });
     },
   });
+
+  useEffect(() => {
+    if (data?.status) {
+      setNextStatus(data.status);
+    }
+  }, [data?.status]);
 
   return (
     <CommercePageShell
@@ -86,28 +93,28 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
 
             <div className="mt-6 flex flex-wrap items-end gap-3 border-t border-border pt-4">
               <div>
-                <Label>تغییر وضعیت</Label>
+                <Label>تغییر وضعیت سفارش</Label>
                 <select
                   className={selectFieldClass}
                   value={nextStatus}
                   onChange={(e) => setNextStatus(e.target.value)}
                 >
-                  <option value="">انتخاب کنید</option>
                   {Object.entries(ORDER_STATUS_FA).map(([k, l]) => (
-                    <option key={k} value={k}>
-                      {l}
-                    </option>
+                    <option key={k} value={k}>{l}</option>
                   ))}
                 </select>
               </div>
               <Button
                 className="h-10 px-4"
-                disabled={!nextStatus || statusMutation.isPending}
+                disabled={!nextStatus || nextStatus === data.status || statusMutation.isPending}
                 onClick={() => statusMutation.mutate(nextStatus)}
               >
-                اعمال
+                اعمال وضعیت
               </Button>
             </div>
+            {statusMutation.isSuccess ? (
+              <p className="mt-2 text-sm text-emerald-700">وضعیت سفارش به‌روزرسانی شد.</p>
+            ) : null}
             {statusMutation.isError ? (
               <p className="mt-2 text-sm text-rose-600">تغییر وضعیت مجاز نیست یا ناموفق بود.</p>
             ) : null}
@@ -145,11 +152,15 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
                 <li className="text-stone-500">پرداختی ثبت نشده.</li>
               ) : (
                 data.payments.map((p) => (
-                  <li key={p.id} className="flex justify-between border-b border-border py-2">
+                  <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-2">
                     <span>
-                      {p.provider} — {p.status}
+                      {p.provider}
+                      {p.reference ? ` — ${p.reference}` : ''}
                     </span>
-                    <span>{formatToman(p.amountToman)} تومان</span>
+                    <span className="flex items-center gap-2">
+                      <Badge>{PAYMENT_STATUS_FA[p.status] ?? p.status}</Badge>
+                      <span>{formatToman(p.amountToman)} تومان</span>
+                    </span>
                   </li>
                 ))
               )}

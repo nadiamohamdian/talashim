@@ -13,6 +13,13 @@ export const ORDER_STATUS_FA: Record<string, string> = {
   CANCELLED: 'لغو شده',
 };
 
+export const PAYMENT_STATUS_FA: Record<string, string> = {
+  PENDING: 'در انتظار پرداخت',
+  AUTHORIZED: 'تأیید اولیه',
+  PAID: 'پرداخت شده',
+  FAILED: 'ناموفق',
+};
+
 export const TRADE_SIDE_FA: Record<string, string> = {
   BUY: 'خرید',
   SELL: 'فروش',

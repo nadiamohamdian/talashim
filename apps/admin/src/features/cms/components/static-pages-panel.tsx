@@ -14,8 +14,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
-import type { CmsStaticPageDto } from '@sadafgold/types';
+} from '@talashim/ui';
+import type { CmsStaticPageDto } from '@talashim/types';
 import {
   createStaticPage,
   deleteStaticPage,
@@ -135,7 +135,9 @@ export function StaticPagesPanel() {
               <Input
                 className="mt-1"
                 value={form.metaDescription ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, metaDescription: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, metaDescription: e.target.value }))
+                }
               />
             </div>
             <div className="md:col-span-2">

@@ -1,4 +1,5 @@
 import type { PaginatedResponse } from './pagination';
+import type { StaffRoleEnum, StaffRoleSlug } from './roles';
 
 export type AdminPaginated<T> = PaginatedResponse<T>;
 
@@ -16,7 +17,7 @@ export interface AdminUser {
   id: string;
   email: string;
   fullName: string;
-  role: 'customer' | 'admin';
+  role: StaffRoleSlug | 'customer';
   createdAt: string;
   kycVerification?: { status: string } | null;
 }
@@ -31,13 +32,6 @@ export interface AdminKycItem {
   user: { id: string; email: string; fullName: string };
 }
 
-export interface AdminWalletTransactionEntry {
-  accountCode: string;
-  side: string;
-  amount: string;
-  assetType: string;
-}
-
 export interface AdminWalletTransaction {
   id: string;
   reference: string;
@@ -47,7 +41,12 @@ export interface AdminWalletTransaction {
   userId: string | null;
   user: { id: string; email: string; fullName: string } | null;
   createdAt: string;
-  entries?: AdminWalletTransactionEntry[];
+  entries?: Array<{
+    accountCode: string;
+    side: string;
+    assetType: string;
+    amount: string;
+  }>;
 }
 
 export interface AdminTradeOrder {
@@ -73,5 +72,88 @@ export interface AdminAuditLog {
   action: string;
   actorId: string | null;
   actor: { id: string; email: string; fullName: string } | null;
+  context?: unknown;
+  createdAt: string;
+}
+
+export type AdminSessionStatus = 'active' | 'revoked' | 'expired';
+
+export interface AdminSession {
+  id: string;
+  userId: string;
+  user: { id: string; email: string; fullName: string; role: string };
+  status: AdminSessionStatus;
+  expiresAt: string;
+  revokedAt: string | null;
+  createdAt: string;
+}
+
+export interface AdminLoginHistoryItem {
+  id: string;
+  action: string;
+  actorId: string | null;
+  actor: { id: string; email: string; fullName: string; role: string } | null;
+  context?: unknown;
+  createdAt: string;
+}
+
+export interface AdminPermissionRegistry {
+  permissions: string[];
+  roles: Array<{
+    enum: string;
+    slug: string;
+    labelFa: string;
+    descriptionFa: string;
+    permissions: string[];
+  }>;
+  groups: Record<string, Record<string, string>>;
+}
+
+export interface CreateStaffUserPayload {
+  email: string;
+  fullName: string;
+  password: string;
+  role: StaffRoleEnum;
+}
+
+export interface UpdateStaffUserPayload {
+  email?: string;
+  fullName?: string;
+  password?: string;
+  role?: StaffRoleEnum;
+}
+
+export interface AdminUserDetailView {
+  user: AdminUser & { createdAt: string };
+  balances: { rialBalance: string; goldBalanceGram: string };
+  stats: { orders: number; goldTrades: number };
+  kyc: {
+    id: string;
+    status: string;
+    nationalId: string;
+    phone: string;
+    submittedAt: string;
+    reviewNote: string | null;
+  } | null;
+  recentOrders: Array<{
+    id: string;
+    orderNumber: string;
+    totalToman: number;
+    status: string;
+  }>;
+  recentWalletTransactions: Array<{ id: string; type: string; reference: string }>;
+  recentTrades: Array<{
+    id: string;
+    orderNumber: string;
+    side: string;
+    quantityGram: string;
+  }>;
+}
+
+export interface AdminUserActivityItem {
+  id: string;
+  source: string;
+  action: string;
+  context?: unknown;
   createdAt: string;
 }

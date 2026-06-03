@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Badge,
@@ -15,11 +14,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchTradingOrders } from '../api/trading-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
+import { AdminSubnavLinks } from '@/features/admin/components/admin-subnav-links';
 import { TradingPageShell } from './trading-page-shell';
 import {
   formatGram,
@@ -34,7 +34,6 @@ interface TradeOrdersPanelProps {
   fixedSide?: 'BUY' | 'SELL';
   showStatusFilter?: boolean;
   showDateFilter?: boolean;
-  showSideFilter?: boolean;
 }
 
 export function TradeOrdersPanel({
@@ -42,24 +41,14 @@ export function TradeOrdersPanel({
   fixedSide,
   showStatusFilter = false,
   showDateFilter = false,
-  showSideFilter = false,
 }: TradeOrdersPanelProps) {
-  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [sideFilter, setSideFilter] = useState('');
 
-  useEffect(() => {
-    const fromUrl = searchParams.get('side');
-    if (fromUrl === 'BUY' || fromUrl === 'SELL') {
-      setSideFilter(fromUrl);
-    }
-  }, [searchParams]);
-
-  const side = fixedSide ?? sideFilter;
+  const side = fixedSide ?? '';
 
   const { data, isLoading, isError } = useQuery({
     queryKey: adminQueryKeys.trading.orders(page, side, status, search, from, to),
@@ -76,6 +65,15 @@ export function TradeOrdersPanel({
 
   return (
     <TradingPageShell routeId={routeId}>
+      <AdminSubnavLinks
+        links={[
+          { href: '/trading/history', label: 'همه معاملات' },
+          { href: '/trading/buy-orders', label: 'خرید' },
+          { href: '/trading/sell-orders', label: 'فروش' },
+          { href: '/trading/settlement', label: 'تسویه' },
+        ]}
+      />
+
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
@@ -89,23 +87,6 @@ export function TradeOrdersPanel({
             placeholder="شماره سفارش، ایمیل یا نام"
           />
         </div>
-        {showSideFilter && !fixedSide ? (
-          <div>
-            <Label>سمت</Label>
-            <select
-              className={selectFieldClass}
-              value={sideFilter}
-              onChange={(e) => {
-                setSideFilter(e.target.value);
-                setPage(1);
-              }}
-            >
-              <option value="">همه</option>
-              <option value="BUY">خرید</option>
-              <option value="SELL">فروش</option>
-            </select>
-          </div>
-        ) : null}
         {showStatusFilter ? (
           <div>
             <Label>وضعیت</Label>

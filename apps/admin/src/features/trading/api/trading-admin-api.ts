@@ -6,7 +6,7 @@ import type {
   TradingReportRow,
   TradingReportSummary,
   TradingSettlementSummary,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { ReportListResponse, TradingReportParams } from '@/features/reports/api/reports-api';
 
 export interface TradingOrdersParams {

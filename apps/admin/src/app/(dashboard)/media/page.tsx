@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { MediaLibraryPanel } from '@/features/cms/components/media-library-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="media.library" />;
+  return <MediaLibraryPanel />;
 }

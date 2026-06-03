@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { FaqPanel } from '@/features/cms/components/faq-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="cms.faq" />;
+  return <FaqPanel />;
 }

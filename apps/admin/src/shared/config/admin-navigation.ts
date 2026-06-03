@@ -22,13 +22,16 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = ADMIN_ROUTE_SECTION_ORDER.m
   return {
     id: sectionId,
     label: sectionLabel,
-    items: routes.map((route) => ({
-      href: route.path,
-      label: route.label,
-      availability: route.availability,
-      permission: route.permission,
-      routeId: route.id,
-    })),
+    items: routes
+      .map((route) => ({
+        href: route.path,
+        label: route.label,
+        availability: route.availability,
+        permission: route.permission,
+        routeId: route.id,
+        navOrder: route.navOrder ?? 100,
+      }))
+      .sort((a, b) => a.navOrder - b.navOrder),
   };
 }).filter((section) => section.items.length > 0);
 

@@ -40,19 +40,9 @@ export class AdminTradingRepository {
     }
     if (filters.search?.trim()) {
       where.OR = [
-        {
-          orderNumber: { contains: filters.search.trim(), mode: 'insensitive' },
-        },
-        {
-          user: {
-            email: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
-        {
-          user: {
-            fullName: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
+        { orderNumber: { contains: filters.search.trim(), mode: 'insensitive' } },
+        { user: { email: { contains: filters.search.trim(), mode: 'insensitive' } } },
+        { user: { fullName: { contains: filters.search.trim(), mode: 'insensitive' } } },
       ];
     }
 
@@ -86,12 +76,8 @@ export class AdminTradingRepository {
     startOfDay.setHours(0, 0, 0, 0);
 
     return Promise.all([
-      this.prisma.goldTradeOrder.count({
-        where: { status: GoldTradeStatus.PENDING },
-      }),
-      this.prisma.goldTradeOrder.count({
-        where: { status: GoldTradeStatus.FAILED },
-      }),
+      this.prisma.goldTradeOrder.count({ where: { status: GoldTradeStatus.PENDING } }),
+      this.prisma.goldTradeOrder.count({ where: { status: GoldTradeStatus.FAILED } }),
       this.prisma.goldTradeOrder.count({
         where: {
           status: GoldTradeStatus.FILLED,

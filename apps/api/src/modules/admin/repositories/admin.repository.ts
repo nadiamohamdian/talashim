@@ -18,7 +18,7 @@ export class AdminRepository {
     const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
     return Promise.all([
       this.prisma.user.count(),
-      this.prisma.user.count({ where: { role: Role.ADMIN } }),
+      this.prisma.user.count({ where: { role: { not: Role.CUSTOMER } } }),
       this.prisma.kycVerification.count({ where: { status: KycStatus.PENDING } }),
       this.prisma.walletTransaction.count({
         where: { createdAt: { gte: since24h }, status: 'POSTED' },
@@ -39,9 +39,9 @@ export class AdminRepository {
     ]);
   }
 
-  listUsers(skip: number, take: number, search?: string, role?: Role) {
+  listUsers(skip: number, take: number, search?: string, role?: Role, staffOnly?: boolean) {
     const where: Prisma.UserWhereInput = {
-      role,
+      role: role ?? (staffOnly ? { not: Role.CUSTOMER } : undefined),
       OR: search
         ? [
             { email: { contains: search, mode: 'insensitive' } },
@@ -80,6 +80,53 @@ export class AdminRepository {
         role: true,
         createdAt: true,
       },
+    });
+  }
+
+  createStaffUser(data: {
+    email: string;
+    fullName: string;
+    passwordHash: string;
+    role: Role;
+  }) {
+    return this.prisma.user.create({
+      data: {
+        email: data.email,
+        fullName: data.fullName,
+        passwordHash: data.passwordHash,
+        role: data.role,
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  updateStaffUser(
+    userId: string,
+    data: { email?: string; fullName?: string; passwordHash?: string; role?: Role },
+  ) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  findStaffUserById(userId: string) {
+    return this.prisma.user.findFirst({
+      where: { id: userId, role: { not: Role.CUSTOMER } },
+      select: { id: true, email: true, fullName: true, role: true },
     });
   }
 
@@ -340,6 +387,194 @@ export class AdminRepository {
         actorId,
         context: context as Prisma.InputJsonValue | undefined,
       },
+    });
+  }
+
+  listSessions(
+    skip: number,
+    take: number,
+    search?: string,
+    status: 'active' | 'revoked' | 'expired' | 'all' = 'all',
+  ) {
+    const now = new Date();
+    const where: Prisma.RefreshTokenWhereInput = {
+      ...(search
+        ? {
+            user: {
+              OR: [
+                { email: { contains: search, mode: 'insensitive' } },
+                { fullName: { contains: search, mode: 'insensitive' } },
+              ],
+            },
+          }
+        : {}),
+      ...(status === 'active'
+        ? { revokedAt: null, expiresAt: { gt: now } }
+        : status === 'revoked'
+          ? { revokedAt: { not: null } }
+          : status === 'expired'
+            ? { revokedAt: null, expiresAt: { lte: now } }
+            : {}),
+    };
+
+    return Promise.all([
+      this.prisma.refreshToken.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: { id: true, email: true, fullName: true, role: true },
+          },
+        },
+      }),
+      this.prisma.refreshToken.count({ where }),
+    ]);
+  }
+
+  revokeSession(sessionId: string) {
+    return this.prisma.refreshToken.update({
+      where: { id: sessionId },
+      data: { revokedAt: new Date() },
+    });
+  }
+
+  revokeAllUserSessions(userId: string) {
+    return this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
+
+  listLoginHistory(skip: number, take: number, search?: string, action?: string) {
+    const where: Prisma.AuditLogWhereInput = {
+      action: action ? { equals: action } : { startsWith: 'auth.' },
+      ...(search
+        ? {
+            actor: {
+              OR: [
+                { email: { contains: search, mode: 'insensitive' } },
+                { fullName: { contains: search, mode: 'insensitive' } },
+              ],
+            },
+          }
+        : {}),
+    };
+
+    return Promise.all([
+      this.prisma.auditLog.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          actor: { select: { id: true, email: true, fullName: true, role: true } },
+        },
+      }),
+      this.prisma.auditLog.count({ where }),
+    ]);
+  }
+
+  findUserById(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        createdAt: true,
+        kycVerification: {
+          select: {
+            id: true,
+            status: true,
+            nationalId: true,
+            phone: true,
+            submittedAt: true,
+            reviewNote: true,
+          },
+        },
+      },
+    });
+  }
+
+  getUserOrderStats(userId: string) {
+    return Promise.all([
+      this.prisma.order.count({ where: { userId } }),
+      this.prisma.goldTradeOrder.count({ where: { userId } }),
+    ]);
+  }
+
+  getUserRecentOrders(userId: string) {
+    return this.prisma.order.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, orderNumber: true, status: true, totalToman: true },
+    });
+  }
+
+  getUserRecentWalletTransactions(userId: string) {
+    return this.prisma.walletTransaction.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, type: true, reference: true },
+    });
+  }
+
+  getUserRecentTrades(userId: string) {
+    return this.prisma.goldTradeOrder.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      select: { id: true, orderNumber: true, side: true, quantityGram: true },
+    });
+  }
+
+  listUserActivity(userId: string, skip: number, take: number) {
+    const actorFilter = { actorId: userId };
+    return Promise.all([
+      this.prisma.auditLog.findMany({
+        where: actorFilter,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, action: true, context: true, createdAt: true },
+      }),
+      this.prisma.auditLog.count({ where: actorFilter }),
+    ]).then(async ([platformItems, platformTotal]) => {
+      const [walletItems, walletTotal] = await Promise.all([
+        this.prisma.walletAuditLog.findMany({
+          where: actorFilter,
+          skip: 0,
+          take: take + skip,
+          orderBy: { createdAt: 'desc' },
+          select: { id: true, action: true, context: true, createdAt: true },
+        }),
+        this.prisma.walletAuditLog.count({ where: actorFilter }),
+      ]);
+      const [tradeItems, tradeTotal] = await Promise.all([
+        this.prisma.goldTradeAuditLog.findMany({
+          where: actorFilter,
+          skip: 0,
+          take: take + skip,
+          orderBy: { createdAt: 'desc' },
+          select: { id: true, action: true, context: true, createdAt: true },
+        }),
+        this.prisma.goldTradeAuditLog.count({ where: actorFilter }),
+      ]);
+
+      const merged = [
+        ...platformItems.map((item) => ({ ...item, source: 'platform' as const })),
+        ...walletItems.map((item) => ({ ...item, source: 'wallet' as const })),
+        ...tradeItems.map((item) => ({ ...item, source: 'trade' as const })),
+      ]
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(skip, skip + take);
+
+      return [merged, platformTotal + walletTotal + tradeTotal] as const;
     });
   }
 }

@@ -1,4 +1,4 @@
-import type { CmsHeroConfig, CmsHomepageSections } from '@sadafgold/types';
+import type { CmsHeroConfig, CmsHomepageSections } from '@talashim/types';
 
 export const DEFAULT_CMS_HERO: CmsHeroConfig = {
   badge: 'کالکشن جدید',

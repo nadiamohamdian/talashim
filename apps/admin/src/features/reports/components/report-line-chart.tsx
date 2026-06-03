@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReportChartPoint } from '@sadafgold/types';
+import type { ReportChartPoint } from '@talashim/types';
 import {
   CartesianGrid,
   Line,

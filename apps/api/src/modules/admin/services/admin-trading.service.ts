@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import type {
   AdminTradeOrderDetailDto,
   AdminTradeOrderDto,
   TradingSettlementSummary,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import { TradingService } from '@/modules/trading/services/trading.service';
+import type { TradingReportQueryDto } from '../dto/admin-reports-query.dto';
 import type {
   AdminCancelTradeOrderDto,
   AdminTradingOrdersQueryDto,
@@ -32,28 +33,21 @@ export class AdminTradingService {
     private readonly adminReportsService: AdminReportsService,
   ) {}
 
-  async listOrders(
-    query: AdminTradingOrdersQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async listOrders(query: AdminTradingOrdersQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.trading.read);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.tradingRepository.listOrders(
-      skip,
-      limit,
-      {
-        side: query.side,
-        status: query.status,
-        userId: query.userId,
-        search: query.search,
-        from: query.from ? new Date(query.from) : undefined,
-        to: query.to ? new Date(query.to) : undefined,
-      },
-    );
+    const [items, total] = await this.tradingRepository.listOrders(skip, limit, {
+      side: query.side,
+      status: query.status,
+      userId: query.userId,
+      search: query.search,
+      from: query.from ? new Date(query.from) : undefined,
+      to: query.to ? new Date(query.to) : undefined,
+    });
 
     return {
       page,
@@ -63,10 +57,7 @@ export class AdminTradingService {
     };
   }
 
-  async getOrder(
-    orderId: string,
-    actor: AuthenticatedUser,
-  ): Promise<AdminTradeOrderDetailDto> {
+  async getOrder(orderId: string, actor: AuthenticatedUser): Promise<AdminTradeOrderDetailDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.trading.read);
 
     const order = await this.tradingRepository.findOrderById(orderId);
@@ -77,9 +68,7 @@ export class AdminTradingService {
     return this.mapOrderDetail(order);
   }
 
-  async getSettlementSummary(
-    actor: AuthenticatedUser,
-  ): Promise<TradingSettlementSummary> {
+  async getSettlementSummary(actor: AuthenticatedUser): Promise<TradingSettlementSummary> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.trading.settle);
 
     const [pendingCount, failedCount, filledTodayCount] =
@@ -88,10 +77,7 @@ export class AdminTradingService {
     return { pendingCount, failedCount, filledTodayCount };
   }
 
-  listSettlementQueue(
-    query: AdminTradingOrdersQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  listSettlementQueue(query: AdminTradingOrdersQueryDto, actor: AuthenticatedUser) {
     return this.listOrders(query, actor);
   }
 
@@ -107,20 +93,13 @@ export class AdminTradingService {
     actor: AuthenticatedUser,
   ) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.trading.settle);
-    await this.tradingService.adminCancelPendingOrder(
-      orderId,
-      actor.id,
-      dto.reason,
-    );
+    await this.tradingService.adminCancelPendingOrder(orderId, actor.id, dto.reason);
     return this.getOrder(orderId, actor);
   }
 
-  async getTradingReport(
-    query: AdminTradingReportQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async getTradingReport(query: AdminTradingReportQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.reports.view);
-    return this.adminReportsService.getTradingReport(query, actor);
+    return this.adminReportsService.getTradingReport(query as TradingReportQueryDto, actor);
   }
 
   private mapOrder(order: OrderListRow | OrderDetailRow): AdminTradeOrderDto {
@@ -164,12 +143,11 @@ export class AdminTradingService {
         action: log.action,
         createdAt: log.createdAt.toISOString(),
         context:
-          log.context &&
-          typeof log.context === 'object' &&
-          !Array.isArray(log.context)
+          log.context && typeof log.context === 'object' && !Array.isArray(log.context)
             ? (log.context as Record<string, unknown>)
             : null,
       })),
     };
   }
+
 }

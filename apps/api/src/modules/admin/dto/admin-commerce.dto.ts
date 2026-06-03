@@ -6,17 +6,123 @@ import {
 } from '@/generated/prisma';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
+  IsDateString,
   IsEnum,
   IsInt,
   IsOptional,
   IsString,
   IsUrl,
+  Max,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 import { PaginationQueryDto } from './admin-query.dto';
 import { InventoryReportQueryDto } from './admin-reports-query.dto';
+
+export class AdminProductGalleryImageDto {
+  @ApiProperty()
+  @IsUrl({ require_tld: false })
+  url!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  alt?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  sortOrder?: number;
+}
+
+export class AdminProductVariantInputDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  sku!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  color?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  size?: string;
+
+  @ApiProperty()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  priceToman!: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0.01)
+  weightGram?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  makingFeePercent?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  imageUrl?: string;
+
+  @ApiPropertyOptional({ default: 0 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  quantity?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  sortOrder?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  isDefault?: boolean;
+}
+
+export class AdminProductVideoInputDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  title!: string;
+
+  @ApiProperty()
+  @IsUrl({ require_tld: false })
+  videoUrl!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  thumbnailUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  sortOrder?: number;
+}
 
 export class AdminProductsQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
@@ -111,6 +217,45 @@ export class CreateAdminProductDto {
   @IsInt()
   @Min(0)
   initialQuantity?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  discountPercent?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  discountStartsAt?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  discountEndsAt?: string;
+
+  @ApiPropertyOptional({ type: [AdminProductGalleryImageDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductGalleryImageDto)
+  galleryImages?: AdminProductGalleryImageDto[];
+
+  @ApiPropertyOptional({ type: [AdminProductVariantInputDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductVariantInputDto)
+  variants?: AdminProductVariantInputDto[];
+
+  @ApiPropertyOptional({ type: [AdminProductVideoInputDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductVideoInputDto)
+  videos?: AdminProductVideoInputDto[];
 }
 
 export class UpdateAdminProductDto {
@@ -172,6 +317,45 @@ export class UpdateAdminProductDto {
   @Type(() => Boolean)
   @IsBoolean()
   featured?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  discountPercent?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  discountStartsAt?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  discountEndsAt?: string;
+
+  @ApiPropertyOptional({ type: [AdminProductGalleryImageDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductGalleryImageDto)
+  galleryImages?: AdminProductGalleryImageDto[];
+
+  @ApiPropertyOptional({ type: [AdminProductVariantInputDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductVariantInputDto)
+  variants?: AdminProductVariantInputDto[];
+
+  @ApiPropertyOptional({ type: [AdminProductVideoInputDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductVideoInputDto)
+  videos?: AdminProductVideoInputDto[];
 }
 
 export class AdminProductVideosQueryDto extends PaginationQueryDto {

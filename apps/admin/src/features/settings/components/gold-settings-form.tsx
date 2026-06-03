@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { Alert, Input, Label } from '@sadafgold/ui';
+import { useForm, type Resolver } from 'react-hook-form';
+import { Alert, Input, Label } from '@talashim/ui';
 import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import { goldSettingsSchema, type GoldSettings } from '../model/schemas';
@@ -29,7 +29,7 @@ export function GoldSettingsForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<GoldSettings>({
-    resolver: zodResolver(goldSettingsSchema),
+    resolver: zodResolver(goldSettingsSchema) as Resolver<GoldSettings>,
     defaultValues: gold,
   });
 
@@ -159,8 +159,8 @@ export function GoldSettingsForm() {
           </div>
         </div>
         <p className="text-xs leading-5 text-stone-500">
-          منبع بازار: BRS / fallback — پس از اتصال API تنظیمات، این مقادیر در Redis و worker اعمال
-          می‌شوند.
+          منبع بازار: BRS / fallback — پس از اتصال API تنظیمات، این مقادیر در Redis و worker
+          اعمال می‌شوند.
         </p>
       </SettingsSectionCard>
 

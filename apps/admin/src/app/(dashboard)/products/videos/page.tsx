@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { ProductVideosPanel } from '@/features/commerce/components/product-videos-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="products.videos" />;
+  return <ProductVideosPanel />;
 }

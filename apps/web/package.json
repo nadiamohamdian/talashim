@@ -1,21 +1,21 @@
 {
-  "name": "@sadafgold/web",
+  "name": "@talashim/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start -p 3001",
+    "start": "next start -p 3000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "echo \"No tests for @sadafgold/web\""
+    "test": "echo \"No tests for @talashim/web\""
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@sadafgold/api-client": "workspace:*",
-    "@sadafgold/shared": "workspace:*",
-    "@sadafgold/types": "workspace:*",
-    "@sadafgold/ui": "workspace:*",
+    "@talashim/api-client": "workspace:*",
+    "@talashim/shared": "workspace:*",
+    "@talashim/types": "workspace:*",
+    "@talashim/ui": "workspace:*",
     "@tanstack/react-query": "catalog:",
     "axios": "catalog:",
     "next": "catalog:",

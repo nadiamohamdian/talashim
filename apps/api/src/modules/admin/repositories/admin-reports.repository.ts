@@ -10,14 +10,12 @@ import {
 } from '@/generated/prisma';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
+import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 
 const LOW_STOCK_THRESHOLD = 2;
 const DAILY_SERIES_DAYS = 14;
 
-function createdAtRange(
-  from?: string,
-  to?: string,
-): Prisma.DateTimeFilter | undefined {
+function createdAtRange(from?: string, to?: string): Prisma.DateTimeFilter | undefined {
   if (!from && !to) {
     return undefined;
   }
@@ -53,26 +51,31 @@ export class AdminReportsRepository {
       OrderStatus.CONFIRMED,
     ];
 
-    const [orderCount, revenueAgg, allCount, byStatus, dailySeries] =
-      await Promise.all([
-        this.prisma.order.count({
-          where: { ...dateWhere, status: { in: revenueStatuses } },
-        }),
-        this.prisma.order.aggregate({
-          where: { ...dateWhere, status: { in: revenueStatuses } },
-          _sum: { totalToman: true },
-        }),
-        this.prisma.order.count({ where: dateWhere }),
-        this.prisma.order.groupBy({
-          by: ['status'],
-          where: dateWhere,
-          _count: { id: true },
-          _sum: { totalToman: true },
-        }),
-        this.buildOrderDailySeries(fromDate, toDate),
-      ]);
+    const [
+      orderCount,
+      revenueAgg,
+      allCount,
+      byStatus,
+      dailySeries,
+    ] = await Promise.all([
+      this.prisma.order.count({
+        where: { ...dateWhere, status: { in: revenueStatuses } },
+      }),
+      this.prisma.order.aggregate({
+        where: { ...dateWhere, status: { in: revenueStatuses } },
+        _sum: { totalToman: true },
+      }),
+      this.prisma.order.count({ where: dateWhere }),
+      this.prisma.order.groupBy({
+        by: ['status'],
+        where: dateWhere,
+        _count: { id: true },
+        _sum: { totalToman: true },
+      }),
+      this.buildOrderDailySeries(fromDate, toDate),
+    ]);
 
-    const totalRevenue = revenueAgg._sum.totalToman ?? 0;
+    const totalRevenue = tomanBigIntToNumber(revenueAgg._sum.totalToman ?? 0n);
     const avgOrder = orderCount > 0 ? Math.round(totalRevenue / orderCount) : 0;
 
     return {
@@ -85,7 +88,7 @@ export class AdminReportsRepository {
         key: row.status,
         label: row.status,
         count: row._count.id,
-        amount: row._sum.totalToman ?? 0,
+        amount: tomanBigIntToNumber(row._sum.totalToman ?? 0n),
       })),
       dailySeries,
     };
@@ -225,15 +228,9 @@ export class AdminReportsRepository {
         by: ['role'],
         _count: { id: true },
       }),
-      this.prisma.kycVerification.count({
-        where: { status: KycStatus.PENDING },
-      }),
-      this.prisma.kycVerification.count({
-        where: { status: KycStatus.APPROVED },
-      }),
-      this.prisma.kycVerification.count({
-        where: { status: KycStatus.REJECTED },
-      }),
+      this.prisma.kycVerification.count({ where: { status: KycStatus.PENDING } }),
+      this.prisma.kycVerification.count({ where: { status: KycStatus.APPROVED } }),
+      this.prisma.kycVerification.count({ where: { status: KycStatus.REJECTED } }),
       this.buildUserDailySeries(fromDate, toDate),
     ]);
 
@@ -466,7 +463,7 @@ export class AdminReportsRepository {
       ]);
       return {
         value: count,
-        secondaryValue: revenue._sum.totalToman ?? 0,
+        secondaryValue: tomanBigIntToNumber(revenue._sum.totalToman ?? 0n),
       };
     });
   }
@@ -507,16 +504,9 @@ export class AdminReportsRepository {
   private async buildDailySeries(
     from: Date,
     to: Date,
-    fn: (
-      start: Date,
-      end: Date,
-    ) => Promise<{ value: number; secondaryValue?: number }>,
+    fn: (start: Date, end: Date) => Promise<{ value: number; secondaryValue?: number }>,
   ) {
-    const series: Array<{
-      label: string;
-      value: number;
-      secondaryValue?: number;
-    }> = [];
+    const series: Array<{ label: string; value: number; secondaryValue?: number }> = [];
     const end = new Date(to);
     const cursor = new Date(from);
     cursor.setHours(0, 0, 0, 0);

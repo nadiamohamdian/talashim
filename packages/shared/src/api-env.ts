@@ -1,12 +1,26 @@
 import { z } from 'zod';
 import { sharedEnvSchema } from './shared';
 
+/** Nest URI versioning adds a `v` prefix — use `1` in env, not `v1` (avoids `/api/vv1`). */
+export function normalizeApiVersionSegment(version: string): string {
+  return version.startsWith('v') ? version.slice(1) : version;
+}
+
+/** Public path segment, e.g. `v1`. */
+export function apiVersionUri(version: string): string {
+  return `v${normalizeApiVersionSegment(version)}`;
+}
+
 export const apiEnvSchema = sharedEnvSchema.extend({
   API_PORT: z.coerce.number().int().positive().default(4000),
   API_PREFIX: z.string().min(1).default('api'),
-  API_VERSION: z.string().min(1).default('v1'),
+  API_VERSION: z
+    .string()
+    .min(1)
+    .default('1')
+    .transform(normalizeApiVersionSegment),
   WEB_URL: z.string().url().default('http://localhost:3000'),
-  ADMIN_URL: z.string().url().default('http://localhost:3001'),
+  ADMIN_URL: z.string().url().default('http://localhost:3002'),
   CORS_ORIGIN: z.string().url().default('http://localhost:3000'),
   COOKIE_DOMAIN: z.string().min(1).default('localhost'),
   DATABASE_URL: z.string().min(1),
@@ -43,9 +57,14 @@ export const apiEnvSchema = sharedEnvSchema.extend({
   THROTTLE_AUTH_TTL_MS: z.coerce.number().int().positive().default(300_000),
   HTTP_CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(60),
   COMPRESSION_ENABLED: z.coerce.boolean().default(true),
-  CORS_ORIGINS: z.string().min(1).default('http://localhost:3000,http://localhost:3001'),
+  CORS_ORIGINS: z.string().min(1).default('http://localhost:3000,http://localhost:3002'),
   TRUST_PROXY: z.coerce.boolean().default(false),
   LOG_LEVEL: z.enum(['log', 'error', 'warn', 'debug', 'verbose']).default('log'),
+  /** Directory for uploaded media (relative to API process cwd). */
+  UPLOAD_DIR: z.string().min(1).default('uploads'),
+  /** Public origin for uploaded files, e.g. http://localhost:4000 */
+  UPLOAD_PUBLIC_BASE_URL: z.string().url().default('http://localhost:4000'),
+  UPLOAD_MAX_BYTES: z.coerce.number().int().positive().default(5_242_880),
 });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;

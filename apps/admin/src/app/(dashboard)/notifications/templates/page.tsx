@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { TemplatesPanel } from '@/features/notifications/components/templates-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="notifications.templates" />;
+  return <TemplatesPanel />;
 }

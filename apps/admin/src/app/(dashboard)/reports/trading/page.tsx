@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { TradingReportPanel } from '@/features/reports/components/trading-report-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="reports.trading" />;
+  return <TradingReportPanel />;
 }

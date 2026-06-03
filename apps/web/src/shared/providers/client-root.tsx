@@ -5,7 +5,7 @@ import { ThemeProvider } from '@/shared/providers/theme-provider';
 import { SiteFooter } from '@/widgets/footer/site-footer';
 import { GoldPriceTicker } from '@/widgets/header/gold-price-ticker';
 import { SiteHeader } from '@/widgets/header/site-header';
-import { QueryProvider } from '@sadafgold/ui/providers/query-provider';
+import { QueryProvider } from '@/shared/providers/query-provider';
 import type { PropsWithChildren } from 'react';
 
 export function ClientRoot({ children }: PropsWithChildren) {

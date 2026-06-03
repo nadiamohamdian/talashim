@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { HistoryPricingPanel } from '@/features/pricing/components/history-pricing-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="pricing.history" />;
+  return <HistoryPricingPanel />;
 }

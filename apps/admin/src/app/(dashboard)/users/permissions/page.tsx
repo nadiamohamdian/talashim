@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="users.permissions" />;
+  redirect('/security/permissions');
 }

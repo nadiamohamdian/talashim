@@ -42,6 +42,8 @@ const SUPPORT_PERMISSIONS: AdminPermissionKey[] = [
   P.kyc.read,
   P.orders.read,
   P.notifications.read,
+  P.tickets.read,
+  P.tickets.write,
 ];
 
 const ACCOUNTANT_PERMISSIONS: AdminPermissionKey[] = [
@@ -123,10 +125,12 @@ const ENUM_BY_SLUG = new Map<StaffRoleSlug, StaffRoleEnum>(
   ADMIN_ROLE_DEFINITIONS.map((role) => [role.slug, role.enum]),
 );
 
-const ROLE_LABEL_BY_SLUG = new Map<UserRoleSlug, string>([
-  ['customer', 'مشتری'],
-  ...ADMIN_ROLE_DEFINITIONS.map((role) => [role.slug, role.labelFa] as const),
-]);
+const ROLE_LABEL_BY_SLUG = new Map<UserRoleSlug, string>(
+  [
+    ['customer', 'مشتری'],
+    ...ADMIN_ROLE_DEFINITIONS.map((role) => [role.slug, role.labelFa] as const),
+  ],
+);
 
 export function normalizeStaffRoleEnum(role: string | undefined): StaffRoleEnum | null {
   if (!role) {

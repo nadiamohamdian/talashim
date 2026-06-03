@@ -28,8 +28,7 @@ export class AdminFinanceRepository {
     const where: Prisma.LedgerEntryWhereInput = {};
 
     if (filters.assetType) {
-      where.assetType =
-        filters.assetType as Prisma.EnumWalletAssetTypeFilter['equals'];
+      where.assetType = filters.assetType as Prisma.EnumWalletAssetTypeFilter['equals'];
     }
 
     if (filters.side) {
@@ -61,21 +60,9 @@ export class AdminFinanceRepository {
 
     if (filters.search?.trim()) {
       where.OR = [
-        {
-          account: {
-            code: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
-        {
-          account: {
-            name: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
-        {
-          transaction: {
-            reference: { contains: filters.search.trim(), mode: 'insensitive' },
-          },
-        },
+        { account: { code: { contains: filters.search.trim(), mode: 'insensitive' } } },
+        { account: { name: { contains: filters.search.trim(), mode: 'insensitive' } } },
+        { transaction: { reference: { contains: filters.search.trim(), mode: 'insensitive' } } },
       ];
     }
 
@@ -105,11 +92,7 @@ export class AdminFinanceRepository {
   listLedgerAccounts(
     skip: number,
     take: number,
-    filters: {
-      search?: string;
-      category?: LedgerAccountCategory;
-      userId?: string;
-    },
+    filters: { search?: string; category?: LedgerAccountCategory; userId?: string },
   ) {
     const where: Prisma.LedgerAccountWhereInput = { isActive: true };
 
@@ -136,13 +119,7 @@ export class AdminFinanceRepository {
         orderBy: [{ category: 'asc' }, { code: 'asc' }],
         include: {
           user: { select: { id: true, email: true, fullName: true } },
-          entries: {
-            select: {
-              side: true,
-              amount: true,
-              account: { select: { category: true } },
-            },
-          },
+          entries: { select: { side: true, amount: true, account: { select: { category: true } } } },
         },
       }),
       this.prisma.ledgerAccount.count({ where }),
@@ -223,7 +200,8 @@ export class AdminFinanceRepository {
 
   private async buildDailyTxSeries(from?: Date, to?: Date) {
     const end = to ?? new Date();
-    const start = from ?? new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const start =
+      from ?? new Date(end.getTime() - 30 * 24 * 60 * 60 * 1000);
     const points: Array<{ label: string; value: number }> = [];
 
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {

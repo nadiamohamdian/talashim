@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
-import type { CmsSeoSettingsDto } from '@sadafgold/types';
+import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
+import type { CmsSeoSettingsDto } from '@talashim/types';
 import { fetchSeoSettings, updateSeoSettings } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { CmsPageShell } from './cms-page-shell';
@@ -78,7 +78,9 @@ export function SeoPanel() {
             className="mt-1 font-mono text-xs"
             dir="ltr"
             value={form.defaultOgImageUrl ?? ''}
-            onChange={(e) => setForm({ ...form, defaultOgImageUrl: e.target.value || null })}
+            onChange={(e) =>
+              setForm({ ...form, defaultOgImageUrl: e.target.value || null })
+            }
           />
         </div>
         <div>
@@ -87,7 +89,9 @@ export function SeoPanel() {
             className="mt-1 font-mono text-sm"
             dir="ltr"
             value={form.googleAnalyticsId ?? ''}
-            onChange={(e) => setForm({ ...form, googleAnalyticsId: e.target.value || null })}
+            onChange={(e) =>
+              setForm({ ...form, googleAnalyticsId: e.target.value || null })
+            }
             placeholder="G-XXXXXXXX"
           />
         </div>

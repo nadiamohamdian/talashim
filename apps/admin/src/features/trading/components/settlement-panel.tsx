@@ -15,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import {
   cancelTradeOrder,
   fetchSettlementQueue,
@@ -25,6 +25,7 @@ import {
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
+import { AdminSubnavLinks } from '@/features/admin/components/admin-subnav-links';
 import { TradingPageShell } from './trading-page-shell';
 import {
   formatGram,
@@ -78,6 +79,14 @@ export function SettlementPanel() {
 
   return (
     <TradingPageShell routeId="trading.settlement">
+      <AdminSubnavLinks
+        links={[
+          { href: '/trading/history', label: 'همه معاملات' },
+          { href: '/trading/buy-orders', label: 'خرید' },
+          { href: '/trading/sell-orders', label: 'فروش' },
+          { href: '/trading/settlement', label: 'تسویه' },
+        ]}
+      />
       <div className="grid gap-4 sm:grid-cols-3">
         <Card className="border-border bg-white p-4">
           <p className="text-xs text-stone-500">در انتظار تسویه</p>

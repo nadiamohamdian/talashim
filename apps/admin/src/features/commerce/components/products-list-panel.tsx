@@ -16,11 +16,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchAdminProducts, deleteAdminProduct } from '../api/commerce-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
+import { AdminSubnavLinks } from '@/features/admin/components/admin-subnav-links';
 import { CatalogPageShell } from './catalog-page-shell';
 import { formatToman, PRODUCT_CATEGORY_FA, selectFieldClass } from '../lib/labels';
 
@@ -51,19 +52,20 @@ export function ProductsListPanel() {
     <CatalogPageShell
       routeId="products.list"
       actions={
-        <div className="flex gap-2">
-          <Link href="/products/new">
-            <Button className="h-10 px-4">محصول جدید</Button>
-          </Link>
-          <Link
-            href="/products/videos"
-            className="inline-flex h-10 items-center rounded-2xl border border-border bg-white px-4 text-sm text-stone-700 hover:border-gold-light"
-          >
-            ویدیوها
-          </Link>
-        </div>
+        <Link href="/products/new">
+          <Button className="h-10 px-4">محصول جدید</Button>
+        </Link>
       }
     >
+      <AdminSubnavLinks
+        links={[
+          { href: '/products', label: 'محصولات' },
+          { href: '/inventory', label: 'موجودی' },
+          { href: '/inventory/history', label: 'تاریخچه موجودی' },
+          { href: '/products/videos', label: 'ویدیوها' },
+        ]}
+      />
+
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
@@ -138,9 +140,7 @@ export function ProductsListPanel() {
                   <TableRow key={product.id}>
                     <TableCell className="font-mono text-xs">{product.sku}</TableCell>
                     <TableCell className="font-medium">{product.title}</TableCell>
-                    <TableCell>
-                      {PRODUCT_CATEGORY_FA[product.category] ?? product.category}
-                    </TableCell>
+                    <TableCell>{PRODUCT_CATEGORY_FA[product.category] ?? product.category}</TableCell>
                     <TableCell>{product.karat}</TableCell>
                     <TableCell>{formatToman(product.priceToman)}</TableCell>
                     <TableCell>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Card, Input, Label } from '@sadafgold/ui';
+import { Button, Card, Input, Label } from '@talashim/ui';
 import { registerMediaAsset } from '../api/cms-api';
 import { CmsPageShell } from './cms-page-shell';
 import { selectFieldClass } from '../lib/labels';
@@ -100,7 +100,9 @@ export function MediaUploadPanel() {
         >
           {upload.isPending ? 'در حال ثبت…' : 'ثبت در کتابخانه'}
         </Button>
-        {successUrl ? <p className="text-sm text-emerald-700">ثبت شد: {successUrl}</p> : null}
+        {successUrl ? (
+          <p className="text-sm text-emerald-700">ثبت شد: {successUrl}</p>
+        ) : null}
         {upload.isError ? (
           <p className="text-sm text-rose-600">ثبت ناموفق بود. URL و حجم را بررسی کنید.</p>
         ) : null}

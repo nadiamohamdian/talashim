@@ -9,7 +9,7 @@ import type {
   AdminProductDto,
   AdminProductVideoDto,
   PaginatedResponse,
-} from '@sadafgold/types';
+} from '@talashim/types';
 
 export function fetchAdminProducts(params?: {
   page?: number;
@@ -42,7 +42,7 @@ export function updateAdminProduct(id: string, body: Record<string, unknown>) {
 }
 
 export function deleteAdminProduct(id: string) {
-  return axiosClient.delete<{ ok: boolean }>(`/admin/products/${id}`).then((r) => r.data);
+  return axiosClient.delete(`/admin/products/${id}`).then((r) => r.data);
 }
 
 export function fetchProductVideos(params?: {
@@ -56,7 +56,9 @@ export function fetchProductVideos(params?: {
 }
 
 export function createProductVideo(body: Record<string, unknown>) {
-  return axiosClient.post<AdminProductVideoDto>('/admin/products/videos', body).then((r) => r.data);
+  return axiosClient
+    .post<AdminProductVideoDto>('/admin/products/videos', body)
+    .then((r) => r.data);
 }
 
 export function updateProductVideo(id: string, body: Record<string, unknown>) {
@@ -66,7 +68,7 @@ export function updateProductVideo(id: string, body: Record<string, unknown>) {
 }
 
 export function deleteProductVideo(id: string) {
-  return axiosClient.delete<{ ok: boolean }>(`/admin/products/videos/${id}`).then((r) => r.data);
+  return axiosClient.delete(`/admin/products/videos/${id}`).then((r) => r.data);
 }
 
 export function fetchInventoryStock(params?: {
@@ -90,10 +92,12 @@ export function fetchInventoryHistory(params?: {
     .then((r) => r.data);
 }
 
-export function adjustInventory(body: { productId: string; quantityDelta: number; note?: string }) {
-  return axiosClient
-    .post<AdminInventoryMovementDto>('/admin/inventory/adjustments', body)
-    .then((r) => r.data);
+export function adjustInventory(body: {
+  productId: string;
+  quantityDelta: number;
+  note?: string;
+}) {
+  return axiosClient.post('/admin/inventory/adjustments', body).then((r) => r.data);
 }
 
 export function fetchInventorySectionReport(params?: {

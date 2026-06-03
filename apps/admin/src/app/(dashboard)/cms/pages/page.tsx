@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { StaticPagesPanel } from '@/features/cms/components/static-pages-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="cms.pages" />;
+  return <StaticPagesPanel />;
 }

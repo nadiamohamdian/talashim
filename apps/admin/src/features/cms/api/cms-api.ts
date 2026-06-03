@@ -8,7 +8,7 @@ import type {
   CmsStaticPageDto,
   MediaAssetDto,
   PaginatedResponse,
-} from '@sadafgold/types';
+} from '@talashim/types';
 
 export type UpsertBlogPostPayload = {
   title: string;
@@ -106,7 +106,11 @@ export function updateHomepageCms(payload: Pick<CmsHomepageDto, 'hero' | 'sectio
   return axiosClient.patch<CmsHomepageDto>('/admin/cms/homepage', payload).then((r) => r.data);
 }
 
-export function fetchBanners(params?: { page?: number; status?: string; placement?: string }) {
+export function fetchBanners(params?: {
+  page?: number;
+  status?: string;
+  placement?: string;
+}) {
   return axiosClient
     .get<PaginatedResponse<CmsBannerDto>>('/admin/cms/banners', { params })
     .then((r) => r.data);
@@ -124,7 +128,11 @@ export function deleteBanner(id: string) {
   return axiosClient.delete<{ ok: boolean }>(`/admin/cms/banners/${id}`).then((r) => r.data);
 }
 
-export function fetchStaticPages(params?: { page?: number; search?: string; published?: string }) {
+export function fetchStaticPages(params?: {
+  page?: number;
+  search?: string;
+  published?: string;
+}) {
   return axiosClient
     .get<PaginatedResponse<CmsStaticPageDto>>('/admin/cms/pages', { params })
     .then((r) => r.data);
@@ -135,7 +143,9 @@ export function createStaticPage(payload: UpsertStaticPagePayload) {
 }
 
 export function updateStaticPage(id: string, payload: UpsertStaticPagePayload) {
-  return axiosClient.patch<CmsStaticPageDto>(`/admin/cms/pages/${id}`, payload).then((r) => r.data);
+  return axiosClient
+    .patch<CmsStaticPageDto>(`/admin/cms/pages/${id}`, payload)
+    .then((r) => r.data);
 }
 
 export function deleteStaticPage(id: string) {
@@ -168,4 +178,15 @@ export function registerMediaAsset(payload: RegisterMediaPayload) {
 
 export function deleteMediaAsset(id: string) {
   return axiosClient.delete<{ ok: boolean }>(`/admin/media/${id}`).then((r) => r.data);
+}
+
+export function uploadMediaImage(file: File, options?: { folder?: string }) {
+  const form = new FormData();
+  form.append('file', file);
+  const folder = options?.folder ?? 'general';
+  return axiosClient
+    .post<MediaAssetDto>(`/admin/media/upload?folder=${encodeURIComponent(folder)}`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    .then((r) => r.data);
 }

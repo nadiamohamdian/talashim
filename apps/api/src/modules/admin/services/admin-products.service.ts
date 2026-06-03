@@ -1,17 +1,21 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
-import { calculateJewelryPricing } from '@sadafgold/shared';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
+import { calculateJewelryPricing } from '@talashim/shared';
 import type {
   AdminProductDetailDto,
   AdminProductDto,
+  AdminProductImageDto,
+  AdminProductVariantDto,
   AdminProductVideoDto,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
+import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
 import type {
   AdminProductVideosQueryDto,
@@ -25,6 +29,10 @@ import { AdminProductsRepository } from '../repositories/admin-products.reposito
 type ProductRow = NonNullable<
   Awaited<ReturnType<AdminProductsRepository['findProductById']>>
 >;
+
+type ProductListRow = Awaited<
+  ReturnType<AdminProductsRepository['listProducts']>
+>[0][number];
 
 @Injectable()
 export class AdminProductsService {
@@ -40,16 +48,12 @@ export class AdminProductsService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.productsRepository.listProducts(
-      skip,
-      limit,
-      {
-        search: query.search,
-        category: query.category,
-        featured: query.featured,
-        lowStock: query.lowStock,
-      },
-    );
+    const [items, total] = await this.productsRepository.listProducts(skip, limit, {
+      search: query.search,
+      category: query.category,
+      featured: query.featured,
+      lowStock: query.lowStock,
+    });
 
     return {
       page,
@@ -59,10 +63,7 @@ export class AdminProductsService {
     };
   }
 
-  async getProductBySlug(
-    slug: string,
-    actor: AuthenticatedUser,
-  ): Promise<AdminProductDetailDto> {
+  async getProductBySlug(slug: string, actor: AuthenticatedUser): Promise<AdminProductDetailDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.read);
 
     const product = await this.productsRepository.findProductBySlug(slug);
@@ -73,10 +74,7 @@ export class AdminProductsService {
     return this.getProduct(product.id, actor);
   }
 
-  async getProduct(
-    id: string,
-    actor: AuthenticatedUser,
-  ): Promise<AdminProductDetailDto> {
+  async getProduct(id: string, actor: AuthenticatedUser): Promise<AdminProductDetailDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.read);
 
     const product = await this.productsRepository.findProductById(id);
@@ -84,12 +82,9 @@ export class AdminProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    const base = this.mapProduct(product);
+    const base = this.mapProductDetail(product);
     try {
-      const live = await this.pricingEngine.getLivePrice(
-        'XAU-IRR',
-        product.karat,
-      );
+      const live = await this.pricingEngine.getLivePrice('XAU-IRR', product.karat);
       const pricing = calculateJewelryPricing({
         weightGram: Number(product.weightGram),
         livePricePerGramToman: Number(live.pricePerGram),
@@ -114,6 +109,8 @@ export class AdminProductsService {
       throw new ConflictException('SKU already exists');
     }
 
+    await this.assertVariantSkusAvailable(dto.variants ?? [], dto.sku);
+
     const slug = this.normalizeSlug(dto.slug ?? dto.title);
     const existingSlug = await this.productsRepository.findProductBySlug(slug);
     if (existingSlug) {
@@ -134,19 +131,23 @@ export class AdminProductsService {
         priceToman: dto.priceToman,
         imageUrl: dto.imageUrl,
         featured: dto.featured ?? false,
+        discountPercent: dto.discountPercent ?? null,
+        discountStartsAt: dto.discountStartsAt ? new Date(dto.discountStartsAt) : null,
+        discountEndsAt: dto.discountEndsAt ? new Date(dto.discountEndsAt) : null,
       },
       dto.initialQuantity ?? 0,
       actor.id,
+      this.extractRelations({
+        galleryImages: dto.galleryImages ?? [],
+        variants: dto.variants ?? [],
+        videos: dto.videos ?? [],
+      }),
     );
 
-    return this.mapProduct(product);
+    return this.mapProductDetail(product);
   }
 
-  async updateProduct(
-    id: string,
-    dto: UpdateAdminProductDto,
-    actor: AuthenticatedUser,
-  ) {
+  async updateProduct(id: string, dto: UpdateAdminProductDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.write);
 
     const existing = await this.productsRepository.findProductById(id);
@@ -154,20 +155,39 @@ export class AdminProductsService {
       throw new NotFoundException('Product not found');
     }
 
-    const product = await this.productsRepository.updateProduct(id, {
-      title: dto.title,
-      description: dto.description,
-      seoDescription: dto.seoDescription,
-      category: dto.category,
-      karat: dto.karat,
-      weightGram: dto.weightGram,
-      makingFeePercent: dto.makingFeePercent,
-      priceToman: dto.priceToman,
-      imageUrl: dto.imageUrl,
-      featured: dto.featured,
-    });
+    if (dto.variants !== undefined) {
+      await this.assertVariantSkusAvailable(dto.variants, existing.sku, id);
+    }
 
-    return this.mapProduct(product);
+    const product = await this.productsRepository.updateProduct(
+      id,
+      {
+        title: dto.title,
+        description: dto.description,
+        seoDescription: dto.seoDescription,
+        category: dto.category,
+        karat: dto.karat,
+        weightGram: dto.weightGram,
+        makingFeePercent: dto.makingFeePercent,
+        priceToman: dto.priceToman,
+        imageUrl: dto.imageUrl,
+        featured: dto.featured,
+        discountPercent: dto.discountPercent,
+        discountStartsAt: dto.discountStartsAt ? new Date(dto.discountStartsAt) : undefined,
+        discountEndsAt: dto.discountEndsAt ? new Date(dto.discountEndsAt) : undefined,
+      },
+      dto.galleryImages !== undefined ||
+        dto.variants !== undefined ||
+        dto.videos !== undefined
+        ? this.extractRelations(dto)
+        : undefined,
+    );
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return this.mapProductDetail(product);
   }
 
   async deleteProduct(id: string, actor: AuthenticatedUser) {
@@ -182,24 +202,17 @@ export class AdminProductsService {
     return { ok: true };
   }
 
-  async listVideos(
-    query: AdminProductVideosQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async listVideos(query: AdminProductVideosQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.videos);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.productsRepository.listVideos(
-      skip,
-      limit,
-      {
-        search: query.search,
-        productId: query.productId,
-      },
-    );
+    const [items, total] = await this.productsRepository.listVideos(skip, limit, {
+      search: query.search,
+      productId: query.productId,
+    });
 
     return {
       page,
@@ -213,9 +226,7 @@ export class AdminProductsService {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.videos);
 
     if (dto.productId) {
-      const product = await this.productsRepository.findProductById(
-        dto.productId,
-      );
+      const product = await this.productsRepository.findProductById(dto.productId);
       if (!product) {
         throw new NotFoundException('Product not found');
       }
@@ -232,11 +243,7 @@ export class AdminProductsService {
     return this.mapVideo(video);
   }
 
-  async updateVideo(
-    id: string,
-    dto: UpsertAdminProductVideoDto,
-    actor: AuthenticatedUser,
-  ) {
+  async updateVideo(id: string, dto: UpsertAdminProductVideoDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.videos);
 
     const existing = await this.productsRepository.findVideoById(id);
@@ -281,7 +288,153 @@ export class AdminProductsService {
       .slice(0, 120);
   }
 
-  private mapProduct(product: ProductRow): AdminProductDto {
+  private extractRelations(dto: {
+    galleryImages?: CreateAdminProductDto['galleryImages'];
+    variants?: CreateAdminProductDto['variants'];
+    videos?: CreateAdminProductDto['videos'];
+  }) {
+    const relations: {
+      galleryImages?: { url: string; alt?: string; sortOrder?: number }[];
+      variants?: {
+        sku: string;
+        color?: string;
+        size?: string;
+        priceToman: number;
+        weightGram?: number;
+        makingFeePercent?: number;
+        imageUrl?: string;
+        quantity?: number;
+        sortOrder?: number;
+        isDefault?: boolean;
+      }[];
+      videos?: {
+        title: string;
+        videoUrl: string;
+        thumbnailUrl?: string;
+        sortOrder?: number;
+      }[];
+    } = {};
+
+    if (dto.galleryImages !== undefined) {
+      relations.galleryImages = this.mapGalleryInputs(dto.galleryImages);
+    }
+    if (dto.variants !== undefined) {
+      relations.variants = this.mapVariantInputs(dto.variants);
+    }
+    if (dto.videos !== undefined) {
+      relations.videos = this.mapVideoInputs(dto.videos);
+    }
+
+    return relations;
+  }
+
+  private mapGalleryInputs(images: NonNullable<CreateAdminProductDto['galleryImages']>) {
+    return images.map((image, index) => ({
+      url: image.url,
+      alt: image.alt,
+      sortOrder: image.sortOrder ?? index,
+    }));
+  }
+
+  private mapVariantInputs(variants: NonNullable<CreateAdminProductDto['variants']>) {
+    return variants.map((variant, index) => ({
+      sku: variant.sku,
+      color: variant.color,
+      size: variant.size,
+      priceToman: variant.priceToman,
+      weightGram: variant.weightGram,
+      makingFeePercent: variant.makingFeePercent,
+      imageUrl: variant.imageUrl,
+      quantity: variant.quantity ?? 0,
+      sortOrder: variant.sortOrder ?? index,
+      isDefault: variant.isDefault ?? false,
+    }));
+  }
+
+  private mapVideoInputs(videos: NonNullable<CreateAdminProductDto['videos']>) {
+    return videos.map((video, index) => ({
+      title: video.title,
+      videoUrl: video.videoUrl,
+      thumbnailUrl: video.thumbnailUrl,
+      sortOrder: video.sortOrder ?? index,
+    }));
+  }
+
+  private async assertVariantSkusAvailable(
+    variants: NonNullable<CreateAdminProductDto['variants']>,
+    parentSku: string,
+    productId?: string,
+  ) {
+    const seen = new Set<string>();
+    for (const variant of variants) {
+      const sku = variant.sku.trim();
+      if (seen.has(sku)) {
+        throw new BadRequestException(`Duplicate variant SKU: ${sku}`);
+      }
+      seen.add(sku);
+      if (sku.toLowerCase() === parentSku.trim().toLowerCase()) {
+        throw new BadRequestException('Variant SKU must differ from product SKU');
+      }
+      const existing = await this.productsRepository.findVariantBySku(sku);
+      if (existing && existing.productId !== productId) {
+        throw new ConflictException(`Variant SKU already exists: ${sku}`);
+      }
+    }
+  }
+
+  private mapProductDetail(product: ProductRow): AdminProductDetailDto {
+    const base = this.mapProduct(product);
+    return {
+      ...base,
+      discountPercent: product.discountPercent,
+      discountStartsAt: product.discountStartsAt?.toISOString() ?? null,
+      discountEndsAt: product.discountEndsAt?.toISOString() ?? null,
+      galleryImages: product.images.map((image) => this.mapImage(image)),
+      variants: product.variants.map((variant) => this.mapVariant(variant)),
+      videos: product.videos.map((video) => this.mapEmbeddedVideo(video)),
+    };
+  }
+
+  private mapImage(image: ProductRow['images'][number]): AdminProductImageDto {
+    return {
+      id: image.id,
+      url: image.url,
+      alt: image.alt,
+      sortOrder: image.sortOrder,
+    };
+  }
+
+  private mapVariant(variant: ProductRow['variants'][number]): AdminProductVariantDto {
+    return {
+      id: variant.id,
+      sku: variant.sku,
+      color: variant.color,
+      size: variant.size,
+      priceToman: tomanBigIntToNumber(variant.priceToman),
+      weightGram: variant.weightGram?.toString() ?? null,
+      makingFeePercent: variant.makingFeePercent,
+      imageUrl: variant.imageUrl,
+      quantity: variant.quantity,
+      sortOrder: variant.sortOrder,
+      isDefault: variant.isDefault,
+    };
+  }
+
+  private mapEmbeddedVideo(video: ProductRow['videos'][number]): AdminProductVideoDto {
+    return {
+      id: video.id,
+      productId: video.productId,
+      productTitle: null,
+      title: video.title,
+      videoUrl: video.videoUrl,
+      thumbnailUrl: video.thumbnailUrl,
+      sortOrder: video.sortOrder,
+      createdAt: video.createdAt.toISOString(),
+      updatedAt: video.updatedAt.toISOString(),
+    };
+  }
+
+  private mapProduct(product: ProductRow | ProductListRow): AdminProductDto {
     const inv = product.inventoryItem;
     return {
       id: product.id,
@@ -294,7 +447,7 @@ export class AdminProductsService {
       karat: product.karat,
       weightGram: product.weightGram.toString(),
       makingFeePercent: product.makingFeePercent,
-      priceToman: product.priceToman,
+      priceToman: tomanBigIntToNumber(product.priceToman),
       imageUrl: product.imageUrl,
       featured: product.featured,
       inventory: inv

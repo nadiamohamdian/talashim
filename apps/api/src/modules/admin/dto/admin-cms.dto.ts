@@ -59,10 +59,7 @@ export class UpsertBlogPostDto {
 
   @ApiProperty()
   @IsString()
-  @IsUrl(
-    { require_protocol: true },
-    { message: 'coverImageUrl must be a valid URL' },
-  )
+  @IsUrl({ require_protocol: true }, { message: 'coverImageUrl must be a valid URL' })
   coverImageUrl!: string;
 
   @ApiPropertyOptional()

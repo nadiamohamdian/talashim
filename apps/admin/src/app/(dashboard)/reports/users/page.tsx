@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { UsersReportPanel } from '@/features/reports/components/users-report-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="reports.users" />;
+  return <UsersReportPanel />;
 }

@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { AccountingPanel } from '@/features/finance/components/accounting-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="finance.accounting" />;
+  return <AccountingPanel />;
 }

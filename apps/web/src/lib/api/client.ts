@@ -5,16 +5,16 @@ import axios, {
   type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import { createApiClient, getApiErrorMessage as parseApiError } from '@sadafgold/api-client';
+import { createApiClient, getApiErrorMessage as parseApiError } from '@talashim/api-client';
 import {
   mapApiAuthSession,
   type ApiAuthSessionDto,
-} from '@sadafgold/shared/auth/map-session';
+} from '@talashim/shared/auth/map-session';
 import {
   WEB_ACCESS_TOKEN_COOKIE,
   clearAccessTokenCookie,
   setAccessTokenCookie,
-} from '@sadafgold/shared/constants/auth';
+} from '@talashim/shared/constants/auth';
 import { webEnv } from '@/shared/config/env';
 import { useAuthStore } from '@/features/auth/model/auth-store';
 
@@ -214,7 +214,7 @@ export async function serverFetchCatalogList<T extends unknown[]>(
     return await serverFetch<T>(path, { ...options, preserveConnectionError: true });
   } catch (error) {
     if (isDevApiFallbackEnabled() && isApiUnreachableError(error)) {
-      return [] as T;
+      return [] as unknown as T;
     }
     throw error;
   }

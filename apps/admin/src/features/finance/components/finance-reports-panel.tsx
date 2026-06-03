@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchFinanceReports } from '../api/finance-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';

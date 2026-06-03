@@ -4,14 +4,24 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
+import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
 import {
   createAdminProduct,
   fetchAdminProductBySlug,
   updateAdminProduct,
 } from '../api/commerce-api';
 import { CatalogPageShell } from './catalog-page-shell';
+import { ProductMediaFields } from './product-media-fields';
+import { ProductVariantFields } from './product-variant-fields';
 import { PRODUCT_CATEGORY_FA, selectFieldClass } from '../lib/labels';
+import {
+  buildProductCreateBody,
+  toDatetimeLocalInput,
+  validateProductForm,
+  type ProductFormValues,
+} from '../lib/product-form-validation';
+import type { GalleryImageField, ProductVideoField } from './product-media-fields';
+import type { ProductVariantField } from './product-variant-fields';
 
 interface ProductFormPanelProps {
   mode: 'create' | 'edit';
@@ -32,12 +42,19 @@ const emptyForm = {
   imageUrl: '',
   featured: false,
   initialQuantity: '0',
+  discountPercent: '',
+  discountStartsAt: '',
+  discountEndsAt: '',
 };
 
 export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const router = useRouter();
   const routeId = mode === 'create' ? 'products.new' : 'products.edit';
   const [form, setForm] = useState(emptyForm);
+  const [galleryImages, setGalleryImages] = useState<GalleryImageField[]>([]);
+  const [videos, setVideos] = useState<ProductVideoField[]>([]);
+  const [variants, setVariants] = useState<ProductVariantField[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const detailQuery = useQuery({
     queryKey: ['admin', 'commerce', 'product-slug', slug],
@@ -62,27 +79,83 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         imageUrl: p.imageUrl,
         featured: p.featured,
         initialQuantity: '0',
+        discountPercent: p.discountPercent ? String(p.discountPercent) : '',
+        discountStartsAt: toDatetimeLocalInput(p.discountStartsAt),
+        discountEndsAt: toDatetimeLocalInput(p.discountEndsAt),
       });
+      setGalleryImages(
+        p.galleryImages.map((image) => ({ url: image.url, alt: image.alt })),
+      );
+      setVideos(
+        p.videos.map((video) => ({
+          title: video.title,
+          videoUrl: video.videoUrl,
+          thumbnailUrl: video.thumbnailUrl ?? '',
+          sortOrder: video.sortOrder,
+        })),
+      );
+      setVariants(
+        p.variants.length > 0
+          ? p.variants.map((variant) => ({
+              sku: variant.sku,
+              color: variant.color ?? '',
+              size: variant.size ?? '',
+              priceToman: String(variant.priceToman),
+              weightGram: variant.weightGram ?? '',
+              makingFeePercent: variant.makingFeePercent
+                ? String(variant.makingFeePercent)
+                : '',
+              imageUrl: variant.imageUrl ?? '',
+              quantity: String(variant.quantity),
+              isDefault: variant.isDefault,
+            }))
+          : [],
+      );
     }
   }, [detailQuery.data]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const body = {
+      const formValues: ProductFormValues = {
         sku: form.sku,
-        slug: form.slug || undefined,
         title: form.title,
         description: form.description,
-        seoDescription: form.seoDescription || undefined,
-        category: form.category,
-        karat: Number(form.karat),
-        weightGram: Number(form.weightGram),
-        makingFeePercent: Number(form.makingFeePercent),
-        priceToman: Number(form.priceToman),
         imageUrl: form.imageUrl,
-        featured: form.featured,
-        initialQuantity: mode === 'create' ? Number(form.initialQuantity) : undefined,
+        weightGram: form.weightGram,
+        karat: form.karat,
+        priceToman: form.priceToman,
+        discountPercent: form.discountPercent,
+        discountStartsAt: form.discountStartsAt,
+        discountEndsAt: form.discountEndsAt,
       };
+
+      const errors = validateProductForm(formValues, variants);
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        throw new Error(errors[0]);
+      }
+      setValidationErrors([]);
+
+      const body = buildProductCreateBody(
+        {
+          ...form,
+          slug: form.slug,
+          seoDescription: form.seoDescription,
+          category: form.category,
+          makingFeePercent: form.makingFeePercent,
+          priceToman: form.priceToman,
+          featured: form.featured,
+          initialQuantity: form.initialQuantity,
+          discountPercent: form.discountPercent,
+          discountStartsAt: form.discountStartsAt,
+          discountEndsAt: form.discountEndsAt,
+        },
+        galleryImages,
+        videos,
+        variants,
+        mode,
+      );
+
       if (mode === 'create') {
         return createAdminProduct(body);
       }
@@ -138,6 +211,14 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
               className="mt-1 min-h-[100px] w-full rounded-2xl border border-border px-3 py-2 text-sm"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Label>توضیح سئو</Label>
+            <Input
+              className="mt-1"
+              value={form.seoDescription}
+              onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
             />
           </div>
           <div>
@@ -198,16 +279,37 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
               />
             </div>
           ) : null}
-          <div className="md:col-span-2">
-            <Label>URL تصویر *</Label>
+          <div>
+            <Label>تخفیف (%)</Label>
             <Input
               className="mt-1"
-              value={form.imageUrl}
-              onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-              placeholder="https://..."
+              type="number"
+              min={0}
+              max={100}
+              value={form.discountPercent}
+              onChange={(e) => setForm({ ...form, discountPercent: e.target.value })}
+              placeholder="۰ = بدون تخفیف"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm">
+          <div>
+            <Label>شروع تخفیف</Label>
+            <Input
+              className="mt-1"
+              type="datetime-local"
+              value={form.discountStartsAt}
+              onChange={(e) => setForm({ ...form, discountStartsAt: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label>پایان تخفیف</Label>
+            <Input
+              className="mt-1"
+              type="datetime-local"
+              value={form.discountEndsAt}
+              onChange={(e) => setForm({ ...form, discountEndsAt: e.target.value })}
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm md:col-span-2">
             <input
               type="checkbox"
               checked={form.featured}
@@ -215,6 +317,21 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             />
             محصول ویژه
           </label>
+
+          <ProductMediaFields
+            imageUrl={form.imageUrl}
+            onImageUrlChange={(value) => setForm({ ...form, imageUrl: value })}
+            galleryImages={galleryImages}
+            onGalleryChange={setGalleryImages}
+            videos={videos}
+            onVideosChange={setVideos}
+          />
+
+          <ProductVariantFields
+            baseSku={form.sku}
+            variants={variants}
+            onChange={setVariants}
+          />
         </div>
 
         <div className="mt-6 flex gap-3">
@@ -231,7 +348,14 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             </Button>
           </Link>
         </div>
-        {saveMutation.isError ? (
+        {validationErrors.length > 0 ? (
+          <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-rose-600">
+            {validationErrors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        ) : null}
+        {saveMutation.isError && validationErrors.length === 0 ? (
           <p className="mt-3 text-sm text-rose-600">ذخیره ناموفق بود. فیلدها را بررسی کنید.</p>
         ) : null}
       </Card>

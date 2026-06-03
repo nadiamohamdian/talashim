@@ -27,12 +27,9 @@ export const commerceSettingsSchema = z.object({
 });
 
 export const goldSettingsSchema = z.object({
-  displayKarat: z.coerce
-    .number()
-    .int()
-    .refine((v) => v === 18 || v === 24, {
-      message: 'عیار نمایش باید ۱۸ یا ۲۴ باشد',
-    }),
+  displayKarat: z.coerce.number().int().refine((v) => v === 18 || v === 24, {
+    message: 'عیار نمایش باید ۱۸ یا ۲۴ باشد',
+  }),
   defaultMakingFeePercent: z.coerce.number().min(0).max(100),
   spreadPercent: z.coerce.number().min(0).max(50),
   tradeCommissionPercent: z.coerce.number().min(0).max(100),

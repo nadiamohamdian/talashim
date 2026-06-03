@@ -3,7 +3,7 @@ import {
   hasAdminPermission,
   resolvePermissionsForRole,
   type AdminPermissionKey,
-} from '@sadafgold/shared/admin-rbac';
+} from '@talashim/shared/admin-rbac';
 
 export function assertAdminPermission(
   role: string | undefined,

@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { DeliveryPanel } from '@/features/notifications/components/delivery-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="notifications.delivery" />;
+  return <DeliveryPanel />;
 }

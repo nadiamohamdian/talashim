@@ -1,6 +1,7 @@
 'use client';
 
-import { Badge, Button } from '@sadafgold/ui';
+import { Badge, Button } from '@talashim/ui';
+import { getRoleLabelFa } from '@talashim/shared/admin-rbac';
 import { useAuth, useLogoutMutation } from '@/features/auth/hooks/use-auth';
 
 export function AccountPanel() {
@@ -20,7 +21,7 @@ export function AccountPanel() {
         </div>
         <div className="flex justify-between gap-4 border-b border-stone-100 pb-3">
           <dt className="text-stone-500">نقش</dt>
-          <dd className="font-medium text-stone-950">{user.role === 'admin' ? 'مدیر' : 'مشتری'}</dd>
+          <dd className="font-medium text-stone-950">{getRoleLabelFa(user.role)}</dd>
         </div>
       </dl>
       <Button

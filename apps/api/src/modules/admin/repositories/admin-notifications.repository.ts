@@ -158,11 +158,7 @@ export class AdminNotificationsRepository {
     return this.prisma.notificationTemplate.delete({ where: { id } });
   }
 
-  listRules(
-    skip: number,
-    take: number,
-    filters: { search?: string; trigger?: NotificationRuleTrigger },
-  ) {
+  listRules(skip: number, take: number, filters: { search?: string; trigger?: NotificationRuleTrigger }) {
     const where: Prisma.NotificationRuleWhereInput = {};
     if (filters.trigger) {
       where.trigger = filters.trigger;

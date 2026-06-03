@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  Badge,
   Button,
   Input,
   Label,
@@ -13,9 +14,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
-import { getRoleLabelFa } from '@sadafgold/shared/admin-rbac';
-import { fetchSessions, revokeSession, revokeUserSessions } from '@/features/admin/api/admin-api';
+} from '@talashim/ui';
+import { getRoleLabelFa } from '@talashim/shared/admin-rbac';
+import {
+  fetchSessions,
+  revokeSession,
+  revokeUserSessions,
+} from '@/features/admin/api/admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
@@ -111,7 +116,9 @@ export function SessionsPanel() {
                       <p className="font-medium text-stone-900">{session.user.fullName}</p>
                       <p className="text-xs text-stone-500">{session.user.email}</p>
                     </TableCell>
-                    <TableCell className="text-sm">{getRoleLabelFa(session.user.role)}</TableCell>
+                    <TableCell className="text-sm">
+                      {getRoleLabelFa(session.user.role)}
+                    </TableCell>
                     <TableCell>
                       <span
                         className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-medium ${SESSION_STATUS_CLASS[session.status]}`}

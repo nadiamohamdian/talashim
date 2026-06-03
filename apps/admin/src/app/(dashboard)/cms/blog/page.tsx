@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { BlogPanel } from '@/features/cms/components/blog-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="cms.blog" />;
+  return <BlogPanel />;
 }

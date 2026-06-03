@@ -1,5 +1,6 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { redirect } from 'next/navigation';
 
+/** Canonical financial analytics live under Reports. */
 export default function Page() {
-  return <ModuleSkeletonPage routeId="finance.reports" />;
+  redirect('/reports/financial');
 }

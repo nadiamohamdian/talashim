@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { ProvidersPanel } from '@/features/pricing/components/providers-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="pricing.providers" />;
+  return <ProvidersPanel />;
 }

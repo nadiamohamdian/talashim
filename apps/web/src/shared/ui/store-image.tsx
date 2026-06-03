@@ -8,6 +8,7 @@ import {
   IMAGE_MAX_RETRIES,
   IMAGE_RETRY_BASE_MS,
 } from '@/shared/config/images';
+import { isNextImageHostAllowed } from '@/shared/config/image-hosts';
 
 function appendRetryToken(src: string, attempt: number): string {
   if (src.startsWith('/')) {
@@ -30,12 +31,50 @@ export type StoreImageProps = Omit<ImageProps, 'src' | 'onError' | 'onLoadingCom
   fallbackSrc?: string;
 };
 
+function NativeStoreImage({
+  src,
+  alt,
+  className,
+  fill,
+  sizes,
+  width,
+  height,
+  onError,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  fill?: boolean;
+  sizes?: string;
+  width?: number | `${number}`;
+  height?: number | `${number}`;
+  onError: () => void;
+}) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      sizes={sizes}
+      width={fill ? undefined : width}
+      height={fill ? undefined : height}
+      className={cn(fill && 'absolute inset-0 h-full w-full', className)}
+      onError={onError}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+}
+
 export function StoreImage({
   src,
   fallbackSrc = DEFAULT_PRODUCT_IMAGE,
   alt,
   className,
   fill,
+  sizes,
+  width,
+  height,
   ...props
 }: StoreImageProps) {
   const [attempt, setAttempt] = useState(0);
@@ -96,10 +135,30 @@ export function StoreImage({
     );
   }
 
+  const useNativeImage = !isNextImageHostAllowed(currentSrc);
+
+  if (useNativeImage) {
+    return (
+      <NativeStoreImage
+        src={currentSrc}
+        alt={alt}
+        className={className}
+        fill={fill}
+        sizes={sizes}
+        width={width}
+        height={height}
+        onError={handleError}
+      />
+    );
+  }
+
   return (
     <Image
       {...props}
       fill={fill}
+      sizes={sizes}
+      width={width}
+      height={height}
       src={currentSrc}
       alt={alt}
       className={className}

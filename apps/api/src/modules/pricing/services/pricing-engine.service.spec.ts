@@ -2,6 +2,7 @@ import { GoldPriceSource } from '@/generated/prisma';
 import type { GoldPriceProvider } from '../interfaces/price-provider.interface';
 import { PricingEngineService } from './pricing-engine.service';
 import type { PricingCacheService } from './pricing-cache.service';
+import type { PricingConfigRepository } from '../repositories/pricing-config.repository';
 import type { PricingRepository } from '../repositories/pricing.repository';
 
 jest.mock('@/config/env', () => ({
@@ -17,6 +18,9 @@ describe('PricingEngineService', () => {
   let cache: jest.Mocked<Pick<PricingCacheService, 'getLatest' | 'setLatest'>>;
   let repository: jest.Mocked<
     Pick<PricingRepository, 'saveTick' | 'findLatest'>
+  >;
+  let configRepository: jest.Mocked<
+    Pick<PricingConfigRepository, 'getOrCreateConfig' | 'findActiveOverride'>
   >;
 
   beforeEach(() => {
@@ -36,12 +40,19 @@ describe('PricingEngineService', () => {
       saveTick: jest.fn().mockResolvedValue({ id: 'tick-1' }),
       findLatest: jest.fn().mockResolvedValue(null),
     };
+    configRepository = {
+      findActiveOverride: jest.fn().mockResolvedValue(null),
+      getOrCreateConfig: jest.fn().mockResolvedValue({
+        spreadPercent: 2,
+      }),
+    };
 
     service = new PricingEngineService(
       primary,
       fallback,
       cache as unknown as PricingCacheService,
       repository as unknown as PricingRepository,
+      configRepository as unknown as PricingConfigRepository,
     );
   });
 

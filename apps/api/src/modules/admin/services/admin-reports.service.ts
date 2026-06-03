@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type {
@@ -42,11 +42,7 @@ export class AdminReportsService {
           to: summary.period.to,
         },
         kpis: [
-          {
-            key: 'revenue',
-            label: 'درآمد (تومان)',
-            value: summary.totalRevenue,
-          },
+          { key: 'revenue', label: 'درآمد (تومان)', value: summary.totalRevenue },
           {
             key: 'paidOrders',
             label: 'سفارش‌های پرداخت‌شده',
@@ -75,10 +71,7 @@ export class AdminReportsService {
     };
   }
 
-  async getInventoryReport(
-    query: InventoryReportQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async getInventoryReport(query: InventoryReportQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.reports.view);
 
     const page = query.page ?? 1;
@@ -88,7 +81,7 @@ export class AdminReportsService {
     const summary = await this.reportsRepository.getInventorySummary();
 
     if (query.lowStockOnly) {
-      const [products, _total] = await this.reportsRepository.listInventory(
+      const [products, total] = await this.reportsRepository.listInventory(
         0,
         500,
         query.category,
@@ -156,11 +149,7 @@ export class AdminReportsService {
           { key: 'new', label: 'ثبت‌نام در بازه', value: summary.newUsers },
           { key: 'customers', label: 'مشتری', value: summary.customers },
           { key: 'staff', label: 'پرسنل', value: summary.staff },
-          {
-            key: 'kycPending',
-            label: 'KYC در انتظار',
-            value: summary.kycPending,
-          },
+          { key: 'kycPending', label: 'KYC در انتظار', value: summary.kycPending },
         ],
         byRole: summary.byRole,
         kycByStatus: [
@@ -185,10 +174,7 @@ export class AdminReportsService {
     };
   }
 
-  async getTradingReport(
-    query: TradingReportQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async getTradingReport(query: TradingReportQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.reports.view);
 
     const page = query.page ?? 1;
@@ -214,11 +200,7 @@ export class AdminReportsService {
           { key: 'total', label: 'کل معاملات', value: summary.total },
           { key: 'filled', label: 'تکمیل‌شده', value: summary.filled },
           { key: 'volume', label: 'حجم (گرم)', value: summary.volumeGram },
-          {
-            key: 'commission',
-            label: 'کارمزد (ریال)',
-            value: summary.commissionTotal,
-          },
+          { key: 'commission', label: 'کارمزد (ریال)', value: summary.commissionTotal },
         ],
         bySide: summary.bySide,
         byStatus: summary.byStatus,
@@ -242,10 +224,7 @@ export class AdminReportsService {
     };
   }
 
-  async getFinancialReport(
-    query: FinancialReportQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async getFinancialReport(query: FinancialReportQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.reports.view);
 
     const page = query.page ?? 1;
@@ -289,9 +268,9 @@ export class AdminReportsService {
     };
   }
 
-  private mapInventorySummary(
-    summary: Awaited<ReturnType<AdminReportsRepository['getInventorySummary']>>,
-  ) {
+  private mapInventorySummary(summary: Awaited<
+    ReturnType<AdminReportsRepository['getInventorySummary']>
+  >) {
     return {
       kpis: [
         { key: 'products', label: 'محصولات', value: summary.productCount },
@@ -323,8 +302,7 @@ export class AdminReportsService {
       reserved,
       available,
       lowStock: available <= LOW_STOCK_THRESHOLD && available > 0,
-      updatedAt:
-        inv?.updatedAt.toISOString() ?? product.updatedAt.toISOString(),
+      updatedAt: inv?.updatedAt.toISOString() ?? product.updatedAt.toISOString(),
     };
   }
 }

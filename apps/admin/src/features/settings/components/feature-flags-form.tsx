@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Alert } from '@sadafgold/ui';
+import { Alert } from '@talashim/ui';
 import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import { featureFlagsSchema, type FeatureFlagsSettings } from '../model/schemas';

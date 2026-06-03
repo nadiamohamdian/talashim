@@ -8,4 +8,4 @@ export {
   type AdminRoleDefinition,
   type StaffRoleEnum,
   type StaffRoleSlug,
-} from '@sadafgold/shared/admin-rbac';
+} from '@talashim/shared/admin-rbac';

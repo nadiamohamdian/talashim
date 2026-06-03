@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { DashboardOverview } from '@/features/dashboard/components/dashboard-overview';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="dashboard" />;
+  return <DashboardOverview />;
 }

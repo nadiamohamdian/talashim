@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { ProductFormPanel } from '@/features/commerce/components/product-form-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="products.new" />;
+  return <ProductFormPanel mode="create" />;
 }

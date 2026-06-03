@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import {
   createProductVideo,
   deleteProductVideo,
@@ -55,7 +55,9 @@ export function ProductVideosPanel() {
         productId: form.productId || undefined,
         sortOrder: Number(form.sortOrder),
       };
-      return editingId ? updateProductVideo(editingId, body) : createProductVideo(body);
+      return editingId
+        ? updateProductVideo(editingId, body)
+        : createProductVideo(body);
     },
     onSuccess: () => {
       setForm(emptyVideo);
@@ -66,7 +68,8 @@ export function ProductVideosPanel() {
 
   const deleteMutation = useMutation({
     mutationFn: deleteProductVideo,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'videos'] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'videos'] }),
   });
 
   return (
@@ -76,63 +79,31 @@ export function ProductVideosPanel() {
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <div>
             <Label>عنوان</Label>
-            <Input
-              className="mt-1"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
+            <Input className="mt-1" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
           </div>
           <div>
             <Label>شناسه محصول (اختیاری)</Label>
-            <Input
-              className="mt-1"
-              value={form.productId}
-              onChange={(e) => setForm({ ...form, productId: e.target.value })}
-            />
+            <Input className="mt-1" value={form.productId} onChange={(e) => setForm({ ...form, productId: e.target.value })} />
           </div>
           <div className="md:col-span-2">
             <Label>URL ویدیو</Label>
-            <Input
-              className="mt-1"
-              value={form.videoUrl}
-              onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
-            />
+            <Input className="mt-1" value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} />
           </div>
           <div>
             <Label>تصویر بندانگشتی</Label>
-            <Input
-              className="mt-1"
-              value={form.thumbnailUrl}
-              onChange={(e) => setForm({ ...form, thumbnailUrl: e.target.value })}
-            />
+            <Input className="mt-1" value={form.thumbnailUrl} onChange={(e) => setForm({ ...form, thumbnailUrl: e.target.value })} />
           </div>
           <div>
             <Label>ترتیب</Label>
-            <Input
-              className="mt-1"
-              type="number"
-              value={form.sortOrder}
-              onChange={(e) => setForm({ ...form, sortOrder: e.target.value })}
-            />
+            <Input className="mt-1" type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: e.target.value })} />
           </div>
         </div>
         <div className="mt-4 flex gap-2">
-          <Button
-            className="h-9 px-3 text-xs"
-            disabled={saveMutation.isPending}
-            onClick={() => saveMutation.mutate()}
-          >
+          <Button className="h-9 px-3 text-xs" disabled={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
             {editingId ? 'ذخیره' : 'افزودن'}
           </Button>
           {editingId ? (
-            <Button
-              variant="ghost"
-              className="h-9 px-3 text-xs"
-              onClick={() => {
-                setEditingId(null);
-                setForm(emptyVideo);
-              }}
-            >
+            <Button variant="ghost" className="h-9 px-3 text-xs" onClick={() => { setEditingId(null); setForm(emptyVideo); }}>
               انصراف
             </Button>
           ) : null}
@@ -142,14 +113,7 @@ export function ProductVideosPanel() {
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
-          <Input
-            className="mt-1"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
+          <Input className="mt-1" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
       </FilterBar>
 
@@ -172,9 +136,7 @@ export function ProductVideosPanel() {
               {data?.items.map((video) => (
                 <TableRow key={video.id}>
                   <TableCell>{video.title}</TableCell>
-                  <TableCell className="text-sm text-stone-600">
-                    {video.productTitle ?? '—'}
-                  </TableCell>
+                  <TableCell className="text-sm text-stone-600">{video.productTitle ?? '—'}</TableCell>
                   <TableCell>{video.sortOrder}</TableCell>
                   <TableCell className="gap-2 space-x-2 space-x-reverse">
                     <button
@@ -209,12 +171,7 @@ export function ProductVideosPanel() {
       </Card>
 
       {data ? (
-        <PaginationBar
-          page={data.page}
-          total={data.total}
-          limit={data.limit}
-          onPageChange={setPage}
-        />
+        <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
     </CatalogPageShell>
   );

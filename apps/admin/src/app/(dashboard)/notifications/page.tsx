@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { InboxPanel } from '@/features/notifications/components/inbox-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="notifications.inbox" />;
+  return <InboxPanel />;
 }

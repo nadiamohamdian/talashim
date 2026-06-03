@@ -21,10 +21,7 @@ export class AdminInventoryController {
 
   @Get()
   @ApiOperation({ summary: 'Stock overview by product' })
-  list(
-    @Query() query: AdminInventoryQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  list(@Query() query: AdminInventoryQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminInventoryService.listStock(query, actor);
   }
 
@@ -48,10 +45,7 @@ export class AdminInventoryController {
 
   @Post('adjustments')
   @ApiOperation({ summary: 'Adjust stock quantity (audited)' })
-  adjust(
-    @Body() dto: AdjustInventoryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  adjust(@Body() dto: AdjustInventoryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminInventoryService.adjust(dto, actor);
   }
 }

@@ -1,6 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { KycStatus } from '@/generated/prisma';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import * as argon2 from 'argon2';
+import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
+import {
+  ADMIN_PERMISSIONS,
+  ADMIN_ROLE_DEFINITIONS,
+  ALL_ADMIN_PERMISSIONS,
+} from '@talashim/shared/admin-rbac';
+import { KycStatus, Role } from '@/generated/prisma';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
+import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type {
   AdminAuditQueryDto,
   AdminKycQueryDto,
@@ -11,16 +24,24 @@ import type {
 } from '../dto/admin-query.dto';
 import type { ReviewKycDto } from '../dto/review-kyc.dto';
 import type { UpdateUserRoleDto } from '../dto/update-user-role.dto';
+import type {
+  AdminLoginHistoryQueryDto,
+  AdminSessionsQueryDto,
+} from '../dto/admin-security-query.dto';
+import type { CreateStaffUserDto } from '../dto/create-staff-user.dto';
+import type { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
 import { AdminRepository } from '../repositories/admin.repository';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly adminRepository: AdminRepository) {}
 
-  async getAnalytics() {
+  async getAnalytics(actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.dashboard.view);
+
     const [
       totalUsers,
-      adminUsers,
+      staffUsers,
       pendingKyc,
       walletTx24h,
       trades24h,
@@ -30,7 +51,7 @@ export class AdminService {
 
     return {
       totalUsers,
-      adminUsers,
+      adminUsers: staffUsers,
       pendingKyc,
       walletTransactions24h: walletTx24h,
       goldTrades24h: trades24h,
@@ -45,7 +66,9 @@ export class AdminService {
     };
   }
 
-  async listUsers(query: AdminUsersQueryDto) {
+  async listUsers(query: AdminUsersQueryDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.users.read);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -54,8 +77,97 @@ export class AdminService {
       limit,
       query.search,
       query.role,
+      query.staffOnly,
     );
     return { page, limit, total, items };
+  }
+
+  async getUserDetail(userId: string, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.users.read);
+
+    const user = await this.adminRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const [balances, [ordersCount, tradesCount], recentOrders, recentWalletTransactions, recentTrades] =
+      await Promise.all([
+        this.adminRepository.getUserWalletSnapshot(userId),
+        this.adminRepository.getUserOrderStats(userId),
+        this.adminRepository.getUserRecentOrders(userId),
+        this.adminRepository.getUserRecentWalletTransactions(userId),
+        this.adminRepository.getUserRecentTrades(userId),
+      ]);
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role.toLowerCase(),
+        createdAt: user.createdAt.toISOString(),
+      },
+      balances,
+      stats: { orders: ordersCount, goldTrades: tradesCount },
+      kyc: user.kycVerification
+        ? {
+            id: user.kycVerification.id,
+            status: user.kycVerification.status,
+            nationalId: user.kycVerification.nationalId,
+            phone: user.kycVerification.phone,
+            submittedAt: user.kycVerification.submittedAt.toISOString(),
+            reviewNote: user.kycVerification.reviewNote,
+          }
+        : null,
+      recentOrders: recentOrders.map((order) => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        totalToman: tomanBigIntToNumber(order.totalToman),
+        status: order.status,
+      })),
+      recentWalletTransactions: recentWalletTransactions.map((tx) => ({
+        id: tx.id,
+        type: tx.type,
+        reference: tx.reference,
+      })),
+      recentTrades: recentTrades.map((trade) => ({
+        id: trade.id,
+        orderNumber: trade.orderNumber,
+        side: trade.side,
+        quantityGram: trade.quantityGram.toString(),
+      })),
+    };
+  }
+
+  async getUserActivity(
+    userId: string,
+    query: PaginationQueryDto,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.users.read);
+
+    const exists = await this.adminRepository.findUserById(userId);
+    if (!exists) {
+      throw new NotFoundException('User not found');
+    }
+
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+    const [items, total] = await this.adminRepository.listUserActivity(userId, skip, limit);
+
+    return {
+      page,
+      limit,
+      total,
+      items: items.map((item) => ({
+        id: item.id,
+        source: item.source,
+        action: item.action,
+        context: item.context ?? undefined,
+        createdAt: item.createdAt.toISOString(),
+      })),
+    };
   }
 
   async updateUserRole(
@@ -63,6 +175,12 @@ export class AdminService {
     payload: UpdateUserRoleDto,
     actor: AuthenticatedUser,
   ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.rbac);
+
+    if (payload.role === Role.SUPER_ADMIN && actor.role !== Role.SUPER_ADMIN) {
+      throw new ForbiddenException('Only super admin can assign super admin role');
+    }
+
     const user = await this.adminRepository.updateUserRole(userId, payload.role);
     await this.adminRepository.createAuditLog('admin.user.role_updated', actor.id, {
       userId,
@@ -71,7 +189,9 @@ export class AdminService {
     return user;
   }
 
-  async listKyc(query: AdminKycQueryDto) {
+  async listKyc(query: AdminKycQueryDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.kyc.read);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -84,6 +204,8 @@ export class AdminService {
   }
 
   async reviewKyc(id: string, payload: ReviewKycDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.kyc.review);
+
     if (payload.status === KycStatus.PENDING) {
       throw new BadRequestException('Use APPROVED or REJECTED for review');
     }
@@ -105,7 +227,12 @@ export class AdminService {
     }
   }
 
-  async listWalletTransactions(query: AdminWalletTxQueryDto) {
+  async listWalletTransactions(
+    query: AdminWalletTxQueryDto,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.read);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -138,7 +265,9 @@ export class AdminService {
     };
   }
 
-  async listTradeOrders(query: AdminTradeQueryDto) {
+  async listTradeOrders(query: AdminTradeQueryDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.trading.read);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -166,7 +295,12 @@ export class AdminService {
     };
   }
 
-  async listWallets(query: PaginationQueryDto & { search?: string }) {
+  async listWallets(
+    query: PaginationQueryDto & { search?: string },
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.read);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -186,7 +320,9 @@ export class AdminService {
     return { page, limit, total, items };
   }
 
-  async listAuditLogs(query: AdminAuditQueryDto) {
+  async listAuditLogs(query: AdminAuditQueryDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.audit);
+
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -196,5 +332,191 @@ export class AdminService {
       query.source,
     );
     return { page, limit, total, items };
+  }
+
+  async listSessions(query: AdminSessionsQueryDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.sessions);
+
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+    const [rows, total] = await this.adminRepository.listSessions(
+      skip,
+      limit,
+      query.search,
+      query.status ?? 'all',
+    );
+
+    const now = Date.now();
+    const items = rows.map((row) => {
+      let status: 'active' | 'revoked' | 'expired' = 'active';
+      if (row.revokedAt) {
+        status = 'revoked';
+      } else if (row.expiresAt.getTime() <= now) {
+        status = 'expired';
+      }
+
+      return {
+        id: row.id,
+        userId: row.userId,
+        user: row.user,
+        status,
+        expiresAt: row.expiresAt.toISOString(),
+        revokedAt: row.revokedAt?.toISOString() ?? null,
+        createdAt: row.createdAt.toISOString(),
+      };
+    });
+
+    return { page, limit, total, items };
+  }
+
+  async revokeSession(sessionId: string, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.sessions);
+
+    const updated = await this.adminRepository.revokeSession(sessionId);
+    if (!updated) {
+      throw new NotFoundException('Session not found');
+    }
+    await this.adminRepository.createAuditLog('admin.session.revoked', actor.id, {
+      sessionId,
+    });
+    return { success: true };
+  }
+
+  async revokeUserSessions(userId: string, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.sessions);
+
+    const result = await this.adminRepository.revokeAllUserSessions(userId);
+    await this.adminRepository.createAuditLog('admin.sessions.revoked_all', actor.id, {
+      userId,
+      count: result.count,
+    });
+    return { success: true, revokedCount: result.count };
+  }
+
+  async listLoginHistory(query: AdminLoginHistoryQueryDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.audit);
+
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+    const [rows, total] = await this.adminRepository.listLoginHistory(
+      skip,
+      limit,
+      query.search,
+      query.action,
+    );
+
+    const items = rows.map((row) => ({
+      id: row.id,
+      action: row.action,
+      actorId: row.actorId,
+      actor: row.actor,
+      context: row.context,
+      createdAt: row.createdAt.toISOString(),
+    }));
+
+    return { page, limit, total, items };
+  }
+
+  getPermissionRegistry(actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.rbac);
+
+    return {
+      permissions: [...ALL_ADMIN_PERMISSIONS],
+      roles: ADMIN_ROLE_DEFINITIONS.map((role) => ({
+        enum: role.enum,
+        slug: role.slug,
+        labelFa: role.labelFa,
+        descriptionFa: role.descriptionFa,
+        permissions: [...role.permissions],
+      })),
+      groups: ADMIN_PERMISSIONS,
+    };
+  }
+
+  async createStaffUser(payload: CreateStaffUserDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.rbac);
+
+    if (payload.role === Role.SUPER_ADMIN && actor.role !== Role.SUPER_ADMIN) {
+      throw new ForbiddenException('Only super admin can create super admin users');
+    }
+
+    const existing = await this.adminRepository.listUsers(0, 1, payload.email);
+    if (existing[1] > 0) {
+      throw new BadRequestException('Email already registered');
+    }
+
+    const passwordHash = await argon2.hash(payload.password);
+    const user = await this.adminRepository.createStaffUser({
+      email: payload.email,
+      fullName: payload.fullName,
+      passwordHash,
+      role: payload.role,
+    });
+
+    await this.adminRepository.createAuditLog('admin.staff.created', actor.id, {
+      userId: user.id,
+      role: payload.role,
+    });
+
+    return {
+      ...user,
+      role: user.role.toLowerCase(),
+      createdAt: user.createdAt.toISOString(),
+    };
+  }
+
+  async updateStaffUser(
+    userId: string,
+    payload: UpdateStaffUserDto,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.rbac);
+
+    const staff = await this.adminRepository.findStaffUserById(userId);
+    if (!staff) {
+      throw new NotFoundException('Staff user not found');
+    }
+
+    if (payload.role === Role.SUPER_ADMIN && actor.role !== Role.SUPER_ADMIN) {
+      throw new ForbiddenException('Only super admin can assign super admin role');
+    }
+
+    if (staff.role === Role.SUPER_ADMIN && actor.role !== Role.SUPER_ADMIN) {
+      throw new ForbiddenException('Only super admin can modify super admin users');
+    }
+
+    const data: {
+      email?: string;
+      fullName?: string;
+      passwordHash?: string;
+      role?: Role;
+    } = {};
+
+    if (payload.email !== undefined) {
+      data.email = payload.email;
+    }
+    if (payload.fullName !== undefined) {
+      data.fullName = payload.fullName;
+    }
+    if (payload.role !== undefined) {
+      data.role = payload.role;
+    }
+    if (payload.password !== undefined && payload.password !== '') {
+      data.passwordHash = await argon2.hash(payload.password);
+    }
+
+    const user = await this.adminRepository.updateStaffUser(userId, data);
+    await this.adminRepository.createAuditLog('admin.staff.updated', actor.id, {
+      userId,
+      changes: Object.keys(data),
+    });
+
+    return {
+      ...user,
+      role: user.role.toLowerCase(),
+      createdAt: user.createdAt.toISOString(),
+    };
   }
 }

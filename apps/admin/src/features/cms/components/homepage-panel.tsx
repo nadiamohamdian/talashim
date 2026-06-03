@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
-import type { CmsHeroConfig, CmsHomepageDto, CmsHomepageSections } from '@sadafgold/types';
+import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
+import type { CmsHeroConfig, CmsHomepageDto, CmsHomepageSections } from '@talashim/types';
 import { fetchHomepageCms, updateHomepageCms } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { CmsPageShell } from './cms-page-shell';
@@ -183,7 +183,9 @@ export function HomepagePanel() {
             <Input
               className="mt-1"
               value={sections.bestsellerSubtitle}
-              onChange={(e) => setSections({ ...sections, bestsellerSubtitle: e.target.value })}
+              onChange={(e) =>
+                setSections({ ...sections, bestsellerSubtitle: e.target.value })
+              }
             />
           </div>
           <div className="flex items-center gap-2">
@@ -191,14 +193,19 @@ export function HomepagePanel() {
               id="show-categories"
               type="checkbox"
               checked={sections.showCategoryShowcase}
-              onChange={(e) => setSections({ ...sections, showCategoryShowcase: e.target.checked })}
+              onChange={(e) =>
+                setSections({ ...sections, showCategoryShowcase: e.target.checked })
+              }
             />
             <Label htmlFor="show-categories">نمایش ویترین دسته‌بندی</Label>
           </div>
         </div>
       </Card>
 
-      <Button disabled={save.isPending} onClick={() => save.mutate({ hero, sections })}>
+      <Button
+        disabled={save.isPending}
+        onClick={() => save.mutate({ hero, sections })}
+      >
         {save.isPending ? 'در حال ذخیره…' : 'ذخیره صفحه اصلی'}
       </Button>
       {data?.updatedAt ? (

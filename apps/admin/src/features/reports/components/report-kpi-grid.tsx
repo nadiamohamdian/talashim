@@ -1,4 +1,4 @@
-import type { ReportKpi } from '@sadafgold/types';
+import type { ReportKpi } from '@talashim/types';
 import { StatCard } from '@/widgets/admin/stat-card';
 
 interface ReportKpiGridProps {
@@ -12,7 +12,11 @@ export function ReportKpiGrid({ kpis }: ReportKpiGridProps) {
         <StatCard
           key={kpi.key}
           label={kpi.label}
-          value={typeof kpi.value === 'number' ? kpi.value.toLocaleString('fa-IR') : kpi.value}
+          value={
+            typeof kpi.value === 'number'
+              ? kpi.value.toLocaleString('fa-IR')
+              : kpi.value
+          }
           hint={kpi.hint}
         />
       ))}

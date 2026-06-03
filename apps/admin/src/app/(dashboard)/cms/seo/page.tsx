@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { SeoPanel } from '@/features/cms/components/seo-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="cms.seo" />;
+  return <SeoPanel />;
 }

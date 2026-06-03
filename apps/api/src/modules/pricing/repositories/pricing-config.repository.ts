@@ -58,9 +58,7 @@ export class PricingConfigRepository {
   }
 
   listOverrides(skip: number, take: number, activeOnly?: boolean) {
-    const where: Prisma.GoldPriceOverrideWhereInput = activeOnly
-      ? { isActive: true }
-      : {};
+    const where: Prisma.GoldPriceOverrideWhereInput = activeOnly ? { isActive: true } : {};
     return this.prisma.$transaction([
       this.prisma.goldPriceOverride.findMany({
         where,

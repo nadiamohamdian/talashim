@@ -1,17 +1,15 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { Alert, Input, Label } from '@sadafgold/ui';
-import { passwordLoginSchema, type PasswordLoginValues } from '@sadafgold/shared/validation/auth';
+import { Alert, Input, Label } from '@talashim/ui';
+import { passwordLoginSchema, type PasswordLoginValues } from '@talashim/shared/validation/auth';
 import { isAdminDevLoginEnabled } from '@/shared/config/env';
 import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { adminLogin } from '../api/auth-api';
 import { useAdminAuthStore } from '../model/admin-auth-store';
 
 export function AdminLoginForm() {
-  const router = useRouter();
   const devLogin = isAdminDevLoginEnabled();
   const setSession = useAdminAuthStore((s) => s.setSession);
   const {
@@ -21,14 +19,14 @@ export function AdminLoginForm() {
     setError,
   } = useForm<PasswordLoginValues>({
     resolver: zodResolver(passwordLoginSchema),
-    defaultValues: { email: 'admin@sadafgold.local', password: 'test1234' },
+    defaultValues: { email: 'admin@talashim.local', password: 'Admin12345!' },
   });
 
   const onSubmit = handleSubmit(async (values) => {
     try {
       const session = await adminLogin(values);
       setSession(session);
-      router.replace('/');
+      window.location.assign('/');
     } catch (error) {
       setError('root', {
         message: getApiErrorMessage(error, 'ورود ناموفق بود'),
@@ -40,7 +38,7 @@ export function AdminLoginForm() {
     <div className="card-luxury w-full max-w-md p-6 sm:p-8">
       <p className="text-sm font-medium text-amber-800">پنل مدیریت</p>
       <h1 className="mt-3 text-2xl font-bold text-stone-950 sm:text-3xl">
-        ورود به Sadaf Gold Admin
+        ورود به Talashim Admin
       </h1>
       <p className="mt-3 text-sm leading-7 text-stone-600">
         مدیریت محصولات، سفارش‌ها، معاملات طلا و عملیات پلتفرم.
@@ -48,8 +46,10 @@ export function AdminLoginForm() {
 
       {devLogin ? (
         <Alert className="mt-4 border-amber-200/80 bg-amber-50/90 text-amber-950">
-          حالت تست: با هر ایمیل و رمز عبور می‌توانید وارد شوید. برای محدود کردن،{' '}
-          <code className="text-xs">NEXT_PUBLIC_ADMIN_DEV_LOGIN=false</code> تنظیم کنید.
+          حالت توسعه: ورود از API واقعی انجام می‌شود. حساب seed:{' '}
+          <code className="text-xs">admin@talashim.local</code> /{' '}
+          <code className="text-xs">Admin12345!</code> — در dev هر رمز برای staff هم
+          پذیرفته می‌شود.
         </Alert>
       ) : null}
 
@@ -60,7 +60,7 @@ export function AdminLoginForm() {
             id="email"
             type="email"
             className="mt-2 border-border bg-card"
-            placeholder="admin@sadafgold.local"
+            placeholder="admin@talashim.local"
             {...register('email')}
           />
           {errors.email ? (
@@ -85,7 +85,7 @@ export function AdminLoginForm() {
           {isSubmitting ? 'در حال ورود...' : 'ورود به پنل'}
         </button>
         <p className="text-center text-xs text-stone-500">
-          <a href="http://localhost:3001" className="font-semibold text-amber-800 hover:underline">
+          <a href="http://localhost:3000" className="font-semibold text-amber-800 hover:underline">
             بازگشت به فروشگاه
           </a>
         </p>

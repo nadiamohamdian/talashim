@@ -39,13 +39,7 @@ export class PricingRepository {
     });
   }
 
-  findHistory(
-    symbol: string,
-    karat: number,
-    from: Date,
-    to: Date,
-    take: number,
-  ) {
+  findHistory(symbol: string, karat: number, from: Date, to: Date, take: number) {
     return this.prisma.goldPriceTick.findMany({
       where: {
         symbol,

@@ -15,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import {
   createNotificationRule,
   deleteNotificationRule,
@@ -26,6 +26,7 @@ import {
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
+import { AdminSubnavLinks } from '@/features/admin/components/admin-subnav-links';
 import { NotificationsPageShell } from './notifications-page-shell';
 import { NOTIFICATION_CHANNEL_FA, RULE_TRIGGER_FA, selectFieldClass } from '../lib/labels';
 
@@ -72,74 +73,52 @@ export function RulesPanel() {
 
   return (
     <NotificationsPageShell routeId="notifications.rules">
+      <AdminSubnavLinks
+        links={[
+          { href: '/notifications', label: 'صندوق ورودی' },
+          { href: '/notifications/templates', label: 'قالب‌ها' },
+          { href: '/notifications/rules', label: 'قوانین' },
+          { href: '/notifications/delivery', label: 'لاگ ارسال' },
+        ]}
+      />
       <Card className="border-border bg-white p-6">
         <h3 className="font-medium">{editingId ? 'ویرایش قانون' : 'قانون جدید'}</h3>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <div>
             <Label>نام</Label>
-            <Input
-              className="mt-1"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-            />
+            <Input className="mt-1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           </div>
           <div>
             <Label>رویداد</Label>
-            <select
-              className={selectFieldClass}
-              value={form.trigger}
-              onChange={(e) => setForm({ ...form, trigger: e.target.value })}
-            >
+            <select className={selectFieldClass} value={form.trigger} onChange={(e) => setForm({ ...form, trigger: e.target.value })}>
               {Object.entries(RULE_TRIGGER_FA).map(([k, l]) => (
-                <option key={k} value={k}>
-                  {l}
-                </option>
+                <option key={k} value={k}>{l}</option>
               ))}
             </select>
           </div>
           <div>
             <Label>قالب</Label>
-            <select
-              className={selectFieldClass}
-              value={form.templateId}
-              onChange={(e) => setForm({ ...form, templateId: e.target.value })}
-            >
+            <select className={selectFieldClass} value={form.templateId} onChange={(e) => setForm({ ...form, templateId: e.target.value })}>
               <option value="">انتخاب قالب</option>
               {templatesQuery.data?.items.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
+                <option key={t.id} value={t.id}>{t.name}</option>
               ))}
             </select>
           </div>
           <div>
             <Label>کانال</Label>
-            <select
-              className={selectFieldClass}
-              value={form.channel}
-              onChange={(e) => setForm({ ...form, channel: e.target.value })}
-            >
+            <select className={selectFieldClass} value={form.channel} onChange={(e) => setForm({ ...form, channel: e.target.value })}>
               {Object.entries(NOTIFICATION_CHANNEL_FA).map(([k, l]) => (
-                <option key={k} value={k}>
-                  {l}
-                </option>
+                <option key={k} value={k}>{l}</option>
               ))}
             </select>
           </div>
           <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={form.isEnabled}
-              onChange={(e) => setForm({ ...form, isEnabled: e.target.checked })}
-            />
+            <input type="checkbox" checked={form.isEnabled} onChange={(e) => setForm({ ...form, isEnabled: e.target.checked })} />
             فعال
           </label>
         </div>
-        <Button
-          className="mt-4 h-9 px-3 text-xs"
-          disabled={saveMutation.isPending}
-          onClick={() => saveMutation.mutate()}
-        >
+        <Button className="mt-4 h-9 px-3 text-xs" disabled={saveMutation.isPending} onClick={() => saveMutation.mutate()}>
           {editingId ? 'ذخیره' : 'ایجاد'}
         </Button>
       </Card>
@@ -147,14 +126,7 @@ export function RulesPanel() {
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
-          <Input
-            className="mt-1"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
+          <Input className="mt-1" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
       </FilterBar>
 
@@ -183,34 +155,15 @@ export function RulesPanel() {
                   <TableCell className="text-sm text-stone-600">{row.templateName}</TableCell>
                   <TableCell>{NOTIFICATION_CHANNEL_FA[row.channel] ?? row.channel}</TableCell>
                   <TableCell>
-                    <Badge
-                      className={row.isEnabled ? 'bg-emerald-50 text-emerald-800' : 'bg-stone-100'}
-                    >
+                    <Badge className={row.isEnabled ? 'bg-emerald-50 text-emerald-800' : 'bg-stone-100'}>
                       {row.isEnabled ? 'فعال' : 'غیرفعال'}
                     </Badge>
                   </TableCell>
                   <TableCell className="space-x-2 space-x-reverse">
-                    <button
-                      type="button"
-                      className="text-xs text-gold-dark"
-                      onClick={() => {
-                        setEditingId(row.id);
-                        setForm({
-                          name: row.name,
-                          trigger: row.trigger,
-                          templateId: row.templateId,
-                          channel: row.channel,
-                          isEnabled: row.isEnabled,
-                        });
-                      }}
-                    >
+                    <button type="button" className="text-xs text-gold-dark" onClick={() => { setEditingId(row.id); setForm({ name: row.name, trigger: row.trigger, templateId: row.templateId, channel: row.channel, isEnabled: row.isEnabled }); }}>
                       ویرایش
                     </button>
-                    <button
-                      type="button"
-                      className="text-xs text-rose-600"
-                      onClick={() => deleteMutation.mutate(row.id)}
-                    >
+                    <button type="button" className="text-xs text-rose-600" onClick={() => deleteMutation.mutate(row.id)}>
                       حذف
                     </button>
                   </TableCell>
@@ -222,12 +175,7 @@ export function RulesPanel() {
       </Card>
 
       {data ? (
-        <PaginationBar
-          page={data.page}
-          total={data.total}
-          limit={data.limit}
-          onPageChange={setPage}
-        />
+        <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
     </NotificationsPageShell>
   );

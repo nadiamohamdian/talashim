@@ -1,4 +1,4 @@
-import type { AdminSessionStatus } from '@sadafgold/types';
+import type { AdminSessionStatus } from '@talashim/types';
 
 export const AUTH_ACTION_LABELS: Record<string, string> = {
   'auth.register': 'ثبت‌نام',

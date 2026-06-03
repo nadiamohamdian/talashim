@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { AuditLogPanel } from '@/features/security/components/audit-log-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="security.audit" />;
+  return <AuditLogPanel />;
 }

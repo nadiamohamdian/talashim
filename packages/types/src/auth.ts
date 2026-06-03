@@ -1,8 +1,12 @@
+import type { StaffRoleSlug } from './roles';
+
+export type UserRoleSlug = StaffRoleSlug | 'customer';
+
 export interface UserProfile {
   id: string;
   email: string;
   fullName: string;
-  role: 'customer' | 'admin';
+  role: UserRoleSlug;
 }
 
 export interface AuthTokens {

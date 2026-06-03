@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { OverridesPanel } from '@/features/pricing/components/overrides-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="pricing.overrides" />;
+  return <OverridesPanel />;
 }

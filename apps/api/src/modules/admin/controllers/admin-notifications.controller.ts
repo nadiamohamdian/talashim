@@ -30,9 +30,7 @@ import { AdminNotificationsService } from '../services/admin-notifications.servi
 @UseGuards(StaffRoleGuard)
 @Controller('admin/notifications')
 export class AdminNotificationsController {
-  constructor(
-    private readonly adminNotificationsService: AdminNotificationsService,
-  ) {}
+  constructor(private readonly adminNotificationsService: AdminNotificationsService) {}
 
   @Get()
   @ApiOperation({ summary: 'Staff notification inbox' })
@@ -45,10 +43,7 @@ export class AdminNotificationsController {
 
   @Post()
   @ApiOperation({ summary: 'Broadcast staff notification' })
-  broadcast(
-    @Body() dto: CreateStaffNotificationDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  broadcast(@Body() dto: CreateStaffNotificationDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminNotificationsService.broadcast(dto, actor);
   }
 
@@ -94,28 +89,19 @@ export class AdminNotificationsController {
 
   @Delete('templates/:id')
   @ApiOperation({ summary: 'Delete notification template' })
-  deleteTemplate(
-    @Param('id') id: string,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  deleteTemplate(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminNotificationsService.deleteTemplate(id, actor);
   }
 
   @Get('rules')
   @ApiOperation({ summary: 'List notification rules' })
-  listRules(
-    @Query() query: AdminRulesQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listRules(@Query() query: AdminRulesQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminNotificationsService.listRules(query, actor);
   }
 
   @Post('rules')
   @ApiOperation({ summary: 'Create notification rule' })
-  createRule(
-    @Body() dto: UpsertNotificationRuleDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  createRule(@Body() dto: UpsertNotificationRuleDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminNotificationsService.createRule(dto, actor);
   }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReportBreakdownRow } from '@sadafgold/types';
+import type { ReportBreakdownRow } from '@talashim/types';
 import { formatToman } from '../lib/format';
 
 interface ReportBreakdownBarsProps {
@@ -28,7 +28,9 @@ export function ReportBreakdownBars({
               <span>{labelMap?.[row.key] ?? row.label}</span>
               <span>
                 {row.count.toLocaleString('fa-IR')}
-                {showAmount && row.amount !== undefined ? ` · ${formatToman(row.amount)} ت` : ''}
+                {showAmount && row.amount !== undefined
+                  ? ` · ${formatToman(row.amount)} ت`
+                  : ''}
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-nude-100">

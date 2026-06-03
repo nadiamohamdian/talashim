@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { LedgerPanel } from '@/features/finance/components/ledger-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="finance.ledger" />;
+  return <LedgerPanel />;
 }

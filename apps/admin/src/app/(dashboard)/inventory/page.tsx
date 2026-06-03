@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { InventoryOverviewPanel } from '@/features/commerce/components/inventory-overview-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="inventory.overview" />;
+  return <InventoryOverviewPanel />;
 }

@@ -25,9 +25,36 @@ export interface AdminProductDto {
   updatedAt: string;
 }
 
+export interface AdminProductImageDto {
+  id: string;
+  url: string;
+  alt: string;
+  sortOrder: number;
+}
+
+export interface AdminProductVariantDto {
+  id: string;
+  sku: string;
+  color: string | null;
+  size: string | null;
+  priceToman: number;
+  weightGram: string | null;
+  makingFeePercent: number | null;
+  imageUrl: string | null;
+  quantity: number;
+  sortOrder: number;
+  isDefault: boolean;
+}
+
 export interface AdminProductDetailDto extends AdminProductDto {
   livePriceToman?: number;
   finalPriceToman?: number;
+  discountPercent: number | null;
+  discountStartsAt: string | null;
+  discountEndsAt: string | null;
+  galleryImages: AdminProductImageDto[];
+  variants: AdminProductVariantDto[];
+  videos: AdminProductVideoDto[];
 }
 
 export interface AdminProductVideoDto {
@@ -84,6 +111,7 @@ export interface AdminOrderListItemDto {
   taxToman: number;
   totalToman: number;
   itemCount: number;
+  paymentStatus: string | null;
   user: AdminOrderUserDto | null;
   createdAt: string;
 }

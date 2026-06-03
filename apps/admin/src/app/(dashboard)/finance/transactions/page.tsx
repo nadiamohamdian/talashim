@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { FinanceTransactionsPanel } from '@/features/finance/components/finance-transactions-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="finance.transactions" />;
+  return <FinanceTransactionsPanel />;
 }

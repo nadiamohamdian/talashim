@@ -8,9 +8,9 @@ import { PageHeader } from '@/widgets/admin/page-header';
 
 const DESCRIPTIONS: Record<string, string> = {
   'reports.sales': 'تحلیل سفارش‌ها و درآمد فروشگاه در بازه زمانی.',
-  'reports.inventory': 'موجودی انبار کالای فروشگاه — جدا از موجودی طلای معاملاتی.',
+  'reports.inventory': 'وضعیت موجودی، رزرو و هشدار کم‌موجودی.',
   'reports.users': 'رشد کاربران، نقش‌ها و وضعیت احراز هویت.',
-  'reports.trading': 'تحلیل خرید/فروش طلای آب‌شده (جدا از سفارش فروشگاه).',
+  'reports.trading': 'حجم معاملات طلای آب‌شده و کارمزد.',
   'reports.financial': 'تراکنش‌های کیف پول و دفتر کل.',
 };
 

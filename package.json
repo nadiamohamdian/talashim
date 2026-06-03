@@ -1,5 +1,5 @@
 {
-  "name": "sadaf-gold",
+  "name": "talashim",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.12.0",
@@ -8,12 +8,12 @@
     "pnpm": ">=9.12.0"
   },
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "dev:web": "pnpm --filter @sadafgold/web dev",
-    "dev:store": "pnpm --filter @sadafgold/web dev",
-    "dev:admin": "pnpm --filter @sadafgold/admin dev",
-    "dev:api": "pnpm --filter @sadafgold/api start:dev",
-    "dev:worker": "pnpm --filter @sadafgold/worker start:dev",
+    "dev": "turbo run dev --parallel --continue",
+    "dev:web": "pnpm --filter @talashim/web dev",
+    "dev:store": "pnpm --filter @talashim/web dev",
+    "dev:admin": "pnpm --filter @talashim/admin dev",
+    "dev:api": "pnpm --filter @talashim/api start:dev",
+    "dev:worker": "pnpm --filter @talashim/worker start:dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
@@ -36,8 +36,6 @@
     }
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.39.4",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",

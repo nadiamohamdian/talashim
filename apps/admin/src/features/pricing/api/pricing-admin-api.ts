@@ -6,10 +6,12 @@ import type {
   PaginatedResponse,
   PricingMarginsDto,
   PricingProvidersResponseDto,
-} from '@sadafgold/types';
+} from '@talashim/types';
 
 export function fetchAdminLivePrice(params?: { symbol?: string; karat?: number }) {
-  return axiosClient.get<LiveGoldPriceDto>('/admin/pricing/live', { params }).then((r) => r.data);
+  return axiosClient
+    .get<LiveGoldPriceDto>('/admin/pricing/live', { params })
+    .then((r) => r.data);
 }
 
 export function refreshAdminLivePrice(params?: { symbol?: string; karat?: number }) {
@@ -48,14 +50,8 @@ export function fetchPricingMargins() {
   return axiosClient.get<PricingMarginsDto>('/admin/pricing/margins').then((r) => r.data);
 }
 
-export function updatePricingMargins(
-  payload: Omit<PricingMarginsDto, 'updatedAt' | 'primaryProviderName' | 'fallbackProviderName'> & {
-    brsEnabled?: boolean;
-  },
-) {
-  return axiosClient
-    .patch<PricingMarginsDto>('/admin/pricing/margins', payload)
-    .then((r) => r.data);
+export function updatePricingMargins(payload: Omit<PricingMarginsDto, 'updatedAt' | 'primaryProviderName' | 'fallbackProviderName'> & { brsEnabled?: boolean }) {
+  return axiosClient.patch<PricingMarginsDto>('/admin/pricing/margins', payload).then((r) => r.data);
 }
 
 export function fetchPriceOverrides(params?: { page?: number; activeOnly?: boolean }) {

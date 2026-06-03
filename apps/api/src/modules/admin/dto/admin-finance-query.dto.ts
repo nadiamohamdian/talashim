@@ -5,6 +5,7 @@ import {
   WalletAssetType,
   WalletTransactionType,
 } from '@/generated/prisma';
+import { Type } from 'class-transformer';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
 import { PaginationQueryDto } from './admin-query.dto';
 

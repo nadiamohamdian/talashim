@@ -1,6 +1,6 @@
 'use client';
 
-import { Label } from '@sadafgold/ui';
+import { Label } from '@talashim/ui';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { fromDateInputValue, toDateInputValue } from '../lib/date-range';
 

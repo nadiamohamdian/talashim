@@ -1,21 +1,50 @@
 import argon2 from 'argon2';
 import { PrismaClient, ProductCategory, Role } from '../src/generated/prisma';
+import {
+  DEFAULT_CMS_HERO,
+  DEFAULT_CMS_SECTIONS,
+  DEFAULT_CMS_SEO,
+} from '../src/modules/admin/cms/cms-defaults';
+import { getApiEnv } from '../src/config/env';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminPasswordHash = await argon2.hash('Admin12345!');
+  const staffPasswordHash = await argon2.hash('Admin12345!');
 
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@sadafgold.local' },
-    update: {},
-    create: {
-      email: 'admin@sadafgold.local',
-      fullName: 'Sadaf Admin',
-      passwordHash: adminPasswordHash,
-      role: Role.ADMIN,
-    },
-  });
+  const staffAccounts: Array<{
+    email: string;
+    fullName: string;
+    role: Role;
+  }> = [
+    { email: 'admin@talashim.local', fullName: 'سوپر ادمین', role: Role.SUPER_ADMIN },
+    { email: 'support@talashim.local', fullName: 'پشتیبان سایت', role: Role.SUPPORT },
+    { email: 'accountant@talashim.local', fullName: 'حسابدار', role: Role.ACCOUNTANT },
+    { email: 'editor@talashim.local', fullName: 'ادیتور', role: Role.EDITOR },
+    { email: 'warehouse@talashim.local', fullName: 'انباردار', role: Role.WAREHOUSE },
+  ];
+
+  let superAdminId: string | null = null;
+
+  for (const account of staffAccounts) {
+    const user = await prisma.user.upsert({
+      where: { email: account.email },
+      update: {
+        role: account.role,
+        fullName: account.fullName,
+        passwordHash: staffPasswordHash,
+      },
+      create: {
+        email: account.email,
+        fullName: account.fullName,
+        passwordHash: staffPasswordHash,
+        role: account.role,
+      },
+    });
+    if (account.role === Role.SUPER_ADMIN) {
+      superAdminId = user.id;
+    }
+  }
 
   await prisma.blogCategory.upsert({
     where: { slug: 'guides' },
@@ -37,7 +66,7 @@ async function main() {
 
   const products = [
     {
-      sku: 'SG-R-0412-01',
+      sku: 'TL-R-0412-01',
       slug: 'van-cleef-alhambra-ring',
       title: 'انگشتر طلا زنانه ونکلیف الحمرا',
       category: ProductCategory.RING,
@@ -55,7 +84,7 @@ async function main() {
       quantity: 5,
     },
     {
-      sku: 'SG-R-0480-01',
+      sku: 'TL-R-0480-01',
       slug: 'royal-ring',
       title: 'انگشتر طلای رویال',
       category: ProductCategory.RING,
@@ -73,9 +102,9 @@ async function main() {
       quantity: 3,
     },
     {
-      sku: 'SG-N-1120-01',
-      slug: 'sadaf-necklace',
-      title: 'گردنبند صدف',
+      sku: 'TL-N-1120-01',
+      slug: 'talashim-necklace',
+      title: 'گردنبند تلاشیم',
       category: ProductCategory.NECKLACE,
       karat: 18,
       weightGram: '11.20',
@@ -85,7 +114,7 @@ async function main() {
         'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80',
       description:
         'گردنبند مینیمال برای فروشگاه طلا با توضیح دقیق محصول و تصویر استاندارد.',
-      seoDescription: 'گردنبند طلای صدف با کیفیت ساخت بالا و قیمت روز.',
+      seoDescription: 'گردنبند طلای تلاشیم با کیفیت ساخت بالا و قیمت روز.',
       featured: true,
       quantity: 2,
     },
@@ -173,7 +202,7 @@ async function main() {
       title: 'چگونه اصالت طلا را بررسی کنم؟',
       excerpt: 'هر محصول دارای مشخصات وزن، عیار و فاکتور رسمی است.',
       content:
-        'تمام محصولات صدف گلد با مشخصات دقیق وزن و عیار عرضه می‌شوند. فاکتور رسمی همراه سفارش ارسال شده و امکان مراجعه به آزمایشگاه معتبر برای کاربران فراهم است.',
+        'تمام محصولات تلاشیم با مشخصات دقیق وزن و عیار عرضه می‌شوند. فاکتور رسمی همراه سفارش ارسال شده و امکان مراجعه به آزمایشگاه معتبر برای کاربران فراهم است.',
     },
     {
       slug: 'faq-trading-kyc',
@@ -201,9 +230,189 @@ async function main() {
     });
   }
 
+  const apiEnv = getApiEnv();
+  await prisma.pricingConfig.upsert({
+    where: { id: 'default' },
+    update: {},
+    create: {
+      id: 'default',
+      spreadPercent: apiEnv.GOLD_SPREAD_PERCENT,
+      tradeCommissionPercent: apiEnv.GOLD_TRADE_COMMISSION_PERCENT,
+      defaultMakingFeePercent: 10,
+      refreshIntervalMs: apiEnv.GOLD_PRICE_REFRESH_MS,
+      brsEnabled: Boolean(apiEnv.BRS_API_KEY),
+    },
+  });
+
+  await prisma.cmsHomepage.upsert({
+    where: { id: 'default' },
+    update: {},
+    create: {
+      id: 'default',
+      hero: DEFAULT_CMS_HERO as object,
+      sections: DEFAULT_CMS_SECTIONS as object,
+    },
+  });
+
+  await prisma.cmsSeoSettings.upsert({
+    where: { id: 'default' },
+    update: {},
+    create: {
+      id: 'default',
+      siteTitle: DEFAULT_CMS_SEO.siteTitle,
+      siteDescription: DEFAULT_CMS_SEO.siteDescription,
+      defaultOgImageUrl: DEFAULT_CMS_SEO.defaultOgImageUrl,
+      robotsIndex: DEFAULT_CMS_SEO.robotsIndex,
+      googleAnalyticsId: DEFAULT_CMS_SEO.googleAnalyticsId,
+      extraMeta: DEFAULT_CMS_SEO.extraMeta ?? undefined,
+    },
+  });
+
+  const staticPages = [
+    {
+      slug: 'about',
+      title: 'درباره تلاشیم',
+      content:
+        'تلاشیم فروشگاه آنلاین طلا و جواهر با تمرکز بر شفافیت قیمت، وزن دقیق و ارسال امن است.',
+      isPublished: true,
+    },
+    {
+      slug: 'terms',
+      title: 'قوانین و مقررات',
+      content: 'متن قوانین استفاده از فروشگاه تلاشیم در این صفحه نمایش داده می‌شود.',
+      isPublished: true,
+    },
+    {
+      slug: 'policies',
+      title: 'سیاست‌ها',
+      content: 'سیاست مرجوعی، حریم خصوصی و شرایط خرید.',
+      isPublished: true,
+    },
+  ];
+
+  for (const page of staticPages) {
+    await prisma.cmsStaticPage.upsert({
+      where: { slug: page.slug },
+      update: {},
+      create: page,
+    });
+  }
+
+  await prisma.cmsBanner.upsert({
+    where: { id: 'seed-home-mid-1' },
+    update: {},
+    create: {
+      id: 'seed-home-mid-1',
+      title: 'کالکشن بهاره',
+      subtitle: 'تا ۱۵٪ اجرت ساخت روی گوشواره‌های منتخب',
+      imageUrl:
+        'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
+      linkUrl: '/products',
+      placement: 'HOME_MID',
+      sortOrder: 0,
+      status: 'PUBLISHED',
+    },
+  });
+
+  const smsTemplate = await prisma.notificationTemplate.upsert({
+    where: { key: 'order_paid_sms' },
+    update: {},
+    create: {
+      key: 'order_paid_sms',
+      name: 'پرداخت سفارش (پیامک)',
+      channel: 'SMS',
+      body: 'سفارش {{orderNumber}} با موفقیت پرداخت شد. مبلغ: {{totalToman}} تومان',
+      isActive: true,
+    },
+  });
+
+  const emailTemplate = await prisma.notificationTemplate.upsert({
+    where: { key: 'kyc_approved_email' },
+    update: {},
+    create: {
+      key: 'kyc_approved_email',
+      name: 'تأیید احراز هویت (ایمیل)',
+      channel: 'EMAIL',
+      subject: 'احراز هویت شما تأیید شد',
+      body: 'کاربر گرامی {{fullName}}، احراز هویت شما در تلاشیم تأیید شد.',
+      isActive: true,
+    },
+  });
+
+  await prisma.notificationRule.upsert({
+    where: { id: 'seed-rule-order-paid' },
+    update: {},
+    create: {
+      id: 'seed-rule-order-paid',
+      name: 'اطلاع پرداخت سفارش',
+      trigger: 'ORDER_PAID',
+      templateId: smsTemplate.id,
+      channel: 'SMS',
+      isEnabled: true,
+    },
+  });
+
+  await prisma.notificationRule.upsert({
+    where: { id: 'seed-rule-kyc' },
+    update: {},
+    create: {
+      id: 'seed-rule-kyc',
+      name: 'ایمیل تأیید KYC',
+      trigger: 'KYC_APPROVED',
+      templateId: emailTemplate.id,
+      channel: 'EMAIL',
+      isEnabled: true,
+    },
+  });
+
+  await prisma.staffNotification.createMany({
+    data: [
+      {
+        title: 'خوش آمدید به پنل عملیات',
+        body: 'مرکز اعلان‌های تلاشیم فعال است. قوانین و قالب‌ها را از منوی کناری مدیریت کنید.',
+        channel: 'IN_APP',
+        priority: 'NORMAL',
+        category: 'system',
+        targetRole: null,
+      },
+      {
+        title: 'هشدار موجودی',
+        body: 'حداقل یک SKU در آستانه کم‌موجودی است. گزارش موجودی را بررسی کنید.',
+        channel: 'IN_APP',
+        priority: 'HIGH',
+        category: 'operational',
+        targetRole: 'WAREHOUSE',
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  await prisma.notificationDelivery.createMany({
+    data: [
+      {
+        templateId: smsTemplate.id,
+        channel: 'SMS',
+        recipient: '+989121234567',
+        status: 'DELIVERED',
+        title: 'پرداخت سفارش',
+        body: 'سفارش TL-123 با موفقیت پرداخت شد.',
+        sentAt: new Date(),
+      },
+      {
+        channel: 'EMAIL',
+        recipient: 'customer@example.com',
+        status: 'FAILED',
+        title: 'تأیید KYC',
+        body: 'احراز هویت تأیید شد.',
+        errorMessage: 'SMTP connection timeout (seed demo)',
+      },
+    ],
+    skipDuplicates: true,
+  });
+
   await prisma.auditLog.create({
     data: {
-      actorId: admin.id,
+      actorId: superAdminId,
       action: 'seed.completed',
       context: {
         by: 'prisma.seed',

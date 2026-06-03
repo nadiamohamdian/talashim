@@ -7,14 +7,14 @@ export function AdminStoreHeader() {
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="flex flex-col">
           <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-amber-800">
-            Sadaf Gold
+            Talashim
           </span>
           <span className="text-sm font-bold text-stone-900">
             {adminEnv.NEXT_PUBLIC_ADMIN_APP_NAME}
           </span>
         </Link>
         <Link
-          href="http://localhost:3001"
+          href="http://localhost:3000"
           className="text-xs font-semibold text-amber-800 transition hover:text-amber-950"
         >
           فروشگاه

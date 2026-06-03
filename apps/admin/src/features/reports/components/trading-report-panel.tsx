@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchTradingReport } from '../api/reports-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
@@ -103,7 +103,10 @@ export function TradingReportPanel() {
         <>
           <ReportKpiGrid kpis={data.summary.kpis} />
           <div className="grid gap-6 lg:grid-cols-2">
-            <ReportLineChart title="معاملات تکمیل‌شده روزانه" data={data.summary.dailySeries} />
+            <ReportLineChart
+              title="معاملات تکمیل‌شده روزانه"
+              data={data.summary.dailySeries}
+            />
             <div className="space-y-6">
               <ReportBreakdownBars
                 title="بر اساس سمت"

@@ -28,10 +28,7 @@ export class AdminTradingController {
 
   @Get('orders')
   @ApiOperation({ summary: 'List gold trade orders' })
-  listOrders(
-    @Query() query: AdminTradingOrdersQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listOrders(@Query() query: AdminTradingOrdersQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminTradingService.listOrders(query, actor);
   }
 
@@ -48,9 +45,7 @@ export class AdminTradingController {
   }
 
   @Get('settlement/queue')
-  @ApiOperation({
-    summary: 'Orders awaiting settlement (pending/failed filter)',
-  })
+  @ApiOperation({ summary: 'Orders awaiting settlement (pending/failed filter)' })
   listSettlementQueue(
     @Query() query: AdminTradingOrdersQueryDto,
     @CurrentUser() actor: AuthenticatedUser,
@@ -60,10 +55,7 @@ export class AdminTradingController {
 
   @Post('orders/:id/settle')
   @ApiOperation({ summary: 'Manually settle a pending trade order' })
-  settleOrder(
-    @Param('id') id: string,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  settleOrder(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminTradingService.settleOrder(id, actor);
   }
 
@@ -79,10 +71,7 @@ export class AdminTradingController {
 
   @Get('reports')
   @ApiOperation({ summary: 'Trading analytics report' })
-  getReports(
-    @Query() query: AdminTradingReportQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  getReports(@Query() query: AdminTradingReportQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminTradingService.getTradingReport(query, actor);
   }
 }

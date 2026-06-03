@@ -1,7 +1,7 @@
 'use client';
 
 import { Component, type ErrorInfo, type PropsWithChildren, type ReactNode } from 'react';
-import { Alert, Button } from '@sadafgold/ui';
+import { Alert, Button } from '@talashim/ui';
 
 interface Props extends PropsWithChildren {
   fallbackTitle?: string;
@@ -13,13 +13,13 @@ interface State {
 }
 
 export class TradingErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  override state: State = { hasError: false };
 
   static getDerivedStateFromError(error: Error): State {
     return { hasError: true, message: error.message };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[TradingErrorBoundary]', error, info.componentStack);
   }
 
@@ -27,7 +27,7 @@ export class TradingErrorBoundary extends Component<Props, State> {
     this.setState({ hasError: false, message: undefined });
   };
 
-  render(): ReactNode {
+  override render(): ReactNode {
     if (this.state.hasError) {
       return (
         <Alert variant="destructive" className="mx-auto max-w-lg">

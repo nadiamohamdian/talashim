@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Role } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 
 @Injectable()
@@ -13,9 +14,24 @@ export class UsersRepository {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
-  create(data: { email: string; fullName: string; passwordHash: string }) {
+  create(data: { email: string; fullName: string; passwordHash: string; role?: Role }) {
     return this.prisma.user.create({
-      data,
+      data: {
+        email: data.email,
+        fullName: data.fullName,
+        passwordHash: data.passwordHash,
+        role: data.role ?? Role.CUSTOMER,
+      },
+    });
+  }
+
+  updateStaffAccount(id: string, data: { role: Role; fullName?: string }) {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        role: data.role,
+        fullName: data.fullName,
+      },
     });
   }
 

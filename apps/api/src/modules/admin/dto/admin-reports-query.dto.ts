@@ -7,13 +7,8 @@ import {
   Role,
   WalletTransactionType,
 } from '@/generated/prisma';
-import {
-  IsBoolean,
-  IsEnum,
-  IsISO8601,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsEnum, IsISO8601, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { PaginationQueryDto } from './admin-query.dto';
 

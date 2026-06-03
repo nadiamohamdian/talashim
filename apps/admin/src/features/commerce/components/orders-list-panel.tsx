@@ -15,19 +15,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchAdminOrders } from '../api/commerce-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CommercePageShell } from './commerce-page-shell';
-import { formatToman, ORDER_STATUS_FA, selectFieldClass } from '../lib/labels';
+import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
 
 const statusBadge: Record<string, string> = {
   PENDING: 'bg-amber-50 text-amber-900',
   CONFIRMED: 'bg-blue-50 text-blue-800',
   PAID: 'bg-emerald-50 text-emerald-800',
   CANCELLED: 'bg-stone-100 text-stone-600',
+};
+
+const paymentBadge: Record<string, string> = {
+  PENDING: 'bg-amber-50 text-amber-900',
+  AUTHORIZED: 'bg-blue-50 text-blue-800',
+  PAID: 'bg-emerald-50 text-emerald-800',
+  FAILED: 'bg-rose-50 text-rose-800',
 };
 
 export function OrdersListPanel() {
@@ -54,57 +61,24 @@ export function OrdersListPanel() {
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
-          <Input
-            className="mt-1"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="شماره سفارش یا کاربر"
-          />
+          <Input className="mt-1" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="شماره سفارش یا کاربر" />
         </div>
         <div>
           <Label>وضعیت</Label>
-          <select
-            className={selectFieldClass}
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select className={selectFieldClass} value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
             <option value="">همه</option>
             {Object.entries(ORDER_STATUS_FA).map(([k, l]) => (
-              <option key={k} value={k}>
-                {l}
-              </option>
+              <option key={k} value={k}>{l}</option>
             ))}
           </select>
         </div>
         <div>
           <Label>از</Label>
-          <Input
-            className="mt-1"
-            type="date"
-            value={from}
-            onChange={(e) => {
-              setFrom(e.target.value);
-              setPage(1);
-            }}
-          />
+          <Input className="mt-1" type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
         </div>
         <div>
           <Label>تا</Label>
-          <Input
-            className="mt-1"
-            type="date"
-            value={to}
-            onChange={(e) => {
-              setTo(e.target.value);
-              setPage(1);
-            }}
-          />
+          <Input className="mt-1" type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} />
         </div>
       </FilterBar>
 
@@ -121,14 +95,15 @@ export function OrdersListPanel() {
                 <TableHead>کاربر</TableHead>
                 <TableHead>اقلام</TableHead>
                 <TableHead>جمع</TableHead>
-                <TableHead>وضعیت</TableHead>
+                <TableHead>وضعیت سفارش</TableHead>
+                <TableHead>وضعیت پرداخت</TableHead>
                 <TableHead>زمان</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={7} className="py-8 text-center text-stone-500">
                     سفارشی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -136,10 +111,7 @@ export function OrdersListPanel() {
                 data?.items.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>
-                      <Link
-                        href={`/orders/${order.id}`}
-                        className="font-mono text-xs text-gold-dark hover:underline"
-                      >
+                      <Link href={`/orders/${order.id}`} className="font-mono text-xs text-gold-dark hover:underline">
                         {order.orderNumber}
                       </Link>
                     </TableCell>
@@ -147,9 +119,16 @@ export function OrdersListPanel() {
                     <TableCell>{order.itemCount}</TableCell>
                     <TableCell>{formatToman(order.totalToman)}</TableCell>
                     <TableCell>
-                      <Badge className={statusBadge[order.status]}>
-                        {ORDER_STATUS_FA[order.status] ?? order.status}
-                      </Badge>
+                      <Badge className={statusBadge[order.status]}>{ORDER_STATUS_FA[order.status] ?? order.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {order.paymentStatus ? (
+                        <Badge className={paymentBadge[order.paymentStatus]}>
+                          {PAYMENT_STATUS_FA[order.paymentStatus] ?? order.paymentStatus}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-stone-400">بدون پرداخت</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-xs text-stone-500">
                       {new Date(order.createdAt).toLocaleString('fa-IR')}
@@ -163,12 +142,7 @@ export function OrdersListPanel() {
       </Card>
 
       {data ? (
-        <PaginationBar
-          page={data.page}
-          total={data.total}
-          limit={data.limit}
-          onPageChange={setPage}
-        />
+        <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
     </CommercePageShell>
   );

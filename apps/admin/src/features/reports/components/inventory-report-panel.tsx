@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchInventoryReport } from '../api/reports-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
@@ -120,7 +120,9 @@ export function InventoryReportPanel() {
                   <TableRow key={row.productId}>
                     <TableCell className="font-mono text-xs">{row.sku}</TableCell>
                     <TableCell>{row.title}</TableCell>
-                    <TableCell>{PRODUCT_CATEGORY_FA[row.category] ?? row.category}</TableCell>
+                    <TableCell>
+                      {PRODUCT_CATEGORY_FA[row.category] ?? row.category}
+                    </TableCell>
                     <TableCell>{row.quantity}</TableCell>
                     <TableCell>{row.reserved}</TableCell>
                     <TableCell>{row.available}</TableCell>

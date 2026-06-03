@@ -1,5 +1,10 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { OrderDetailPanel } from '@/features/commerce/components/order-detail-panel';
 
-export default function Page() {
-  return <ModuleSkeletonPage routeId="orders.detail" />;
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+  return <OrderDetailPanel orderId={id} />;
 }

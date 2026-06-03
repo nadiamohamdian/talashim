@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchInventorySectionReport } from '../api/commerce-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { ReportBreakdownBars } from '@/features/reports/components/report-breakdown-bars';
@@ -45,42 +45,19 @@ export function InventoryReportsPanel() {
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
-          <Input
-            className="mt-1"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
+          <Input className="mt-1" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
         <div>
           <Label>دسته</Label>
-          <select
-            className={selectFieldClass}
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select className={selectFieldClass} value={category} onChange={(e) => { setCategory(e.target.value); setPage(1); }}>
             <option value="">همه</option>
             {Object.entries(PRODUCT_CATEGORY_FA).map(([k, l]) => (
-              <option key={k} value={k}>
-                {l}
-              </option>
+              <option key={k} value={k}>{l}</option>
             ))}
           </select>
         </div>
         <label className="flex items-center gap-2 self-end pb-2 text-sm">
-          <input
-            type="checkbox"
-            checked={lowStockOnly}
-            onChange={(e) => {
-              setLowStockOnly(e.target.checked);
-              setPage(1);
-            }}
-          />
+          <input type="checkbox" checked={lowStockOnly} onChange={(e) => { setLowStockOnly(e.target.checked); setPage(1); }} />
           کم‌موجودی
         </label>
       </FilterBar>
@@ -125,12 +102,7 @@ export function InventoryReportsPanel() {
               </TableBody>
             </Table>
           </div>
-          <PaginationBar
-            page={data.page}
-            total={data.total}
-            limit={data.limit}
-            onPageChange={setPage}
-          />
+          <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
         </>
       )}
     </CatalogPageShell>

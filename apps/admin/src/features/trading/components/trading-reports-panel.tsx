@@ -12,18 +12,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { ReportBreakdownBars } from '@/features/reports/components/report-breakdown-bars';
 import { ReportDateFilter } from '@/features/reports/components/report-date-filter';
 import { ReportKpiGrid } from '@/features/reports/components/report-kpi-grid';
 import { ReportLineChart } from '@/features/reports/components/report-line-chart';
 import { defaultReportFrom, defaultReportTo } from '@/features/reports/lib/date-range';
-import {
-  formatGram,
-  formatToman,
-  TRADE_SIDE_FA,
-  TRADE_STATUS_FA,
-} from '@/features/reports/lib/format';
+import { formatGram, formatToman, TRADE_SIDE_FA, TRADE_STATUS_FA } from '@/features/reports/lib/format';
 import { fetchTradingSectionReport } from '../api/trading-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';

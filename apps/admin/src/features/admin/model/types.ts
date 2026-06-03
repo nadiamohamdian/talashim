@@ -2,9 +2,16 @@ export type {
   AdminAnalytics,
   AdminAuditLog,
   AdminKycItem,
+  AdminLoginHistoryItem,
   AdminPaginated,
+  AdminPermissionRegistry,
+  AdminSession,
   AdminTradeOrder,
   AdminUser,
   AdminWalletRow,
   AdminWalletTransaction,
-} from '@sadafgold/types';
+  CreateStaffUserPayload,
+  UpdateStaffUserPayload,
+  AdminUserActivityItem,
+  AdminUserDetailView,
+} from '@talashim/types';

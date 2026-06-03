@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { Alert, Input, Label } from '@sadafgold/ui';
+import { useForm, type Resolver } from 'react-hook-form';
+import { Alert, Input, Label } from '@talashim/ui';
 import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import { commerceSettingsSchema, type CommerceSettings } from '../model/schemas';
@@ -29,7 +29,7 @@ export function CommerceSettingsForm() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CommerceSettings>({
-    resolver: zodResolver(commerceSettingsSchema),
+    resolver: zodResolver(commerceSettingsSchema) as Resolver<CommerceSettings>,
     defaultValues: commerce,
   });
 

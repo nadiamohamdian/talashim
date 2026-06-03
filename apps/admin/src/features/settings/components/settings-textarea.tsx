@@ -1,10 +1,7 @@
 import type { TextareaHTMLAttributes } from 'react';
-import { cn } from '@sadafgold/ui';
+import { cn } from '@talashim/ui';
 
-export function SettingsTextarea({
-  className,
-  ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function SettingsTextarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       className={cn(

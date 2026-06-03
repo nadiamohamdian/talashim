@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Card, Skeleton } from '@sadafgold/ui';
+import { Card, Skeleton } from '@talashim/ui';
 import { fetchPricingProviders } from '../api/pricing-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PricingPageShell } from './pricing-page-shell';
@@ -84,12 +84,7 @@ export function ProvidersPanel() {
                   <div>
                     <p className="font-medium text-stone-900">{provider.name}</p>
                     <p className="text-xs text-stone-500">
-                      نقش:{' '}
-                      {provider.role === 'primary'
-                        ? 'اصلی'
-                        : provider.role === 'fallback'
-                          ? 'پشتیبان'
-                          : 'بازار'}
+                      نقش: {provider.role === 'primary' ? 'اصلی' : provider.role === 'fallback' ? 'پشتیبان' : 'بازار'}
                     </p>
                   </div>
                   <span

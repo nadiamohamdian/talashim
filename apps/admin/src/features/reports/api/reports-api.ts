@@ -10,7 +10,7 @@ import type {
   TradingReportSummary,
   UsersReportRow,
   UsersReportSummary,
-} from '@sadafgold/types';
+} from '@talashim/types';
 
 export interface ReportListResponse<TItem, TSummary> {
   summary: TSummary;
@@ -44,9 +44,10 @@ export interface InventoryReportParams {
 
 export function fetchInventoryReport(params: InventoryReportParams = {}) {
   return axiosClient
-    .get<
-      ReportListResponse<InventoryReportRow, InventoryReportSummary>
-    >('/admin/reports/inventory', { params })
+    .get<ReportListResponse<InventoryReportRow, InventoryReportSummary>>(
+      '/admin/reports/inventory',
+      { params },
+    )
     .then((r) => r.data);
 }
 
@@ -76,9 +77,10 @@ export interface TradingReportParams {
 
 export function fetchTradingReport(params: TradingReportParams = {}) {
   return axiosClient
-    .get<
-      ReportListResponse<TradingReportRow, TradingReportSummary>
-    >('/admin/reports/trading', { params })
+    .get<ReportListResponse<TradingReportRow, TradingReportSummary>>(
+      '/admin/reports/trading',
+      { params },
+    )
     .then((r) => r.data);
 }
 
@@ -91,8 +93,9 @@ export interface FinancialReportParams {
 
 export function fetchFinancialReport(params: FinancialReportParams = {}) {
   return axiosClient
-    .get<
-      ReportListResponse<FinancialReportRow, FinancialReportSummary>
-    >('/admin/reports/financial', { params })
+    .get<ReportListResponse<FinancialReportRow, FinancialReportSummary>>(
+      '/admin/reports/financial',
+      { params },
+    )
     .then((r) => r.data);
 }

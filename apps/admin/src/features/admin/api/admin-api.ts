@@ -1,50 +1,39 @@
 import { axiosClient } from '@/shared/api/axios-client';
-import {
-  ADMIN_ROLE_DEFINITIONS,
-  ALL_ADMIN_PERMISSIONS,
-  type AdminPermissionKey,
-} from '@sadafgold/shared/admin-rbac';
 import type {
   AdminAnalytics,
   AdminAuditLog,
   AdminKycItem,
+  AdminLoginHistoryItem,
   AdminPaginated,
+  AdminPermissionRegistry,
+  AdminSession,
   AdminTradeOrder,
   AdminUser,
   AdminWalletRow,
   AdminWalletTransaction,
+  CreateStaffUserPayload,
+  UpdateStaffUserPayload,
+  AdminUserDetailView,
+  AdminUserActivityItem,
 } from '../model/types';
-
-export interface AdminPermissionRegistry {
-  permissions: readonly AdminPermissionKey[];
-  roles: typeof ADMIN_ROLE_DEFINITIONS;
-}
-
-export interface AdminLoginHistoryItem {
-  id: string;
-  action: string;
-  createdAt: string;
-  actor?: { email?: string; fullName?: string; role?: string };
-}
-
-export interface AdminSessionItem {
-  id: string;
-  status: 'active' | 'revoked' | 'expired';
-  createdAt: string;
-  expiresAt: string;
-  user: { id: string; email: string; fullName: string; role?: string };
-  userId: string;
-}
 
 export function fetchAnalytics() {
   return axiosClient.get<AdminAnalytics>('/admin/analytics').then((r) => r.data);
 }
 
-export function fetchUsers(params: { page?: number; search?: string; role?: string }) {
+export function fetchUsers(params: {
+  page?: number;
+  search?: string;
+  role?: string;
+  staffOnly?: boolean;
+}) {
   return axiosClient.get<AdminPaginated<AdminUser>>('/admin/users', { params }).then((r) => r.data);
 }
 
-export function updateUserRole(userId: string, role: 'CUSTOMER' | 'ADMIN') {
+export function updateUserRole(
+  userId: string,
+  role: 'CUSTOMER' | 'SUPER_ADMIN' | 'SUPPORT' | 'ACCOUNTANT' | 'EDITOR' | 'WAREHOUSE',
+) {
   return axiosClient.patch<AdminUser>(`/admin/users/${userId}/role`, { role }).then((r) => r.data);
 }
 
@@ -85,49 +74,58 @@ export function fetchAuditLogs(params: { page?: number; source?: string }) {
     .then((r) => r.data);
 }
 
-export function fetchPermissionRegistry(): Promise<AdminPermissionRegistry> {
-  return Promise.resolve({
-    permissions: ALL_ADMIN_PERMISSIONS,
-    roles: ADMIN_ROLE_DEFINITIONS,
-  });
-}
-
-export function fetchLoginHistory(params: {
-  page?: number;
-  search?: string;
-  action?: string;
-}): Promise<AdminPaginated<AdminLoginHistoryItem>> {
-  const page = params.page ?? 1;
-  const limit = 20;
-  return axiosClient
-    .get<AdminPaginated<AdminLoginHistoryItem>>('/admin/security/login-history', { params })
-    .then((r) => r.data)
-    .catch(() => ({ page, limit, total: 0, items: [] }));
-}
-
 export function fetchSessions(params: {
   page?: number;
   search?: string;
-  status?: string;
-}): Promise<AdminPaginated<AdminSessionItem>> {
-  const page = params.page ?? 1;
-  const limit = 20;
+  status?: 'active' | 'revoked' | 'expired' | 'all';
+}) {
   return axiosClient
-    .get<AdminPaginated<AdminSessionItem>>('/admin/security/sessions', { params })
-    .then((r) => r.data)
-    .catch(() => ({ page, limit, total: 0, items: [] }));
+    .get<AdminPaginated<AdminSession>>('/admin/security/sessions', { params })
+    .then((r) => r.data);
 }
 
-export function revokeSession(sessionId: string): Promise<{ ok: boolean }> {
+export function revokeSession(sessionId: string) {
   return axiosClient
-    .delete<{ ok: boolean }>(`/admin/security/sessions/${sessionId}`)
-    .then((r) => r.data)
-    .catch(() => ({ ok: false }));
+    .delete<{ success: boolean }>(`/admin/security/sessions/${sessionId}`)
+    .then((r) => r.data);
 }
 
-export function revokeUserSessions(userId: string): Promise<{ ok: boolean }> {
+export function revokeUserSessions(userId: string) {
   return axiosClient
-    .delete<{ ok: boolean }>(`/admin/security/users/${userId}/sessions`)
-    .then((r) => r.data)
-    .catch(() => ({ ok: false }));
+    .delete<{ success: boolean; revokedCount: number }>(`/admin/security/users/${userId}/sessions`)
+    .then((r) => r.data);
+}
+
+export function fetchLoginHistory(params: { page?: number; search?: string; action?: string }) {
+  return axiosClient
+    .get<AdminPaginated<AdminLoginHistoryItem>>('/admin/security/login-history', { params })
+    .then((r) => r.data);
+}
+
+export function fetchPermissionRegistry() {
+  return axiosClient
+    .get<AdminPermissionRegistry>('/admin/security/permissions')
+    .then((r) => r.data);
+}
+
+export function createStaffUser(payload: CreateStaffUserPayload) {
+  return axiosClient.post<AdminUser>('/admin/staff', payload).then((r) => r.data);
+}
+
+export function updateStaffUser(userId: string, payload: UpdateStaffUserPayload) {
+  return axiosClient.patch<AdminUser>(`/admin/staff/${userId}`, payload).then((r) => r.data);
+}
+
+export function revokeStaffUserSessions(userId: string) {
+  return revokeUserSessions(userId);
+}
+
+export function fetchUserDetail(userId: string) {
+  return axiosClient.get<AdminUserDetailView>(`/admin/users/${userId}`).then((r) => r.data);
+}
+
+export function fetchUserActivity(userId: string, params?: { page?: number }) {
+  return axiosClient
+    .get<AdminPaginated<AdminUserActivityItem>>(`/admin/users/${userId}/activity`, { params })
+    .then((r) => r.data);
 }

@@ -12,8 +12,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
-import { getRoleLabelFa } from '@sadafgold/shared/admin-rbac';
+} from '@talashim/ui';
+import { getRoleLabelFa } from '@talashim/shared/admin-rbac';
 import { fetchUsersReport } from '../api/reports-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';

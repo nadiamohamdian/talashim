@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
+import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
 import { fetchPricingMargins, updatePricingMargins } from '../api/pricing-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PricingPageShell } from './pricing-page-shell';
@@ -108,7 +108,8 @@ export function MarginsPanel() {
 
           {data ? (
             <p className="text-xs text-stone-500">
-              ارائه‌دهنده اصلی: {data.primaryProviderName} · پشتیبان: {data.fallbackProviderName}
+              ارائه‌دهنده اصلی: {data.primaryProviderName} · پشتیبان:{' '}
+              {data.fallbackProviderName}
             </p>
           ) : null}
 

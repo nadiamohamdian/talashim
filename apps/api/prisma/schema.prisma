@@ -9,7 +9,11 @@ datasource db {
 
 enum Role {
   CUSTOMER
-  ADMIN
+  SUPER_ADMIN
+  SUPPORT
+  ACCOUNTANT
+  EDITOR
+  WAREHOUSE
 }
 
 enum ProductCategory {
@@ -38,6 +42,14 @@ enum PaymentStatus {
   FAILED
 }
 
+enum InventoryMovementType {
+  INITIAL
+  ADJUSTMENT
+  RESERVATION
+  RELEASE
+  ORDER_FULFILLMENT
+}
+
 model User {
   id               String            @id @default(cuid())
   email            String            @unique
@@ -59,6 +71,13 @@ model User {
   kycVerification    KycVerification?
   kycReviews         KycVerification[] @relation("KycReviewer")
   wishlistItems      WishlistItem[]
+  mediaAssets        MediaAsset[]
+  goldPriceOverrides GoldPriceOverride[]
+  inventoryMovements InventoryMovement[]
+  staffNotifications StaffNotification[] @relation("StaffNotificationRecipient")
+  staffTicketsCreated StaffTicket[]       @relation("StaffTicketCreator")
+  staffTicketsClosed  StaffTicket[]       @relation("StaffTicketCloser")
+  staffTicketMessages StaffTicketMessage[]
 }
 
 model Address {
@@ -76,25 +95,68 @@ model Address {
 }
 
 model Product {
-  id               String          @id @default(cuid())
-  sku              String          @unique
-  slug             String          @unique
-  title            String
-  description      String
-  seoDescription   String
-  category         ProductCategory
-  karat            Int
-  weightGram       Decimal         @db.Decimal(10, 2)
-  makingFeePercent Int
-  priceToman       Int
-  imageUrl         String
-  featured         Boolean         @default(false)
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  inventoryItem    InventoryItem?
-  cartItems        CartItem[]
-  orderItems       OrderItem[]
-  wishlistItems    WishlistItem[]
+  id                String          @id @default(cuid())
+  sku               String          @unique
+  slug              String          @unique
+  title             String
+  description       String
+  seoDescription    String
+  category          ProductCategory
+  karat             Int
+  weightGram        Decimal         @db.Decimal(10, 2)
+  makingFeePercent  Int
+  priceToman        BigInt
+  discountPercent   Int?
+  discountStartsAt  DateTime?
+  discountEndsAt    DateTime?
+  imageUrl          String
+  featured          Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  inventoryItem     InventoryItem?
+  cartItems         CartItem[]
+  orderItems        OrderItem[]
+  wishlistItems     WishlistItem[]
+  videos            ProductVideo[]
+  images            ProductImage[]
+  variants          ProductVariant[]
+  inventoryMoves    InventoryMovement[]
+
+  @@index([discountPercent, discountEndsAt])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  url       String
+  alt       String   @default("")
+  sortOrder Int      @default(0)
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, sortOrder])
+}
+
+model ProductVariant {
+  id               String   @id @default(cuid())
+  productId        String
+  sku              String   @unique
+  color            String?
+  size             String?
+  priceToman       BigInt
+  weightGram       Decimal? @db.Decimal(10, 2)
+  makingFeePercent Int?
+  imageUrl         String?
+  quantity         Int      @default(0)
+  sortOrder        Int      @default(0)
+  isDefault        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, sortOrder])
 }
 
 model WishlistItem {
@@ -118,6 +180,38 @@ model InventoryItem {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
+model InventoryMovement {
+  id             String                @id @default(cuid())
+  productId      String
+  actorId        String?
+  type           InventoryMovementType
+  quantityDelta  Int
+  quantityBefore Int
+  quantityAfter  Int
+  reservedBefore Int                   @default(0)
+  reservedAfter  Int                   @default(0)
+  note           String?
+  createdAt      DateTime              @default(now())
+  product        Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  actor          User?                 @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([productId, createdAt])
+}
+
+model ProductVideo {
+  id           String   @id @default(cuid())
+  productId    String?
+  title        String
+  videoUrl     String
+  thumbnailUrl String?
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([productId, sortOrder])
+}
+
 model Cart {
   id         String      @id @default(cuid())
   userId     String?
@@ -134,7 +228,7 @@ model CartItem {
   cartId         String
   productId      String
   quantity       Int
-  unitPriceToman Int
+  unitPriceToman BigInt
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   cart           Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
@@ -148,9 +242,9 @@ model Order {
   orderNumber   String      @unique
   userId        String?
   status        OrderStatus @default(PENDING)
-  subtotalToman Int
-  taxToman      Int
-  totalToman    Int
+  subtotalToman BigInt
+  taxToman      BigInt
+  totalToman    BigInt
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -163,7 +257,7 @@ model OrderItem {
   orderId        String
   productId      String
   quantity       Int
-  unitPriceToman Int
+  unitPriceToman BigInt
   createdAt      DateTime @default(now())
   order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product        Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
@@ -175,9 +269,56 @@ model Payment {
   status      PaymentStatus @default(PENDING)
   provider    String
   reference   String?
-  amountToman Int
+  amountToman BigInt
   createdAt   DateTime      @default(now())
   order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+enum StaffTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum StaffTicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model StaffTicket {
+  id           String              @id @default(cuid())
+  ticketNumber String              @unique
+  subject      String
+  body         String
+  status       StaffTicketStatus   @default(OPEN)
+  priority     StaffTicketPriority @default(NORMAL)
+  category     String              @default("general")
+  createdById  String
+  closedById   String?
+  closedAt     DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  createdBy    User                @relation("StaffTicketCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  closedBy     User?               @relation("StaffTicketCloser", fields: [closedById], references: [id], onDelete: SetNull)
+  messages     StaffTicketMessage[]
+
+  @@index([createdById, createdAt])
+  @@index([status, createdAt])
+}
+
+model StaffTicketMessage {
+  id        String      @id @default(cuid())
+  ticketId  String
+  authorId  String
+  body      String
+  createdAt DateTime    @default(now())
+  ticket    StaffTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
 }
 
 model BlogCategory {
@@ -197,9 +338,91 @@ model BlogPost {
   content       String
   coverImageUrl String
   publishedAt   DateTime
+  isPublished   Boolean       @default(true)
+  sortOrder     Int           @default(0)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   category      BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([categoryId, sortOrder])
+  @@index([isPublished, publishedAt])
+}
+
+enum CmsBannerPlacement {
+  HOME_HERO
+  HOME_MID
+  CATEGORY_TOP
+  GLOBAL
+}
+
+enum CmsBannerStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model CmsBanner {
+  id        String             @id @default(cuid())
+  title     String
+  subtitle  String?
+  imageUrl  String
+  linkUrl   String?
+  placement CmsBannerPlacement @default(HOME_MID)
+  sortOrder Int                @default(0)
+  status    CmsBannerStatus    @default(DRAFT)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([status, placement, sortOrder])
+}
+
+model CmsHomepage {
+  id        String   @id @default("default")
+  hero      Json
+  sections  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CmsStaticPage {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  content         String
+  metaTitle       String?
+  metaDescription String?
+  isPublished     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CmsSeoSettings {
+  id                String   @id @default("default")
+  siteTitle         String
+  siteDescription   String
+  defaultOgImageUrl String?
+  robotsIndex       Boolean  @default(true)
+  googleAnalyticsId String?
+  extraMeta         Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model MediaAsset {
+  id         String   @id @default(cuid())
+  filename   String
+  url        String
+  mimeType   String
+  sizeBytes  Int
+  alt        String?
+  folder     String   @default("general")
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+  uploader   User?    @relation(fields: [uploadedBy], references: [id], onDelete: SetNull)
+
+  @@index([folder, createdAt])
 }
 
 model AuditLog {
@@ -344,6 +567,37 @@ model GoldPriceTick {
   @@index([recordedAt])
 }
 
+model PricingConfig {
+  id                      String   @id @default("default")
+  spreadPercent           Decimal  @db.Decimal(6, 4)
+  tradeCommissionPercent  Decimal  @db.Decimal(6, 4)
+  defaultMakingFeePercent Int      @default(10)
+  refreshIntervalMs       Int      @default(30000)
+  primaryProviderName     String   @default("brsapi")
+  fallbackProviderName    String   @default("fallback-static")
+  brsEnabled              Boolean  @default(true)
+  updatedAt               DateTime @updatedAt
+}
+
+model GoldPriceOverride {
+  id           String    @id @default(cuid())
+  symbol       String    @default("XAU-IRR")
+  karat        Int       @default(18)
+  pricePerGram Decimal   @db.Decimal(20, 2)
+  buyPrice     Decimal?  @db.Decimal(20, 2)
+  sellPrice    Decimal?  @db.Decimal(20, 2)
+  reason       String?
+  isActive     Boolean   @default(true)
+  expiresAt    DateTime?
+  createdById  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  createdBy    User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([symbol, karat, isActive])
+  @@index([expiresAt])
+}
+
 enum KycStatus {
   PENDING
   APPROVED
@@ -418,4 +672,102 @@ model GoldTradeAuditLog {
 
   @@index([orderId, createdAt])
   @@index([actorId, createdAt])
+}
+
+enum NotificationChannel {
+  IN_APP
+  SMS
+  EMAIL
+  PUSH
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+}
+
+enum NotificationRuleTrigger {
+  ORDER_CREATED
+  ORDER_PAID
+  KYC_SUBMITTED
+  KYC_APPROVED
+  TRADE_FILLED
+  LOW_STOCK
+  MANUAL
+}
+
+model StaffNotification {
+  id              String               @id @default(cuid())
+  title           String
+  body            String
+  channel         NotificationChannel  @default(IN_APP)
+  priority        NotificationPriority @default(NORMAL)
+  category        String               @default("operational")
+  targetRole      Role?
+  recipientUserId String?
+  readAt          DateTime?
+  metadata        Json?
+  createdAt       DateTime             @default(now())
+  recipient       User?                @relation("StaffNotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([recipientUserId, readAt])
+  @@index([targetRole, readAt])
+}
+
+model NotificationTemplate {
+  id        String              @id @default(cuid())
+  key       String              @unique
+  name      String
+  channel   NotificationChannel
+  subject   String?
+  body      String
+  isActive  Boolean             @default(true)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  rules     NotificationRule[]
+  deliveries NotificationDelivery[]
+}
+
+model NotificationRule {
+  id         String                  @id @default(cuid())
+  name       String
+  trigger    NotificationRuleTrigger
+  templateId String
+  channel    NotificationChannel
+  isEnabled  Boolean                 @default(true)
+  conditions Json?
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime                @updatedAt
+  template   NotificationTemplate    @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  deliveries NotificationDelivery[]
+
+  @@index([trigger, isEnabled])
+}
+
+model NotificationDelivery {
+  id           String                     @id @default(cuid())
+  templateId   String?
+  ruleId       String?
+  channel      NotificationChannel
+  recipient    String
+  status       NotificationDeliveryStatus @default(PENDING)
+  title        String?
+  body         String
+  errorMessage String?
+  sentAt       DateTime?
+  createdAt    DateTime                   @default(now())
+  template     NotificationTemplate?      @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  rule         NotificationRule?          @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([channel, createdAt])
 }

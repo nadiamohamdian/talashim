@@ -1,13 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import type {
   AdminInventoryMovementDto,
   AdminInventoryRowDto,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type {
@@ -35,15 +31,11 @@ export class AdminInventoryService {
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.inventoryRepository.listStock(
-      skip,
-      limit,
-      {
-        search: query.search,
-        category: query.category,
-        lowStockOnly: query.lowStockOnly,
-      },
-    );
+    const [items, total] = await this.inventoryRepository.listStock(skip, limit, {
+      search: query.search,
+      category: query.category,
+      lowStockOnly: query.lowStockOnly,
+    });
 
     return {
       page,
@@ -53,24 +45,17 @@ export class AdminInventoryService {
     };
   }
 
-  async listHistory(
-    query: AdminInventoryHistoryQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async listHistory(query: AdminInventoryHistoryQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.inventory.read);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.inventoryRepository.listMovements(
-      skip,
-      limit,
-      {
-        productId: query.productId,
-        type: query.type,
-      },
-    );
+    const [items, total] = await this.inventoryRepository.listMovements(skip, limit, {
+      productId: query.productId,
+      type: query.type,
+    });
 
     return {
       page,
@@ -106,14 +91,10 @@ export class AdminInventoryService {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'INSUFFICIENT_STOCK') {
-          throw new BadRequestException(
-            'Resulting quantity cannot be negative',
-          );
+          throw new BadRequestException('Resulting quantity cannot be negative');
         }
         if (error.message === 'BELOW_RESERVED') {
-          throw new BadRequestException(
-            'Quantity cannot fall below reserved amount',
-          );
+          throw new BadRequestException('Quantity cannot fall below reserved amount');
         }
       }
       throw error;
@@ -126,9 +107,7 @@ export class AdminInventoryService {
   }
 
   private mapStockRow(
-    product: Awaited<
-      ReturnType<AdminInventoryRepository['listStock']>
-    >[0][number],
+    product: Awaited<ReturnType<AdminInventoryRepository['listStock']>>[0][number],
   ): AdminInventoryRowDto {
     const inv = product.inventoryItem!;
     const available = inv.quantity - inv.reserved;
@@ -146,9 +125,7 @@ export class AdminInventoryService {
   }
 
   private mapMovement(
-    row: Awaited<
-      ReturnType<AdminInventoryRepository['listMovements']>
-    >[0][number],
+    row: Awaited<ReturnType<AdminInventoryRepository['listMovements']>>[0][number],
   ): AdminInventoryMovementDto {
     return {
       id: row.id,

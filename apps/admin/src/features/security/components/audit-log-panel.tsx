@@ -11,12 +11,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchAuditLogs } from '@/features/admin/api/admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
-import { Label } from '@sadafgold/ui';
+import { Label } from '@talashim/ui';
 import { SecurityPageShell } from './security-page-shell';
 import { SOURCE_LABELS, selectFieldClass } from '../lib/labels';
 

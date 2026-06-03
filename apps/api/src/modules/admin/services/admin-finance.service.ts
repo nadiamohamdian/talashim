@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import type {
   AccountingSummary,
   FinanceReportSummary,
   LedgerAccountRow,
   LedgerEntryRow,
-} from '@sadafgold/types';
+} from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type { Prisma } from '@/generated/prisma';
@@ -21,12 +21,8 @@ import { AdminReportsRepository } from '../repositories/admin-reports.repository
 
 type EntryWithRelations = Prisma.LedgerEntryGetPayload<{
   include: {
-    account: {
-      include: { user: { select: { id: true; email: true; fullName: true } } };
-    };
-    transaction: {
-      include: { user: { select: { id: true; email: true; fullName: true } } };
-    };
+    account: { include: { user: { select: { id: true; email: true; fullName: true } } } };
+    transaction: { include: { user: { select: { id: true; email: true; fullName: true } } } };
   };
 }>;
 
@@ -44,30 +40,23 @@ export class AdminFinanceService {
     private readonly reportsRepository: AdminReportsRepository,
   ) {}
 
-  async listLedgerEntries(
-    query: AdminLedgerEntriesQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async listLedgerEntries(query: AdminLedgerEntriesQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.ledger.read);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [items, total] = await this.financeRepository.listLedgerEntries(
-      skip,
-      limit,
-      {
-        search: query.search,
-        accountCode: query.accountCode,
-        userId: query.userId,
-        transactionId: query.transactionId,
-        assetType: query.assetType,
-        side: query.side,
-        from: query.from ? new Date(query.from) : undefined,
-        to: query.to ? new Date(query.to) : undefined,
-      },
-    );
+    const [items, total] = await this.financeRepository.listLedgerEntries(skip, limit, {
+      search: query.search,
+      accountCode: query.accountCode,
+      userId: query.userId,
+      transactionId: query.transactionId,
+      assetType: query.assetType,
+      side: query.side,
+      from: query.from ? new Date(query.from) : undefined,
+      to: query.to ? new Date(query.to) : undefined,
+    });
 
     return {
       page,
@@ -77,25 +66,18 @@ export class AdminFinanceService {
     };
   }
 
-  async listLedgerAccounts(
-    query: AdminLedgerAccountsQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async listLedgerAccounts(query: AdminLedgerAccountsQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.ledger.read);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
 
-    const [accounts, total] = await this.financeRepository.listLedgerAccounts(
-      skip,
-      limit,
-      {
-        search: query.search,
-        category: query.category,
-        userId: query.userId,
-      },
-    );
+    const [accounts, total] = await this.financeRepository.listLedgerAccounts(skip, limit, {
+      search: query.search,
+      category: query.category,
+      userId: query.userId,
+    });
 
     return {
       page,
@@ -111,17 +93,14 @@ export class AdminFinanceService {
   ): Promise<AccountingSummary> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.ledger.read);
 
-    const accounts = await this.financeRepository.listAllAccountsForSummary(
-      query.category,
-    );
+    const accounts = await this.financeRepository.listAllAccountsForSummary(query.category);
 
     let filtered = accounts;
     if (query.search?.trim()) {
       const term = query.search.trim().toLowerCase();
       filtered = accounts.filter(
         (a) =>
-          a.code.toLowerCase().includes(term) ||
-          a.name.toLowerCase().includes(term),
+          a.code.toLowerCase().includes(term) || a.name.toLowerCase().includes(term),
       );
     }
 
@@ -182,10 +161,7 @@ export class AdminFinanceService {
     };
   }
 
-  async getFinanceReports(
-    query: AdminFinanceReportsQueryDto,
-    actor: AuthenticatedUser,
-  ) {
+  async getFinanceReports(query: AdminFinanceReportsQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.reports);
 
     const page = query.page ?? 1;
@@ -214,10 +190,7 @@ export class AdminFinanceService {
     const platformBalances = SYSTEM_LEDGER_ACCOUNTS.map((def) => {
       const account = systemAccounts.find((a) => a.code === def.code);
       const balance = account
-        ? this.financeRepository.computeAccountBalance(
-            account.category,
-            account.entries,
-          )
+        ? this.financeRepository.computeAccountBalance(account.category, account.entries)
         : '0';
       return {
         assetType: def.assetType ?? 'RIAL',
@@ -230,10 +203,7 @@ export class AdminFinanceService {
       .filter((a) => a.assetType === 'RIAL' && a.userId)
       .reduce(
         (sum, a) =>
-          sum +
-          Number(
-            this.financeRepository.computeAccountBalance(a.category, a.entries),
-          ),
+          sum + Number(this.financeRepository.computeAccountBalance(a.category, a.entries)),
         0,
       );
 
@@ -241,10 +211,7 @@ export class AdminFinanceService {
       .filter((a) => a.assetType === 'GOLD' && a.userId)
       .reduce(
         (sum, a) =>
-          sum +
-          Number(
-            this.financeRepository.computeAccountBalance(a.category, a.entries),
-          ),
+          sum + Number(this.financeRepository.computeAccountBalance(a.category, a.entries)),
         0,
       );
 
@@ -261,9 +228,7 @@ export class AdminFinanceService {
         {
           key: 'commission',
           label: 'کارمزد معاملات',
-          value: Number(tradeAgg._sum.commissionRial ?? 0).toLocaleString(
-            'fa-IR',
-          ),
+          value: Number(tradeAgg._sum.commissionRial ?? 0).toLocaleString('fa-IR'),
         },
         {
           key: 'userRial',

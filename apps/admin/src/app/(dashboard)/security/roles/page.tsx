@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { RolesManagementPanel } from '@/features/security/components/roles-management-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="security.roles" />;
+  return <RolesManagementPanel />;
 }

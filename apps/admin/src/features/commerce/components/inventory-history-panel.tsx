@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import { fetchInventoryHistory } from '../api/commerce-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
@@ -41,30 +41,14 @@ export function InventoryHistoryPanel() {
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>شناسه محصول</Label>
-          <Input
-            className="mt-1"
-            value={productId}
-            onChange={(e) => {
-              setProductId(e.target.value);
-              setPage(1);
-            }}
-          />
+          <Input className="mt-1" value={productId} onChange={(e) => { setProductId(e.target.value); setPage(1); }} />
         </div>
         <div>
           <Label>نوع حرکت</Label>
-          <select
-            className={selectFieldClass}
-            value={type}
-            onChange={(e) => {
-              setType(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select className={selectFieldClass} value={type} onChange={(e) => { setType(e.target.value); setPage(1); }}>
             <option value="">همه</option>
             {Object.entries(INVENTORY_MOVEMENT_FA).map(([k, l]) => (
-              <option key={k} value={k}>
-                {l}
-              </option>
+              <option key={k} value={k}>{l}</option>
             ))}
           </select>
         </div>
@@ -99,18 +83,14 @@ export function InventoryHistoryPanel() {
                     <div className="font-mono text-xs text-stone-500">{row.productSku}</div>
                   </TableCell>
                   <TableCell>{INVENTORY_MOVEMENT_FA[row.type] ?? row.type}</TableCell>
-                  <TableCell
-                    className={row.quantityDelta >= 0 ? 'text-emerald-700' : 'text-rose-700'}
-                  >
+                  <TableCell className={row.quantityDelta >= 0 ? 'text-emerald-700' : 'text-rose-700'}>
                     {row.quantityDelta > 0 ? `+${row.quantityDelta}` : row.quantityDelta}
                   </TableCell>
                   <TableCell className="text-xs">
                     {row.quantityBefore} → {row.quantityAfter}
                   </TableCell>
                   <TableCell>{row.actorName ?? '—'}</TableCell>
-                  <TableCell className="max-w-[120px] truncate text-xs">
-                    {row.note ?? '—'}
-                  </TableCell>
+                  <TableCell className="max-w-[120px] truncate text-xs">{row.note ?? '—'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -119,12 +99,7 @@ export function InventoryHistoryPanel() {
       </Card>
 
       {data ? (
-        <PaginationBar
-          page={data.page}
-          total={data.total}
-          limit={data.limit}
-          onPageChange={setPage}
-        />
+        <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
     </CatalogPageShell>
   );

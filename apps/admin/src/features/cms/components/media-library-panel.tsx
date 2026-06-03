@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
+import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
 import { deleteMediaAsset, fetchMediaAssets } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
@@ -89,6 +89,7 @@ export function MediaLibraryPanel() {
             <Card key={asset.id} className="overflow-hidden border-border bg-white p-0">
               <div className="relative aspect-video bg-nude-100">
                 {asset.mimeType.startsWith('image/') ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={asset.url}
                     alt={asset.alt ?? asset.filename}

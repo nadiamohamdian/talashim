@@ -7,8 +7,7 @@ import { RoutePermissionGuard } from '@/features/auth/components/route-permissio
 import { PageHeader } from '@/widgets/admin/page-header';
 
 const DESCRIPTIONS: Record<string, string> = {
-  'notifications.inbox':
-    'اعلان‌های عملیاتی — قالب‌ها، قوانین و لاگ تحویل از همین صفحه در دسترس است.',
+  'notifications.inbox': 'اعلان‌های عملیاتی پنل — سفارش، KYC، موجودی و سیستم.',
   'notifications.templates': 'قالب پیامک، ایمیل و درون‌برنامه‌ای با متغیرهای داینامیک.',
   'notifications.rules': 'اتصال رویدادهای سیستم به قالب و کانال ارسال.',
   'notifications.delivery': 'لاگ ارسال و وضعیت تحویل پیام‌ها.',

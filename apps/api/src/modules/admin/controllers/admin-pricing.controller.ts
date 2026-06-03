@@ -32,32 +32,19 @@ export class AdminPricingController {
 
   @Get('live')
   @ApiOperation({ summary: 'Live gold price (admin)' })
-  getLive(
-    @Query() query: PriceHistoryQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  getLive(@Query() query: PriceHistoryQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminPricingService.getLive(query.symbol, query.karat, actor);
   }
 
   @Post('refresh')
   @ApiOperation({ summary: 'Force refresh live gold price' })
-  refresh(
-    @Query() query: PriceHistoryQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
-    return this.adminPricingService.refreshLive(
-      query.symbol,
-      query.karat,
-      actor,
-    );
+  refresh(@Query() query: PriceHistoryQueryDto, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminPricingService.refreshLive(query.symbol, query.karat, actor);
   }
 
   @Get('history')
   @ApiOperation({ summary: 'Gold price history with date range' })
-  getHistory(
-    @Query() query: AdminPriceHistoryQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  getHistory(@Query() query: AdminPriceHistoryQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminPricingService.getHistory(query, actor);
   }
 
@@ -75,19 +62,13 @@ export class AdminPricingController {
 
   @Patch('margins')
   @ApiOperation({ summary: 'Update pricing margins and fees' })
-  updateMargins(
-    @Body() dto: UpdatePricingMarginsDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  updateMargins(@Body() dto: UpdatePricingMarginsDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminPricingService.updateMargins(dto, actor);
   }
 
   @Get('overrides')
   @ApiOperation({ summary: 'List manual price overrides' })
-  listOverrides(
-    @Query() query: AdminOverridesQueryDto,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  listOverrides(@Query() query: AdminOverridesQueryDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminPricingService.listOverrides(query, actor);
   }
 
@@ -112,10 +93,7 @@ export class AdminPricingController {
 
   @Delete('overrides/:id')
   @ApiOperation({ summary: 'Delete price override' })
-  deleteOverride(
-    @Param('id') id: string,
-    @CurrentUser() actor: AuthenticatedUser,
-  ) {
+  deleteOverride(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminPricingService.deleteOverride(id, actor);
   }
 }

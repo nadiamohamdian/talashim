@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@sadafgold/ui';
+} from '@talashim/ui';
 import {
   createBlogPost,
   deleteBlogPost,
@@ -28,7 +28,7 @@ import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
 import { PostEditorForm } from './post-editor-form';
 import { selectFieldClass } from '../lib/labels';
-import type { AdminBlogPostDto } from '@sadafgold/types';
+import type { AdminBlogPostDto } from '@talashim/types';
 
 export function BlogPanel() {
   const [page, setPage] = useState(1);

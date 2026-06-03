@@ -1,12 +1,10 @@
 {
-  "name": "@sadafgold/shared",
+  "name": "@talashim/shared",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -44,23 +42,23 @@
       "types": "./dist/auth/map-session.d.ts",
       "default": "./dist/auth/map-session.js"
     },
-    "./constants/auth": {
-      "types": "./dist/constants/auth.d.ts",
-      "default": "./dist/constants/auth.js"
-    },
     "./admin-rbac": {
       "types": "./dist/admin-rbac/index.d.ts",
       "default": "./dist/admin-rbac/index.js"
+    },
+    "./constants/auth": {
+      "types": "./dist/constants/auth.d.ts",
+      "default": "./dist/constants/auth.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "echo \"No tests for @sadafgold/shared\""
+    "test": "echo \"No tests for @talashim/shared\""
   },
   "dependencies": {
-    "@sadafgold/types": "workspace:*",
+    "@talashim/types": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

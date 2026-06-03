@@ -7,6 +7,7 @@ import { PrimaryGoldPriceProvider } from './providers/primary-gold-price.provide
 import { FallbackGoldPriceProvider } from './providers/fallback-gold-price.provider';
 import { PricingController } from './controllers/pricing.controller';
 import { PricingGateway } from './gateways/pricing.gateway';
+import { PricingConfigRepository } from './repositories/pricing-config.repository';
 import { PricingRepository } from './repositories/pricing.repository';
 import { PricingCacheService } from './services/pricing-cache.service';
 import { PricingEngineService } from './services/pricing-engine.service';
@@ -16,6 +17,7 @@ import { PricingSchedulerService } from './services/pricing-scheduler.service';
   controllers: [PricingController],
   providers: [
     PricingRepository,
+    PricingConfigRepository,
     PricingCacheService,
     PricingEngineService,
     PricingSchedulerService,
@@ -31,6 +33,13 @@ import { PricingSchedulerService } from './services/pricing-scheduler.service';
       useExisting: FallbackGoldPriceProvider,
     },
   ],
-  exports: [PricingEngineService, PricingGateway],
+  exports: [
+    PricingEngineService,
+    PricingGateway,
+    PricingRepository,
+    PricingConfigRepository,
+    PrimaryGoldPriceProvider,
+    FallbackGoldPriceProvider,
+  ],
 })
 export class PricingModule {}

@@ -5,6 +5,8 @@ export interface BlogPostSummary {
   excerpt: string;
   coverImageUrl: string;
   publishedAt: string;
+  isPublished?: boolean;
+  sortOrder?: number;
 }
 
 export interface BlogPostDetails extends BlogPostSummary {

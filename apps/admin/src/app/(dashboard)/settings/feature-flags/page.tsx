@@ -1,5 +1,10 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { FeatureFlagsForm } from '@/features/settings/components/feature-flags-form';
+import { SettingsPageShell } from '@/features/settings/components/settings-page-shell';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="settings.featureFlags" />;
+  return (
+    <SettingsPageShell routeId="settings.featureFlags">
+      <FeatureFlagsForm />
+    </SettingsPageShell>
+  );
 }
