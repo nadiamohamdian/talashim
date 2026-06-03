@@ -1,8 +1,10 @@
 'use client';
 
 import type { ProductDetails } from '@sadafgold/types';
+import { useDynamicProductPrice } from '@/features/catalog/hooks/use-dynamic-product-price';
 import { formatPricingBreakdown } from '@/shared/lib/live-gold-pricing';
 import { useState } from 'react';
+import { getApiErrorMessage } from '@/lib/api/client';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import { formatPrice } from '@/shared/lib/format-price';
 import { IconHeart, IconMinus, IconPlus } from '@/shared/ui/icons';
@@ -18,11 +20,13 @@ interface ProductPurchaseBoxProps {
 
 export function ProductPurchaseBox({ product, compact = false }: ProductPurchaseBoxProps) {
   const [quantity, setQuantity] = useState(1);
+  const [wishlistError, setWishlistError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
   const { data: wishlist } = useWishlist();
   const addWishlist = useAddWishlistMutation();
   const isWishlisted = wishlist?.some((item) => item.productId === product.id) ?? false;
-  const pricing = product.pricing;
+  const priced = useDynamicProductPrice(product);
+  const pricing = priced.pricing;
   const breakdown = pricing ? formatPricingBreakdown(pricing, product.weightGram) : null;
 
   const decrease = () => setQuantity((value) => Math.max(1, value - 1));
@@ -35,7 +39,7 @@ export function ProductPurchaseBox({ product, compact = false }: ProductPurchase
       <div>
         <p className="text-sm text-muted">قیمت نهایی (لحظه‌ای)</p>
         <p className="mt-1 text-3xl font-bold text-gold-dark">
-          {formatPrice(product.priceToman)}{' '}
+          {formatPrice(priced.priceToman)}{' '}
           <span className="text-base font-normal text-muted">تومان</span>
         </p>
         {pricing ? (
@@ -98,7 +102,7 @@ export function ProductPurchaseBox({ product, compact = false }: ProductPurchase
         productId={product.id}
         slug={product.slug}
         title={product.title}
-        priceToman={product.priceToman}
+        priceToman={priced.priceToman}
         imageUrl={product.imageUrl}
         weightGram={product.weightGram}
         quantity={quantity}
@@ -106,13 +110,23 @@ export function ProductPurchaseBox({ product, compact = false }: ProductPurchase
         label="افزودن به سبد خرید"
       />
 
-      <div className="flex items-center justify-between gap-3 border-t border-nude-200 pt-3 text-xs text-muted">
+      <div className="flex flex-col gap-1 border-t border-nude-200 pt-3 text-xs text-muted">
+        <div className="flex items-center justify-between gap-3">
         {isAuthenticated ? (
           <button
             type="button"
             className="inline-flex items-center gap-1.5 hover:text-gold-dark disabled:opacity-50"
             disabled={addWishlist.isPending || isWishlisted}
-            onClick={() => addWishlist.mutate(product.id)}
+            onClick={() => {
+              setWishlistError(null);
+              addWishlist.mutate(product.id, {
+                onError: (error) => {
+                  setWishlistError(
+                    getApiErrorMessage(error, 'افزودن به علاقه‌مندی‌ها ناموفق بود'),
+                  );
+                },
+              });
+            }}
           >
             <IconHeart className="h-4 w-4" />
             {isWishlisted ? 'در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی'}
@@ -127,6 +141,12 @@ export function ProductPurchaseBox({ product, compact = false }: ProductPurchase
           </Link>
         )}
         <span>{product.inventory > 0 ? `${product.inventory} عدد موجود` : 'ناموجود'}</span>
+        </div>
+        {wishlistError ? (
+          <p className="text-xs text-red-600" role="alert">
+            {wishlistError}
+          </p>
+        ) : null}
       </div>
     </aside>
   );

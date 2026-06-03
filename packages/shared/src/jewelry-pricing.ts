@@ -28,6 +28,48 @@ export function calculateJewelryPricing(input: JewelryPricingInput): ProductPric
   };
 }
 
+export function applyLivePricingToProduct<
+  T extends {
+    weightGram: number;
+    karat: number;
+    makingFeePercent: number;
+    priceToman: number;
+    pricing?: ProductPricing;
+  },
+>(product: T, livePricePerGramToman: number): T {
+  const pricing = calculateJewelryPricing({
+    weightGram: product.weightGram,
+    livePricePerGramToman,
+    karat: product.karat,
+    makingFeePercent: product.makingFeePercent,
+  });
+
+  return {
+    ...product,
+    priceToman: pricing.finalPriceToman,
+    pricing,
+  };
+}
+
+export function applyLivePricingToProducts<
+  T extends {
+    weightGram: number;
+    karat: number;
+    makingFeePercent: number;
+    priceToman: number;
+    pricing?: ProductPricing;
+  },
+>(products: T[], livePriceByKarat: ReadonlyMap<number, number>): T[] {
+  return products.map((product) => {
+    const livePrice =
+      livePriceByKarat.get(product.karat) ?? livePriceByKarat.get(18) ?? 0;
+    if (!livePrice) {
+      return product;
+    }
+    return applyLivePricingToProduct(product, livePrice);
+  });
+}
+
 export function formatPricingBreakdown(pricing: ProductPricing, weightGram: number) {
   const metalValue = Math.round(weightGram * pricing.livePriceToman);
   return {

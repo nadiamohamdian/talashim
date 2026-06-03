@@ -123,10 +123,29 @@ export interface UpdateStaffUserPayload {
   role?: StaffRoleEnum;
 }
 
+export interface AdminUserAddress {
+  id: string;
+  title: string;
+  recipient: string;
+  phone: string;
+  line1: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  createdAt: string;
+}
+
+export interface AdminUpdateUserContactPayload {
+  phone?: string;
+  nationalId?: string;
+  address?: Partial<AdminUserAddress> & { id?: string };
+}
+
 export interface AdminUserDetailView {
   user: AdminUser & { createdAt: string };
   balances: { rialBalance: string; goldBalanceGram: string };
   stats: { orders: number; goldTrades: number };
+  addresses: AdminUserAddress[];
   kyc: {
     id: string;
     status: string;

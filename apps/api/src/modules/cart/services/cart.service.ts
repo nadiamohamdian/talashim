@@ -3,6 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { calculateJewelryPricing } from '@sadafgold/shared';
+import type { Product } from '@/generated/prisma';
+import { tomanNumberToBigInt } from '@/common/finance/toman-amount';
+import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
 import { CartRepository } from '../repositories/cart.repository';
 import { CatalogRepository } from '@/modules/catalog/repositories/catalog.repository';
 import type { UpsertCartItemDto } from '../dto/upsert-cart-item.dto';
@@ -12,6 +16,7 @@ export class CartService {
   constructor(
     private readonly cartRepository: CartRepository,
     private readonly catalogRepository: CatalogRepository,
+    private readonly pricingEngine: PricingEngineService,
   ) {}
 
   async upsertItem(payload: UpsertCartItemDto) {
@@ -25,6 +30,8 @@ export class CartService {
       throw new NotFoundException('Product not found');
     }
 
+    const unitPriceToman = await this.resolveLiveUnitPrice(product);
+
     const cart = await this.cartRepository.findOrCreateActiveCart(
       payload.userId,
       payload.sessionKey,
@@ -34,7 +41,7 @@ export class CartService {
       cart.id,
       product.id,
       payload.quantity,
-      product.priceToman,
+      tomanNumberToBigInt(unitPriceToman),
     );
 
     if (payload.userId) {
@@ -72,35 +79,48 @@ export class CartService {
     return this.getCartForUser(userId);
   }
 
-  private toCartResponse(cart: {
+  private async resolveLiveUnitPrice(product: Product): Promise<number> {
+    const live = await this.pricingEngine.getLivePrice('XAU-IRR', product.karat);
+    const pricing = calculateJewelryPricing({
+      weightGram: Number(product.weightGram),
+      livePricePerGramToman: Number(live.pricePerGram),
+      karat: product.karat,
+      makingFeePercent: product.makingFeePercent,
+    });
+    return pricing.finalPriceToman;
+  }
+
+  private async toCartResponse(cart: {
     id: string;
     items: Array<{
       id: string;
       productId: string;
       quantity: number;
-      unitPriceToman: number;
-      product: {
-        slug: string;
-        title: string;
-        imageUrl: string;
-        weightGram: { toString(): string };
-      };
+      unitPriceToman: bigint | number;
+      product: Product;
     }>;
   }) {
-    const items = cart.items.map((item) => ({
-      id: item.id,
-      productId: item.productId,
-      slug: item.product.slug,
-      title: item.product.title,
-      imageUrl: item.product.imageUrl,
-      weightGram: Number(item.product.weightGram),
-      quantity: item.quantity,
-      unitPriceToman: item.unitPriceToman,
-    }));
+    const items = await Promise.all(
+      cart.items.map(async (item) => {
+        const unitPriceToman = await this.resolveLiveUnitPrice(item.product);
+        return {
+          id: item.id,
+          productId: item.productId,
+          slug: item.product.slug,
+          title: item.product.title,
+          imageUrl: item.product.imageUrl,
+          weightGram: Number(item.product.weightGram),
+          quantity: item.quantity,
+          unitPriceToman,
+        };
+      }),
+    );
+
     const subtotalToman = items.reduce(
       (sum, item) => sum + item.quantity * item.unitPriceToman,
       0,
     );
+
     return { id: cart.id, items, subtotalToman };
   }
 }

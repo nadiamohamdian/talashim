@@ -39,6 +39,7 @@ const SUPER_ADMIN_PERMISSIONS: AdminPermissionKey[] = [...ALL_ADMIN_PERMISSIONS]
 const SUPPORT_PERMISSIONS: AdminPermissionKey[] = [
   P.dashboard.view,
   P.users.read,
+  P.users.write,
   P.kyc.read,
   P.orders.read,
   P.notifications.read,

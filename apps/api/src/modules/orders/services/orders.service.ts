@@ -10,6 +10,10 @@ import { UsersService } from '@/modules/users/services/users.service';
 import { OrdersRepository } from '../repositories/orders.repository';
 import type { CreateOrderDto } from '../dto/create-order.dto';
 import type { OrdersQueryDto } from '../dto/orders-query.dto';
+import {
+  tomanBigIntToNumber,
+  tomanNumberToBigInt,
+} from '@/common/finance/toman-amount';
 
 @Injectable()
 export class OrdersService {
@@ -32,8 +36,7 @@ export class OrdersService {
     }
 
     const subtotalToman = cart.items.reduce(
-      (sum: number, item: { quantity: number; unitPriceToman: number }) =>
-        sum + item.quantity * item.unitPriceToman,
+      (sum, item) => sum + item.quantity * tomanBigIntToNumber(item.unitPriceToman),
       0,
     );
     const taxToman = Math.round(subtotalToman * 0.09);
@@ -42,20 +45,14 @@ export class OrdersService {
       cartId: cart.id,
       userId: payload.userId ?? cart.userId ?? undefined,
       paymentProvider: payload.paymentProvider,
-      subtotalToman,
-      taxToman,
-      totalToman: subtotalToman + taxToman,
-      items: cart.items.map(
-        (item: {
-          productId: string;
-          quantity: number;
-          unitPriceToman: number;
-        }) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          unitPriceToman: item.unitPriceToman,
-        }),
-      ),
+      subtotalToman: tomanNumberToBigInt(subtotalToman),
+      taxToman: tomanNumberToBigInt(taxToman),
+      totalToman: tomanNumberToBigInt(subtotalToman + taxToman),
+      items: cart.items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPriceToman: item.unitPriceToman,
+      })),
     });
   }
 
@@ -106,9 +103,9 @@ export class OrdersService {
     id: string;
     orderNumber: string;
     status: OrderStatus;
-    subtotalToman: number;
-    taxToman: number;
-    totalToman: number;
+    subtotalToman: bigint | number;
+    taxToman: bigint | number;
+    totalToman: bigint | number;
     createdAt: Date;
     items: Array<{ quantity: number }>;
   }) {
@@ -116,9 +113,9 @@ export class OrdersService {
       id: order.id,
       orderNumber: order.orderNumber,
       status: order.status.toLowerCase(),
-      subtotalToman: order.subtotalToman,
-      taxToman: order.taxToman,
-      totalToman: order.totalToman,
+      subtotalToman: tomanBigIntToNumber(order.subtotalToman),
+      taxToman: tomanBigIntToNumber(order.taxToman),
+      totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
       createdAt: order.createdAt.toISOString(),
     };
@@ -128,22 +125,22 @@ export class OrdersService {
     id: string;
     orderNumber: string;
     status: OrderStatus;
-    subtotalToman: number;
-    taxToman: number;
-    totalToman: number;
+    subtotalToman: bigint | number;
+    taxToman: bigint | number;
+    totalToman: bigint | number;
     createdAt: Date;
     items: Array<{
       id: string;
       productId: string;
       quantity: number;
-      unitPriceToman: number;
+      unitPriceToman: bigint | number;
       product: { title: string; slug: string };
     }>;
     payments: Array<{
       id: string;
       status: string;
       provider: string;
-      amountToman: number;
+      amountToman: bigint | number;
       createdAt: Date;
     }>;
   }) {
@@ -155,13 +152,13 @@ export class OrdersService {
         productTitle: item.product.title,
         productSlug: item.product.slug,
         quantity: item.quantity,
-        unitPriceToman: item.unitPriceToman,
+        unitPriceToman: tomanBigIntToNumber(item.unitPriceToman),
       })),
       payments: order.payments.map((payment) => ({
         id: payment.id,
         status: payment.status.toLowerCase(),
         provider: payment.provider,
-        amountToman: payment.amountToman,
+        amountToman: tomanBigIntToNumber(payment.amountToman),
         createdAt: payment.createdAt.toISOString(),
       })),
     };

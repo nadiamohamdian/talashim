@@ -14,4 +14,5 @@ export type {
   UpdateStaffUserPayload,
   AdminUserActivityItem,
   AdminUserDetailView,
+  AdminUpdateUserContactPayload,
 } from '@sadafgold/types';

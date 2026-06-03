@@ -1,10 +1,14 @@
 import { Suspense } from 'react';
 import { Card } from '@sadafgold/ui';
+import { AuthSessionRedirect } from '@/features/auth/components/auth-session-redirect';
 import { OtpVerifyForm } from '@/features/auth/components/otp-verify-form';
 
 export default function OtpVerifyPage() {
   return (
     <div className="mx-auto w-full max-w-md py-8">
+      <Suspense fallback={null}>
+        <AuthSessionRedirect />
+      </Suspense>
       <Card className="p-6 sm:p-8">
         <p className="text-sm font-medium text-amber-700">تأیید OTP</p>
         <h1 className="mt-3 text-2xl font-bold text-stone-950 sm:text-3xl dark:text-zinc-50">

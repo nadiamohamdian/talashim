@@ -485,6 +485,20 @@ export class AdminRepository {
         fullName: true,
         role: true,
         createdAt: true,
+        addresses: {
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            recipient: true,
+            phone: true,
+            line1: true,
+            city: true,
+            state: true,
+            postalCode: true,
+            createdAt: true,
+          },
+        },
         kycVerification: {
           select: {
             id: true,
@@ -497,6 +511,72 @@ export class AdminRepository {
         },
       },
     });
+  }
+
+  findKycByPhoneForOtherUser(phone: string, userId: string) {
+    return this.prisma.kycVerification.findFirst({
+      where: { phone, userId: { not: userId } },
+      select: { id: true, userId: true },
+    });
+  }
+
+  updateKycPhone(userId: string, phone: string) {
+    return this.prisma.kycVerification.update({
+      where: { userId },
+      data: { phone },
+    });
+  }
+
+  createKycForUser(userId: string, data: { phone: string; nationalId: string }) {
+    return this.prisma.kycVerification.create({
+      data: {
+        userId,
+        phone: data.phone,
+        nationalId: data.nationalId,
+        status: KycStatus.PENDING,
+      },
+    });
+  }
+
+  findUserAddressById(userId: string, addressId: string) {
+    return this.prisma.address.findFirst({ where: { id: addressId, userId } });
+  }
+
+  findPrimaryUserAddress(userId: string) {
+    return this.prisma.address.findFirst({
+      where: { userId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  createUserAddress(
+    userId: string,
+    data: {
+      title: string;
+      recipient: string;
+      phone: string;
+      line1: string;
+      city: string;
+      state: string;
+      postalCode: string;
+    },
+  ) {
+    return this.prisma.address.create({ data: { userId, ...data } });
+  }
+
+  updateUserAddress(
+    addressId: string,
+    data: {
+      title: string;
+      recipient: string;
+      phone: string;
+      line1: string;
+      city: string;
+      state: string;
+      postalCode: string;
+    },
+  ) {
+    return this.prisma.address.update({ where: { id: addressId }, data });
   }
 
   getUserOrderStats(userId: string) {

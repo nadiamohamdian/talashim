@@ -1,45 +1,14 @@
-import { buildFallbackGoldTicker } from '@sadafgold/shared';
+import {
+  applyLivePricingToProduct,
+  applyLivePricingToProducts,
+  buildFallbackGoldTicker,
+  calculateJewelryPricing,
+  formatPricingBreakdown as sharedFormatPricingBreakdown,
+} from '@sadafgold/shared';
 import type { ProductDetails, ProductPricing, ProductSummary } from '@sadafgold/types';
 import { isApiUnreachableError, serverFetch } from '@/lib/api/client';
 
-function calculateJewelryPricing(input: {
-  weightGram: number;
-  livePricePerGramToman: number;
-  karat: number;
-  makingFeePercent: number;
-  taxPercent?: number;
-}): ProductPricing {
-  const purityFactor = input.karat / 18;
-  const gramPrice = Math.round(input.livePricePerGramToman * purityFactor);
-  const metalValue = Math.round(input.weightGram * gramPrice);
-  const wageAmount = Math.round(metalValue * (input.makingFeePercent / 100));
-  const subtotal = metalValue + wageAmount;
-  const taxPercent = input.taxPercent ?? 0;
-  const taxAmount = Math.round(subtotal * (taxPercent / 100));
-
-  return {
-    livePriceToman: gramPrice,
-    wagePercent: input.makingFeePercent,
-    wageFixedToman: wageAmount,
-    taxPercent,
-    finalPriceToman: subtotal + taxAmount,
-    pricedAt: new Date().toISOString(),
-  };
-}
-
-function formatPricingBreakdown(pricing: ProductPricing, weightGram: number) {
-  const metalValue = Math.round(weightGram * pricing.livePriceToman);
-  return {
-    metalValue,
-    wageAmount: pricing.wageFixedToman ?? Math.round(metalValue * (pricing.wagePercent / 100)),
-    taxAmount:
-      pricing.taxPercent > 0
-        ? Math.round((metalValue + (pricing.wageFixedToman ?? 0)) * (pricing.taxPercent / 100))
-        : 0,
-  };
-}
-
-export { formatPricingBreakdown };
+export { sharedFormatPricingBreakdown as formatPricingBreakdown };
 
 function getDevFallbackGoldPricePerGram(karat = 18): number {
   const fallback = buildFallbackGoldTicker();
@@ -68,6 +37,14 @@ export async function getLiveGoldPricePerGram(karat = 18): Promise<number> {
   }
 }
 
+async function resolveLivePricesByKarat(karats: number[]): Promise<Map<number, number>> {
+  const unique = [...new Set(karats)];
+  const entries = await Promise.all(
+    unique.map(async (karat) => [karat, await getLiveGoldPricePerGram(karat)] as const),
+  );
+  return new Map(entries);
+}
+
 export function buildProductPricing(
   product: Pick<ProductSummary, 'weightGram' | 'karat' | 'makingFeePercent'>,
   livePricePerGramToman: number,
@@ -80,24 +57,28 @@ export function buildProductPricing(
   });
 }
 
+/** Prefer API pricing; recompute only when missing (SSR fallback). */
 export async function withLivePricing<T extends ProductSummary>(product: T): Promise<T> {
+  if (product.pricing?.pricedAt) {
+    return product;
+  }
   const livePrice = await getLiveGoldPricePerGram(product.karat);
-  const pricing = buildProductPricing(product, livePrice);
-
-  return {
-    ...product,
-    priceToman: pricing.finalPriceToman,
-    pricing,
-  };
+  return applyLivePricingToProduct(product, livePrice);
 }
 
 export async function withLivePricingList(products: ProductSummary[]) {
-  if (!products.length) return [];
-  const livePrice = await getLiveGoldPricePerGram(18);
-  return products.map((product) => {
-    const pricing = buildProductPricing(product, livePrice);
-    return { ...product, priceToman: pricing.finalPriceToman, pricing };
-  });
+  if (!products.length) {
+    return [];
+  }
+
+  const needsPricing = products.some((product) => !product.pricing?.pricedAt);
+  if (!needsPricing) {
+    return products;
+  }
+
+  const karats = products.map((product) => product.karat);
+  const liveByKarat = await resolveLivePricesByKarat(karats);
+  return applyLivePricingToProducts(products, liveByKarat);
 }
 
 export function buildSpecifications(

@@ -23,6 +23,7 @@ import type {
   PaginationQueryDto,
 } from '../dto/admin-query.dto';
 import type { ReviewKycDto } from '../dto/review-kyc.dto';
+import type { AdminUpdateUserContactDto } from '../dto/admin-update-user-contact.dto';
 import type { UpdateUserRoleDto } from '../dto/update-user-role.dto';
 import type {
   AdminLoginHistoryQueryDto,
@@ -119,6 +120,17 @@ export class AdminService {
             reviewNote: user.kycVerification.reviewNote,
           }
         : null,
+      addresses: user.addresses.map((address) => ({
+        id: address.id,
+        title: address.title,
+        recipient: address.recipient,
+        phone: address.phone,
+        line1: address.line1,
+        city: address.city,
+        state: address.state,
+        postalCode: address.postalCode,
+        createdAt: address.createdAt.toISOString(),
+      })),
       recentOrders: recentOrders.map((order) => ({
         id: order.id,
         orderNumber: order.orderNumber,
@@ -137,6 +149,97 @@ export class AdminService {
         quantityGram: trade.quantityGram.toString(),
       })),
     };
+  }
+
+  async updateUserContact(
+    userId: string,
+    payload: AdminUpdateUserContactDto,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.users.write);
+
+    const user = await this.adminRepository.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!payload.phone && !payload.address) {
+      throw new BadRequestException('No contact fields to update');
+    }
+
+    if (payload.phone) {
+      const phoneTaken = await this.adminRepository.findKycByPhoneForOtherUser(
+        payload.phone,
+        userId,
+      );
+      if (phoneTaken) {
+        throw new BadRequestException('This phone number is already registered');
+      }
+
+      if (user.kycVerification) {
+        await this.adminRepository.updateKycPhone(userId, payload.phone);
+      } else {
+        if (!payload.nationalId?.trim()) {
+          throw new BadRequestException(
+            'National ID is required when setting phone for a user without KYC',
+          );
+        }
+        await this.adminRepository.createKycForUser(userId, {
+          phone: payload.phone,
+          nationalId: payload.nationalId.trim(),
+        });
+      }
+    }
+
+    if (payload.address) {
+      const patch = payload.address;
+      const existing = patch.id
+        ? await this.adminRepository.findUserAddressById(userId, patch.id)
+        : await this.adminRepository.findPrimaryUserAddress(userId);
+
+      const merged = {
+        title: patch.title ?? existing?.title ?? 'آدرس اصلی',
+        recipient: patch.recipient ?? existing?.recipient ?? user.fullName,
+        phone: patch.phone ?? existing?.phone ?? user.kycVerification?.phone ?? '',
+        line1: patch.line1 ?? existing?.line1 ?? '',
+        city: patch.city ?? existing?.city ?? '',
+        state: patch.state ?? existing?.state ?? '',
+        postalCode: patch.postalCode ?? existing?.postalCode ?? '',
+      };
+
+      const required = [
+        merged.title,
+        merged.recipient,
+        merged.phone,
+        merged.line1,
+        merged.city,
+        merged.state,
+        merged.postalCode,
+      ];
+      if (required.some((value) => !value.trim())) {
+        throw new BadRequestException('All address fields are required');
+      }
+
+      if (!/^09\d{9}$/.test(merged.phone)) {
+        throw new BadRequestException('Address phone must be a valid Iranian mobile');
+      }
+
+      if (existing) {
+        await this.adminRepository.updateUserAddress(existing.id, merged);
+      } else {
+        await this.adminRepository.createUserAddress(userId, merged);
+      }
+    }
+
+    await this.adminRepository.createAuditLog('admin.user.contact_updated', actor.id, {
+      userId,
+      fields: {
+        phone: Boolean(payload.phone),
+        address: Boolean(payload.address),
+      },
+    });
+
+    return this.getUserDetail(userId, actor);
   }
 
   async getUserActivity(

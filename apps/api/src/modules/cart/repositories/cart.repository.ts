@@ -41,7 +41,7 @@ export class CartRepository {
     cartId: string,
     productId: string,
     quantity: number,
-    unitPriceToman: number,
+    unitPriceToman: bigint,
   ) {
     const existingItem = await this.prisma.cartItem.findUnique({
       where: {

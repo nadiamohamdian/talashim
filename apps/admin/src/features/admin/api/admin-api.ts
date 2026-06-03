@@ -15,6 +15,7 @@ import type {
   UpdateStaffUserPayload,
   AdminUserDetailView,
   AdminUserActivityItem,
+  AdminUpdateUserContactPayload,
 } from '../model/types';
 
 export function fetchAnalytics() {
@@ -122,6 +123,12 @@ export function revokeStaffUserSessions(userId: string) {
 
 export function fetchUserDetail(userId: string) {
   return axiosClient.get<AdminUserDetailView>(`/admin/users/${userId}`).then((r) => r.data);
+}
+
+export function updateUserContact(userId: string, payload: AdminUpdateUserContactPayload) {
+  return axiosClient
+    .patch<AdminUserDetailView>(`/admin/users/${userId}/contact`, payload)
+    .then((r) => r.data);
 }
 
 export function fetchUserActivity(userId: string, params?: { page?: number }) {

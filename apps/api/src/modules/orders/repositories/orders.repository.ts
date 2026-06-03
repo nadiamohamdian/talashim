@@ -10,13 +10,13 @@ export class OrdersRepository {
     cartId: string;
     userId?: string;
     paymentProvider: string;
-    subtotalToman: number;
-    taxToman: number;
-    totalToman: number;
+    subtotalToman: bigint;
+    taxToman: bigint;
+    totalToman: bigint;
     items: Array<{
       productId: string;
       quantity: number;
-      unitPriceToman: number;
+      unitPriceToman: bigint;
     }>;
   }) {
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {

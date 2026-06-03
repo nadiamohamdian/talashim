@@ -39,6 +39,10 @@ Environment
 
 Public information architecture, product model, and page hierarchy: [docs/STOREFRONT_IA.md](docs/STOREFRONT_IA.md).
 
+## Dev login accounts
+
+Seed users per role (staff + customer) and passwords: [docs/DEV_ACCOUNTS.md](docs/DEV_ACCOUNTS.md).
+
 ## Production deployment
 
 ### Architecture

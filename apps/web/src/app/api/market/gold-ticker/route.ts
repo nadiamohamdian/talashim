@@ -1,21 +1,10 @@
-import { fetchGoldTickerPayload } from '@sadafgold/shared';
 import { NextResponse } from 'next/server';
+import { resolveGoldTickerPayload } from '@/lib/market/gold-ticker-from-api';
 
 export const revalidate = 60;
 
 export async function GET() {
-  const apiKey = process.env.BRS_API_KEY;
-
-  if (!apiKey && process.env.NODE_ENV === 'development') {
-    console.warn(
-      '[gold-ticker] BRS_API_KEY is missing. Add it to the repo root .env and restart `pnpm dev:web`.',
-    );
-  }
-
-  const payload = await fetchGoldTickerPayload({
-    apiKey,
-    url: process.env.BRS_API_URL,
-  });
+  const payload = await resolveGoldTickerPayload();
 
   return NextResponse.json(payload, {
     headers: {

@@ -20,6 +20,7 @@ import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { formatToman } from '@/features/finance/lib/labels';
 import { UsersPageShell } from './users-page-shell';
+import { UserContactEditForm } from './user-contact-edit-form';
 import { KYC_STATUS_FA } from '../lib/labels';
 
 interface UserDetailPanelProps {
@@ -96,6 +97,16 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
             </dl>
           </Card>
 
+          <Card className="border-border bg-white p-6">
+            <h3 className="font-medium text-stone-900">تماس و آدرس</h3>
+            <p className="mt-1 text-sm text-stone-500">
+              ویرایش موبایل احراز هویت و آدرس ارسال سفارش‌های کاربر.
+            </p>
+            <div className="mt-6">
+              <UserContactEditForm userId={userId} data={data} />
+            </div>
+          </Card>
+
           {data.kyc ? (
             <Card className="border-border bg-white p-6">
               <h3 className="font-medium text-stone-900">احراز هویت</h3>
@@ -107,14 +118,6 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                       {KYC_STATUS_FA[data.kyc.status] ?? data.kyc.status}
                     </Badge>
                   </dd>
-                </div>
-                <div>
-                  <dt className="text-stone-500">کد ملی</dt>
-                  <dd className="mt-1 font-mono">{data.kyc.nationalId}</dd>
-                </div>
-                <div>
-                  <dt className="text-stone-500">موبایل</dt>
-                  <dd className="mt-1">{data.kyc.phone}</dd>
                 </div>
                 <div>
                   <dt className="text-stone-500">تاریخ ارسال</dt>

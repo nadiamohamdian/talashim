@@ -39,6 +39,7 @@ export function useCart(options?: { enabled?: boolean }) {
     queryKey: queryKeys.cart.me(),
     queryFn: ({ signal }) => orderApi.getCart(signal),
     staleTime: 10_000,
+    refetchInterval: 60_000,
     enabled: (options?.enabled ?? true) && isAuthenticated,
   });
 }

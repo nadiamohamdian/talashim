@@ -8,6 +8,7 @@ import { clearAuthCookie, syncAuthCookie } from '@/features/auth/api/auth-api';
 interface AuthState {
   user: UserProfile | null;
   accessToken: string | null;
+  refreshToken: string | null;
   otpIdentifier: string | null;
   setSession: (session: AuthSession) => void;
   setOtpIdentifier: (identifier: string) => void;
@@ -21,12 +22,14 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       accessToken: null,
+      refreshToken: null,
       otpIdentifier: null,
       setSession: (session) => {
         syncAuthCookie(session.tokens.accessToken);
         set({
           user: session.user,
           accessToken: session.tokens.accessToken,
+          refreshToken: session.tokens.refreshToken,
           otpIdentifier: null,
         });
       },
@@ -34,7 +37,7 @@ export const useAuthStore = create<AuthState>()(
       clearOtpIdentifier: () => set({ otpIdentifier: null }),
       clearSession: () => {
         clearAuthCookie();
-        set({ user: null, accessToken: null, otpIdentifier: null });
+        set({ user: null, accessToken: null, refreshToken: null, otpIdentifier: null });
       },
       isAuthenticated: () => Boolean(get().accessToken && get().user),
     }),
@@ -43,6 +46,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
+        refreshToken: state.refreshToken,
       }),
       onRehydrateStorage: () => (state) => {
         if (state?.accessToken) {
@@ -52,3 +56,11 @@ export const useAuthStore = create<AuthState>()(
     },
   ),
 );
+
+/** Sync HTTP cookie for middleware — call after persist rehydration or before navigation. */
+export function syncAuthCookieFromStore(): void {
+  const token = useAuthStore.getState().accessToken;
+  if (token) {
+    syncAuthCookie(token);
+  }
+}

@@ -16,8 +16,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@talashim/ui';
+} from '@sadafgold/ui';
 import { fetchAdminProducts, deleteAdminProduct } from '../api/commerce-api';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
@@ -32,7 +33,7 @@ export function ProductsListPanel() {
   const [category, setCategory] = useState('');
   const [lowStock, setLowStock] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: adminQueryKeys.commerce.products(page, search, category, lowStock),
     queryFn: () =>
       fetchAdminProducts({
@@ -114,7 +115,12 @@ export function ProductsListPanel() {
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری محصولات ناموفق بود.</p>
+          <p className="p-6 text-rose-600">
+            بارگذاری محصولات ناموفق بود.
+            {error ? (
+              <span className="mt-2 block text-sm text-stone-600">{getApiErrorMessage(error)}</span>
+            ) : null}
+          </p>
         ) : (
           <Table>
             <TableHeader>

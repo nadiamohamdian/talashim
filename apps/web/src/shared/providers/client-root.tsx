@@ -6,11 +6,13 @@ import { SiteFooter } from '@/widgets/footer/site-footer';
 import { GoldPriceTicker } from '@/widgets/header/gold-price-ticker';
 import { SiteHeader } from '@/widgets/header/site-header';
 import { QueryProvider } from '@/shared/providers/query-provider';
+import { SessionBootstrap } from '@/shared/providers/session-bootstrap';
 import type { PropsWithChildren } from 'react';
 
 export function ClientRoot({ children }: PropsWithChildren) {
   return (
     <QueryProvider>
+      <SessionBootstrap>
       <ThemeProvider>
         <div className="flex min-h-full flex-1 flex-col">
           <GoldPriceTicker />
@@ -20,6 +22,7 @@ export function ClientRoot({ children }: PropsWithChildren) {
           <CartPanel />
         </div>
       </ThemeProvider>
+      </SessionBootstrap>
     </QueryProvider>
   );
 }

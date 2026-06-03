@@ -1,14 +1,18 @@
+'use client';
+
 import Link from 'next/link';
 import type { ProductSummary } from '@sadafgold/types';
+import { useDynamicProductPrice } from '@/features/catalog/hooks/use-dynamic-product-price';
 import { formatPrice } from '@/shared/lib/format-price';
 import { StoreImage } from '@/shared/ui/store-image';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
-
 interface ProductCardProps {
   product: ProductSummary;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const priced = useDynamicProductPrice(product);
+
   return (
     <article className="card-luxury group">
       <Link href={`/products/${product.slug}`} className="block">
@@ -33,19 +37,19 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
         <p className="text-xs text-muted">وزن {product.weightGram} گرم</p>
         <p className="text-base font-bold text-gold-dark">
-          {formatPrice(product.priceToman)}{' '}
+          {formatPrice(priced.priceToman)}{' '}
           <span className="text-xs font-normal text-muted">تومان</span>
         </p>
-        {product.pricing ? (
+        {priced.pricing ? (
           <p className="text-[11px] leading-5 text-muted">
-            قیمت واقعی: ارزش طلا + اجرت {product.makingFeePercent}٪ (لحظه‌ای)
+            قیمت لحظه‌ای: ارزش طلا + اجرت {product.makingFeePercent}٪
           </p>
         ) : null}
         <AddToCartButton
           productId={product.id}
           slug={product.slug}
           title={product.title}
-          priceToman={product.priceToman}
+          priceToman={priced.priceToman}
           imageUrl={product.imageUrl}
           weightGram={product.weightGram}
           className="btn-gold w-full py-2.5 text-sm"

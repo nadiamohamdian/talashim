@@ -15,6 +15,7 @@ import {
   clearAccessTokenCookie,
   setAccessTokenCookie,
 } from '@talashim/shared/constants/auth';
+import { readAuthCookieToken } from '@/features/auth/lib/auth-cookie';
 import { webEnv } from '@/shared/config/env';
 import { useAuthStore } from '@/features/auth/model/auth-store';
 
@@ -98,7 +99,8 @@ async function refreshAccessToken(): Promise<string | null> {
 function createConfiguredClient(): AxiosInstance {
   const client = createApiClient({
     baseURL: webEnv.NEXT_PUBLIC_API_BASE_URL,
-    getAccessToken: () => useAuthStore.getState().accessToken,
+    getAccessToken: () =>
+      useAuthStore.getState().accessToken ?? readAuthCookieToken(),
     onUnauthorized: async () => {
       const token = await refreshAccessToken();
       return Boolean(token);

@@ -1,5 +1,5 @@
 import argon2 from 'argon2';
-import { PrismaClient, ProductCategory, Role } from '../src/generated/prisma';
+import { KycStatus, PrismaClient, ProductCategory, Role } from '../src/generated/prisma';
 import {
   DEFAULT_CMS_HERO,
   DEFAULT_CMS_SECTIONS,
@@ -9,8 +9,12 @@ import { getApiEnv } from '../src/config/env';
 
 const prisma = new PrismaClient();
 
+const DEV_PASSWORD_STAFF = 'Admin12345!';
+const DEV_PASSWORD_CUSTOMER = 'Customer12345!';
+
 async function main() {
-  const staffPasswordHash = await argon2.hash('Admin12345!');
+  const staffPasswordHash = await argon2.hash(DEV_PASSWORD_STAFF);
+  const customerPasswordHash = await argon2.hash(DEV_PASSWORD_CUSTOMER);
 
   const staffAccounts: Array<{
     email: string;
@@ -45,6 +49,47 @@ async function main() {
       superAdminId = user.id;
     }
   }
+
+  const customer = await prisma.user.upsert({
+    where: { email: 'customer@talashim.local' },
+    update: {
+      role: Role.CUSTOMER,
+      fullName: 'مشتری فروشگاه',
+      passwordHash: customerPasswordHash,
+    },
+    create: {
+      email: 'customer@talashim.local',
+      fullName: 'مشتری فروشگاه',
+      passwordHash: customerPasswordHash,
+      role: Role.CUSTOMER,
+    },
+  });
+
+  await prisma.kycVerification.upsert({
+    where: { userId: customer.id },
+    update: {
+      phone: '09121234567',
+      nationalId: '0012345678',
+      status: KycStatus.APPROVED,
+      reviewedAt: new Date(),
+      reviewedById: superAdminId ?? undefined,
+    },
+    create: {
+      userId: customer.id,
+      phone: '09121234567',
+      nationalId: '0012345678',
+      status: KycStatus.APPROVED,
+      reviewedAt: new Date(),
+      reviewedById: superAdminId ?? undefined,
+    },
+  });
+
+  console.info('\n--- Dev accounts (passwords in docs/DEV_ACCOUNTS.md) ---');
+  for (const account of staffAccounts) {
+    console.info(`  [${account.role}] ${account.email}`);
+  }
+  console.info(`  [CUSTOMER] customer@talashim.local | OTP phone: 09121234567`);
+  console.info('--------------------------------------------------------\n');
 
   await prisma.blogCategory.upsert({
     where: { slug: 'guides' },

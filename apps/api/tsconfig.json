@@ -21,7 +21,11 @@
       "@sadafgold/shared": ["../../packages/shared/dist/index"],
       "@sadafgold/shared/*": ["../../packages/shared/dist/*"],
       "@sadafgold/types": ["../../packages/types/dist/index"],
-      "@sadafgold/types/*": ["../../packages/types/dist/*"]
+      "@sadafgold/types/*": ["../../packages/types/dist/*"],
+      "@talashim/shared": ["../../packages/shared/dist/index"],
+      "@talashim/shared/*": ["../../packages/shared/dist/*"],
+      "@talashim/types": ["../../packages/types/dist/index"],
+      "@talashim/types/*": ["../../packages/types/dist/*"]
     },
     "types": ["node", "jest"],
     "incremental": true,

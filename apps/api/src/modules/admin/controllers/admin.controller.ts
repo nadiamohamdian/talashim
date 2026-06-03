@@ -14,6 +14,7 @@ import {
   PaginationQueryDto,
 } from '../dto/admin-query.dto';
 import { ReviewKycDto } from '../dto/review-kyc.dto';
+import { AdminUpdateUserContactDto } from '../dto/admin-update-user-contact.dto';
 import { UpdateUserRoleDto } from '../dto/update-user-role.dto';
 import { CreateStaffUserDto } from '../dto/create-staff-user.dto';
 import { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
@@ -68,6 +69,16 @@ export class AdminController {
     @CurrentUser() actor: AuthenticatedUser,
   ) {
     return this.adminService.getUserActivity(userId, query, actor);
+  }
+
+  @Patch('users/:userId/contact')
+  @ApiOperation({ summary: 'Update customer phone (KYC) and shipping address' })
+  updateUserContact(
+    @Param('userId') userId: string,
+    @Body() payload: AdminUpdateUserContactDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.updateUserContact(userId, payload, actor);
   }
 
   @Patch('users/:userId/role')

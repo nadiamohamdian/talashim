@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { useCartHydrated } from '@/features/cart/hooks/use-cart-hydrated';
+import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
 import { useCartStore } from '@/features/cart/model/cart-store';
 import { formatPrice } from '@/shared/lib/format-price';
 import { IconCart, IconHeart } from '@/shared/ui/icons';
@@ -64,9 +66,11 @@ function HeaderActionLink({
 }
 
 export function HeaderActions() {
-  const itemCount = useCartStore((s) => s.itemCount());
-  const total = useCartStore((s) => s.total());
+  const cartHydrated = useCartHydrated();
+  const { count, total } = useDisplayCart();
   const openCart = useCartStore((s) => s.openCart);
+  const cartBadge = cartHydrated && count > 0 ? count : undefined;
+  const cartSublabel = cartHydrated ? `${formatPrice(total)} تومان` : 'سبد خرید';
 
   return (
     <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
@@ -78,8 +82,8 @@ export function HeaderActions() {
       />
       <HeaderActionLink
         label="سبد خرید"
-        sublabel={`${formatPrice(total)} تومان`}
-        badge={itemCount}
+        sublabel={cartSublabel}
+        badge={cartBadge}
         icon={<IconCart className="h-5 w-5" />}
         onClick={openCart}
       />

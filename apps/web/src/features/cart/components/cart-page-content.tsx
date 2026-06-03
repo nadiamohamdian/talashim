@@ -2,41 +2,23 @@
 
 import { StoreImage } from '@/shared/ui/store-image';
 import Link from 'next/link';
-import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useCartStore } from '@/features/cart/model/cart-store';
-import { useCart, useRemoveCartItemMutation } from '@/lib/api';
+import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
+import { useRemoveCartItemMutation } from '@/lib/api';
 import { formatPrice } from '@/shared/lib/format-price';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import { IconMinus, IconPlus, IconTrash } from '@/shared/ui/icons';
 import { Skeleton } from '@sadafgold/ui';
 
 export function CartPageContent() {
-  const { isAuthenticated } = useAuth();
-  const localItems = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeLocalItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
-  const localTotal = useCartStore((s) => s.total());
-
-  const { data: serverCart, isLoading, isError } = useCart({ enabled: isAuthenticated });
   const removeServerItem = useRemoveCartItemMutation();
 
-  const useServer = isAuthenticated && serverCart && !isError;
-  const items = useServer
-    ? serverCart.items.map((item) => ({
-        id: item.productId,
-        slug: item.slug,
-        title: item.title,
-        quantity: item.quantity,
-        priceToman: item.unitPriceToman,
-        imageUrl: item.imageUrl,
-        weightGram: item.weightGram,
-      }))
-    : localItems;
+  const { items, total, useServer, isLoading, isAuthenticated } = useDisplayCart();
 
-  const total = useServer ? serverCart.subtotalToman : localTotal;
-
-  if (isAuthenticated && isLoading) {
+  if (isLoading) {
     return <Skeleton className="h-64 w-full rounded-2xl" />;
   }
 

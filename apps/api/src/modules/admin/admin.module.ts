@@ -11,7 +11,6 @@ import { AdminInventoryController } from './controllers/admin-inventory.controll
 import { AdminOrdersController } from './controllers/admin-orders.controller';
 import { AdminProductsController } from './controllers/admin-products.controller';
 import { AdminNotificationsController } from './controllers/admin-notifications.controller';
-import { AdminTicketsController } from './controllers/admin-tickets.controller';
 import { AdminController } from './controllers/admin.controller';
 import { AdminCmsRepository } from './repositories/admin-cms.repository';
 import { AdminFinanceRepository } from './repositories/admin-finance.repository';
@@ -25,12 +24,10 @@ import { AdminInventoryRepository } from './repositories/admin-inventory.reposit
 import { AdminOrdersRepository } from './repositories/admin-orders.repository';
 import { AdminProductsRepository } from './repositories/admin-products.repository';
 import { AdminNotificationsRepository } from './repositories/admin-notifications.repository';
-import { AdminTicketsRepository } from './repositories/admin-tickets.repository';
 import { AdminInventoryService } from './services/admin-inventory.service';
 import { AdminOrdersService } from './services/admin-orders.service';
 import { AdminProductsService } from './services/admin-products.service';
 import { AdminNotificationsService } from './services/admin-notifications.service';
-import { AdminTicketsService } from './services/admin-tickets.service';
 import { AdminTradingService } from './services/admin-trading.service';
 import { AdminReportsService } from './services/admin-reports.service';
 import { AdminService } from './services/admin.service';
@@ -48,7 +45,6 @@ import { AdminService } from './services/admin.service';
     AdminInventoryController,
     AdminOrdersController,
     AdminNotificationsController,
-    AdminTicketsController,
   ],
   providers: [
     AdminRepository,
@@ -59,7 +55,6 @@ import { AdminService } from './services/admin.service';
     AdminInventoryRepository,
     AdminOrdersRepository,
     AdminNotificationsRepository,
-    AdminTicketsRepository,
     AdminCmsRepository,
     AdminService,
     AdminReportsService,
@@ -69,7 +64,6 @@ import { AdminService } from './services/admin.service';
     AdminInventoryService,
     AdminOrdersService,
     AdminNotificationsService,
-    AdminTicketsService,
     AdminPricingService,
     AdminCmsService,
   ],

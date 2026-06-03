@@ -174,6 +174,11 @@ export async function fetchBrsRawPayload(options: {
     throw new Error(`BrsApi responded with ${response.status}`);
   }
 
+  const contentType = response.headers.get('content-type') ?? '';
+  if (!contentType.includes('json')) {
+    throw new Error(`BrsApi returned non-JSON (${contentType || 'unknown'})`);
+  }
+
   return response.json() as Promise<unknown>;
 }
 

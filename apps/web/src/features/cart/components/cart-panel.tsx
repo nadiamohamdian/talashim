@@ -3,21 +3,35 @@
 import { StoreImage } from '@/shared/ui/store-image';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { useAuth } from '@/features/auth/hooks/use-auth';
+import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
 import { useCartStore } from '@/features/cart/model/cart-store';
+import { useRemoveCartItemMutation } from '@/lib/api';
 import { formatPrice } from '@/shared/lib/format-price';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import { IconClose, IconMinus, IconPlus, IconTrash } from '@/shared/ui/icons';
 
 export function CartPanel() {
   const isOpen = useCartStore((s) => s.isOpen);
-  const items = useCartStore((s) => s.items);
   const closeCart = useCartStore((s) => s.closeCart);
-  const removeItem = useCartStore((s) => s.removeItem);
+  const removeLocalItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const clearCart = useCartStore((s) => s.clearCart);
-  const total = useCartStore((s) => s.total());
-  const { isAuthenticated } = useAuth();
+  const { items, total, useServer, isAuthenticated } = useDisplayCart();
+  const removeServerItem = useRemoveCartItemMutation();
+
+  const handleRemove = (productId: string) => {
+    if (useServer) {
+      removeServerItem.mutate(productId);
+    } else {
+      removeLocalItem(productId);
+    }
+  };
+
+  const handleQuantity = (productId: string, quantity: number) => {
+    if (!useServer) {
+      updateQuantity(productId, quantity);
+    }
+  };
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
@@ -97,7 +111,7 @@ export function CartPanel() {
                     <div className="mt-2 flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => handleQuantity(item.id, item.quantity - 1)}
                         className="rounded-lg border border-nude-200 bg-card p-1 hover:bg-nude-50"
                         aria-label="کاهش تعداد"
                       >
@@ -106,7 +120,7 @@ export function CartPanel() {
                       <span className="min-w-6 text-center text-sm">{item.quantity}</span>
                       <button
                         type="button"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => handleQuantity(item.id, item.quantity + 1)}
                         className="rounded-lg border border-nude-200 bg-card p-1 hover:bg-nude-50"
                         aria-label="افزایش تعداد"
                       >
@@ -114,7 +128,7 @@ export function CartPanel() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => handleRemove(item.id)}
                         className="mr-auto rounded-lg p-1 text-rose-600 hover:bg-rose-50"
                         aria-label="حذف"
                       >
@@ -147,13 +161,15 @@ export function CartPanel() {
               >
                 {isAuthenticated ? 'تسویه حساب' : 'ورود و تسویه'}
               </Link>
-              <button
-                type="button"
-                onClick={clearCart}
-                className="text-xs text-muted hover:text-rose-600"
-              >
-                خالی کردن سبد
-              </button>
+              {!useServer ? (
+                <button
+                  type="button"
+                  onClick={clearCart}
+                  className="text-xs text-muted hover:text-rose-600"
+                >
+                  خالی کردن سبد
+                </button>
+              ) : null}
             </div>
           </div>
         ) : null}

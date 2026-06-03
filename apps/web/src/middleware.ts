@@ -1,26 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import {
-  AUTH_COOKIE_NAME,
-  DEFAULT_POST_LOGIN_PATH,
-} from '@/shared/routing/routes.config';
-import { isAuthPath, isProtectedPath } from '@/shared/routing/path-matcher';
-import { buildLoginUrl, getSafeRedirectPath } from '@/shared/routing/safe-redirect';
+import { AUTH_COOKIE_NAME } from '@/shared/routing/routes.config';
+import { isProtectedPath } from '@/shared/routing/path-matcher';
+import { buildLoginUrl } from '@/shared/routing/safe-redirect';
+import { isLikelyAccessToken } from '@/shared/routing/auth-token';
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
-  const isAuthenticated = Boolean(token);
+  const hasAccessCookie = isLikelyAccessToken(token);
 
-  if (isProtectedPath(pathname) && !isAuthenticated) {
+  // Only gate checkout — never redirect away from /login based on cookie alone.
+  // Stale JWT-shaped cookies caused /login ↔ /checkout loops; client restores or
+  // clears the session via LoginSessionGuard / ProtectedShell.
+  if (isProtectedPath(pathname) && !hasAccessCookie) {
     const returnPath = `${pathname}${search}`;
     return NextResponse.redirect(buildLoginUrl(request.url, returnPath));
-  }
-
-  if (isAuthenticated && isAuthPath(pathname)) {
-    const nextParam = request.nextUrl.searchParams.get('next');
-    const destination = getSafeRedirectPath(nextParam, DEFAULT_POST_LOGIN_PATH);
-    return NextResponse.redirect(new URL(destination, request.url));
   }
 
   return NextResponse.next();
