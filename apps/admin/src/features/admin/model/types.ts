@@ -14,4 +14,4 @@ export type {
   UpdateStaffUserPayload,
   AdminUserActivityItem,
   AdminUserDetailView,
-} from '@talashim/types';
+} from '@sadafgold/types';

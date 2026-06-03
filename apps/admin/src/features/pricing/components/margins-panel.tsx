@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
+import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
 import { fetchPricingMargins, updatePricingMargins } from '../api/pricing-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PricingPageShell } from './pricing-page-shell';

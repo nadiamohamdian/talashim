@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Button } from '@talashim/ui';
-import { getRoleLabelFa } from '@talashim/shared/admin-rbac';
+import { Button } from '@sadafgold/ui';
+import { getRoleLabelFa } from '@sadafgold/shared/admin-rbac';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
 import { ADMIN_NAV_SECTIONS, type ApiAvailability } from '@/shared/config/admin-navigation';
 import { isNavItemActive } from '@/shared/lib/admin-route-resolver';

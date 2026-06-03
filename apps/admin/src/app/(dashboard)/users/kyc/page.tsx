@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { KycManagement } from '@/features/users/components/kyc-management';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="users.kyc" />;
+  return <KycManagement />;
 }

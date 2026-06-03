@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@talashim/ui';
+import { Button } from '@sadafgold/ui';
 import Link from 'next/link';
 
 export default function DashboardError({

@@ -332,3 +332,10 @@ Important:
 * Always prefer maintainability and scalability.
 * Always generate production-grade enterprise code.
 * Never generate toy-project architecture.
+
+Agent Workflow Rules:
+
+* Do NOT run long-running CLI processes (build, lint, typecheck, test, turbo, docker build, etc.) in the terminal during agent sessions.
+* Instead, tell the user to run those commands locally when verification is needed.
+* Git hooks are disabled — commits on any branch (including main) are not blocked by lint-staged, commitlint, or typecheck.
+* Use simple, fast git commands for status/diff/commit only when the user explicitly asks.

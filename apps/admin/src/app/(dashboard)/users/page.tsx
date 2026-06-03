@@ -1,5 +1,5 @@
-import { ModuleSkeletonPage } from '@/features/skeleton/components/module-skeleton-page';
+import { UsersListPanel } from '@/features/users/components/users-list-panel';
 
 export default function Page() {
-  return <ModuleSkeletonPage routeId="users.list" />;
+  return <UsersListPanel />;
 }

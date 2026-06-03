@@ -1,4 +1,4 @@
-import { Skeleton } from '@talashim/ui';
+import { Skeleton } from '@sadafgold/ui';
 
 export default function DashboardLoading() {
   return (

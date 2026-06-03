@@ -388,7 +388,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     sectionLabel: 'کاربران',
     template: 'detail',
     permission: ADMIN_PERMISSIONS.users.read,
-    availability: 'pending',
+    availability: 'live',
     parentId: 'users.list',
     dynamic: true,
     nav: false,

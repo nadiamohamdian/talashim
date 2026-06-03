@@ -6,7 +6,7 @@ import type {
   PaginatedResponse,
   PricingMarginsDto,
   PricingProvidersResponseDto,
-} from '@talashim/types';
+} from '@sadafgold/types';
 
 export function fetchAdminLivePrice(params?: { symbol?: string; karat?: number }) {
   return axiosClient
