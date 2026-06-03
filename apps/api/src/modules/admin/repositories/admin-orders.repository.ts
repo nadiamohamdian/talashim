@@ -48,7 +48,7 @@ export class AdminOrdersRepository {
           user: { select: { id: true, email: true, fullName: true } },
           _count: { select: { items: true } },
           payments: {
-            select: { status: true },
+            select: { id: true, status: true, receiptUrl: true },
             orderBy: { createdAt: 'desc' },
             take: 1,
           },

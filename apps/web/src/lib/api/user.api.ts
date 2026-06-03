@@ -92,4 +92,8 @@ export const {
   createAddress,
   updateAddress,
   deleteAddress,
+  listWishlist,
+  addToWishlist,
+  removeFromWishlist,
+  submitContact,
 } = userApi;

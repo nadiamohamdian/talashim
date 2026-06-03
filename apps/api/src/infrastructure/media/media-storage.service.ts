@@ -24,6 +24,18 @@ export class MediaStorageService {
   private readonly uploadRoot = join(process.cwd(), 'uploads');
 
   async saveImage(file: UploadedImageFile, folder: string): Promise<SavedMediaFile> {
+    return this.saveFile(file, folder);
+  }
+
+  async saveReceipt(file: UploadedImageFile, folder = 'payment-receipts'): Promise<SavedMediaFile> {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(file.mimetype)) {
+      throw new Error('Unsupported receipt file type');
+    }
+    return this.saveFile(file, folder);
+  }
+
+  private async saveFile(file: UploadedImageFile, folder: string): Promise<SavedMediaFile> {
     const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
     const ext = this.extensionFromMime(file.mimetype) ?? this.extensionFromName(file.originalname);
     const filename = `${randomUUID()}${ext}`;
@@ -51,6 +63,7 @@ export class MediaStorageService {
     if (mime === 'image/png') return '.png';
     if (mime === 'image/webp') return '.webp';
     if (mime === 'image/gif') return '.gif';
+    if (mime === 'application/pdf') return '.pdf';
     return null;
   }
 

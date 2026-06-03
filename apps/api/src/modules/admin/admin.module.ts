@@ -3,6 +3,7 @@ import { MediaModule } from '@/infrastructure/media/media.module';
 import { MarketModule } from '@/modules/market/market.module';
 import { PricingModule } from '@/modules/pricing/pricing.module';
 import { TradingModule } from '@/modules/trading/trading.module';
+import { OrdersModule } from '@/modules/orders/orders.module';
 import { AdminCmsController, AdminMediaController } from './controllers/admin-cms.controller';
 import { AdminFinanceController } from './controllers/admin-finance.controller';
 import { AdminPricingController } from './controllers/admin-pricing.controller';
@@ -33,7 +34,7 @@ import { AdminReportsService } from './services/admin-reports.service';
 import { AdminService } from './services/admin.service';
 
 @Module({
-  imports: [MediaModule, PricingModule, MarketModule, TradingModule],
+  imports: [MediaModule, PricingModule, MarketModule, TradingModule, OrdersModule],
   controllers: [
     AdminController,
     AdminCmsController,

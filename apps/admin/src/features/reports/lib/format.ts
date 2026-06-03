@@ -15,9 +15,19 @@ export const ORDER_STATUS_FA: Record<string, string> = {
 
 export const PAYMENT_STATUS_FA: Record<string, string> = {
   PENDING: 'در انتظار پرداخت',
-  AUTHORIZED: 'تأیید اولیه',
+  AWAITING_RECEIPT: 'در انتظار فیش',
+  RECEIPT_SUBMITTED: 'فیش ارسال شده — بررسی ادمین',
+  AUTHORIZED: 'تأیید اولیه / اعتباری',
   PAID: 'پرداخت شده',
   FAILED: 'ناموفق',
+  REJECTED: 'فیش رد شده',
+  pending: 'در انتظار پرداخت',
+  awaiting_receipt: 'در انتظار فیش',
+  receipt_submitted: 'فیش ارسال شده',
+  authorized: 'تأیید اولیه',
+  paid: 'پرداخت شده',
+  failed: 'ناموفق',
+  rejected: 'فیش رد شده',
 };
 
 export const TRADE_SIDE_FA: Record<string, string> = {

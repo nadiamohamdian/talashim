@@ -6,3 +6,4 @@ export * from './worker-env';
 export * from './admin-env';
 export * from './brs-gold';
 export * from './jewelry-pricing';
+export * from './iran-locations';

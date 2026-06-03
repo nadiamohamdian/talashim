@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { StaffRoleGuard } from '@/common/guards/staff-role.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import { AdminOrdersQueryDto, UpdateAdminOrderStatusDto } from '../dto/admin-commerce.dto';
+import { RejectPaymentReceiptDto } from '../dto/reject-payment-receipt.dto';
 import { AdminOrdersService } from '../services/admin-orders.service';
 
 @ApiTags('admin-orders')
@@ -34,5 +35,26 @@ export class AdminOrdersController {
     @CurrentUser() actor: AuthenticatedUser,
   ) {
     return this.adminOrdersService.updateStatus(id, dto, actor);
+  }
+
+  @Post(':orderId/payments/:paymentId/approve-receipt')
+  @ApiOperation({ summary: 'Approve card-to-card payment receipt and confirm order' })
+  approveReceipt(
+    @Param('orderId') orderId: string,
+    @Param('paymentId') paymentId: string,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminOrdersService.approvePaymentReceipt(orderId, paymentId, actor);
+  }
+
+  @Post(':orderId/payments/:paymentId/reject-receipt')
+  @ApiOperation({ summary: 'Reject payment receipt — customer can re-upload' })
+  rejectReceipt(
+    @Param('orderId') orderId: string,
+    @Param('paymentId') paymentId: string,
+    @Body() dto: RejectPaymentReceiptDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminOrdersService.rejectPaymentReceipt(orderId, paymentId, dto, actor);
   }
 }

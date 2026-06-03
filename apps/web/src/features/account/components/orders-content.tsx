@@ -1,16 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import { Badge, Button, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
 import { useOrders } from '@/lib/api';
 import { useState } from 'react';
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: 'در انتظار',
-  confirmed: 'تأیید شده',
-  paid: 'پرداخت شده',
-  cancelled: 'لغو شده',
-};
+import {
+  ORDER_STATUS_LABELS,
+  PAYMENT_STATUS_LABELS,
+  orderStatusBadgeClass,
+} from '../lib/order-labels';
 
 export function OrdersContent() {
   const [page, setPage] = useState(1);
@@ -46,10 +45,12 @@ export function OrdersContent() {
           <TableHeader>
             <TableRow>
               <TableHead>شماره سفارش</TableHead>
-              <TableHead>وضعیت</TableHead>
+              <TableHead>وضعیت سفارش</TableHead>
+              <TableHead>وضعیت پرداخت</TableHead>
               <TableHead>اقلام</TableHead>
               <TableHead>مبلغ</TableHead>
               <TableHead>تاریخ</TableHead>
+              <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -57,11 +58,30 @@ export function OrdersContent() {
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">{order.orderNumber}</TableCell>
                 <TableCell>
-                  <Badge>{STATUS_LABELS[order.status] ?? order.status}</Badge>
+                  <Badge className={orderStatusBadgeClass(order.status)}>
+                    {ORDER_STATUS_LABELS[order.status] ?? order.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {order.paymentStatus ? (
+                    <span className="text-xs text-muted">
+                      {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted">—</span>
+                  )}
                 </TableCell>
                 <TableCell>{order.itemCount}</TableCell>
                 <TableCell>{formatPrice(order.totalToman)} تومان</TableCell>
                 <TableCell>{new Date(order.createdAt).toLocaleDateString('fa-IR')}</TableCell>
+                <TableCell>
+                  <Link
+                    href={`/orders/${order.id}`}
+                    className="text-sm font-medium text-gold-dark hover:underline"
+                  >
+                    جزئیات
+                  </Link>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
+import { CHECKOUT_PAYMENT_PROVIDERS } from '@sadafgold/shared';
 
 export class CreateOrderDto {
   @IsString()
@@ -9,5 +10,9 @@ export class CreateOrderDto {
   userId?: string;
 
   @IsString()
+  shippingAddressId!: string;
+
+  @IsString()
+  @IsIn([...CHECKOUT_PAYMENT_PROVIDERS])
   paymentProvider!: string;
 }

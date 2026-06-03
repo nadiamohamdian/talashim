@@ -3,8 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderStatus } from '@/generated/prisma';
+import { CartStatus, OrderStatus, PaymentStatus } from '@/generated/prisma';
+import { CHECKOUT_PAYMENT_PROVIDERS } from '@sadafgold/shared';
+import type { CheckoutPaymentProvider } from '@sadafgold/shared';
 import { CartRepository } from '@/modules/cart/repositories/cart.repository';
+import { AddressesRepository } from '@/modules/addresses/repositories/addresses.repository';
+import {
+  MediaStorageService,
+  type UploadedImageFile,
+} from '@/infrastructure/media/media-storage.service';
 import { WalletService } from '@/modules/wallet/services/wallet.service';
 import { UsersService } from '@/modules/users/services/users.service';
 import { OrdersRepository } from '../repositories/orders.repository';
@@ -15,16 +22,32 @@ import {
   tomanNumberToBigInt,
 } from '@/common/finance/toman-amount';
 
+function resolveInitialPaymentStatus(provider: CheckoutPaymentProvider): PaymentStatus {
+  if (provider === 'card_to_card') {
+    return PaymentStatus.AWAITING_RECEIPT;
+  }
+  if (provider === 'credit') {
+    return PaymentStatus.AUTHORIZED;
+  }
+  return PaymentStatus.PENDING;
+}
+
 @Injectable()
 export class OrdersService {
   constructor(
     private readonly cartRepository: CartRepository,
     private readonly ordersRepository: OrdersRepository,
+    private readonly addressesRepository: AddressesRepository,
+    private readonly mediaStorage: MediaStorageService,
     private readonly walletService: WalletService,
     private readonly usersService: UsersService,
   ) {}
 
   async checkout(payload: CreateOrderDto) {
+    if (!CHECKOUT_PAYMENT_PROVIDERS.includes(payload.paymentProvider as CheckoutPaymentProvider)) {
+      throw new BadRequestException('Invalid payment provider');
+    }
+
     const cart = await this.cartRepository.findCartById(payload.cartId);
 
     if (!cart) {
@@ -35,16 +58,40 @@ export class OrdersService {
       throw new BadRequestException('Cart is empty');
     }
 
+    if (cart.status !== CartStatus.ACTIVE) {
+      throw new BadRequestException('Cart is no longer active');
+    }
+
+    const userId = payload.userId ?? cart.userId;
+    if (!userId) {
+      throw new BadRequestException('Checkout requires an authenticated user');
+    }
+
+    if (cart.userId && cart.userId !== userId) {
+      throw new BadRequestException('Cart does not belong to this user');
+    }
+
+    const address = await this.addressesRepository.findByIdForUser(
+      payload.shippingAddressId,
+      userId,
+    );
+    if (!address) {
+      throw new NotFoundException('Shipping address not found');
+    }
+
     const subtotalToman = cart.items.reduce(
       (sum, item) => sum + item.quantity * tomanBigIntToNumber(item.unitPriceToman),
       0,
     );
     const taxToman = Math.round(subtotalToman * 0.09);
+    const provider = payload.paymentProvider as CheckoutPaymentProvider;
 
-    return this.ordersRepository.createFromCart({
+    const created = await this.ordersRepository.createFromCart({
       cartId: cart.id,
-      userId: payload.userId ?? cart.userId ?? undefined,
-      paymentProvider: payload.paymentProvider,
+      userId,
+      shippingAddressId: address.id,
+      paymentProvider: provider,
+      paymentStatus: resolveInitialPaymentStatus(provider),
       subtotalToman: tomanNumberToBigInt(subtotalToman),
       taxToman: tomanNumberToBigInt(taxToman),
       totalToman: tomanNumberToBigInt(subtotalToman + taxToman),
@@ -54,6 +101,72 @@ export class OrdersService {
         unitPriceToman: item.unitPriceToman,
       })),
     });
+
+    const order = await this.ordersRepository.findByIdForUser(created.id, userId);
+    if (!order) {
+      throw new NotFoundException('Order not found after checkout');
+    }
+
+    return this.toDetail(order);
+  }
+
+  async uploadPaymentReceipt(
+    userId: string,
+    orderId: string,
+    paymentId: string,
+    file: UploadedImageFile,
+  ) {
+    const payment = await this.ordersRepository.findPaymentForUser(orderId, paymentId, userId);
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+
+    if (payment.provider !== 'card_to_card') {
+      throw new BadRequestException('Receipt upload is only for card-to-card payments');
+    }
+
+    if (
+      payment.status !== PaymentStatus.AWAITING_RECEIPT &&
+      payment.status !== PaymentStatus.REJECTED
+    ) {
+      throw new BadRequestException('Receipt cannot be uploaded for this payment state');
+    }
+
+    const saved = await this.mediaStorage.saveReceipt(file);
+    await this.ordersRepository.submitPaymentReceipt(paymentId, saved.url);
+
+    return this.getForUser(userId, orderId);
+  }
+
+  async approvePaymentReceipt(orderId: string, paymentId: string, reviewedById: string) {
+    const payment = await this.ordersRepository.findPaymentById(paymentId);
+    if (!payment || payment.orderId !== orderId) {
+      throw new NotFoundException('Payment not found');
+    }
+    if (payment.status !== PaymentStatus.RECEIPT_SUBMITTED) {
+      throw new BadRequestException('Payment is not awaiting receipt review');
+    }
+
+    await this.ordersRepository.approvePaymentReceipt(paymentId, reviewedById);
+    return { approved: true, paymentId, orderId };
+  }
+
+  async rejectPaymentReceipt(
+    orderId: string,
+    paymentId: string,
+    reviewedById: string,
+    reason: string,
+  ) {
+    const payment = await this.ordersRepository.findPaymentById(paymentId);
+    if (!payment || payment.orderId !== orderId) {
+      throw new NotFoundException('Payment not found');
+    }
+    if (payment.status !== PaymentStatus.RECEIPT_SUBMITTED) {
+      throw new BadRequestException('Payment is not awaiting receipt review');
+    }
+
+    await this.ordersRepository.rejectPaymentReceipt(paymentId, reviewedById, reason);
+    return { rejected: true, paymentId, orderId };
   }
 
   async listForUser(userId: string, query: OrdersQueryDto) {
@@ -108,11 +221,23 @@ export class OrdersService {
     totalToman: bigint | number;
     createdAt: Date;
     items: Array<{ quantity: number }>;
+    payments?: Array<{ status: PaymentStatus }>;
   }) {
+    const paymentStatus = order.payments?.[0]?.status;
     return {
       id: order.id,
       orderNumber: order.orderNumber,
-      status: order.status.toLowerCase(),
+      status: order.status.toLowerCase() as 'pending' | 'confirmed' | 'paid' | 'cancelled',
+      paymentStatus: paymentStatus
+        ? (paymentStatus.toLowerCase() as
+            | 'pending'
+            | 'awaiting_receipt'
+            | 'receipt_submitted'
+            | 'authorized'
+            | 'paid'
+            | 'failed'
+            | 'rejected')
+        : null,
       subtotalToman: tomanBigIntToNumber(order.subtotalToman),
       taxToman: tomanBigIntToNumber(order.taxToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
@@ -136,11 +261,13 @@ export class OrdersService {
       unitPriceToman: bigint | number;
       product: { title: string; slug: string };
     }>;
-    payments: Array<{
+      payments: Array<{
       id: string;
       status: string;
       provider: string;
       amountToman: bigint | number;
+      receiptUrl?: string | null;
+      rejectionReason?: string | null;
       createdAt: Date;
     }>;
   }) {
@@ -159,6 +286,8 @@ export class OrdersService {
         status: payment.status.toLowerCase(),
         provider: payment.provider,
         amountToman: tomanBigIntToNumber(payment.amountToman),
+        receiptUrl: payment.receiptUrl ?? null,
+        rejectionReason: payment.rejectionReason ?? null,
         createdAt: payment.createdAt.toISOString(),
       })),
     };

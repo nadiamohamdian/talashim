@@ -13,6 +13,7 @@ export {
   useOrder,
   useOrders,
   useRemoveCartItemMutation,
+  useUploadPaymentReceiptMutation,
   useUpsertCartItemMutation,
 } from './use-orders';
 export {

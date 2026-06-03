@@ -42,6 +42,7 @@ const SUPPORT_PERMISSIONS: AdminPermissionKey[] = [
   P.users.write,
   P.kyc.read,
   P.orders.read,
+  P.orders.write,
   P.notifications.read,
   P.tickets.read,
   P.tickets.write,
@@ -51,6 +52,7 @@ const ACCOUNTANT_PERMISSIONS: AdminPermissionKey[] = [
   P.dashboard.view,
   P.products.read,
   P.orders.read,
+  P.orders.write,
 ];
 
 const EDITOR_PERMISSIONS: AdminPermissionKey[] = [

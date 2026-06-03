@@ -9,6 +9,7 @@ import type {
   UpdateAdminOrderStatusDto,
 } from '../dto/admin-commerce.dto';
 import { AdminOrdersRepository } from '../repositories/admin-orders.repository';
+import { OrdersService } from '@/modules/orders/services/orders.service';
 
 type OrderListRow = Awaited<ReturnType<AdminOrdersRepository['listOrders']>>[0][number];
 type OrderDetailRow = NonNullable<
@@ -17,7 +18,10 @@ type OrderDetailRow = NonNullable<
 
 @Injectable()
 export class AdminOrdersService {
-  constructor(private readonly ordersRepository: AdminOrdersRepository) {}
+  constructor(
+    private readonly ordersRepository: AdminOrdersRepository,
+    private readonly ordersService: OrdersService,
+  ) {}
 
   async listOrders(query: AdminOrdersQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.orders.read);
@@ -68,7 +72,29 @@ export class AdminOrdersService {
     return this.mapDetail(updated);
   }
 
+  async approvePaymentReceipt(
+    orderId: string,
+    paymentId: string,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.orders.write);
+    await this.ordersService.approvePaymentReceipt(orderId, paymentId, actor.id);
+    return this.getOrder(orderId, actor);
+  }
+
+  async rejectPaymentReceipt(
+    orderId: string,
+    paymentId: string,
+    dto: { reason: string },
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.orders.write);
+    await this.ordersService.rejectPaymentReceipt(orderId, paymentId, actor.id, dto.reason);
+    return this.getOrder(orderId, actor);
+  }
+
   private mapListItem(order: OrderListRow): AdminOrderListItemDto {
+    const payment = order.payments[0] ?? null;
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -77,7 +103,14 @@ export class AdminOrdersService {
       taxToman: tomanBigIntToNumber(order.taxToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order._count.items,
-      paymentStatus: order.payments[0]?.status ?? null,
+      paymentStatus: payment?.status ?? null,
+      primaryPayment: payment
+        ? {
+            id: payment.id,
+            status: payment.status,
+            receiptUrl: payment.receiptUrl ?? null,
+          }
+        : null,
       user: order.user,
       createdAt: order.createdAt.toISOString(),
     };
@@ -112,6 +145,9 @@ export class AdminOrdersService {
         provider: payment.provider,
         reference: payment.reference,
         amountToman: tomanBigIntToNumber(payment.amountToman),
+        receiptUrl: payment.receiptUrl ?? null,
+        receiptUploadedAt: payment.receiptUploadedAt?.toISOString() ?? null,
+        rejectionReason: payment.rejectionReason ?? null,
         createdAt: payment.createdAt.toISOString(),
       })),
     };

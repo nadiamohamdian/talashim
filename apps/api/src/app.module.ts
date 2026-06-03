@@ -36,6 +36,7 @@ import { KycModule } from './modules/kyc/kyc.module';
 import { AddressesModule } from './modules/addresses/addresses.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ContactModule } from './modules/contact/contact.module';
+import { MediaModule } from './infrastructure/media/media.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { ContactModule } from './modules/contact/contact.module';
     AddressesModule,
     WishlistModule,
     ContactModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [

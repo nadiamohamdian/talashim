@@ -1,5 +1,6 @@
 import type { AccountSummary, OrderDetail, OrderSummary, PaginatedResponse } from '@sadafgold/types';
-import { apiDelete, apiGet, apiPost } from '@/lib/api/client';
+import type { CheckoutPaymentProvider } from '@sadafgold/types';
+import { apiDelete, apiGet, apiPost, apiClient } from '@/lib/api/client';
 import type { OrdersListParams } from '@/lib/api/query-keys';
 
 export interface CartItemResponse {
@@ -21,7 +22,8 @@ export interface CartResponse {
 
 export interface CheckoutPayload {
   cartId: string;
-  paymentProvider: string;
+  paymentProvider: CheckoutPaymentProvider;
+  shippingAddressId: string;
 }
 
 export const orderApi = {
@@ -53,6 +55,16 @@ export const orderApi = {
 
   checkout(payload: CheckoutPayload): Promise<OrderDetail> {
     return apiPost<OrderDetail>('/checkout', payload);
+  },
+
+  uploadPaymentReceipt(orderId: string, paymentId: string, file: File): Promise<OrderDetail> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient
+      .post<OrderDetail>(`/orders/${orderId}/payments/${paymentId}/receipt`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(({ data }) => data);
   },
 
   getCart(signal?: AbortSignal): Promise<CartResponse> {

@@ -132,3 +132,17 @@ export function updateAdminOrderStatus(id: string, status: string) {
     .patch<AdminOrderDetailDto>(`/admin/orders/${id}/status`, { status })
     .then((r) => r.data);
 }
+
+export function approveAdminPaymentReceipt(orderId: string, paymentId: string) {
+  return axiosClient
+    .post<AdminOrderDetailDto>(`/admin/orders/${orderId}/payments/${paymentId}/approve-receipt`)
+    .then((r) => r.data);
+}
+
+export function rejectAdminPaymentReceipt(orderId: string, paymentId: string, reason: string) {
+  return axiosClient
+    .post<AdminOrderDetailDto>(`/admin/orders/${orderId}/payments/${paymentId}/reject-receipt`, {
+      reason,
+    })
+    .then((r) => r.data);
+}

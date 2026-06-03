@@ -112,6 +112,11 @@ export interface AdminOrderListItemDto {
   totalToman: number;
   itemCount: number;
   paymentStatus: string | null;
+  primaryPayment: {
+    id: string;
+    status: string;
+    receiptUrl: string | null;
+  } | null;
   user: AdminOrderUserDto | null;
   createdAt: string;
 }
@@ -133,6 +138,9 @@ export interface AdminOrderPaymentDto {
   provider: string;
   reference: string | null;
   amountToman: number;
+  receiptUrl?: string | null;
+  receiptUploadedAt?: string | null;
+  rejectionReason?: string | null;
   createdAt: string;
 }
 

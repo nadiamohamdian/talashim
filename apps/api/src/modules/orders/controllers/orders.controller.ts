@@ -1,7 +1,19 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
+import type { UploadedImageFile } from '@/infrastructure/media/media-storage.service';
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { OrdersQueryDto } from '../dto/orders-query.dto';
@@ -23,6 +35,27 @@ export class OrdersListController {
   @ApiOperation({ summary: 'Account dashboard summary' })
   accountSummary(@CurrentUser() user: AuthenticatedUser) {
     return this.ordersService.getAccountSummary(user.id);
+  }
+
+  @Post(':orderId/payments/:paymentId/receipt')
+  @ApiOperation({ summary: 'Upload card-to-card payment receipt' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadReceipt(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('orderId') orderId: string,
+    @Param('paymentId') paymentId: string,
+    @UploadedFile() file: UploadedImageFile | undefined,
+  ) {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('فایل فیش واریز ارسال نشده است');
+    }
+    return this.ordersService.uploadPaymentReceipt(user.id, orderId, paymentId, {
+      buffer: file.buffer,
+      mimetype: file.mimetype,
+      size: file.size,
+      originalname: file.originalname,
+    });
   }
 
   @Get(':id')

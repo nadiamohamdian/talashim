@@ -1,6 +1,15 @@
 export type OrderStatus = 'pending' | 'confirmed' | 'paid' | 'cancelled';
 
-export type PaymentStatus = 'pending' | 'authorized' | 'paid' | 'failed';
+export type PaymentStatus =
+  | 'pending'
+  | 'awaiting_receipt'
+  | 'receipt_submitted'
+  | 'authorized'
+  | 'paid'
+  | 'failed'
+  | 'rejected';
+
+export type CheckoutPaymentProvider = 'card_to_card' | 'gateway' | 'credit';
 
 export interface OrderItemSummary {
   id: string;
@@ -15,6 +24,7 @@ export interface OrderSummary {
   id: string;
   orderNumber: string;
   status: OrderStatus;
+  paymentStatus: PaymentStatus | null;
   subtotalToman: number;
   taxToman: number;
   totalToman: number;
@@ -29,6 +39,8 @@ export interface OrderDetail extends OrderSummary {
     status: PaymentStatus;
     provider: string;
     amountToman: number;
+    receiptUrl?: string | null;
+    rejectionReason?: string | null;
     createdAt: string;
   }>;
 }

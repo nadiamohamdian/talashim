@@ -54,6 +54,24 @@ export function useUpsertCartItemMutation() {
   });
 }
 
+export function useUploadPaymentReceiptMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      orderId,
+      paymentId,
+      file,
+    }: {
+      orderId: string;
+      paymentId: string;
+      file: File;
+    }) => orderApi.uploadPaymentReceipt(orderId, paymentId, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+    },
+  });
+}
+
 export function useRemoveCartItemMutation() {
   const queryClient = useQueryClient();
   return useMutation({

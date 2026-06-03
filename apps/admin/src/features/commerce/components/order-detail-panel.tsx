@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
@@ -16,9 +16,34 @@ import {
   TableHeader,
   TableRow,
 } from '@talashim/ui';
-import { fetchAdminOrder, updateAdminOrderStatus } from '../api/commerce-api';
+import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
+import {
+  fetchAdminOrder,
+  updateAdminOrderStatus,
+  approveAdminPaymentReceipt,
+  rejectAdminPaymentReceipt,
+} from '../api/commerce-api';
 import { CommercePageShell } from './commerce-page-shell';
+import { PermissionGate } from '@/features/auth/components/permission-gate';
 import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
+
+function ReceiptPreview({ url }: { url: string }) {
+  const isPdf = url.toLowerCase().includes('.pdf');
+  return (
+    <div className="mt-2 overflow-hidden rounded-xl border border-border bg-stone-50">
+      {isPdf ? (
+        <a href={url} target="_blank" rel="noreferrer" className="block p-4 text-sm text-amber-800 underline">
+          باز کردن فایل PDF فیش
+        </a>
+      ) : (
+        <a href={url} target="_blank" rel="noreferrer">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt="فیش واریز" className="max-h-80 w-full object-contain" />
+        </a>
+      )}
+    </div>
+  );
+}
 
 interface OrderDetailPanelProps {
   orderId: string;
@@ -27,6 +52,7 @@ interface OrderDetailPanelProps {
 export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
   const queryClient = useQueryClient();
   const [nextStatus, setNextStatus] = useState('');
+  const [receiptActionMessage, setReceiptActionMessage] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['admin', 'commerce', 'order', orderId],
@@ -42,11 +68,23 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
     },
   });
 
-  useEffect(() => {
-    if (data?.status) {
-      setNextStatus(data.status);
-    }
-  }, [data?.status]);
+  const approveReceiptMutation = useMutation({
+    mutationFn: (paymentId: string) => approveAdminPaymentReceipt(orderId, paymentId),
+    onSuccess: () => {
+      setReceiptActionMessage('فیش تأیید شد و سفارش به وضعیت «تأیید شده» تغییر کرد.');
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'order', orderId] });
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'orders'] });
+    },
+  });
+
+  const rejectReceiptMutation = useMutation({
+    mutationFn: ({ paymentId, reason }: { paymentId: string; reason: string }) =>
+      rejectAdminPaymentReceipt(orderId, paymentId, reason),
+    onSuccess: () => {
+      setReceiptActionMessage('فیش رد شد. مشتری می‌تواند فیش جدید ارسال کند.');
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'order', orderId] });
+    },
+  });
 
   return (
     <CommercePageShell
@@ -91,27 +129,29 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
               </div>
             </dl>
 
-            <div className="mt-6 flex flex-wrap items-end gap-3 border-t border-border pt-4">
-              <div>
-                <Label>تغییر وضعیت سفارش</Label>
-                <select
-                  className={selectFieldClass}
-                  value={nextStatus}
-                  onChange={(e) => setNextStatus(e.target.value)}
+            <PermissionGate permission={ADMIN_PERMISSIONS.orders.write}>
+              <div className="mt-6 flex flex-wrap items-end gap-3 border-t border-border pt-4">
+                <div>
+                  <Label>تغییر وضعیت سفارش</Label>
+                  <select
+                    className={selectFieldClass}
+                    value={nextStatus || data.status}
+                    onChange={(e) => setNextStatus(e.target.value)}
+                  >
+                    {Object.entries(ORDER_STATUS_FA).map(([k, l]) => (
+                      <option key={k} value={k}>{l}</option>
+                    ))}
+                  </select>
+                </div>
+                <Button
+                  className="h-10 px-4"
+                  disabled={!nextStatus || nextStatus === data.status || statusMutation.isPending}
+                  onClick={() => statusMutation.mutate(nextStatus || data.status)}
                 >
-                  {Object.entries(ORDER_STATUS_FA).map(([k, l]) => (
-                    <option key={k} value={k}>{l}</option>
-                  ))}
-                </select>
+                  اعمال وضعیت
+                </Button>
               </div>
-              <Button
-                className="h-10 px-4"
-                disabled={!nextStatus || nextStatus === data.status || statusMutation.isPending}
-                onClick={() => statusMutation.mutate(nextStatus)}
-              >
-                اعمال وضعیت
-              </Button>
-            </div>
+            </PermissionGate>
             {statusMutation.isSuccess ? (
               <p className="mt-2 text-sm text-emerald-700">وضعیت سفارش به‌روزرسانی شد.</p>
             ) : null}
@@ -146,21 +186,71 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
           </Card>
 
           <Card className="border-border bg-white p-6">
-            <h3 className="font-medium">پرداخت‌ها</h3>
-            <ul className="mt-3 space-y-2 text-sm">
+            <h3 className="font-medium">پرداخت‌ها و فیش واریز</h3>
+            {receiptActionMessage ? (
+              <p className="mt-2 text-sm text-emerald-700">{receiptActionMessage}</p>
+            ) : null}
+            <ul className="mt-3 space-y-4 text-sm">
               {data.payments.length === 0 ? (
                 <li className="text-stone-500">پرداختی ثبت نشده.</li>
               ) : (
                 data.payments.map((p) => (
-                  <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-2">
-                    <span>
-                      {p.provider}
-                      {p.reference ? ` — ${p.reference}` : ''}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <Badge>{PAYMENT_STATUS_FA[p.status] ?? p.status}</Badge>
-                      <span>{formatToman(p.amountToman)} تومان</span>
-                    </span>
+                  <li key={p.id} className="rounded-xl border border-border p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span>
+                        {p.provider}
+                        {p.reference ? ` — ${p.reference}` : ''}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <Badge>{PAYMENT_STATUS_FA[p.status] ?? p.status}</Badge>
+                        <span>{formatToman(p.amountToman)} تومان</span>
+                      </span>
+                    </div>
+                    {p.receiptUrl ? (
+                      <div className="mt-3">
+                        <p className="text-xs text-stone-500">فیش واریز</p>
+                        <ReceiptPreview url={p.receiptUrl} />
+                        <a
+                          href={p.receiptUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-block text-sm text-amber-800 underline"
+                        >
+                          باز کردن در تب جدید
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-xs text-stone-500">فیشی بارگذاری نشده.</p>
+                    )}
+                    {p.rejectionReason ? (
+                      <p className="mt-2 text-xs text-rose-600">دلیل رد: {p.rejectionReason}</p>
+                    ) : null}
+                    {p.status === 'RECEIPT_SUBMITTED' ? (
+                      <PermissionGate permission={ADMIN_PERMISSIONS.orders.write}>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Button
+                            className="h-9 px-3 text-xs"
+                            disabled={approveReceiptMutation.isPending}
+                            onClick={() => approveReceiptMutation.mutate(p.id)}
+                          >
+                            تأیید فیش و نهایی‌سازی سفارش
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="h-9 px-3 text-xs"
+                            disabled={rejectReceiptMutation.isPending}
+                            onClick={() => {
+                              const reason = window.prompt('دلیل رد فیش:');
+                              if (reason?.trim()) {
+                                rejectReceiptMutation.mutate({ paymentId: p.id, reason: reason.trim() });
+                              }
+                            }}
+                          >
+                            رد فیش
+                          </Button>
+                        </div>
+                      </PermissionGate>
+                    ) : null}
                   </li>
                 ))
               )}
