@@ -25,7 +25,11 @@ export const productApi = {
   /** Client-side catalog list (authenticated/public). */
   list(params: ProductListParams = {}, signal?: AbortSignal): Promise<ProductSummary[]> {
     return apiGet<ProductSummary[]>('/catalog', {
-      params: { limit: params.limit ?? 24, category: params.category },
+      params: {
+        limit: params.limit ?? 24,
+        category: params.category,
+        sale: params.sale ? '1' : undefined,
+      },
       signal,
       abortKey: `products:list:${JSON.stringify(params)}`,
     });
@@ -95,9 +99,10 @@ export const productApi = {
     });
   },
 
-  async getProducts(limit = 24, category?: string): Promise<ProductSummary[]> {
+  async getProducts(limit = 24, category?: string, sale = false): Promise<ProductSummary[]> {
     const params = new URLSearchParams({ limit: String(limit) });
     if (category) params.set('category', category);
+    if (sale) params.set('sale', '1');
     const path = `/catalog?${params}`;
     const products = await serverFetchCatalogList<ProductSummary[]>(path, {
       revalidate: 60,

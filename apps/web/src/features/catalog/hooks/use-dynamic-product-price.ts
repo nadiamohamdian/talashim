@@ -7,7 +7,15 @@ import { useMarketPrices } from '@/lib/api/hooks/use-market-prices';
 
 type PricedProduct = Pick<
   ProductSummary,
-  'weightGram' | 'karat' | 'makingFeePercent' | 'priceToman' | 'pricing'
+  | 'weightGram'
+  | 'karat'
+  | 'makingFeePercent'
+  | 'priceToman'
+  | 'pricing'
+  | 'discountPercent'
+  | 'discountStartsAt'
+  | 'discountEndsAt'
+  | 'compareAtPriceToman'
 >;
 
 export function useDynamicProductPrice<T extends PricedProduct>(product: T): T {
@@ -25,6 +33,9 @@ export function useDynamicProductPrice<T extends PricedProduct>(product: T): T {
     product.makingFeePercent,
     product.priceToman,
     product.pricing?.pricedAt,
+    product.discountPercent,
+    product.discountStartsAt,
+    product.discountEndsAt,
     liveQuote?.pricePerGram,
     liveQuote?.recordedAt,
   ]);

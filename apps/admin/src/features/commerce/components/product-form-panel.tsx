@@ -10,12 +10,14 @@ import {
   fetchAdminProductBySlug,
   updateAdminProduct,
 } from '../api/commerce-api';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { CatalogPageShell } from './catalog-page-shell';
 import { ProductMediaFields } from './product-media-fields';
 import { ProductVariantFields } from './product-variant-fields';
 import { PRODUCT_CATEGORY_FA, selectFieldClass } from '../lib/labels';
 import {
   buildProductCreateBody,
+  ProductFormValidationError,
   toDatetimeLocalInput,
   validateProductForm,
   type ProductFormValues,
@@ -55,6 +57,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const [videos, setVideos] = useState<ProductVideoField[]>([]);
   const [variants, setVariants] = useState<ProductVariantField[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const detailQuery = useQuery({
     queryKey: ['admin', 'commerce', 'product-slug', slug],
@@ -132,9 +135,11 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
       const errors = validateProductForm(formValues, variants);
       if (errors.length > 0) {
         setValidationErrors(errors);
-        throw new Error(errors[0]);
+        setSubmitError(null);
+        throw new ProductFormValidationError(errors[0]);
       }
       setValidationErrors([]);
+      setSubmitError(null);
 
       const body = buildProductCreateBody(
         {
@@ -164,6 +169,12 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
     onSuccess: (product) => {
       router.push(`/products/${product.slug}`);
     },
+    onError: (error) => {
+      if (error instanceof ProductFormValidationError) {
+        return;
+      }
+      setSubmitError(getApiErrorMessage(error, 'ذخیره محصول ناموفق بود.'));
+    },
   });
 
   if (mode === 'edit' && detailQuery.isLoading) {
@@ -177,6 +188,21 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   return (
     <CatalogPageShell routeId={routeId}>
       <Card className="border-border bg-white p-6">
+        {validationErrors.length > 0 ? (
+          <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+            <p className="text-sm font-semibold text-rose-700">لطفاً موارد زیر را تکمیل کنید:</p>
+            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-rose-600">
+              {validationErrors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {submitError ? (
+          <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+            {submitError}
+          </div>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label>SKU *</Label>
@@ -348,16 +374,6 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             </Button>
           </Link>
         </div>
-        {validationErrors.length > 0 ? (
-          <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-rose-600">
-            {validationErrors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
-        ) : null}
-        {saveMutation.isError && validationErrors.length === 0 ? (
-          <p className="mt-3 text-sm text-rose-600">ذخیره ناموفق بود. فیلدها را بررسی کنید.</p>
-        ) : null}
       </Card>
     </CatalogPageShell>
   );

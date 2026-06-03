@@ -3,7 +3,11 @@
 import { useEffect, type PropsWithChildren } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdminAuthHydrated } from '../hooks/use-admin-auth-hydrated';
-import { syncAdminAuthCookieFromStore, useAdminAuthStore } from '../model/admin-auth-store';
+import {
+  syncAdminAuthCookieFromStore,
+  useAdminAuthStore,
+} from '../model/admin-auth-store';
+import { clearLegacyAdminAuthCookies } from '../lib/clear-legacy-admin-cookies';
 import { AdminAuthBootScreen } from './admin-auth-boot-screen';
 
 export function AdminGuard({ children }: PropsWithChildren) {
@@ -18,9 +22,12 @@ export function AdminGuard({ children }: PropsWithChildren) {
   }, [hydrated]);
 
   useEffect(() => {
-    if (hydrated && !isAdmin) {
-      router.replace('/login');
+    if (!hydrated || isAdmin) {
+      return;
     }
+    clearLegacyAdminAuthCookies();
+    useAdminAuthStore.getState().clearSession();
+    router.replace('/login');
   }, [hydrated, isAdmin, router]);
 
   if (!hydrated) {

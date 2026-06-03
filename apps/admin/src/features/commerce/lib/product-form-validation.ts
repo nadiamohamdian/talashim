@@ -1,6 +1,13 @@
 import type { GalleryImageField, ProductVideoField } from '../components/product-media-fields';
 import type { ProductVariantField } from '../components/product-variant-fields';
 
+export class ProductFormValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ProductFormValidationError';
+  }
+}
+
 export type ProductFormValues = {
   sku: string;
   title: string;

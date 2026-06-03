@@ -73,6 +73,10 @@ export interface ProductSummary {
   weightGram: number;
   makingFeePercent: number;
   priceToman: number;
+  compareAtPriceToman?: number | null;
+  discountPercent?: number | null;
+  discountStartsAt?: string | null;
+  discountEndsAt?: string | null;
   imageUrl: string;
   inventory: number;
   featured?: boolean;

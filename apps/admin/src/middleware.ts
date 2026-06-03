@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { ADMIN_ACCESS_TOKEN_COOKIE } from '@talashim/shared/constants/auth';
 
-const ADMIN_COOKIE = 'talashim-admin-access-token';
+/** Legacy cookie from older admin builds — cleared on login routes to stop redirect loops. */
+const LEGACY_ADMIN_COOKIE = 'talashim-admin-access-token';
 const LOGIN_PATH = '/login';
 
 const DEV_AUTH_BYPASS =
@@ -27,8 +29,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(ADMIN_COOKIE)?.value;
+  const token = request.cookies.get(ADMIN_ACCESS_TOKEN_COOKIE)?.value;
+  const legacyToken = request.cookies.get(LEGACY_ADMIN_COOKIE)?.value;
   const isLogin = isPublicPath(pathname);
+
+  if (legacyToken && isLogin) {
+    const response = NextResponse.next();
+    response.cookies.set(LEGACY_ADMIN_COOKIE, '', { path: '/', maxAge: 0 });
+    return response;
+  }
 
   if (!DEV_AUTH_BYPASS && !isLogin && !token) {
     const loginUrl = new URL(LOGIN_PATH, request.url);

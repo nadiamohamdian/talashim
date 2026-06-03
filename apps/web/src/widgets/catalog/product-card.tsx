@@ -36,10 +36,22 @@ export function ProductCard({ product }: ProductCardProps) {
           </h3>
         </Link>
         <p className="text-xs text-muted">وزن {product.weightGram} گرم</p>
-        <p className="text-base font-bold text-gold-dark">
-          {formatPrice(priced.priceToman)}{' '}
-          <span className="text-xs font-normal text-muted">تومان</span>
-        </p>
+        <div className="space-y-1">
+          {priced.compareAtPriceToman && priced.compareAtPriceToman > priced.priceToman ? (
+            <p className="text-xs text-muted line-through">
+              {formatPrice(priced.compareAtPriceToman)} تومان
+            </p>
+          ) : null}
+          <p className="text-base font-bold text-gold-dark">
+            {formatPrice(priced.priceToman)}{' '}
+            <span className="text-xs font-normal text-muted">تومان</span>
+          </p>
+          {product.discountPercent ? (
+            <span className="badge-gold inline-flex text-[11px]">
+              {product.discountPercent}٪ تخفیف
+            </span>
+          ) : null}
+        </div>
         {priced.pricing ? (
           <p className="text-[11px] leading-5 text-muted">
             قیمت لحظه‌ای: ارزش طلا + اجرت {product.makingFeePercent}٪

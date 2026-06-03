@@ -11,9 +11,9 @@
     "dev": "turbo run dev --parallel --continue",
     "dev:web": "pnpm --filter @talashim/web dev",
     "dev:store": "pnpm --filter @talashim/web dev",
-    "dev:admin": "pnpm --filter @talashim/admin dev",
-    "dev:api": "pnpm --filter @talashim/api start:dev",
-    "dev:worker": "pnpm --filter @talashim/worker start:dev",
+    "dev:admin": "pnpm --filter @sadafgold/admin dev",
+    "dev:api": "pnpm --filter @sadafgold/api dev",
+    "dev:worker": "pnpm --filter @sadafgold/worker dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
@@ -26,13 +26,6 @@
     "docker:prod:ssl": "docker compose -f docker-compose.prod.yml -f docker-compose.ssl.yml --env-file .env.production up -d",
     "deploy": "bash scripts/deploy.sh",
     "deploy:health": "bash scripts/health-check.sh"
-  },
-  "pnpm": {
-    "overrides": {
-      "react": "19.2.6",
-      "react-dom": "19.2.6",
-      "typescript": "6.0.3"
-    }
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

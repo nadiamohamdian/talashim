@@ -5,12 +5,13 @@ import { useAdminAuthStore } from '../model/admin-auth-store';
 
 function subscribe(onStoreChange: () => void) {
   const persistApi = useAdminAuthStore.persist;
+  const unsubscribe = persistApi.onFinishHydration(onStoreChange);
 
   if (persistApi.hasHydrated()) {
-    return () => {};
+    onStoreChange();
   }
 
-  return persistApi.onFinishHydration(onStoreChange);
+  return unsubscribe;
 }
 
 function getHydratedSnapshot() {

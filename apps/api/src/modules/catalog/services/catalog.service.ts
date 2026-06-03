@@ -1,5 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { calculateJewelryPricing } from '@sadafgold/shared';
+import {
+  applyDiscountToPrice,
+  calculateJewelryPricing,
+  isProductDiscountActive,
+} from '@sadafgold/shared';
 import type { ProductPricing } from '@sadafgold/types';
 import { ProductCategory, type Product } from '@/generated/prisma';
 import { CacheService } from '@/infrastructure/cache/cache.service';
@@ -50,11 +54,12 @@ export class CatalogService {
     const page = query.page ?? 1;
     const skip = (page - 1) * limit;
     const search = query.search?.trim() || undefined;
+    const onSale = query.sale === true;
 
     if (query.page !== undefined || query.search) {
       const [products, total] = await Promise.all([
-        this.catalogRepository.findAll(limit, category, search, skip),
-        this.catalogRepository.countAll(category, search),
+        this.catalogRepository.findAll(limit, category, search, skip, onSale),
+        this.catalogRepository.countAll(category, search, onSale),
       ]);
       const items = await Promise.all(
         products.map((product) => this.toProductSummary(product)),
@@ -62,7 +67,7 @@ export class CatalogService {
       return { page, limit, total, items };
     }
 
-    const products = await this.catalogRepository.findAll(limit, category, search);
+    const products = await this.catalogRepository.findAll(limit, category, search, 0, onSale);
     return Promise.all(products.map((product) => this.toProductSummary(product)));
   }
 
@@ -117,6 +122,19 @@ export class CatalogService {
 
   private async toProductSummary(product: ProductWithInventory) {
     const pricing = await this.resolvePricing(product);
+    const discountMeta = {
+      discountPercent: product.discountPercent,
+      discountStartsAt: product.discountStartsAt?.toISOString() ?? null,
+      discountEndsAt: product.discountEndsAt?.toISOString() ?? null,
+    };
+
+    let priceToman = pricing.finalPriceToman;
+    let compareAtPriceToman: number | null = null;
+
+    if (isProductDiscountActive(discountMeta) && product.discountPercent != null) {
+      compareAtPriceToman = priceToman;
+      priceToman = applyDiscountToPrice(priceToman, product.discountPercent);
+    }
 
     return {
       id: product.id,
@@ -127,7 +145,11 @@ export class CatalogService {
       karat: product.karat,
       weightGram: Number(product.weightGram),
       makingFeePercent: product.makingFeePercent,
-      priceToman: pricing.finalPriceToman,
+      priceToman,
+      compareAtPriceToman,
+      discountPercent: product.discountPercent,
+      discountStartsAt: discountMeta.discountStartsAt,
+      discountEndsAt: discountMeta.discountEndsAt,
       imageUrl: product.imageUrl,
       inventory:
         (product.inventoryItem?.quantity ?? 0) -

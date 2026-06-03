@@ -28,8 +28,57 @@ export function calculateJewelryPricing(input: JewelryPricingInput): ProductPric
   };
 }
 
+export interface ProductDiscountInput {
+  discountPercent?: number | null;
+  discountStartsAt?: string | Date | null;
+  discountEndsAt?: string | Date | null;
+  compareAtPriceToman?: number | null;
+}
+
+export function isProductDiscountActive(
+  product: ProductDiscountInput,
+  now: Date = new Date(),
+): boolean {
+  const percent = product.discountPercent;
+  if (percent == null || percent <= 0 || !product.discountEndsAt) {
+    return false;
+  }
+
+  const endsAt = new Date(product.discountEndsAt);
+  if (Number.isNaN(endsAt.getTime()) || endsAt <= now) {
+    return false;
+  }
+
+  if (product.discountStartsAt) {
+    const startsAt = new Date(product.discountStartsAt);
+    if (!Number.isNaN(startsAt.getTime()) && startsAt > now) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function applyDiscountToPrice(finalPriceToman: number, discountPercent: number): number {
+  return Math.round(finalPriceToman * (1 - discountPercent / 100));
+}
+
+function withActiveDiscount<
+  T extends ProductDiscountInput & { priceToman: number },
+>(product: T, basePriceToman: number): T {
+  if (!isProductDiscountActive(product) || product.discountPercent == null) {
+    return { ...product, priceToman: basePriceToman, compareAtPriceToman: null };
+  }
+
+  return {
+    ...product,
+    compareAtPriceToman: basePriceToman,
+    priceToman: applyDiscountToPrice(basePriceToman, product.discountPercent),
+  };
+}
+
 export function applyLivePricingToProduct<
-  T extends {
+  T extends ProductDiscountInput & {
     weightGram: number;
     karat: number;
     makingFeePercent: number;
@@ -44,15 +93,17 @@ export function applyLivePricingToProduct<
     makingFeePercent: product.makingFeePercent,
   });
 
-  return {
-    ...product,
-    priceToman: pricing.finalPriceToman,
-    pricing,
-  };
+  return withActiveDiscount(
+    {
+      ...product,
+      pricing,
+    },
+    pricing.finalPriceToman,
+  );
 }
 
 export function applyLivePricingToProducts<
-  T extends {
+  T extends ProductDiscountInput & {
     weightGram: number;
     karat: number;
     makingFeePercent: number;

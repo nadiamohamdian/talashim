@@ -2,6 +2,11 @@ packages:
   - apps/*
   - packages/*
 
+overrides:
+  react: 19.2.6
+  react-dom: 19.2.6
+  typescript: 6.0.3
+
 # Centralized production versions — use "catalog:" in package.json dependencies
 catalog:
   # Frontend core (Next.js 16 + React 19.2)

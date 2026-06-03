@@ -3,6 +3,7 @@ import type { TradeSide } from '@sadafgold/types';
 export interface ProductListParams {
   limit?: number;
   category?: string;
+  sale?: boolean;
 }
 
 export interface ProductSearchParams {

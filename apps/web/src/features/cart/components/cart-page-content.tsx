@@ -7,6 +7,7 @@ import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
 import { useRemoveCartItemMutation } from '@/lib/api';
 import { formatPrice } from '@/shared/lib/format-price';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
+import { syncAuthCookieFromStore } from '@/features/auth/model/auth-store';
 import { IconMinus, IconPlus, IconTrash } from '@/shared/ui/icons';
 import { Skeleton } from '@sadafgold/ui';
 
@@ -145,6 +146,11 @@ export function CartPageContent() {
         </div>
         <Link
           href={isAuthenticated ? '/checkout' : buildLoginHref('/checkout')}
+          onClick={() => {
+            if (isAuthenticated) {
+              syncAuthCookieFromStore();
+            }
+          }}
           className="btn-gold mt-5 block w-full py-3 text-center"
         >
           {isAuthenticated ? 'ادامه تسویه حساب' : 'ورود برای تسویه'}
