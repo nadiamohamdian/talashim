@@ -11,7 +11,7 @@ function jalCal(jy: number) {
   let leapJ = -14;
   let jp = breaks[0]!;
   let jm: number;
-  let jump: number;
+  let jump = 0;
   let leap: number;
   let n: number;
   let i: number;
@@ -143,10 +143,14 @@ export function daysInJalaaliMonth(jy: number, jm: number): number {
   return r.leap === 0 ? 30 : 29;
 }
 
+function formatPlainFa(value: number, options?: Intl.NumberFormatOptions): string {
+  return value.toLocaleString('fa-IR', { useGrouping: false, ...options });
+}
+
 export function formatJalaaliDateTime(date: Date): string {
   const { jy, jm, jd, hour, minute } = toJalaali(date);
   const month = JALAALI_MONTHS_FA[jm - 1] ?? String(jm);
-  return `${jd.toLocaleString('fa-IR')} ${month} ${jy.toLocaleString('fa-IR')}، ${hour.toLocaleString('fa-IR', { minimumIntegerDigits: 2 })}:${minute.toLocaleString('fa-IR', { minimumIntegerDigits: 2 })}`;
+  return `${formatPlainFa(jd)} ${month} ${formatPlainFa(jy)} ${formatPlainFa(hour, { minimumIntegerDigits: 2 })}:${formatPlainFa(minute, { minimumIntegerDigits: 2 })}`;
 }
 
 export function parseDateInput(value: Date | string): Date | null {
@@ -162,7 +166,7 @@ export function formatPersianDate(value: Date | string): string {
   }
   const { jy, jm, jd } = toJalaali(date);
   const month = JALAALI_MONTHS_FA[jm - 1] ?? String(jm);
-  return `${jd.toLocaleString('fa-IR')} ${month} ${jy.toLocaleString('fa-IR')}`;
+  return `${formatPlainFa(jd)} ${month} ${formatPlainFa(jy)}`;
 }
 
 /** تاریخ و ساعت شمسی */

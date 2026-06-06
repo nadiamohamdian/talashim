@@ -23,7 +23,7 @@ import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CatalogPageShell } from './catalog-page-shell';
 import { INVENTORY_MOVEMENT_FA, selectFieldClass } from '../lib/labels';
 
-export function InventoryHistoryPanel() {
+export function InventoryHistoryContent() {
   const [page, setPage] = useState(1);
   const [productId, setProductId] = useState('');
   const [type, setType] = useState('');
@@ -39,7 +39,7 @@ export function InventoryHistoryPanel() {
   });
 
   return (
-    <CatalogPageShell routeId="inventory.history">
+    <>
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>شناسه محصول</Label>
@@ -103,6 +103,14 @@ export function InventoryHistoryPanel() {
       {data ? (
         <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
+    </>
+  );
+}
+
+export function InventoryHistoryPanel() {
+  return (
+    <CatalogPageShell routeId="inventory.history">
+      <InventoryHistoryContent />
     </CatalogPageShell>
   );
 }

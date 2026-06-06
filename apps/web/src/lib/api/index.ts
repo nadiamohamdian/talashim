@@ -84,19 +84,6 @@ export {
 } from './user.api';
 export type { KycStatusResponse, UpdateProfilePayload, UserProfile } from './user.api';
 
-export {
-  adminApi,
-  getAnalytics,
-  listAuditLogs,
-  listKyc,
-  listTradeOrders,
-  listUsers,
-  listWalletTransactions,
-  listWallets,
-  reviewKyc,
-  updateUserRole,
-} from './admin.api';
-
 export { queryKeys } from './query-keys';
 export type {
   AdminUsersParams,

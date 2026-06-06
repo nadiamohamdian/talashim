@@ -1,5 +1,5 @@
-import { InventoryHistoryPanel } from '@/features/commerce/components/inventory-history-panel';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <InventoryHistoryPanel />;
+  redirect('/inventory');
 }

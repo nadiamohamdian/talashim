@@ -24,6 +24,7 @@ import { adminQueryKeys } from '@/lib/api/query-keys';
 import { AdminApiError } from '@/shared/ui/admin-api-error';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
+import { PersianDatePicker } from '@/shared/ui/persian-date-picker';
 import { CommercePageShell } from './commerce-page-shell';
 import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
 
@@ -78,13 +79,25 @@ export function OrdersListPanel() {
             ))}
           </select>
         </div>
-        <div>
-          <Label>از</Label>
-          <Input className="mt-1" type="date" value={from} onChange={(e) => { setFrom(e.target.value); setPage(1); }} />
+        <div className="min-w-[220px]">
+          <PersianDatePicker
+            label="از"
+            value={from}
+            onChange={(value) => {
+              setFrom(value);
+              setPage(1);
+            }}
+          />
         </div>
-        <div>
-          <Label>تا</Label>
-          <Input className="mt-1" type="date" value={to} onChange={(e) => { setTo(e.target.value); setPage(1); }} />
+        <div className="min-w-[220px]">
+          <PersianDatePicker
+            label="تا"
+            value={to}
+            onChange={(value) => {
+              setTo(value);
+              setPage(1);
+            }}
+          />
         </div>
       </FilterBar>
 

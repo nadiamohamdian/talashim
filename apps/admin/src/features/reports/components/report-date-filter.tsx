@@ -1,7 +1,7 @@
 'use client';
 
-import { Label } from '@talashim/ui';
 import { FilterBar } from '@/widgets/admin/filter-bar';
+import { PersianDatePicker } from '@/shared/ui/persian-date-picker';
 import { fromDateInputValue, toDateInputValue } from '../lib/date-range';
 
 interface ReportDateFilterProps {
@@ -21,24 +21,21 @@ export function ReportDateFilter({
 }: ReportDateFilterProps) {
   return (
     <FilterBar>
-      <div>
-        <Label htmlFor="report-from">از تاریخ</Label>
-        <input
-          id="report-from"
-          type="date"
-          className="mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm"
-          value={toDateInputValue(from)}
-          onChange={(e) => onFromChange(fromDateInputValue(e.target.value))}
+      <div className="min-w-[220px]">
+        <PersianDatePicker
+          label="از تاریخ"
+          value={from ? toDateInputValue(from) : ''}
+          valueFormat="iso"
+          onChange={(value) => onFromChange(value ? fromDateInputValue(value) : '')}
         />
       </div>
-      <div>
-        <Label htmlFor="report-to">تا تاریخ</Label>
-        <input
-          id="report-to"
-          type="date"
-          className="mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm"
-          value={toDateInputValue(to)}
-          onChange={(e) => onToChange(fromDateInputValue(e.target.value, true))}
+      <div className="min-w-[220px]">
+        <PersianDatePicker
+          label="تا تاریخ"
+          value={to ? toDateInputValue(to) : ''}
+          valueFormat="iso"
+          endOfDay
+          onChange={(value) => onToChange(value ? fromDateInputValue(value, true) : '')}
         />
       </div>
       {children}

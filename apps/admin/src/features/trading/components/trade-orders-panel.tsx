@@ -21,6 +21,7 @@ import { fetchTradingOrders } from '../api/trading-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
+import { PersianDatePicker } from '@/shared/ui/persian-date-picker';
 import { AdminSubnavLinks } from '@/features/admin/components/admin-subnav-links';
 import { TradingPageShell } from './trading-page-shell';
 import {
@@ -111,26 +112,22 @@ export function TradeOrdersPanel({
         ) : null}
         {showDateFilter ? (
           <>
-            <div>
-              <Label>از تاریخ</Label>
-              <Input
-                className="mt-1"
-                type="date"
+            <div className="min-w-[220px]">
+              <PersianDatePicker
+                label="از تاریخ"
                 value={from}
-                onChange={(e) => {
-                  setFrom(e.target.value);
+                onChange={(value) => {
+                  setFrom(value);
                   setPage(1);
                 }}
               />
             </div>
-            <div>
-              <Label>تا تاریخ</Label>
-              <Input
-                className="mt-1"
-                type="date"
+            <div className="min-w-[220px]">
+              <PersianDatePicker
+                label="تا تاریخ"
                 value={to}
-                onChange={(e) => {
-                  setTo(e.target.value);
+                onChange={(value) => {
+                  setTo(value);
                   setPage(1);
                 }}
               />

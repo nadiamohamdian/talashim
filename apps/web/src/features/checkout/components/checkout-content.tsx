@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Button, Skeleton } from '@sadafgold/ui';
 import {
   CHECKOUT_PAYMENT_LABELS,
@@ -14,7 +14,7 @@ import { useStorefrontSettings } from '@/shared/providers/storefront-settings-pr
 import { formatPrice } from '@/shared/lib/format-price';
 import { getApiErrorMessage } from '@/lib/api';
 import { useAddresses } from '@/features/account/hooks/use-addresses';
-import { useCheckoutMutation, useCart } from '@/lib/api';
+import { useCheckoutMutation, useCart, useUploadPaymentReceiptMutation } from '@/lib/api';
 import { CheckoutSuccessDialog } from '@/features/checkout/components/checkout-success-dialog';
 
 export function CheckoutContent() {
@@ -24,11 +24,15 @@ export function CheckoutContent() {
   const { data: cart, isLoading: cartLoading, isError: cartError, refetch } = useCart();
   const { data: addresses, isLoading: addressesLoading } = useAddresses();
   const checkoutMutation = useCheckoutMutation();
+  const uploadReceiptMutation = useUploadPaymentReceiptMutation();
+  const receiptInputRef = useRef<HTMLInputElement>(null);
 
   const [addressId, setAddressId] = useState('');
   const [paymentProvider, setPaymentProvider] = useState<CheckoutPaymentProvider>(
     paymentProviders[0] ?? 'card_to_card',
   );
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [successOrder, setSuccessOrder] = useState<{ orderNumber: string; message: string } | null>(
     null,
   );
@@ -74,7 +78,66 @@ export function CheckoutContent() {
     getApiErrorMessage(checkoutMutation.error, 'ثبت سفارش ناموفق بود');
 
   const canSubmit =
-    Boolean(selectedAddressId) && !checkoutMutation.isPending && !belowMinOrder;
+    Boolean(selectedAddressId) &&
+    !checkoutMutation.isPending &&
+    !uploadReceiptMutation.isPending &&
+    !belowMinOrder;
+
+  const handleReceiptSelect = (file: File | undefined) => {
+    if (!file) {
+      return;
+    }
+    setReceiptFile(file);
+    setReceiptPreview(URL.createObjectURL(file));
+  };
+
+  const submitOrder = () => {
+    checkoutMutation.mutate(
+      {
+        cartId: cart.id!,
+        paymentProvider,
+        shippingAddressId: selectedAddressId,
+      },
+      {
+        onSuccess: (order) => {
+          const pendingPayment = order.payments.find(
+            (payment) =>
+              payment.status === 'awaiting_receipt' || payment.status === 'pending',
+          );
+
+          if (paymentProvider === 'card_to_card' && receiptFile && pendingPayment) {
+            uploadReceiptMutation.mutate(
+              { orderId: order.id, paymentId: pendingPayment.id, file: receiptFile },
+              {
+                onSuccess: () => {
+                  setSuccessOrder({
+                    orderNumber: order.orderNumber,
+                    message: 'سفارش ثبت شد و فیش واریز برای بررسی ارسال شد.',
+                  });
+                },
+                onError: () => {
+                  setSuccessOrder({
+                    orderNumber: order.orderNumber,
+                    message:
+                      'سفارش ثبت شد اما بارگذاری فیش ناموفق بود. لطفاً از جزئیات سفارش دوباره تلاش کنید.',
+                  });
+                },
+              },
+            );
+            return;
+          }
+
+          setSuccessOrder({
+            orderNumber: order.orderNumber,
+            message:
+              paymentProvider === 'card_to_card'
+                ? 'سفارش ثبت شد. لطفاً فیش واریز را در جزئیات سفارش بارگذاری کنید.'
+                : 'سفارش شما ثبت شد.',
+          });
+        },
+      },
+    );
+  };
 
   return (
     <>
@@ -156,23 +219,62 @@ export function CheckoutContent() {
               );
             })}
             {paymentProvider === 'card_to_card' ? (
-              <div className="rounded-2xl border border-nude-200 bg-nude-50/70 p-4 text-xs leading-7 text-stone-700">
-                <p>
-                  <span className="font-semibold">بانک:</span> {DEFAULT_CARD_TO_CARD_INFO.bankName}
-                </p>
-                <p>
-                  <span className="font-semibold">به نام:</span>{' '}
-                  {DEFAULT_CARD_TO_CARD_INFO.accountHolder}
-                </p>
-                <p className="font-mono">
-                  <span className="font-sans font-semibold">کارت:</span>{' '}
-                  {DEFAULT_CARD_TO_CARD_INFO.cardNumber}
-                </p>
-                <p className="font-mono">
-                  <span className="font-sans font-semibold">شبا:</span>{' '}
-                  {DEFAULT_CARD_TO_CARD_INFO.iban}
-                </p>
-              </div>
+              <>
+                <div className="rounded-2xl border border-nude-200 bg-nude-50/70 p-4 text-xs leading-7 text-stone-700">
+                  <p>
+                    <span className="font-semibold">بانک:</span> {DEFAULT_CARD_TO_CARD_INFO.bankName}
+                  </p>
+                  <p>
+                    <span className="font-semibold">به نام:</span>{' '}
+                    {DEFAULT_CARD_TO_CARD_INFO.accountHolder}
+                  </p>
+                  <p className="font-mono">
+                    <span className="font-sans font-semibold">کارت:</span>{' '}
+                    {DEFAULT_CARD_TO_CARD_INFO.cardNumber}
+                  </p>
+                  <p className="font-mono">
+                    <span className="font-sans font-semibold">شبا:</span>{' '}
+                    {DEFAULT_CARD_TO_CARD_INFO.iban}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-nude-200 bg-white p-4">
+                  <h3 className="text-sm font-semibold text-foreground">بارگذاری فیش کارت‌به‌کارت</h3>
+                  <p className="mt-1 text-xs leading-6 text-muted">
+                    پس از واریز، تصویر فیش را همین‌جا بارگذاری کنید تا همراه ثبت سفارش برای بررسی ارسال شود.
+                  </p>
+                  <input
+                    ref={receiptInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(event) => {
+                      handleReceiptSelect(event.target.files?.[0]);
+                      event.target.value = '';
+                    }}
+                  />
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={checkoutMutation.isPending || uploadReceiptMutation.isPending}
+                      onClick={() => receiptInputRef.current?.click()}
+                    >
+                      {receiptFile ? 'تغییر تصویر فیش' : 'انتخاب تصویر فیش'}
+                    </Button>
+                    {receiptFile ? (
+                      <span className="text-xs text-muted">{receiptFile.name}</span>
+                    ) : null}
+                  </div>
+                  {receiptPreview ? (
+                    <img
+                      src={receiptPreview}
+                      alt="پیش‌نمایش فیش"
+                      className="mt-3 max-h-48 rounded-xl border border-nude-200 object-contain"
+                    />
+                  ) : null}
+                </div>
+              </>
             ) : null}
           </section>
         </div>
@@ -213,28 +315,11 @@ export function CheckoutContent() {
           <Button
             className="w-full"
             disabled={!canSubmit}
-            onClick={() =>
-              checkoutMutation.mutate(
-                {
-                  cartId: cart.id!,
-                  paymentProvider,
-                  shippingAddressId: selectedAddressId,
-                },
-                {
-                  onSuccess: (order) => {
-                    setSuccessOrder({
-                      orderNumber: order.orderNumber,
-                      message:
-                        paymentProvider === 'card_to_card'
-                          ? 'لطفاً فیش واریز را در جزئیات سفارش بارگذاری کنید.'
-                          : 'سفارش شما ثبت شد.',
-                    });
-                  },
-                },
-              )
-            }
+            onClick={submitOrder}
           >
-            {checkoutMutation.isPending ? 'در حال ثبت...' : 'ثبت سفارش'}
+            {checkoutMutation.isPending || uploadReceiptMutation.isPending
+              ? 'در حال ثبت...'
+              : 'ثبت سفارش'}
           </Button>
           {error ? <p className="text-sm text-rose-600">{error}</p> : null}
         </aside>

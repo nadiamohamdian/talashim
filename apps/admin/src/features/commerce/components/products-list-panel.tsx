@@ -62,7 +62,6 @@ export function ProductsListPanel() {
         links={[
           { href: '/products', label: 'محصولات' },
           { href: '/inventory', label: 'موجودی' },
-          { href: '/inventory/history', label: 'تاریخچه موجودی' },
           { href: '/products/videos', label: 'ویدیوها' },
         ]}
       />

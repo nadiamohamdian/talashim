@@ -197,7 +197,9 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     permission: ADMIN_PERMISSIONS.inventory.read,
     availability: 'live',
     parentId: 'inventory.overview',
+    nav: false,
     navOrder: 30,
+    description: 'ادغام‌شده در صفحه موجودی انبار',
   }),
   r({
     id: 'inventory.reports',

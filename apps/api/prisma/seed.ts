@@ -1,7 +1,7 @@
 import argon2 from 'argon2';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
-import { KycStatus, PrismaClient, ProductCategory, Role } from '../src/generated/prisma';
+import { KycStatus, OrderStatus, PaymentStatus, PrismaClient, ProductCategory, Role } from '../src/generated/prisma';
 import {
   DEFAULT_CMS_HERO,
   DEFAULT_CMS_SECTIONS,
@@ -215,6 +215,132 @@ async function main() {
         quantity: item.quantity,
       },
     });
+  }
+
+  const customerAddress = await prisma.address.upsert({
+    where: { id: 'seed-customer-address-1' },
+    update: {
+      userId: customer.id,
+      title: 'منزل',
+      recipient: customer.fullName,
+      phone: DEV_CUSTOMER_ACCOUNT.otpPhone,
+      line1: 'خیابان ولیعصر، پلاک ۱۲۳',
+      city: 'تهران',
+      state: 'تهران',
+      postalCode: '1234567890',
+    },
+    create: {
+      id: 'seed-customer-address-1',
+      userId: customer.id,
+      title: 'منزل',
+      recipient: customer.fullName,
+      phone: DEV_CUSTOMER_ACCOUNT.otpPhone,
+      line1: 'خیابان ولیعصر، پلاک ۱۲۳',
+      city: 'تهران',
+      state: 'تهران',
+      postalCode: '1234567890',
+    },
+  });
+
+  const seedProduct = await prisma.product.findFirstOrThrow({
+    where: { slug: 'van-cleef-alhambra-ring' },
+  });
+
+  const fakeReceiptUrl =
+    'https://images.unsplash.com/photo-1563013547-824ae1b704d4?auto=format&fit=crop&w=800&q=80';
+
+  const seedOrders = [
+    {
+      orderNumber: 'TL-SEED-C2C-001',
+      status: OrderStatus.PENDING,
+      paymentStatus: PaymentStatus.AWAITING_RECEIPT,
+      receiptUrl: null as string | null,
+      note: 'در انتظار بارگذاری فیش',
+    },
+    {
+      orderNumber: 'TL-SEED-C2C-002',
+      status: OrderStatus.PENDING,
+      paymentStatus: PaymentStatus.RECEIPT_SUBMITTED,
+      receiptUrl: fakeReceiptUrl,
+      note: 'فیش ارسال شده — آماده تأیید ادمین',
+    },
+    {
+      orderNumber: 'TL-SEED-C2C-003',
+      status: OrderStatus.PENDING,
+      paymentStatus: PaymentStatus.REJECTED,
+      receiptUrl: fakeReceiptUrl,
+      rejectionReason: 'مبلغ واریزی با سفارش مطابقت ندارد.',
+      note: 'فیش رد شده — مشتری می‌تواند دوباره ارسال کند',
+    },
+  ] as const;
+
+  for (const [index, seedOrder] of seedOrders.entries()) {
+    const unitPriceToman = 12_500_000n + BigInt(index) * 500_000n;
+    const subtotalToman = unitPriceToman;
+    const taxToman = 1_125_000n;
+    const totalToman = subtotalToman + taxToman;
+
+    await prisma.order.upsert({
+      where: { orderNumber: seedOrder.orderNumber },
+      update: {
+        userId: customer.id,
+        shippingAddressId: customerAddress.id,
+        status: seedOrder.status,
+        subtotalToman,
+        taxToman,
+        totalToman,
+      },
+      create: {
+        orderNumber: seedOrder.orderNumber,
+        userId: customer.id,
+        shippingAddressId: customerAddress.id,
+        status: seedOrder.status,
+        subtotalToman,
+        taxToman,
+        totalToman,
+        items: {
+          create: {
+            productId: seedProduct.id,
+            quantity: 1,
+            unitPriceToman,
+          },
+        },
+        payments: {
+          create: {
+            provider: 'card_to_card',
+            status: seedOrder.paymentStatus,
+            amountToman: totalToman,
+            reference: `C2C-${seedOrder.orderNumber}`,
+            receiptUrl: seedOrder.receiptUrl,
+            receiptUploadedAt: seedOrder.receiptUrl ? new Date() : null,
+            rejectionReason:
+              'rejectionReason' in seedOrder ? seedOrder.rejectionReason : null,
+          },
+        },
+      },
+    });
+
+    const existingPayment = await prisma.payment.findFirst({
+      where: { order: { orderNumber: seedOrder.orderNumber } },
+    });
+
+    if (existingPayment) {
+      await prisma.payment.update({
+        where: { id: existingPayment.id },
+        data: {
+          provider: 'card_to_card',
+          status: seedOrder.paymentStatus,
+          amountToman: totalToman,
+          reference: `C2C-${seedOrder.orderNumber}`,
+          receiptUrl: seedOrder.receiptUrl,
+          receiptUploadedAt: seedOrder.receiptUrl ? new Date() : null,
+          rejectionReason:
+            'rejectionReason' in seedOrder ? seedOrder.rejectionReason : null,
+        },
+      });
+    }
+
+    console.info(`  [ORDER] ${seedOrder.orderNumber} — ${seedOrder.note}`);
   }
 
   const guidesCategory = await prisma.blogCategory.findUniqueOrThrow({

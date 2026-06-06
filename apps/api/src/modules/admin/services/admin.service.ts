@@ -338,7 +338,7 @@ export class AdminService {
     query: AdminWalletTxQueryDto,
     actor: AuthenticatedUser,
   ) {
-    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.read);
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.transactions);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
@@ -406,7 +406,7 @@ export class AdminService {
     query: AdminPaymentReceiptQueryDto,
     actor: AuthenticatedUser,
   ) {
-    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.read);
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.transactions);
 
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;

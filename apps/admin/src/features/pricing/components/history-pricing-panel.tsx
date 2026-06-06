@@ -17,6 +17,7 @@ import {
 import { fetchAdminPriceHistory } from '../api/pricing-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { PricingPageShell } from './pricing-page-shell';
+import { PersianDatePicker } from '@/shared/ui/persian-date-picker';
 import { formatRial, PRICE_SOURCE_FA, selectFieldClass } from '../lib/labels';
 
 function defaultFrom() {
@@ -62,23 +63,11 @@ export function HistoryPricingPanel() {
   return (
     <PricingPageShell routeId="pricing.history">
       <div className="flex flex-wrap gap-4">
-        <div>
-          <Label>از تاریخ</Label>
-          <input
-            type="date"
-            className={selectFieldClass}
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-          />
+        <div className="min-w-[220px]">
+          <PersianDatePicker label="از تاریخ" value={from} onChange={setFrom} />
         </div>
-        <div>
-          <Label>تا تاریخ</Label>
-          <input
-            type="date"
-            className={selectFieldClass}
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
+        <div className="min-w-[220px]">
+          <PersianDatePicker label="تا تاریخ" value={to} onChange={setTo} />
         </div>
         <div>
           <Label>عیار</Label>

@@ -27,7 +27,6 @@ export {
   useUpdateProfileMutation,
 } from './use-profile';
 export { useAccountSummary, useDashboard } from './use-dashboard';
-export { useAdminAnalytics, useUpdateUserRoleMutation, useUsers } from './use-users';
 export {
   useExecuteTrade,
   useTradeOrders,
