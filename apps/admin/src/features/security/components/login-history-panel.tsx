@@ -20,10 +20,9 @@ import { fetchLoginHistory } from '@/features/admin/api/admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
-import { SecurityPageShell } from './security-page-shell';
 import { AUTH_ACTION_LABELS, getAuthActionLabel, selectFieldClass } from '../lib/labels';
 
-export function LoginHistoryPanel() {
+export function LoginHistoryContent() {
   const [search, setSearch] = useState('');
   const [action, setAction] = useState('');
   const [page, setPage] = useState(1);
@@ -39,7 +38,7 @@ export function LoginHistoryPanel() {
   });
 
   return (
-    <SecurityPageShell routeId="security.loginHistory">
+    <>
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
@@ -127,6 +126,6 @@ export function LoginHistoryPanel() {
           onPageChange={setPage}
         />
       ) : null}
-    </SecurityPageShell>
+    </>
   );
 }

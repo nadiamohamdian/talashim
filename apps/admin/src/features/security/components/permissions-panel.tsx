@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Skeleton } from '@talashim/ui';
 import {
@@ -38,7 +38,20 @@ function collectChangedRoles(
   return updates;
 }
 
-export function PermissionsPanel() {
+export interface PermissionsEditorState {
+  headerActions: ReactNode;
+  isLoading: boolean;
+  isError: boolean;
+  data: Awaited<ReturnType<typeof fetchPermissionRegistry>> | undefined;
+  saveMessage: string | null;
+  saveError: string | null;
+  draft: RoleMatrix;
+  togglePermission: (roleSlug: string, permission: string, enabled: boolean) => void;
+  saveMutationPending: boolean;
+  isSuperAdmin: boolean;
+}
+
+export function usePermissionsEditor(): PermissionsEditorState {
   const queryClient = useQueryClient();
   const currentRoleSlug = useAdminAuthStore((s) => s.user?.role);
   const setPermissions = useAdminAuthStore((s) => s.setPermissions);
@@ -164,92 +177,127 @@ export function PermissionsPanel() {
     </div>
   );
 
+  return {
+    headerActions,
+    isLoading,
+    isError,
+    data,
+    saveMessage,
+    saveError,
+    draft,
+    togglePermission,
+    saveMutationPending: saveMutation.isPending,
+    isSuperAdmin,
+  };
+}
+
+export function PermissionsMatrixContent({ editor }: { editor: PermissionsEditorState }) {
+  const {
+    isLoading,
+    isError,
+    data,
+    saveMessage,
+    saveError,
+    draft,
+    togglePermission,
+    saveMutationPending,
+    isSuperAdmin,
+  } = editor;
+
+  if (isLoading) {
+    return <Skeleton className="h-96 w-full rounded-2xl" />;
+  }
+
+  if (isError || !data) {
+    return <p className="text-sm text-rose-600">بارگذاری مجوزها ناموفق بود.</p>;
+  }
+
   return (
-    <SecurityPageShell routeId="security.permissions" actions={headerActions}>
-      {isLoading ? (
-        <Skeleton className="h-96 w-full rounded-2xl" />
-      ) : isError || !data ? (
-        <p className="text-sm text-rose-600">بارگذاری مجوزها ناموفق بود.</p>
-      ) : (
-        <div className="space-y-6">
-          {saveMessage ? <Alert variant="success">{saveMessage}</Alert> : null}
-          {saveError ? (
-            <Alert variant="destructive">{saveError}</Alert>
-          ) : null}
+    <div className="space-y-6">
+      {saveMessage ? <Alert variant="success">{saveMessage}</Alert> : null}
+      {saveError ? <Alert variant="destructive">{saveError}</Alert> : null}
 
-          <p className="text-sm text-stone-600">
-            برای هر نقش، مجوزها را با کلیک روی چک‌باکس فعال یا غیرفعال کنید و سپس «ذخیره
-            تغییرات» را بزنید.
-          </p>
+      <p className="text-sm text-stone-600">
+        برای هر نقش، مجوزها را با کلیک روی چک‌باکس فعال یا غیرفعال کنید و سپس «ذخیره
+        تغییرات» را بزنید.
+      </p>
 
-          <div className="admin-table-wrap overflow-x-auto">
-            <table className="w-full min-w-[720px] text-sm">
-              <thead>
-                <tr>
-                  <th>مجوز</th>
-                  {data.roles.map((role) => (
-                    <th key={role.slug} className="text-center">
-                      {role.labelFa}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.permissions.map((permission) => (
-                  <tr key={permission}>
-                    <td className="font-mono text-xs text-muted" dir="ltr">
-                      {permission}
+      <div className="admin-table-wrap overflow-x-auto">
+        <table className="w-full min-w-[720px] text-sm">
+          <thead>
+            <tr>
+              <th>مجوز</th>
+              {data.roles.map((role) => (
+                <th key={role.slug} className="text-center">
+                  {role.labelFa}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.permissions.map((permission) => (
+              <tr key={permission}>
+                <td className="font-mono text-xs text-muted" dir="ltr">
+                  {permission}
+                </td>
+                {data.roles.map((role) => {
+                  const allowed = (draft[role.slug] ?? []).includes(permission);
+                  const isLockedRbac =
+                    role.slug === 'super_admin' &&
+                    permission === ADMIN_PERMISSIONS.security.rbac;
+                  const readOnly =
+                    (role.slug === 'super_admin' && !isSuperAdmin) || isLockedRbac;
+
+                  return (
+                    <td key={`${role.slug}-${permission}`} className="text-center">
+                      <label
+                        className={
+                          readOnly
+                            ? 'inline-flex cursor-not-allowed opacity-50'
+                            : 'inline-flex cursor-pointer'
+                        }
+                      >
+                        <input
+                          type="checkbox"
+                          className="size-4 rounded border-[var(--border)] text-[var(--primary)] accent-[var(--primary)] focus:ring-[var(--primary)]/30"
+                          checked={allowed}
+                          disabled={readOnly || saveMutationPending}
+                          onChange={(event) =>
+                            togglePermission(role.slug, permission, event.target.checked)
+                          }
+                          aria-label={`${role.labelFa} — ${permission}`}
+                        />
+                      </label>
                     </td>
-                    {data.roles.map((role) => {
-                      const allowed = (draft[role.slug] ?? []).includes(permission);
-                      const isLockedRbac =
-                        role.slug === 'super_admin' &&
-                        permission === ADMIN_PERMISSIONS.security.rbac;
-                      const readOnly =
-                        (role.slug === 'super_admin' && !isSuperAdmin) || isLockedRbac;
-
-                      return (
-                        <td key={`${role.slug}-${permission}`} className="text-center">
-                          <label
-                            className={
-                              readOnly
-                                ? 'inline-flex cursor-not-allowed opacity-50'
-                                : 'inline-flex cursor-pointer'
-                            }
-                          >
-                            <input
-                              type="checkbox"
-                              className="size-4 rounded border-[var(--border)] text-[var(--primary)] accent-[var(--primary)] focus:ring-[var(--primary)]/30"
-                              checked={allowed}
-                              disabled={readOnly || saveMutation.isPending}
-                              onChange={(event) =>
-                                togglePermission(role.slug, permission, event.target.checked)
-                              }
-                              aria-label={`${role.labelFa} — ${permission}`}
-                            />
-                          </label>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            {data.roles.map((role) => (
-              <article key={role.slug} className="card-luxury p-5">
-                <h2 className="font-semibold text-stone-900">{role.labelFa}</h2>
-                <p className="mt-2 text-sm text-stone-600">{role.descriptionFa}</p>
-                <p className="mt-3 text-xs text-muted">
-                  {(draft[role.slug] ?? []).length} مجوز فعال
-                </p>
-              </article>
+                  );
+                })}
+              </tr>
             ))}
-          </div>
-        </div>
-      )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {data.roles.map((role) => (
+          <article key={role.slug} className="card-luxury p-5">
+            <h2 className="font-semibold text-stone-900">{role.labelFa}</h2>
+            <p className="mt-2 text-sm text-stone-600">{role.descriptionFa}</p>
+            <p className="mt-3 text-xs text-muted">
+              {(draft[role.slug] ?? []).length} مجوز فعال
+            </p>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function PermissionsPanel() {
+  const editor = usePermissionsEditor();
+
+  return (
+    <SecurityPageShell routeId="security.permissions" actions={editor.headerActions}>
+      <PermissionsMatrixContent editor={editor} />
     </SecurityPageShell>
   );
 }

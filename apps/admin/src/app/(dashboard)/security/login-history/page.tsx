@@ -1,5 +1,5 @@
-import { LoginHistoryPanel } from '@/features/security/components/login-history-panel';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <LoginHistoryPanel />;
+  redirect('/security/audit');
 }

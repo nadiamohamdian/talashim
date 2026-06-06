@@ -63,7 +63,7 @@ apps/admin/src/
 | Finance   | `/finance/wallets`, `transactions`, `ledger`, …                             | Wallets + tx live                     |
 | CMS       | `/cms/blog`, `homepage`, …                                                  | Blog read live                        |
 | Reports   | `/reports/*`                                                                | Pending                               |
-| Security  | `/security/audit`, `sessions`, …                                            | Audit live                            |
+| Security  | `/security/audit` (tabs: operations + login history), `/security/sessions`, `/security/roles` (tabs: assignment + permissions) | Audit + sessions + RBAC live |
 
 Legacy redirects: `/kyc` → `/users/kyc`, `/wallets` → `/finance/wallets`, etc.
 

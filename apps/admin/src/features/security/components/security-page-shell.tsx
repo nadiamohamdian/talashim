@@ -13,12 +13,12 @@ interface SecurityPageShellProps {
 }
 
 const DESCRIPTIONS: Record<string, string> = {
-  'security.audit': 'رویدادهای پلتفرم، کیف پول و معاملات طلا.',
+  'security.audit': 'رویدادهای پلتفرم، کیف پول، معاملات طلا و تاریخچه ورود.',
   'security.sessions': 'نشست‌های فعال بر اساس refresh token.',
-  'security.loginHistory': 'ورود، خروج و رویدادهای احراز هویت.',
-  'security.roles': 'تعریف نقش‌های پرسنلی و تخصیص به کاربران.',
-  'security.permissions': 'ماتریس مجوزها برای هر نقش.',
-  'users.roles': 'تخصیص نقش پرسنلی به کاربران (همان مدیریت نقش).',
+  'security.loginHistory': 'ادغام‌شده در لاگ ممیزی (تب تاریخچه ورود).',
+  'security.roles': 'افزودن پرسنل، تخصیص نقش، تغییر ایمیل و رمز عبور.',
+  'security.permissions': 'ادغام‌شده در نقش‌ها و دسترسی (تب ماتریس).',
+  'users.roles': 'تخصیص نقش پرسنلی به کاربران (همان نقش‌ها و دسترسی).',
 };
 
 export function SecurityPageShell({ routeId, children, actions }: SecurityPageShellProps) {

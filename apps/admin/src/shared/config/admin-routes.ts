@@ -418,7 +418,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     availability: 'partial',
     parentId: 'users.list',
     nav: false,
-    description: 'از بخش امنیت → مدیریت نقش',
+    description: 'از بخش امنیت → نقش‌ها و دسترسی',
   }),
   r({
     id: 'users.permissions',
@@ -431,7 +431,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     availability: 'pending',
     parentId: 'users.list',
     nav: false,
-    description: 'از بخش امنیت → مدیریت دسترسی',
+    description: 'از بخش امنیت → نقش‌ها و دسترسی (تب ماتریس)',
   }),
 
   // Finance
@@ -684,12 +684,14 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     template: 'list',
     permission: ADMIN_PERMISSIONS.security.audit,
     availability: 'live',
-    parentId: 'dashboard',
+    parentId: 'security.audit',
+    nav: false,
+    description: 'ادغام‌شده در صفحه لاگ ممیزی',
   }),
   r({
     id: 'security.roles',
     path: '/security/roles',
-    label: 'مدیریت نقش',
+    label: 'نقش‌ها و دسترسی',
     sectionId: 'security',
     sectionLabel: 'امنیت',
     template: 'settings',
@@ -706,7 +708,9 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     template: 'settings',
     permission: ADMIN_PERMISSIONS.security.rbac,
     availability: 'live',
-    parentId: 'dashboard',
+    parentId: 'security.roles',
+    nav: false,
+    description: 'ادغام‌شده در صفحه نقش‌ها و دسترسی',
   }),
 
   // Settings

@@ -1,5 +1,5 @@
-import { RolesManagementPanel } from '@/features/security/components/roles-management-panel';
+import { RolesRbacPanel } from '@/features/security/components/roles-rbac-panel';
 
 export default function Page() {
-  return <RolesManagementPanel />;
+  return <RolesRbacPanel />;
 }

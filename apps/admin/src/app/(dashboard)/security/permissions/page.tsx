@@ -1,5 +1,5 @@
-import { PermissionsPanel } from '@/features/security/components/permissions-panel';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <PermissionsPanel />;
+  redirect('/security/roles');
 }

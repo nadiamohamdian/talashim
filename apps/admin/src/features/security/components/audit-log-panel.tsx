@@ -24,7 +24,17 @@ import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { Label } from '@talashim/ui';
 import { SecurityPageShell } from './security-page-shell';
+import { LoginHistoryContent } from './login-history-panel';
 import { SOURCE_LABELS, selectFieldClass } from '../lib/labels';
+
+type AuditTab = 'operations' | 'auth';
+
+const tabClass = (active: boolean) =>
+  `rounded-xl px-4 py-2 text-sm font-medium transition ${
+    active
+      ? 'bg-stone-900 text-white shadow-sm'
+      : 'bg-white text-stone-600 ring-1 ring-border hover:bg-nude-50'
+  }`;
 
 function downloadAuditCsv(items: AdminAuditLog[]) {
   const header = ['منبع', 'عملیات', 'کاربر', 'جزئیات', 'زمان'];
@@ -47,7 +57,7 @@ function downloadAuditCsv(items: AdminAuditLog[]) {
   URL.revokeObjectURL(url);
 }
 
-export function AuditLogPanel() {
+function AuditOperationsContent() {
   usePlatformSettingsLoader();
   const auditExportEnabled = usePlatformSettingsStore(
     (s) => s.featureFlags.enableAdminAuditExport,
@@ -61,7 +71,7 @@ export function AuditLogPanel() {
   });
 
   return (
-    <SecurityPageShell routeId="security.audit">
+    <>
       <FilterBar>
         <div>
           <Label>منبع</Label>
@@ -145,6 +155,33 @@ export function AuditLogPanel() {
           onPageChange={setPage}
         />
       ) : null}
+    </>
+  );
+}
+
+export function AuditLogPanel() {
+  const [tab, setTab] = useState<AuditTab>('operations');
+
+  return (
+    <SecurityPageShell routeId="security.audit">
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          className={tabClass(tab === 'operations')}
+          onClick={() => setTab('operations')}
+        >
+          عملیات سیستم
+        </button>
+        <button
+          type="button"
+          className={tabClass(tab === 'auth')}
+          onClick={() => setTab('auth')}
+        >
+          تاریخچه ورود
+        </button>
+      </div>
+
+      {tab === 'operations' ? <AuditOperationsContent /> : <LoginHistoryContent />}
     </SecurityPageShell>
   );
 }
