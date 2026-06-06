@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Prisma } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 import {
@@ -8,8 +8,12 @@ import {
 } from '../cms/cms-defaults';
 
 @Injectable()
-export class AdminCmsRepository {
+export class AdminCmsRepository implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
+
+  async onModuleInit() {
+    await this.ensureFaqCategory();
+  }
 
   listBlogCategories() {
     return this.prisma.blogCategory.findMany({ orderBy: { title: 'asc' } });
@@ -17,6 +21,20 @@ export class AdminCmsRepository {
 
   findBlogCategoryBySlug(slug: string) {
     return this.prisma.blogCategory.findUnique({ where: { slug } });
+  }
+
+  async ensureFaqCategory() {
+    const existing = await this.findBlogCategoryBySlug('faq');
+    if (existing) {
+      return existing;
+    }
+
+    return this.prisma.blogCategory.create({
+      data: {
+        slug: 'faq',
+        title: 'سوالات متداول',
+      },
+    });
   }
 
   listBlogPosts(

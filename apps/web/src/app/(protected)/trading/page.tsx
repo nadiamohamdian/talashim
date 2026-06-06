@@ -3,7 +3,7 @@ import { MemberLoginPrompt } from '@/features/auth/components/member-login-promp
 import { TradingDashboard } from '@/widgets/trading/trading-dashboard';
 
 export const metadata: Metadata = {
-  title: 'معاملات طلا | Sadaf Gold',
+  title: 'معاملات طلا',
   description: 'داشبورد معاملات لحظه‌ای طلا',
 };
 

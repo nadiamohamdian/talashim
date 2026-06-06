@@ -12,6 +12,8 @@ export const adminQueryKeys = {
   },
   kyc: (page: number, status: string) => ['admin', 'kyc', page, status] as const,
   walletTx: (page: number, type: string) => ['admin', 'wallet-tx', page, type] as const,
+  paymentReceipts: (page: number, status: string) =>
+    ['admin', 'payment-receipts', page, status] as const,
   trades: (page: number, side: string) => ['admin', 'trade-tx', page, side] as const,
   wallets: (page: number, search: string) => ['admin', 'wallets', page, search] as const,
   audit: (page: number, source: string) => ['admin', 'audit', page, source] as const,

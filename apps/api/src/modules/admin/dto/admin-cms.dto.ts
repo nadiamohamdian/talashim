@@ -34,6 +34,53 @@ export class AdminBlogQueryDto extends PaginationQueryDto {
   published?: 'true' | 'false' | 'all';
 }
 
+export class UpsertFaqPostDto {
+  @ApiProperty({ description: 'Question text' })
+  @IsString()
+  @MinLength(2)
+  @MaxLength(200)
+  title!: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(120)
+  slug!: string;
+
+  @ApiProperty({ description: 'Answer HTML' })
+  @IsString()
+  @MinLength(2)
+  content!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  excerpt?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @IsUrl({ require_protocol: true }, { message: 'coverImageUrl must be a valid URL' })
+  coverImageUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  publishedAt?: string;
+
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  isPublished?: boolean;
+
+  @ApiPropertyOptional({ default: 0 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  sortOrder?: number;
+}
+
 export class UpsertBlogPostDto {
   @ApiProperty()
   @IsString()

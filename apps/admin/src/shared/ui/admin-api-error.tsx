@@ -16,7 +16,14 @@ function isConnectionError(error: unknown): boolean {
     return false;
   }
   const message = 'message' in error ? String(error.message) : '';
-  return message.includes('Network Error') || message.includes('ERR_CONNECTION');
+  const code = 'code' in error ? String(error.code) : '';
+  return (
+    message.includes('Network Error') ||
+    message.includes('ERR_CONNECTION') ||
+    code === 'ECONNREFUSED' ||
+    code === 'ERR_NETWORK' ||
+    code === 'ENOTFOUND'
+  );
 }
 
 export function AdminApiError({
@@ -41,12 +48,30 @@ export function AdminApiError({
         <p className="text-sm font-semibold text-foreground">{title}</p>
         {offline ? (
           <p className="text-sm leading-relaxed text-muted">
-            اتصال به API برقرار نیست. سرویس API را اجرا کنید:{' '}
+            اتصال به API برقرار نیست. ترتیب راه‌اندازی:
+            <br />
+            1.{' '}
+            <code
+              className="rounded-[var(--radius-sm)] bg-[var(--surface)] px-1.5 py-0.5 text-xs text-foreground"
+              dir="ltr"
+            >
+              pnpm dev:infra
+            </code>{' '}
+            (PostgreSQL + Redis + MinIO)
+            <br />
+            2.{' '}
             <code
               className="rounded-[var(--radius-sm)] bg-[var(--surface)] px-1.5 py-0.5 text-xs text-foreground"
               dir="ltr"
             >
               pnpm dev:api
+            </code>{' '}
+            یا{' '}
+            <code
+              className="rounded-[var(--radius-sm)] bg-[var(--surface)] px-1.5 py-0.5 text-xs text-foreground"
+              dir="ltr"
+            >
+              pnpm dev
             </code>
           </p>
         ) : detail ? (

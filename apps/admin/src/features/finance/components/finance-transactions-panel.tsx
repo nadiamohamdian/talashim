@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -18,23 +20,57 @@ import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { FinancePageShell } from './finance-page-shell';
+import { PaymentReceiptsPanel } from './payment-receipts-panel';
 import { selectFieldClass, WALLET_TX_STATUS_FA, WALLET_TX_TYPE_FA } from '../lib/labels';
 
+type TransactionsTab = 'wallet' | 'receipts';
+
 export function FinanceTransactionsPanel() {
+  const [tab, setTab] = useState<TransactionsTab>('wallet');
   const [walletType, setWalletType] = useState('');
   const [walletPage, setWalletPage] = useState(1);
 
   const walletQuery = useQuery({
     queryKey: adminQueryKeys.walletTx(walletPage, walletType),
     queryFn: () => fetchWalletTransactions({ type: walletType || undefined, page: walletPage }),
+    enabled: tab === 'wallet',
   });
 
   return (
     <FinancePageShell routeId="finance.transactions">
-      <p className="text-sm text-stone-500">
-        تراکنش‌های کیف پول ریالی و طلای کاربران. معاملات آب‌شده در بخش «طلای آب‌شده» است.
-      </p>
-      <FilterBar>
+      <div className="flex flex-wrap gap-2 border-b border-border pb-4">
+        <button
+          type="button"
+          onClick={() => setTab('wallet')}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            tab === 'wallet'
+              ? 'bg-[var(--primary)] text-white'
+              : 'bg-[var(--surface)] text-muted hover:text-foreground'
+          }`}
+        >
+          تراکنش‌های کیف پول
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('receipts')}
+          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+            tab === 'receipts'
+              ? 'bg-[var(--primary)] text-white'
+              : 'bg-[var(--surface)] text-muted hover:text-foreground'
+          }`}
+        >
+          فیش‌های پرداخت
+        </button>
+      </div>
+
+      {tab === 'receipts' ? (
+        <PaymentReceiptsPanel />
+      ) : (
+        <>
+          <p className="text-sm text-stone-500">
+            تراکنش‌های کیف پول ریالی و طلای کاربران. معاملات آب‌شده در بخش «طلای آب‌شده» است.
+          </p>
+          <FilterBar>
             <div>
               <Label>نوع تراکنش</Label>
               <select
@@ -88,7 +124,7 @@ export function FinanceTransactionsPanel() {
                         )) ?? '—'}
                       </TableCell>
                       <TableCell className="text-xs">
-                        {new Date(tx.createdAt).toLocaleString('fa-IR')}
+                        {formatPersianDateTime(tx.createdAt)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -104,6 +140,8 @@ export function FinanceTransactionsPanel() {
               onPageChange={setWalletPage}
             />
           ) : null}
+        </>
+      )}
     </FinancePageShell>
   );
 }

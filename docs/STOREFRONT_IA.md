@@ -1,4 +1,4 @@
-# Sadaf Gold — Public Storefront Information Architecture
+# Talashim — Public Storefront Information Architecture
 
 Luxury gold e-commerce + trading platform (Persian-first, RTL).  
 **Guest-first:** all pages below are public unless noted. Checkout/trading require login ([AUTH_ROUTING.md](./AUTH_ROUTING.md)).
@@ -20,7 +20,7 @@ Luxury gold e-commerce + trading platform (Persian-first, RTL).
 ## 2. Site map (page hierarchy)
 
 ```
-sadafgold.com/
+talashim.com/
 │
 ├── /                          [L0] Home
 ├── /prices                    [L0] Live gold prices (public API)

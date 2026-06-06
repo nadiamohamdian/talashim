@@ -58,4 +58,3 @@ export interface WalletTransaction {
     entries: WalletTransactionEntry[];
 }
 export type WalletHistoryResponse = PaginatedResponse<WalletTransaction>;
-//# sourceMappingURL=trading.d.ts.map

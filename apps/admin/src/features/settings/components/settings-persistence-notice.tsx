@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { Alert } from '@talashim/ui';
 import { usePlatformSettingsStore } from '../model/settings-store';
 
@@ -19,10 +21,7 @@ export function SettingsPersistenceNotice() {
       {updatedAt ? (
         <p className="mt-2 text-xs text-amber-900/80">
           آخرین ذخیره:{' '}
-          {new Date(updatedAt).toLocaleString('fa-IR', {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-          })}
+          {formatPersianDateTime(updatedAt)}
         </p>
       ) : null}
     </Alert>

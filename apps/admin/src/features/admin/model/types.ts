@@ -12,6 +12,7 @@ export type {
   AdminUser,
   AdminWalletRow,
   AdminWalletTransaction,
+  AdminPaymentReceiptItem,
   CreateStaffUserPayload,
   UpdateStaffUserPayload,
   AdminUserActivityItem,

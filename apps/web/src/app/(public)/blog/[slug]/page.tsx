@@ -12,7 +12,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
   return {
-    title: `${post.title} | Sadaf Gold`,
+    title: post.title,
     description: post.excerpt ?? post.content.slice(0, 160),
   };
 }

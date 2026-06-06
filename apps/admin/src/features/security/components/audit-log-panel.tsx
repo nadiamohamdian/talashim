@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -87,7 +89,7 @@ export function AuditLogPanel() {
                       {log.context ? JSON.stringify(log.context) : '—'}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs text-stone-600">
-                      {new Date(log.createdAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(log.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))

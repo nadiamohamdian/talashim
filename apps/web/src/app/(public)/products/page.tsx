@@ -3,7 +3,7 @@ import { getProducts } from '@/shared/api/catalog-api';
 import { ProductCard } from '@/widgets/catalog/product-card';
 
 export const metadata: Metadata = {
-  title: 'فروشگاه | گالری طلای صدف',
+  title: 'فروشگاه',
   description: 'فهرست محصولات طلا و جواهر',
 };
 

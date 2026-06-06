@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
@@ -211,7 +213,7 @@ export function HomepagePanel() {
       </Button>
       {data?.updatedAt ? (
         <p className="text-xs text-stone-500">
-          آخرین به‌روزرسانی: {new Date(data.updatedAt).toLocaleString('fa-IR')}
+          آخرین به‌روزرسانی: {formatPersianDateTime(data.updatedAt)}
         </p>
       ) : null}
     </CmsPageShell>

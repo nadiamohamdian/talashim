@@ -26,11 +26,11 @@ function mapServerItems(
 }
 
 export function useDisplayCart() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hydrated } = useAuth();
   const localItems = useCartStore((s) => s.items);
   const localTotal = useCartStore((s) => s.total());
   const localCount = useCartStore((s) => s.itemCount());
-  const cartQuery = useCart({ enabled: isAuthenticated });
+  const cartQuery = useCart({ enabled: hydrated && isAuthenticated });
   const serverCart = cartQuery.data;
   const serverHasItems = (serverCart?.items.length ?? 0) > 0;
 
@@ -45,7 +45,7 @@ export function useDisplayCart() {
     ? serverCart!.items.reduce((sum, line) => sum + line.quantity, 0)
     : localCount;
 
-  const isLoading = isAuthenticated && cartQuery.isLoading && localItems.length === 0;
+  const isLoading = hydrated && isAuthenticated && cartQuery.isLoading && localItems.length === 0;
 
   return {
     items,

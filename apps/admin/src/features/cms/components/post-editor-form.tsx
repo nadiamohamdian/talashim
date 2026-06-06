@@ -6,6 +6,7 @@ import type { AdminBlogCategoryDto, AdminBlogPostDto } from '@talashim/types';
 import type { UpsertBlogPostPayload } from '../api/cms-api';
 import { ImageUrlField } from './image-url-field';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor';
+import { PersianDateTimePicker } from '@/shared/ui/persian-datetime-picker';
 import { selectFieldClass } from '../lib/labels';
 
 const emptyPayload = (): UpsertBlogPostPayload => ({
@@ -16,7 +17,7 @@ const emptyPayload = (): UpsertBlogPostPayload => ({
   coverImageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
   isPublished: true,
   sortOrder: 0,
-  publishedAt: new Date().toISOString().slice(0, 10),
+  publishedAt: new Date().toISOString(),
 });
 
 interface PostEditorFormProps {
@@ -47,7 +48,7 @@ export function PostEditorForm({
         content: initial.content,
         coverImageUrl: initial.coverImageUrl,
         categoryId: initial.categoryId ?? undefined,
-        publishedAt: initial.publishedAt.slice(0, 10),
+        publishedAt: initial.publishedAt,
         isPublished: initial.isPublished,
         sortOrder: initial.sortOrder,
       });
@@ -106,12 +107,10 @@ export function PostEditorForm({
           </div>
         )}
         <div>
-          <Label>تاریخ انتشار</Label>
-          <Input
-            className="mt-1"
-            type="date"
-            value={form.publishedAt?.slice(0, 10) ?? ''}
-            onChange={(e) => setForm((f) => ({ ...f, publishedAt: e.target.value }))}
+          <PersianDateTimePicker
+            label="تاریخ انتشار"
+            value={form.publishedAt ?? new Date().toISOString()}
+            onChange={(iso) => setForm((f) => ({ ...f, publishedAt: iso }))}
           />
         </div>
         <div>

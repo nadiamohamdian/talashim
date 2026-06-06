@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -127,10 +129,10 @@ export function SessionsPanel() {
                       </span>
                     </TableCell>
                     <TableCell className="text-xs text-stone-600">
-                      {new Date(session.createdAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(session.createdAt)}
                     </TableCell>
                     <TableCell className="text-xs text-stone-600">
-                      {new Date(session.expiresAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(session.expiresAt)}
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-2">

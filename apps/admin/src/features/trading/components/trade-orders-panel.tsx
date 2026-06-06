@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -194,7 +196,7 @@ export function TradeOrdersPanel({
                     <TableCell>{formatToman(order.netRial)}</TableCell>
                     <TableCell>{formatToman(order.commissionRial)}</TableCell>
                     <TableCell className="text-xs text-stone-500">
-                      {new Date(order.createdAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(order.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))

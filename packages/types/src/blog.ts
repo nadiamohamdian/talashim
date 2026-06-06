@@ -3,6 +3,8 @@ export interface BlogPostSummary {
   slug: string;
   title: string;
   excerpt: string;
+  /** Full answer HTML — included for FAQ list responses */
+  content?: string;
   coverImageUrl: string;
   publishedAt: string;
   isPublished?: boolean;

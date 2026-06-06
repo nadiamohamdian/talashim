@@ -18,6 +18,7 @@ import type {
   AdminTradeQueryDto,
   AdminUsersQueryDto,
   AdminWalletTxQueryDto,
+  AdminPaymentReceiptQueryDto,
   PaginationQueryDto,
 } from '../dto/admin-query.dto';
 import type { ReviewKycDto } from '../dto/review-kyc.dto';
@@ -397,6 +398,47 @@ export class AdminService {
         quantityGram: order.quantityGram.toString(),
         netRial: order.netRial.toString(),
         createdAt: order.createdAt,
+      })),
+    };
+  }
+
+  async listPaymentReceipts(
+    query: AdminPaymentReceiptQueryDto,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.read);
+
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+    const [items, total] = await this.adminRepository.listPaymentReceipts(
+      skip,
+      limit,
+      query.status,
+    );
+
+    return {
+      page,
+      limit,
+      total,
+      items: items.map((payment) => ({
+        id: payment.id,
+        orderId: payment.orderId,
+        status: payment.status,
+        provider: payment.provider,
+        reference: payment.reference,
+        amountToman: tomanBigIntToNumber(payment.amountToman),
+        receiptUrl: payment.receiptUrl!,
+        receiptUploadedAt: payment.receiptUploadedAt?.toISOString() ?? null,
+        reviewedAt: payment.reviewedAt?.toISOString() ?? null,
+        rejectionReason: payment.rejectionReason,
+        createdAt: payment.createdAt.toISOString(),
+        order: {
+          id: payment.order.id,
+          orderNumber: payment.order.orderNumber,
+          status: payment.order.status,
+          user: payment.order.user,
+        },
       })),
     };
   }

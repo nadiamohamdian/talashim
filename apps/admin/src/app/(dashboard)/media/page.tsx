@@ -1,5 +1,11 @@
+import { Suspense } from 'react';
 import { MediaLibraryPanel } from '@/features/cms/components/media-library-panel';
+import { Skeleton } from '@sadafgold/ui';
 
 export default function Page() {
-  return <MediaLibraryPanel />;
+  return (
+    <Suspense fallback={<Skeleton className="h-64 w-full rounded-2xl" />}>
+      <MediaLibraryPanel />
+    </Suspense>
+  );
 }

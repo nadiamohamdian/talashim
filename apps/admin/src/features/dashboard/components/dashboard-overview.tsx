@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -12,6 +14,7 @@ import {
   Wallet,
 } from '@/shared/ui/icons';
 import { Card, CardContent, CardHeader, CardTitle, Skeleton } from '@sadafgold/ui';
+import { AdminApiError } from '@/shared/ui/admin-api-error';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { fetchAnalytics, fetchAuditLogs, fetchTradeOrders } from '@/features/admin/api/admin-api';
 import { fetchAdminLivePrice } from '@/features/pricing/api/pricing-admin-api';
@@ -86,9 +89,13 @@ export function DashboardOverview() {
             </div>
           </div>
         ) : isError || !data ? (
-          <p className="rounded-[var(--radius-lg)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
-            بارگذاری آمار داشبورد ناموفق بود — API و توکن ادمین را بررسی کنید.
-          </p>
+          <Card className="overflow-hidden border-border bg-white p-0">
+            <AdminApiError
+              title="بارگذاری آمار داشبورد ناموفق بود."
+              error={analyticsQuery.error}
+              onRetry={() => void analyticsQuery.refetch()}
+            />
+          </Card>
         ) : (
           <>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -150,7 +157,7 @@ export function DashboardOverview() {
                 label="به‌روزرسانی قیمت"
                 value={
                   livePriceQuery.data
-                    ? new Date(livePriceQuery.data.recordedAt).toLocaleString('fa-IR')
+                    ? formatPersianDateTime(livePriceQuery.data.recordedAt)
                     : '—'
                 }
                 icon={Clock}
@@ -239,7 +246,7 @@ export function DashboardOverview() {
                             </p>
                           </div>
                           <time className="shrink-0 text-caption">
-                            {new Date(log.createdAt).toLocaleString('fa-IR')}
+                            {formatPersianDateTime(log.createdAt)}
                           </time>
                         </li>
                       ))

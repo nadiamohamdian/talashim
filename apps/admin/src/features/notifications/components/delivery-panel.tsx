@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -121,7 +123,7 @@ export function DeliveryPanel() {
                 data?.items.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="text-xs text-stone-500">
-                      {new Date(row.createdAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(row.createdAt)}
                     </TableCell>
                     <TableCell className="font-mono text-xs" dir="ltr">
                       {row.recipient}

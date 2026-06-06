@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Skeleton } from '@talashim/ui';
@@ -85,7 +87,7 @@ export function LivePricingPanel() {
           </div>
           <p className="text-xs text-stone-500">
             {live.providerName} · {PRICE_SOURCE_FA[live.source] ?? live.source} ·{' '}
-            {new Date(live.recordedAt).toLocaleString('fa-IR')}
+            {formatPersianDateTime(live.recordedAt)}
           </p>
         </>
       ) : liveQuery.isError ? (

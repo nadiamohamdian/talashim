@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { CartPageContent } from '@/features/cart/components/cart-page-content';
 
 export const metadata: Metadata = {
-  title: 'سبد خرید | Sadaf Gold',
+  title: 'سبد خرید',
   description: 'مشاهده و ویرایش سبد خرید',
 };
 

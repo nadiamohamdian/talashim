@@ -2,36 +2,27 @@
 
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Button,
-  Card,
-  Input,
-  Label,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@talashim/ui';
+import { Alert, Button, Card, Input, Label, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@talashim/ui';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import {
   createFaqEntry,
   deleteFaqEntry,
   fetchAdminFaq,
   updateFaqEntry,
+  type UpsertFaqPayload,
 } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
-import { PostEditorForm } from './post-editor-form';
+import { FaqEditorForm } from './faq-editor-form';
 import type { AdminBlogPostDto } from '@talashim/types';
 
 export function FaqPanel() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<AdminBlogPostDto | null | 'new'>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
@@ -44,7 +35,7 @@ export function FaqPanel() {
   };
 
   const saveMutation = useMutation({
-    mutationFn: async (payload: Parameters<typeof createFaqEntry>[0]) => {
+    mutationFn: async (payload: UpsertFaqPayload) => {
       if (editing && editing !== 'new') {
         return updateFaqEntry(editing.id, payload);
       }
@@ -52,7 +43,11 @@ export function FaqPanel() {
     },
     onSuccess: () => {
       setEditing(null);
+      setSaveError(null);
       invalidate();
+    },
+    onError: (error) => {
+      setSaveError(getApiErrorMessage(error, 'ذخیره سوال ناموفق بود.'));
     },
   });
 
@@ -65,18 +60,17 @@ export function FaqPanel() {
     <CmsPageShell
       routeId="cms.faq"
       actions={
-        <Button type="button" onClick={() => setEditing('new')}>
+        <Button type="button" onClick={() => { setEditing('new'); setSaveError(null); }}>
           سوال جدید
         </Button>
       }
     >
       {editing ? (
-        <PostEditorForm
-          categories={[]}
-          excludeFaq={false}
+        <FaqEditorForm
           initial={editing === 'new' ? null : editing}
-          onCancel={() => setEditing(null)}
+          onCancel={() => { setEditing(null); setSaveError(null); }}
           saving={saveMutation.isPending}
+          errorMessage={saveError}
           onSave={async (payload) => {
             await saveMutation.mutateAsync(payload);
           }}
@@ -97,11 +91,11 @@ export function FaqPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-48" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری FAQ ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری FAQ ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -117,15 +111,15 @@ export function FaqPanel() {
                 <TableRow key={item.id}>
                   <TableCell>
                     <p className="font-medium">{item.title}</p>
-                    <p className="text-xs text-stone-500">{item.excerpt}</p>
+                    <p className="mt-0.5 text-caption line-clamp-1">{item.excerpt}</p>
                   </TableCell>
                   <TableCell>{item.sortOrder}</TableCell>
                   <TableCell>
                     <span
                       className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         item.isPublished
-                          ? 'bg-emerald-50 text-emerald-800'
-                          : 'bg-stone-100 text-stone-600'
+                          ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                          : 'bg-[var(--surface)] text-muted'
                       }`}
                     >
                       {item.isPublished ? 'فعال' : 'غیرفعال'}
@@ -134,15 +128,16 @@ export function FaqPanel() {
                   <TableCell>
                     <div className="flex gap-1">
                       <Button
-                        className="h-8 px-3 text-xs"
+                        size="sm"
                         variant="outline"
-                        onClick={() => setEditing(item)}
+                        onClick={() => { setEditing(item); setSaveError(null); }}
                       >
                         ویرایش
                       </Button>
                       <Button
-                        className="h-8 px-3 text-xs text-rose-600"
+                        size="sm"
                         variant="ghost"
+                        className="text-[var(--error)]"
                         onClick={() => {
                           if (confirm('حذف این سوال؟')) {
                             deleteMutation.mutate(item.id);
@@ -159,6 +154,10 @@ export function FaqPanel() {
           </Table>
         )}
       </Card>
+
+      {data?.items.length === 0 && !isLoading ? (
+        <Alert variant="info">هنوز سوالی ثبت نشده. با «سوال جدید» اولین مورد را اضافه کنید.</Alert>
+      ) : null}
 
       {data ? (
         <PaginationBar

@@ -11,6 +11,7 @@ import {
   AdminTradeQueryDto,
   AdminUsersQueryDto,
   AdminWalletTxQueryDto,
+  AdminPaymentReceiptQueryDto,
   PaginationQueryDto,
 } from '../dto/admin-query.dto';
 import { ReviewKycDto } from '../dto/review-kyc.dto';
@@ -140,6 +141,15 @@ export class AdminController {
     @CurrentUser() actor: AuthenticatedUser,
   ) {
     return this.adminService.listTradeOrders(query, actor);
+  }
+
+  @Get('transactions/payment-receipts')
+  @ApiOperation({ summary: 'List card-to-card payment receipts uploaded by customers' })
+  listPaymentReceipts(
+    @Query() query: AdminPaymentReceiptQueryDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.listPaymentReceipts(query, actor);
   }
 
   @Get('wallets')

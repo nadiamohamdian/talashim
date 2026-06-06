@@ -1,6 +1,7 @@
 import {
   GoldTradeSide,
   KycStatus,
+  PaymentStatus,
   Prisma,
   Role,
   WalletTransactionType,
@@ -185,6 +186,35 @@ export class AdminRepository {
         },
       }),
       this.prisma.walletTransaction.count({ where }),
+    ]);
+  }
+
+  listPaymentReceipts(skip: number, take: number, status?: PaymentStatus) {
+    const where: Prisma.PaymentWhereInput = {
+      receiptUrl: { not: null },
+    };
+    if (status) {
+      where.status = status;
+    }
+
+    return Promise.all([
+      this.prisma.payment.findMany({
+        where,
+        skip,
+        take,
+        orderBy: [{ receiptUploadedAt: 'desc' }, { createdAt: 'desc' }],
+        include: {
+          order: {
+            select: {
+              id: true,
+              orderNumber: true,
+              status: true,
+              user: { select: { id: true, email: true, fullName: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.payment.count({ where }),
     ]);
   }
 

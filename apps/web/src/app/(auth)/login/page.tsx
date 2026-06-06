@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <Card className="p-6 sm:p-8">
             <p className="text-sm font-medium text-amber-700">احراز هویت</p>
             <h1 className="mt-3 text-2xl font-bold text-stone-950 sm:text-3xl dark:text-zinc-50">
-              ورود به Sadaf Gold
+              ورود به طلاشیم
             </h1>
             <p className="mt-3 text-sm leading-7 text-stone-600 dark:text-zinc-400">
               فقط برای اقدامات محافظت‌شده (خرید، معامله، کیف پول). مرور فروشگاه بدون ورود

@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/persian-date';
+
 import { Badge, Card, Skeleton } from '@sadafgold/ui';
 import { useWalletTransactions } from '../hooks/use-wallet-transactions';
 
@@ -73,7 +75,7 @@ export function WalletTransactionsTable() {
                 </td>
                 <td className="px-4 py-3 text-xs">{tx.status}</td>
                 <td className="px-4 py-3 text-xs text-stone-500">
-                  {new Date(tx.createdAt).toLocaleString('fa-IR')}
+                  {formatPersianDateTime(tx.createdAt)}
                 </td>
               </tr>
             ))

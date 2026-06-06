@@ -61,6 +61,26 @@ export interface AdminTradeOrder {
   createdAt: string;
 }
 
+export interface AdminPaymentReceiptItem {
+  id: string;
+  orderId: string;
+  status: string;
+  provider: string;
+  reference: string | null;
+  amountToman: number;
+  receiptUrl: string;
+  receiptUploadedAt: string | null;
+  reviewedAt: string | null;
+  rejectionReason: string | null;
+  createdAt: string;
+  order: {
+    id: string;
+    orderNumber: string;
+    status: string;
+    user: { id: string; email: string; fullName: string } | null;
+  };
+}
+
 export interface AdminWalletRow {
   user: { id: string; email: string; fullName: string; role: string };
   balances: { rialBalance: string; goldBalanceGram: string };

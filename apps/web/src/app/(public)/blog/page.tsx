@@ -3,7 +3,7 @@ import { getBlogPosts } from '@/shared/api/blog-api';
 import { BlogList } from '@/widgets/blog/blog-list';
 
 export const metadata: Metadata = {
-  title: 'مجله طلا | Sadaf Gold',
+  title: 'مجله طلا',
   description: 'مقالات، راهنماها و تحلیل بازار طلا',
 };
 

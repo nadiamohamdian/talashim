@@ -1,6 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { orderApi, type CheckoutPayload } from '@/lib/api/order.api';
 import { queryKeys, type OrdersListParams } from '@/lib/api/query-keys';
 import { useAuth } from '@/features/auth/hooks/use-auth';
@@ -34,13 +35,19 @@ export function useCheckoutMutation() {
 }
 
 export function useCart(options?: { enabled?: boolean }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hydrated } = useAuth();
   return useQuery({
     queryKey: queryKeys.cart.me(),
     queryFn: ({ signal }) => orderApi.getCart(signal),
     staleTime: 10_000,
     refetchInterval: 60_000,
-    enabled: (options?.enabled ?? true) && isAuthenticated,
+    enabled: (options?.enabled ?? true) && hydrated && isAuthenticated,
+    retry: (failureCount, error) => {
+      if (axios.isCancel(error)) {
+        return false;
+      }
+      return failureCount < 2;
+    },
   });
 }
 

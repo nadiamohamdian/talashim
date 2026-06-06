@@ -1,4 +1,6 @@
 import argon2 from 'argon2';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import { KycStatus, PrismaClient, ProductCategory, Role } from '../src/generated/prisma';
 import {
   DEFAULT_CMS_HERO,
@@ -7,7 +9,13 @@ import {
 } from '../src/modules/admin/cms/cms-defaults';
 import { getApiEnv } from '../src/config/env';
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL is required for seed');
+}
+
+const pool = new Pool({ connectionString });
+const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 const DEV_PASSWORD_STAFF = 'Admin12345!';
 const DEV_PASSWORD_CUSTOMER = 'Customer12345!';
@@ -261,7 +269,10 @@ async function main() {
   for (const post of faqPosts) {
     await prisma.blogPost.upsert({
       where: { slug: post.slug },
-      update: {},
+      update: {
+        publishedAt: new Date(),
+        isPublished: true,
+      },
       create: {
         categoryId: faqCategory.id,
         slug: post.slug,
@@ -270,7 +281,7 @@ async function main() {
         content: post.content,
         coverImageUrl:
           'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
-        publishedAt: new Date('2026-05-15'),
+        publishedAt: new Date(),
       },
     });
   }
@@ -473,4 +484,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

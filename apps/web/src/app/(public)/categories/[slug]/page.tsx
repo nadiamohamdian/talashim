@@ -20,7 +20,7 @@ const CATEGORY_MAP: Record<string, string> = {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  return { title: `دسته ${slug} | Sadaf Gold` };
+  return { title: `دسته ${slug}` };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {

@@ -7,16 +7,32 @@ interface ApiErrorBody {
 }
 
 function parseApiErrorMessage(data: unknown, fallback = 'خطایی رخ داد'): string {
-  if (typeof data !== 'object' || data === null || !('message' in data)) {
+  if (typeof data !== 'object' || data === null) {
     return fallback;
   }
-  const payload = (data as ApiErrorBody).message;
-  if (typeof payload === 'string') {
-    return payload;
+
+  const root = data as ApiErrorBody & { error?: { message?: string | string[] } };
+
+  if (typeof root.error === 'object' && root.error !== null && 'message' in root.error) {
+    const nested = root.error.message;
+    if (typeof nested === 'string') {
+      return nested;
+    }
+    if (Array.isArray(nested) && typeof nested[0] === 'string') {
+      return nested[0];
+    }
   }
-  if (Array.isArray(payload) && typeof payload[0] === 'string') {
-    return payload[0];
+
+  if ('message' in root) {
+    const payload = root.message;
+    if (typeof payload === 'string') {
+      return payload;
+    }
+    if (Array.isArray(payload) && typeof payload[0] === 'string') {
+      return payload[0];
+    }
   }
+
   return fallback;
 }
 
@@ -76,6 +92,18 @@ export function createApiClient(options: ApiClientOptions): AxiosInstance {
 
 export function getApiErrorMessage(error: unknown, fallback = 'خطایی رخ داد'): string {
   if (axios.isAxiosError(error)) {
+    if (!error.response) {
+      const code = error.code ?? '';
+      const message = error.message ?? '';
+      if (
+        code === 'ECONNREFUSED' ||
+        code === 'ERR_NETWORK' ||
+        code === 'ENOTFOUND' ||
+        message.includes('Network Error')
+      ) {
+        return 'اتصال به API برقرار نیست. ابتدا PostgreSQL را بالا بیاورید (pnpm dev:infra) سپس API را اجرا کنید (pnpm dev:api).';
+      }
+    }
     return parseApiErrorMessage(error.response?.data, fallback);
   }
   return fallback;

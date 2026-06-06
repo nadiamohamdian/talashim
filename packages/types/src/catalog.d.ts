@@ -1,8 +1,5 @@
-/** Commercial product line — drives pricing rules, PDP template, and filters. */
 export type ProductType = 'melted_gold' | 'gold_jewelry' | 'coins' | 'investment_gold' | 'wholesale';
-/** Browse taxonomy (navigation / SEO landing pages). */
 export type ProductCategorySlug = 'rings' | 'necklaces' | 'bracelets' | 'earrings' | 'coins' | 'bars' | 'melted' | 'investment' | 'wholesale';
-/** Legacy API category enum (migrate → ProductCategorySlug). */
 export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'coin';
 export type ProductStatus = 'draft' | 'active' | 'archived' | 'out_of_stock';
 export interface ProductSeoMetadata {
@@ -39,7 +36,18 @@ export interface ProductInventory {
     available: number;
     lowStockThreshold?: number;
 }
-/** Current REST API list shape (backward compatible). */
+export interface ProductVariant {
+    id: string;
+    sku: string;
+    color: string | null;
+    size: string | null;
+    priceToman: number;
+    weightGram: number | null;
+    makingFeePercent: number | null;
+    imageUrl: string | null;
+    quantity: number;
+    isDefault: boolean;
+}
 export interface ProductSummary {
     id: string;
     sku: string;
@@ -50,6 +58,10 @@ export interface ProductSummary {
     weightGram: number;
     makingFeePercent: number;
     priceToman: number;
+    compareAtPriceToman?: number | null;
+    discountPercent?: number | null;
+    discountStartsAt?: string | null;
+    discountEndsAt?: string | null;
     imageUrl: string;
     inventory: number;
     featured?: boolean;
@@ -58,10 +70,15 @@ export interface ProductSummary {
 export interface ProductDetails extends ProductSummary {
     description: string;
     seoDescription: string;
+    seoTitle?: string | null;
+    seoKeywords?: string | null;
+    ogImageUrl?: string | null;
+    seoCanonicalPath?: string | null;
+    seoNoIndex?: boolean;
     color?: string;
     specifications?: Record<string, string>;
+    variants?: ProductVariant[];
 }
-/** Target storefront catalog model (full IA — align API in P1). */
 export interface StorefrontProductSummary {
     id: string;
     sku: string;
@@ -86,4 +103,3 @@ export interface StorefrontProductDetails extends StorefrontProductSummary {
     pricing: ProductPricing;
     seo: ProductSeoMetadata;
 }
-//# sourceMappingURL=catalog.d.ts.map

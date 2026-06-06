@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
 import { deleteMediaAsset, fetchMediaAssets, uploadMediaImage } from '../api/cms-api';
@@ -12,15 +13,26 @@ import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
 import { formatBytes, selectFieldClass } from '../lib/labels';
+import { setMediaPickerResult } from '../lib/media-picker-session';
 
 const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
 
 export function MediaLibraryPanel() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isPickerMode = searchParams.get('picker') === '1';
   const accessToken = useAdminAuthStore((s) => s.accessToken);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [folder, setFolder] = useState('');
+  const [folder, setFolder] = useState(searchParams.get('folder') ?? '');
+
+  useEffect(() => {
+    const fromQuery = searchParams.get('folder');
+    if (fromQuery) {
+      setFolder(fromQuery);
+    }
+  }, [searchParams]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -56,8 +68,21 @@ export function MediaLibraryPanel() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const selectForPicker = (url: string) => {
+    setMediaPickerResult(url);
+    router.back();
+  };
+
   return (
     <CmsPageShell routeId="media.library">
+      {isPickerMode ? (
+        <Card className="border-amber-300 bg-amber-50 p-4">
+          <p className="text-sm font-semibold text-amber-900">حالت انتخاب تصویر</p>
+          <p className="mt-1 text-sm text-amber-800">
+            روی «انتخاب این تصویر» بزنید تا به فرم محصول/محتوا برگردید.
+          </p>
+        </Card>
+      ) : null}
       <Card className="border-amber-200 bg-gradient-to-l from-amber-50 to-white p-6">
         <h3 className="text-sm font-bold text-stone-900">آپلود تصاویر سایت</h3>
         <p className="mt-1 text-sm text-stone-600">
@@ -166,25 +191,38 @@ export function MediaLibraryPanel() {
                 <p className="text-xs text-stone-500">
                   {asset.folder} · {formatBytes(asset.sizeBytes)}
                 </p>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    className="btn-gold flex-1 py-2 text-xs"
-                    onClick={() => void copyUrl(asset.id, asset.url)}
-                  >
-                    {copiedId === asset.id ? 'کپی شد!' : 'کپی URL'}
-                  </button>
-                  <Button
-                    variant="outline"
-                    className="h-auto px-3 py-2 text-xs text-rose-700"
-                    onClick={() => {
-                      if (confirm('حذف این فایل از کتابخانه؟')) {
-                        deleteMutation.mutate(asset.id);
-                      }
-                    }}
-                  >
-                    حذف
-                  </Button>
+                <div className="flex flex-col gap-2">
+                  {isPickerMode ? (
+                    <button
+                      type="button"
+                      className="btn-gold w-full py-2 text-xs"
+                      onClick={() => selectForPicker(asset.url)}
+                    >
+                      انتخاب این تصویر
+                    </button>
+                  ) : null}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="btn-gold flex-1 py-2 text-xs"
+                      onClick={() => void copyUrl(asset.id, asset.url)}
+                    >
+                      {copiedId === asset.id ? 'کپی شد!' : 'کپی URL'}
+                    </button>
+                    {!isPickerMode ? (
+                      <Button
+                        variant="outline"
+                        className="h-auto px-3 py-2 text-xs text-rose-700"
+                        onClick={() => {
+                          if (confirm('حذف این فایل از کتابخانه؟')) {
+                            deleteMutation.mutate(asset.id);
+                          }
+                        }}
+                      >
+                        حذف
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </Card>

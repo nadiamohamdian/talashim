@@ -1,6 +1,6 @@
-# Sadaf Gold — Turborepo Monorepo
+# Talashim — Turborepo Monorepo
 
-This repository is a production-oriented Turborepo for Sadaf Gold, a luxury gold
+This repository is a production-oriented Turborepo for Talashim (طلاشیم), a luxury gold
 trading platform. The workspace is organized by clear app boundaries and a
 small set of shared packages for UI, types, and utilities.
 

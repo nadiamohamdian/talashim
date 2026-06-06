@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDate } from '@/shared/lib/format-date';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -110,7 +112,7 @@ export function KycManagement() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-xs text-stone-500">
-                      {new Date(item.submittedAt).toLocaleDateString('fa-IR')}
+                      {formatPersianDate(item.submittedAt)}
                     </TableCell>
                     <TableCell>
                       {item.status === 'PENDING' ? (

@@ -27,6 +27,7 @@ import type {
   UpsertBlogPostDto,
   UpsertCmsBannerDto,
   UpsertCmsStaticPageDto,
+  UpsertFaqPostDto,
 } from '../dto/admin-cms.dto';
 import { AdminCmsRepository } from '../repositories/admin-cms.repository';
 import {
@@ -35,6 +36,9 @@ import {
 } from '@/infrastructure/media/media-storage.service';
 
 type BlogPostWithCategory = Prisma.BlogPostGetPayload<{ include: { category: true } }>;
+
+const DEFAULT_FAQ_COVER =
+  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80';
 
 @Injectable()
 export class AdminCmsService {
@@ -146,12 +150,23 @@ export class AdminCmsService {
     return this.listBlogPosts({ ...query, category: 'faq' }, actor);
   }
 
-  async createFaqPost(dto: UpsertBlogPostDto, actor: AuthenticatedUser) {
-    const faqCategory = await this.cmsRepository.findBlogCategoryBySlug('faq');
-    if (!faqCategory) {
-      throw new BadRequestException('FAQ category is not configured');
+  async createFaqPost(dto: UpsertFaqPostDto, actor: AuthenticatedUser) {
+    const faqCategory = await this.cmsRepository.ensureFaqCategory();
+    return this.createBlogPost(
+      { ...this.normalizeFaqDto(dto), categoryId: faqCategory.id },
+      actor,
+    );
+  }
+
+  async updateFaqPost(id: string, dto: UpsertFaqPostDto, actor: AuthenticatedUser) {
+    const existing = await this.cmsRepository.findBlogPostById(id);
+    if (!existing) {
+      throw new NotFoundException('FAQ entry not found');
     }
-    return this.createBlogPost({ ...dto, categoryId: faqCategory.id }, actor);
+    if (existing.category?.slug !== 'faq') {
+      throw new BadRequestException('Post is not an FAQ entry');
+    }
+    return this.updateBlogPost(id, this.normalizeFaqDto(dto), actor);
   }
 
   async listBanners(query: AdminBannersQueryDto, actor: AuthenticatedUser) {
@@ -418,6 +433,28 @@ export class AdminCmsService {
     if (existing && existing.id !== excludeId) {
       throw new ConflictException('Page slug already exists');
     }
+  }
+
+  private stripHtml(html: string): string {
+    return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  private normalizeFaqDto(dto: UpsertFaqPostDto): UpsertBlogPostDto {
+    const plain = this.stripHtml(dto.content);
+    if (plain.length < 2) {
+      throw new BadRequestException('Answer must be at least 2 characters');
+    }
+
+    return {
+      title: dto.title.trim(),
+      slug: dto.slug.trim(),
+      content: dto.content,
+      excerpt: dto.excerpt?.trim() || plain.slice(0, 400),
+      coverImageUrl: dto.coverImageUrl ?? DEFAULT_FAQ_COVER,
+      publishedAt: dto.publishedAt,
+      isPublished: dto.isPublished ?? true,
+      sortOrder: dto.sortOrder ?? 0,
+    };
   }
 
   private mapBlogPost(post: BlogPostWithCategory): AdminBlogPostDto {

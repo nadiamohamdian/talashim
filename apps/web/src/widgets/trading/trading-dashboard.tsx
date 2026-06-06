@@ -15,7 +15,7 @@ export function TradingDashboard() {
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.25em] text-amber-600 dark:text-amber-400">
-              Sadaf Gold Trading
+              Talashim Trading
             </p>
             <h1 className="mt-2 text-2xl font-bold text-stone-950 dark:text-zinc-50 sm:text-3xl">
               داشبورد معاملات طلا

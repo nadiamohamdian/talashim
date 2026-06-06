@@ -9,7 +9,7 @@ import type {
 
 export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   storeName: platformConfig.name,
-  legalName: 'فروشگاه طلای تلاشیم',
+  legalName: 'فروشگاه طلای طلاشیم',
   tagline: 'فروشگاه آنلاین طلا و جواهر با قیمت‌گذاری شفاف',
   supportEmail: 'support@talashim.local',
   supportPhone: '021-00000000',

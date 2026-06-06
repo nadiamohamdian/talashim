@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDate } from '@/shared/lib/persian-date';
+
 import { Badge, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
 import { useOrders } from '@/lib/api';
@@ -49,7 +51,7 @@ export function InvoicesContent() {
                 <Badge>{STATUS_LABELS[order.status] ?? order.status}</Badge>
               </TableCell>
               <TableCell>{formatPrice(order.totalToman)} تومان</TableCell>
-              <TableCell>{new Date(order.createdAt).toLocaleDateString('fa-IR')}</TableCell>
+              <TableCell>{formatPersianDate(order.createdAt)}</TableCell>
             </TableRow>
           ))}
         </TableBody>

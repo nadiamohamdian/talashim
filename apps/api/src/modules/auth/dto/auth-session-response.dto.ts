@@ -5,7 +5,7 @@ export class AuthUserDto {
   @ApiProperty({ example: 'cluser123456789' })
   id!: string;
 
-  @ApiProperty({ example: 'user@sadafgold.local' })
+  @ApiProperty({ example: 'user@talashim.local' })
   email!: string;
 
   @ApiProperty({ example: 'علی محمدیان' })

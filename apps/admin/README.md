@@ -1,4 +1,4 @@
-# Sadaf Gold — Admin
+# Talashim — Admin
 
 پنل مدیریت سازمانی — پورت **3002** (جدا از فروشگاه retail)
 

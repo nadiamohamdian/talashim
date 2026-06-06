@@ -14,7 +14,7 @@ export class AppController {
   @ApiOperation({ summary: 'API metadata' })
   @ApiOkResponse({
     schema: {
-      example: { name: 'Sadaf Gold API', status: 'ready', version: 'v1' },
+      example: { name: 'Talashim API', status: 'ready', version: 'v1' },
     },
   })
   @ApiPublicErrors()

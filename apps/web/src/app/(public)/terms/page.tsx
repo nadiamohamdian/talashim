@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
 export const metadata: Metadata = {
-  title: 'قوانین و مقررات | Sadaf Gold',
+  title: 'قوانین و مقررات',
 };
 
 export default function TermsPage() {

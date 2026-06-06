@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
@@ -205,7 +207,7 @@ export function InboxPanel() {
                   </div>
                   <div className="text-left">
                     <p className="text-xs text-stone-500">
-                      {new Date(item.createdAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(item.createdAt)}
                     </p>
                     {!item.readAt ? (
                       <Button

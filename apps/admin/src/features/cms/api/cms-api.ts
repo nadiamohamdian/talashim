@@ -10,6 +10,35 @@ import type {
   PaginatedResponse,
 } from '@talashim/types';
 
+export type UpsertFaqPayload = {
+  question: string;
+  answer: string;
+  slug: string;
+  isPublished?: boolean;
+  sortOrder?: number;
+};
+
+const DEFAULT_FAQ_COVER =
+  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80';
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function faqPayloadToApiBody(payload: UpsertFaqPayload) {
+  const plain = stripHtml(payload.answer);
+  return {
+    title: payload.question.trim(),
+    slug: payload.slug.trim(),
+    content: payload.answer,
+    excerpt: plain.slice(0, 400),
+    coverImageUrl: DEFAULT_FAQ_COVER,
+    isPublished: payload.isPublished ?? true,
+    sortOrder: payload.sortOrder ?? 0,
+    publishedAt: new Date().toISOString(),
+  };
+}
+
 export type UpsertBlogPostPayload = {
   title: string;
   slug: string;
@@ -86,12 +115,16 @@ export function fetchAdminFaq(params?: { page?: number; limit?: number; search?:
     .then((r) => r.data);
 }
 
-export function createFaqEntry(payload: UpsertBlogPostPayload) {
-  return axiosClient.post<AdminBlogPostDto>('/admin/cms/faq', payload).then((r) => r.data);
+export function createFaqEntry(payload: UpsertFaqPayload) {
+  return axiosClient
+    .post<AdminBlogPostDto>('/admin/cms/faq', faqPayloadToApiBody(payload))
+    .then((r) => r.data);
 }
 
-export function updateFaqEntry(id: string, payload: UpsertBlogPostPayload) {
-  return axiosClient.patch<AdminBlogPostDto>(`/admin/cms/faq/${id}`, payload).then((r) => r.data);
+export function updateFaqEntry(id: string, payload: UpsertFaqPayload) {
+  return axiosClient
+    .patch<AdminBlogPostDto>(`/admin/cms/faq/${id}`, faqPayloadToApiBody(payload))
+    .then((r) => r.data);
 }
 
 export function deleteFaqEntry(id: string) {

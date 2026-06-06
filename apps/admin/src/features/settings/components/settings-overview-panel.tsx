@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import Link from 'next/link';
 import { ADMIN_ROUTES } from '@/shared/config/admin-routes';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
@@ -57,10 +59,7 @@ export function SettingsOverviewPanel() {
         {updatedAt ? (
           <p className="mt-3 text-xs text-stone-500">
             آخرین ذخیره:{' '}
-            {new Date(updatedAt).toLocaleString('fa-IR', {
-              dateStyle: 'medium',
-              timeStyle: 'short',
-            })}
+            {formatPersianDateTime(updatedAt)}
           </p>
         ) : (
           <p className="mt-3 text-xs text-stone-500">هنوز تغییری ذخیره نشده — مقادیر پیش‌فرض.</p>

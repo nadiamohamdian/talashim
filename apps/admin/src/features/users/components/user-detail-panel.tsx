@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -71,7 +73,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                   {data.user.email}
                 </p>
                 <p className="mt-2 text-xs text-stone-500">
-                  ثبت‌نام: {new Date(data.user.createdAt).toLocaleString('fa-IR')}
+                  ثبت‌نام: {formatPersianDateTime(data.user.createdAt)}
                 </p>
               </div>
               <Badge className="bg-nude-100 text-stone-700">
@@ -122,7 +124,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                 <div>
                   <dt className="text-stone-500">تاریخ ارسال</dt>
                   <dd className="mt-1">
-                    {new Date(data.kyc.submittedAt).toLocaleString('fa-IR')}
+                    {formatPersianDateTime(data.kyc.submittedAt)}
                   </dd>
                 </div>
                 {data.kyc.reviewNote ? (
@@ -229,7 +231,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                         <TableCell>{item.action}</TableCell>
                         <TableCell>{SOURCE_FA[item.source] ?? item.source}</TableCell>
                         <TableCell className="text-xs text-stone-500">
-                          {new Date(item.createdAt).toLocaleString('fa-IR')}
+                          {formatPersianDateTime(item.createdAt)}
                         </TableCell>
                       </TableRow>
                     ))

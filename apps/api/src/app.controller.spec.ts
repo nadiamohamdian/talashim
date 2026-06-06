@@ -17,7 +17,7 @@ describe('AppController', () => {
   describe('root', () => {
     it('should expose API metadata', () => {
       expect(appController.getInfo()).toEqual({
-        name: 'Sadaf Gold API',
+        name: 'Talashim API',
         status: 'ready',
         version: 'v1',
       });

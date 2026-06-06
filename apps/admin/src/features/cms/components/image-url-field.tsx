@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Label } from '@sadafgold/ui';
 import { MediaPickerDialog } from './media-picker-dialog';
+import { consumeMediaPickerResult } from '../lib/media-picker-session';
 
 interface ImageUrlFieldProps {
   label: string;
@@ -24,6 +25,24 @@ export function ImageUrlField({
   required,
 }: ImageUrlFieldProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  useEffect(() => {
+    const picked = consumeMediaPickerResult();
+    if (picked) {
+      onChange(picked);
+    }
+  }, [onChange]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      const picked = consumeMediaPickerResult();
+      if (picked) {
+        onChange(picked);
+      }
+    };
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [onChange]);
 
   return (
     <div>
@@ -59,8 +78,11 @@ export function ImageUrlField({
       ) : (
         <p className="mt-2 text-xs text-stone-400">
           تصویر را از کتابخانه رسانه انتخاب کنید —{' '}
-          <a href="/media" className="font-semibold text-amber-700 hover:underline">
-            مدیریت کتابخانه
+          <a
+            href={`/media?picker=1&folder=${encodeURIComponent(folder)}`}
+            className="font-semibold text-amber-700 hover:underline"
+          >
+            باز کردن کتابخانه (/media)
           </a>
         </p>
       )}

@@ -1,6 +1,6 @@
-# Sadaf Gold Admin — Architecture
+# Talashim Admin — Architecture
 
-Enterprise admin panel as a **standalone Next.js app** (`apps/admin`, port **3002**). Production: `admin.sadafgold.com`.
+Enterprise admin panel as a **standalone Next.js app** (`apps/admin`, port **3002**). Production: `admin.talashim.com`.
 
 ## Principles
 

@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDate } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -155,7 +157,7 @@ export function UsersReportPanel() {
                     </TableCell>
                     <TableCell>{user.orderCount}</TableCell>
                     <TableCell className="text-xs text-stone-500">
-                      {new Date(user.createdAt).toLocaleDateString('fa-IR')}
+                      {formatPersianDate(user.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))}

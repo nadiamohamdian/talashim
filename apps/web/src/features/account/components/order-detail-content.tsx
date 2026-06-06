@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/persian-date';
+
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { Badge, Button, Skeleton } from '@sadafgold/ui';
@@ -48,7 +50,7 @@ export function OrderDetailContent({ orderId }: OrderDetailContentProps) {
           <p className="text-xs text-muted">شماره سفارش</p>
           <p className="mt-1 font-mono text-lg font-bold">{order.orderNumber}</p>
           <p className="mt-2 text-xs text-muted">
-            {new Date(order.createdAt).toLocaleString('fa-IR')}
+            {formatPersianDateTime(order.createdAt)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

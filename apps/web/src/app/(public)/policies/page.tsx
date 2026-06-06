@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
 export const metadata: Metadata = {
-  title: 'حریم خصوصی | Sadaf Gold',
+  title: 'حریم خصوصی',
 };
 
 export default function PoliciesPage() {

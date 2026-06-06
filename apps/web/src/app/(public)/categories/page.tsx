@@ -5,7 +5,7 @@ import { productApi } from '@/lib/api/product.api';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
 export const metadata: Metadata = {
-  title: 'دسته‌بندی محصولات | Sadaf Gold',
+  title: 'دسته‌بندی محصولات',
 };
 
 export default async function CategoriesPage() {

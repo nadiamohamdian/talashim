@@ -13,6 +13,7 @@ import type {
   AdminUser,
   AdminWalletRow,
   AdminWalletTransaction,
+  AdminPaymentReceiptItem,
   CreateStaffUserPayload,
   UpdateStaffUserPayload,
   AdminUserDetailView,
@@ -62,6 +63,14 @@ export function fetchWalletTransactions(params: { page?: number; type?: string; 
 export function fetchTradeOrders(params: { page?: number; side?: string; userId?: string }) {
   return axiosClient
     .get<AdminPaginated<AdminTradeOrder>>('/admin/transactions/trades', { params })
+    .then((r) => r.data);
+}
+
+export function fetchPaymentReceipts(params: { page?: number; status?: string }) {
+  return axiosClient
+    .get<AdminPaginated<AdminPaymentReceiptItem>>('/admin/transactions/payment-receipts', {
+      params,
+    })
     .then((r) => r.data);
 }
 

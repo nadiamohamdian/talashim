@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { IBM_Plex_Sans_Arabic } from "next/font/google";
+import { platformConfig } from "@sadafgold/shared";
 
 import "./globals.css";
 
@@ -27,11 +28,11 @@ const persianSans = IBM_Plex_Sans_Arabic({
 
 
 export const metadata: Metadata = {
-
-  title: "گالری طلای تلاشیم | Talashim",
-
+  title: {
+    default: `${platformConfig.storeName} | ${platformConfig.nameEn}`,
+    template: `%s | ${platformConfig.nameEn}`,
+  },
   description: "فروش طلا، جواهرات و زیورآلات با قیمت روز و خرید آنلاین امن.",
-
 };
 
 

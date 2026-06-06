@@ -3,7 +3,7 @@ import { ContactForm } from '@/features/contact/components/contact-form';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
 export const metadata: Metadata = {
-  title: 'تماس با ما | Sadaf Gold',
+  title: 'تماس با ما',
 };
 
 export default function ContactPage() {

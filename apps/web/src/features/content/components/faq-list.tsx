@@ -1,4 +1,7 @@
+'use client';
+
 import type { BlogPostSummary } from '@sadafgold/types';
+import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
 interface FaqListProps {
@@ -11,13 +14,23 @@ export function FaqList({ posts }: FaqListProps) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-3">
       {posts.map((post) => (
         <details key={post.id} className="card-luxury group p-5">
-          <summary className="cursor-pointer list-none font-semibold text-foreground marker:content-none">
-            {post.title}
+          <summary className="cursor-pointer list-none text-base font-semibold text-foreground marker:content-none">
+            <span className="flex items-start justify-between gap-3">
+              <span>{post.title}</span>
+              <span className="shrink-0 text-muted transition group-open:rotate-180" aria-hidden>
+                ▾
+              </span>
+            </span>
           </summary>
-          <p className="mt-3 text-sm leading-7 text-muted">{post.excerpt}</p>
+          <div className="mt-4 border-t border-border pt-4">
+            <RichHtmlContent
+              html={post.content ?? post.excerpt}
+              className="prose prose-sm max-w-none text-sm leading-8 text-muted [&_p]:mb-3"
+            />
+          </div>
         </details>
       ))}
     </div>

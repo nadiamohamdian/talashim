@@ -5,7 +5,7 @@ export const DEFAULT_CMS_HERO: CmsHeroConfig = {
   title: 'زیبایی ماندگار',
   titleAccent: 'در هر قطعه طلا',
   description:
-    'گالری طلای تلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.',
+    'گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.',
   primaryCta: { label: 'مشاهده فروشگاه', href: '/products' },
   secondaryCta: { label: 'انگشترهای زنانه', href: '/categories/rings' },
   imageUrl:
@@ -21,7 +21,7 @@ export const DEFAULT_CMS_SECTIONS: CmsHomepageSections = {
 };
 
 export const DEFAULT_CMS_SEO = {
-  siteTitle: 'طلای تلاشیم | فروشگاه آنلاین طلا و جواهر',
+  siteTitle: 'طلای طلاشیم | فروشگاه آنلاین طلا و جواهر',
   siteDescription:
     'خرید آنلاین طلا و جواهر با قیمت روز، وزن دقیق، اجرت شفاف و ارسال امن در سراسر ایران.',
   defaultOgImageUrl:

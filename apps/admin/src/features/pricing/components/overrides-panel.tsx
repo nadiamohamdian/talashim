@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -212,7 +214,7 @@ export function OverridesPanel() {
                   <TableCell>{row.isActive ? 'فعال' : 'غیرفعال'}</TableCell>
                   <TableCell className="text-xs">
                     {row.expiresAt
-                      ? new Date(row.expiresAt).toLocaleString('fa-IR')
+                      ? formatPersianDateTime(row.expiresAt)
                       : 'بدون انقضا'}
                   </TableCell>
                   <TableCell>

@@ -13,7 +13,7 @@ COPY packages/api-client/package.json packages/api-client/
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
-ARG NEXT_PUBLIC_API_BASE_URL=https://api.sadafgold.com/api/v1
+ARG NEXT_PUBLIC_API_BASE_URL=https://api.talashim.com/api/v1
 ARG NEXT_PUBLIC_ADMIN_APP_NAME=پنل مدیریت طلاشیم
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_ADMIN_APP_NAME=$NEXT_PUBLIC_ADMIN_APP_NAME

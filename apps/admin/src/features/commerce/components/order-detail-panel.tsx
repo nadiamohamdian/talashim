@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -26,25 +28,8 @@ import {
 } from '../api/commerce-api';
 import { CommercePageShell } from './commerce-page-shell';
 import { PermissionGate } from '@/features/auth/components/permission-gate';
+import { ReceiptPreview, downloadReceipt, receiptFilenameFromUrl } from '@/shared/ui/receipt-preview';
 import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
-
-function ReceiptPreview({ url }: { url: string }) {
-  const isPdf = url.toLowerCase().includes('.pdf');
-  return (
-    <div className="mt-2 overflow-hidden rounded-xl border border-border bg-stone-50">
-      {isPdf ? (
-        <a href={url} target="_blank" rel="noreferrer" className="block p-4 text-sm text-amber-800 underline">
-          باز کردن فایل PDF فیش
-        </a>
-      ) : (
-        <a href={url} target="_blank" rel="noreferrer">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="فیش واریز" className="max-h-80 w-full object-contain" />
-        </a>
-      )}
-    </div>
-  );
-}
 
 interface OrderDetailPanelProps {
   orderId: string;
@@ -113,7 +98,7 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
                   {data.user?.fullName ?? 'مهمان'} — {data.user?.email ?? ''}
                 </p>
                 <p className="mt-2 text-xs text-stone-500">
-                  {new Date(data.createdAt).toLocaleString('fa-IR')}
+                  {formatPersianDateTime(data.createdAt)}
                 </p>
               </div>
               <Badge>{ORDER_STATUS_FA[data.status] ?? data.status}</Badge>
@@ -227,14 +212,28 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
                       <div className="mt-3">
                         <p className="text-xs text-stone-500">فیش واریز</p>
                         <ReceiptPreview url={p.receiptUrl} />
-                        <a
-                          href={p.receiptUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-2 inline-block text-sm text-amber-800 underline"
-                        >
-                          باز کردن در تب جدید
-                        </a>
+                        <div className="mt-2 flex flex-wrap gap-3">
+                          <a
+                            href={p.receiptUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-sm text-amber-800 underline"
+                          >
+                            باز کردن در تب جدید
+                          </a>
+                          <button
+                            type="button"
+                            className="text-sm text-amber-800 underline"
+                            onClick={() =>
+                              downloadReceipt(
+                                p.receiptUrl!,
+                                receiptFilenameFromUrl(p.receiptUrl!, `receipt-${data.orderNumber}`),
+                              )
+                            }
+                          >
+                            دانلود فیش
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <p className="mt-2 text-xs text-stone-500">فیشی بارگذاری نشده.</p>

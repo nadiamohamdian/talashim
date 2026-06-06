@@ -68,7 +68,7 @@ export const orderApi = {
   },
 
   getCart(signal?: AbortSignal): Promise<CartResponse> {
-    return apiGet<CartResponse>('/cart/me', { signal, abortKey: 'cart:me' });
+    return apiGet<CartResponse>('/cart/me', { signal });
   },
 
   upsertCartItem(payload: { productId: string; quantity: number }): Promise<CartResponse> {

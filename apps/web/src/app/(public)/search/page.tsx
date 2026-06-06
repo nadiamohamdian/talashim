@@ -3,7 +3,7 @@ import { PublicPageShell } from '@/widgets/content/public-page-shell';
 import { SearchResults } from '@/widgets/catalog/search-results';
 
 export const metadata: Metadata = {
-  title: 'جستجو | Sadaf Gold',
+  title: 'جستجو',
 };
 
 interface SearchPageProps {

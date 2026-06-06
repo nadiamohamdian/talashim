@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   getAppInfo() {
     return {
-      name: 'Sadaf Gold API',
+      name: 'Talashim API',
       status: 'ready',
       version: 'v1',
     };

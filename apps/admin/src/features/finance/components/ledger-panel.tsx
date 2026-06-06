@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -120,7 +122,7 @@ export function LedgerPanel() {
                   </TableCell>
                   <TableCell className="text-sm">{row.user?.fullName ?? '—'}</TableCell>
                   <TableCell className="text-xs">
-                    {new Date(row.createdAt).toLocaleString('fa-IR')}
+                    {formatPersianDateTime(row.createdAt)}
                   </TableCell>
                 </TableRow>
               ))}

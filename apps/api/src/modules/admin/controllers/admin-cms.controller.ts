@@ -29,6 +29,7 @@ import {
   UpsertBlogPostDto,
   UpsertCmsBannerDto,
   UpsertCmsStaticPageDto,
+  UpsertFaqPostDto,
 } from '../dto/admin-cms.dto';
 import { AdminCmsService } from '../services/admin-cms.service';
 import type { UploadedImageFile } from '@/infrastructure/media/media-storage.service';
@@ -89,7 +90,7 @@ export class AdminCmsController {
 
   @Post('faq')
   @ApiOperation({ summary: 'Create FAQ entry' })
-  createFaq(@Body() dto: UpsertBlogPostDto, @CurrentUser() actor: AuthenticatedUser) {
+  createFaq(@Body() dto: UpsertFaqPostDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.createFaqPost(dto, actor);
   }
 
@@ -97,10 +98,10 @@ export class AdminCmsController {
   @ApiOperation({ summary: 'Update FAQ entry' })
   updateFaq(
     @Param('id') id: string,
-    @Body() dto: UpsertBlogPostDto,
+    @Body() dto: UpsertFaqPostDto,
     @CurrentUser() actor: AuthenticatedUser,
   ) {
-    return this.adminCmsService.updateBlogPost(id, dto, actor);
+    return this.adminCmsService.updateFaqPost(id, dto, actor);
   }
 
   @Delete('faq/:id')

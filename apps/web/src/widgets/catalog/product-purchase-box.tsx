@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/persian-date';
+
 import type { ProductDetails, ProductVariant } from '@sadafgold/types';
 import { useDynamicProductPrice } from '@/features/catalog/hooks/use-dynamic-product-price';
 import { formatPricingBreakdown } from '@/shared/lib/live-gold-pricing';
@@ -58,7 +60,7 @@ export function ProductPurchaseBox({
         </p>
         {pricing ? (
           <p className="mt-1 text-xs text-muted">
-            بروزرسانی: {new Date(pricing.pricedAt).toLocaleString('fa-IR')}
+            بروزرسانی: {formatPersianDateTime(pricing.pricedAt)}
           </p>
         ) : null}
       </div>

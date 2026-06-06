@@ -23,13 +23,33 @@ export class PrismaService
   }
 
   async onModuleInit() {
-    try {
-      await this.$connect();
-      this.logger.log('PostgreSQL connection established');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown';
-      this.logger.error(`PostgreSQL connection failed: ${message}`);
-      throw error;
+    const maxAttempts = process.env.NODE_ENV === 'production' ? 1 : 15;
+    const delayMs = 2_000;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await this.$connect();
+        this.logger.log('PostgreSQL connection established');
+        return;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'unknown';
+        const isLast = attempt === maxAttempts;
+
+        if (isLast) {
+          this.logger.error(
+            `PostgreSQL connection failed after ${maxAttempts} attempt(s): ${message}`,
+          );
+          this.logger.error(
+            'Start infrastructure: pnpm dev:infra (Docker: postgres, redis, minio)',
+          );
+          throw error;
+        }
+
+        this.logger.warn(
+          `PostgreSQL not ready (${attempt}/${maxAttempts}): ${message} — retrying in ${delayMs / 1000}s…`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
     }
   }
 

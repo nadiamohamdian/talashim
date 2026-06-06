@@ -1,4 +1,5 @@
 import type { ProductCategorySlug, ProductType } from '@sadafgold/types';
+import { pageTitle } from '@sadafgold/shared';
 import { CATEGORY_FALLBACK_IMAGES } from '@/shared/config/images';
 
 export interface StorefrontNavItem {
@@ -30,7 +31,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Rings',
     labelFa: 'انگشتر',
     productTypes: ['gold_jewelry'],
-    seoTitle: 'انگشتر طلا | Sadaf Gold',
+    seoTitle: pageTitle('انگشتر طلا'),
     seoDescription: 'انگشترهای طلای ۱۸ و ۲۱ عیار با اجرت شفاف و قیمت روز.',
   },
   {
@@ -38,7 +39,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Necklaces',
     labelFa: 'گردنبند',
     productTypes: ['gold_jewelry'],
-    seoTitle: 'گردنبند طلا | Sadaf Gold',
+    seoTitle: pageTitle('گردنبند طلا'),
     seoDescription: 'گردنبندهای لوکس با طراحی مینیمال و قیمت‌گذاری لحظه‌ای.',
   },
   {
@@ -46,7 +47,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Bracelets',
     labelFa: 'دستبند',
     productTypes: ['gold_jewelry'],
-    seoTitle: 'دستبند طلا | Sadaf Gold',
+    seoTitle: pageTitle('دستبند طلا'),
     seoDescription: 'دستبند طلا با وزن دقیق و ضمانت اصالت.',
   },
   {
@@ -54,7 +55,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Earrings',
     labelFa: 'گوشواره',
     productTypes: ['gold_jewelry'],
-    seoTitle: 'گوشواره طلا | Sadaf Gold',
+    seoTitle: pageTitle('گوشواره طلا'),
     seoDescription: 'گوشواره‌های طلا برای استایل روزمره و مجلسی.',
   },
   {
@@ -62,7 +63,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Coins',
     labelFa: 'سکه',
     productTypes: ['coins', 'investment_gold'],
-    seoTitle: 'سکه طلا | Sadaf Gold',
+    seoTitle: pageTitle('سکه طلا'),
     seoDescription: 'سکه‌های سرمایه‌گذاری با قیمت شفاف.',
   },
   {
@@ -70,7 +71,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Bars',
     labelFa: 'شمش',
     productTypes: ['investment_gold'],
-    seoTitle: 'شمش طلا | Sadaf Gold',
+    seoTitle: pageTitle('شمش طلا'),
     seoDescription: 'شمش طلای سرمایه‌گذاری با عیار معتبر.',
   },
   {
@@ -78,7 +79,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Melted',
     labelFa: 'آب‌شده',
     productTypes: ['melted_gold'],
-    seoTitle: 'طلای آب‌شده | Sadaf Gold',
+    seoTitle: pageTitle('طلای آب‌شده'),
     seoDescription: 'خرید طلای آب‌شده با قیمت لحظه‌ای — معامله در پنل کاربری.',
   },
   {
@@ -86,7 +87,7 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     label: 'Wholesale',
     labelFa: 'عمده',
     productTypes: ['wholesale'],
-    seoTitle: 'خرید عمده طلا | Sadaf Gold',
+    seoTitle: pageTitle('خرید عمده طلا'),
     seoDescription: 'کاتالوگ عمده برای همکاران — ورود سازمانی.',
   },
 ];

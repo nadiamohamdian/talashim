@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDate } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -163,7 +165,7 @@ export function BlogPanel() {
                     </span>
                   </TableCell>
                   <TableCell className="text-xs">
-                    {new Date(post.publishedAt).toLocaleDateString('fa-IR')}
+                    {formatPersianDate(post.publishedAt)}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">

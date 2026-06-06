@@ -4,4 +4,3 @@ export interface PaginatedResponse<T> {
     total: number;
     items: T[];
 }
-//# sourceMappingURL=pagination.d.ts.map

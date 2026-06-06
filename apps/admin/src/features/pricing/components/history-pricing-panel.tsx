@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime, formatPersianDate } from '@/shared/lib/format-date';
+
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, Label, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@talashim/ui';
@@ -52,11 +54,7 @@ export function HistoryPricingPanel() {
     return [...data.items]
       .reverse()
       .map((row) => ({
-        label: new Date(row.recordedAt).toLocaleDateString('fa-IR', {
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-        }),
+        label: formatPersianDate(row.recordedAt),
         price: Number(row.pricePerGram),
       }));
   }, [data?.items]);
@@ -133,7 +131,7 @@ export function HistoryPricingPanel() {
                 {data?.items.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell className="text-xs">
-                      {new Date(row.recordedAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(row.recordedAt)}
                     </TableCell>
                     <TableCell>{formatRial(row.pricePerGram)}</TableCell>
                     <TableCell>{formatRial(row.buyPrice)}</TableCell>

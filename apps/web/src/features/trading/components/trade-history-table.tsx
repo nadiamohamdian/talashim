@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/persian-date';
+
 import { Badge, Card, Skeleton } from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
 import { useTradeOrders } from '../hooks/use-trade-orders';
@@ -98,7 +100,7 @@ export function TradeHistoryTable({ embedded = false }: TradeHistoryTableProps) 
                 <td className="px-4 py-3">{formatPrice(Number(order.netRial))} تومان</td>
                 <td className="px-4 py-3">{statusBadge(order)}</td>
                 <td className="px-4 py-3 text-xs text-stone-500">
-                  {new Date(order.createdAt).toLocaleString('fa-IR')}
+                  {formatPersianDateTime(order.createdAt)}
                 </td>
               </tr>
             ))

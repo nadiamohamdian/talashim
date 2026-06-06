@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/persian-date';
+
 import { Badge, Card, Skeleton } from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
 import { useLiveGoldPrice } from '../hooks/use-live-gold-price';
@@ -45,7 +47,7 @@ export function LivePriceCard() {
         </div>
         <div className="text-left text-xs text-zinc-400">
           <p>منبع: {data.providerName}</p>
-          <p className="mt-1">{new Date(data.recordedAt).toLocaleString('fa-IR')}</p>
+          <p className="mt-1">{formatPersianDateTime(data.recordedAt)}</p>
         </div>
       </div>
       <div className="relative mt-6 grid grid-cols-2 gap-3 sm:max-w-md">

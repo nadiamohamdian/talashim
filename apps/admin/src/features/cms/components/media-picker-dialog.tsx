@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Label, Skeleton } from '@sadafgold/ui';
@@ -86,43 +87,15 @@ export function MediaPickerDialog({
         </div>
 
         <div className="space-y-4 overflow-y-auto p-5">
-          <div
-            className="rounded-2xl border-2 border-dashed border-amber-300 bg-amber-50/50 p-6 text-center"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              const file = e.dataTransfer.files[0];
-              if (file?.type.startsWith('image/')) {
-                upload.mutate(file);
-              }
-            }}
-          >
-            <p className="text-sm font-medium text-stone-800">آپلود تصویر جدید</p>
-            <p className="mt-1 text-xs text-stone-500">فایل را بکشید و رها کنید یا دکمه زیر را بزنید</p>
-            <button
-              type="button"
-              className="btn-gold mt-4"
-              disabled={upload.isPending}
-              onClick={() => fileInputRef.current?.click()}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm font-medium text-stone-800">انتخاب از کتابخانه رسانه</p>
+            <Link
+              href={`/media?picker=1${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`}
+              className="text-sm font-semibold text-amber-800 underline"
+              onClick={onClose}
             >
-              {upload.isPending ? 'در حال آپلود…' : 'انتخاب فایل'}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={IMAGE_ACCEPT}
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  upload.mutate(file);
-                }
-                e.target.value = '';
-              }}
-            />
-            {upload.isError ? (
-              <p className="mt-2 text-xs text-rose-600">{getApiErrorMessage(upload.error)}</p>
-            ) : null}
+              باز کردن صفحه کتابخانه (/media)
+            </Link>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -162,9 +135,35 @@ export function MediaPickerDialog({
           ) : isError ? (
             <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-center">
               <p className="text-sm text-rose-700">{getApiErrorMessage(error)}</p>
-              <Button variant="outline" className="mt-3" onClick={() => void refetch()}>
-                تلاش مجدد
-              </Button>
+              <p className="mt-2 text-xs text-stone-600">
+                API را اجرا کنید:{' '}
+                <code className="rounded bg-white px-1" dir="ltr">
+                  pnpm dev:api
+                </code>
+              </p>
+              <div className="mt-3 flex flex-wrap justify-center gap-2">
+                <Button variant="outline" onClick={() => void refetch()}>
+                  تلاش مجدد
+                </Button>
+                <Link
+                  href={`/media?picker=1${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`}
+                  className="inline-flex h-10 items-center rounded-xl border border-border px-4 text-sm"
+                  onClick={onClose}
+                >
+                  رفتن به /media
+                </Link>
+              </div>
+            </div>
+          ) : data?.items.length === 0 ? (
+            <div className="rounded-2xl border border-border bg-nude-50 p-6 text-center text-sm text-stone-600">
+              <p>هنوز تصویری در کتابخانه نیست.</p>
+              <Link
+                href={`/media?picker=1${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`}
+                className="mt-2 inline-block font-semibold text-amber-800 underline"
+                onClick={onClose}
+              >
+                رفتن به کتابخانه برای آپلود
+              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
@@ -215,6 +214,45 @@ export function MediaPickerDialog({
               </Button>
             </div>
           ) : null}
+
+          <div
+            className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/80 p-5 text-center"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const file = e.dataTransfer.files[0];
+              if (file?.type.startsWith('image/')) {
+                upload.mutate(file);
+              }
+            }}
+          >
+            <p className="text-sm font-medium text-stone-700">یا آپلود از کامپیوتر</p>
+            <p className="mt-1 text-xs text-stone-500">فایل را بکشید و رها کنید</p>
+            <button
+              type="button"
+              className="mt-3 rounded-xl border border-border bg-white px-4 py-2 text-sm font-medium text-stone-800 hover:bg-nude-50"
+              disabled={upload.isPending}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {upload.isPending ? 'در حال آپلود…' : 'آپلود از کامپیوتر'}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={IMAGE_ACCEPT}
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  upload.mutate(file);
+                }
+                e.target.value = '';
+              }}
+            />
+            {upload.isError ? (
+              <p className="mt-2 text-xs text-rose-600">{getApiErrorMessage(upload.error)}</p>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

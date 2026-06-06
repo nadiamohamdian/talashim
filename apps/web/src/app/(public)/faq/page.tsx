@@ -3,7 +3,7 @@ import { FaqPageShell } from '@/features/content/components/faq-list';
 import { productApi } from '@/lib/api/product.api';
 
 export const metadata: Metadata = {
-  title: 'سوالات متداول | Sadaf Gold',
+  title: 'سوالات متداول',
 };
 
 export default async function FaqPage() {

@@ -70,7 +70,8 @@ export function fetchFinanceReports(params?: {
 export {
   fetchTradeOrders,
   fetchWalletTransactions,
+  fetchPaymentReceipts,
   fetchWallets,
 } from '@/features/admin/api/admin-api';
 
-export type { AdminPaginated, AdminTradeOrder, AdminWalletRow, AdminWalletTransaction };
+export type { AdminPaginated, AdminTradeOrder, AdminWalletRow, AdminWalletTransaction, AdminPaymentReceiptItem };

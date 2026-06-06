@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useQuery } from '@tanstack/react-query';
 import { Card, Skeleton } from '@sadafgold/ui';
 import { fetchPricingProviders } from '../api/pricing-admin-api';
@@ -82,7 +84,7 @@ export function ProvidersPanel() {
               <p className="text-xs text-stone-500">
                 آخرین همگام‌سازی:{' '}
                 {data.marketCache.lastSyncAt
-                  ? new Date(data.marketCache.lastSyncAt).toLocaleString('fa-IR')
+                  ? formatPersianDateTime(data.marketCache.lastSyncAt)
                   : '—'}
               </p>
             </Card>
@@ -113,7 +115,7 @@ export function ProvidersPanel() {
                   <p className="mt-2 text-xs text-stone-600">{provider.message}</p>
                 ) : null}
                 <p className="mt-2 text-[10px] text-stone-400">
-                  آخرین بررسی: {new Date(provider.lastCheckedAt).toLocaleString('fa-IR')}
+                  آخرین بررسی: {formatPersianDateTime(provider.lastCheckedAt)}
                 </p>
               </Card>
             ))}

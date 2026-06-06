@@ -20,10 +20,10 @@ export function isSwaggerEnabled(env: ApiEnv): boolean {
 
 function buildDocumentBuilder(env: ApiEnv) {
   const builder = new DocumentBuilder()
-    .setTitle('Sadaf Gold API')
+    .setTitle('Talashim API')
     .setDescription(
       [
-        'Enterprise REST API for Sadaf Gold — e-commerce, wallets, live pricing, and trading.',
+        'Enterprise REST API for Talashim — e-commerce, wallets, live pricing, and trading.',
         '',
         `**Version:** \`${env.API_VERSION}\` · **Prefix:** \`/${env.API_PREFIX}\``,
         '',
@@ -32,7 +32,7 @@ function buildDocumentBuilder(env: ApiEnv) {
       ].join('\n'),
     )
     .setVersion(env.API_VERSION)
-    .setContact('Sadaf Gold Platform', 'https://sadafgold.com', 'api@sadafgold.local')
+    .setContact('Talashim Platform', 'https://talashim.com', 'api@talashim.local')
     .setLicense('Proprietary', '')
     .addBearerAuth(
       {
@@ -95,7 +95,7 @@ export function setupSwagger(app: INestApplication, env: ApiEnv): void {
   );
 
   SwaggerModule.setup(swaggerPath, app, document, {
-    customSiteTitle: 'Sadaf Gold API Documentation',
+    customSiteTitle: 'Talashim API Documentation',
     swaggerOptions: {
       persistAuthorization: true,
       docExpansion: 'none',

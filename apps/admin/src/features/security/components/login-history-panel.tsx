@@ -1,5 +1,7 @@
 'use client';
 
+import { formatPersianDateTime } from '@/shared/lib/format-date';
+
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -107,7 +109,7 @@ export function LoginHistoryPanel() {
                       {item.actor ? getRoleLabelFa(item.actor.role) : '—'}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs text-stone-600">
-                      {new Date(item.createdAt).toLocaleString('fa-IR')}
+                      {formatPersianDateTime(item.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))
