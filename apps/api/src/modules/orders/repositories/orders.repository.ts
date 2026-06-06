@@ -12,6 +12,8 @@ export class OrdersRepository {
     shippingAddressId?: string;
     paymentProvider: string;
     paymentStatus: PaymentStatus;
+    isInsured: boolean;
+    insuranceFeeToman: bigint;
     subtotalToman: bigint;
     taxToman: bigint;
     totalToman: bigint;
@@ -26,6 +28,8 @@ export class OrdersRepository {
         data: {
           orderNumber: `SG-${Date.now()}`,
           status: OrderStatus.PENDING,
+          isInsured: payload.isInsured,
+          insuranceFeeToman: payload.insuranceFeeToman,
           subtotalToman: payload.subtotalToman,
           taxToman: payload.taxToman,
           totalToman: payload.totalToman,

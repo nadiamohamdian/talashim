@@ -10,9 +10,15 @@ import {
   assertFeatureEnabled,
   getCheckoutTaxRate,
   getEnabledCheckoutProviders,
+  getFreeShippingMinToman,
   getMinOrderToman,
+  getShippingInsurancePercent,
 } from '@/common/platform-settings/platform-settings-helpers';
 import { getPlatformSettings } from '@/common/platform-settings/platform-settings-runtime';
+import {
+  calculateInsuranceFeeToman,
+  calculateShippingFeeToman,
+} from '@sadafgold/shared';
 import { CartRepository } from '@/modules/cart/repositories/cart.repository';
 import { AddressesRepository } from '@/modules/addresses/repositories/addresses.repository';
 import {
@@ -105,6 +111,14 @@ export class OrdersService {
     }
 
     const taxToman = Math.round(subtotalToman * getCheckoutTaxRate());
+    const shippingToman = calculateShippingFeeToman(subtotalToman, getFreeShippingMinToman());
+    const isInsured = payload.isInsured === true;
+    const insuranceFeeToman = calculateInsuranceFeeToman(
+      subtotalToman,
+      isInsured,
+      getShippingInsurancePercent(),
+    );
+    const totalToman = subtotalToman + taxToman + shippingToman + insuranceFeeToman;
     const provider = payload.paymentProvider as CheckoutPaymentProvider;
 
     const created = await this.ordersRepository.createFromCart({
@@ -113,9 +127,11 @@ export class OrdersService {
       shippingAddressId: address.id,
       paymentProvider: provider,
       paymentStatus: resolveInitialPaymentStatus(provider),
+      isInsured,
+      insuranceFeeToman: tomanNumberToBigInt(insuranceFeeToman),
       subtotalToman: tomanNumberToBigInt(subtotalToman),
       taxToman: tomanNumberToBigInt(taxToman),
-      totalToman: tomanNumberToBigInt(subtotalToman + taxToman),
+      totalToman: tomanNumberToBigInt(totalToman),
       items: cart.items.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
@@ -239,6 +255,8 @@ export class OrdersService {
     status: OrderStatus;
     subtotalToman: bigint | number;
     taxToman: bigint | number;
+    isInsured: boolean;
+    insuranceFeeToman: bigint | number;
     totalToman: bigint | number;
     createdAt: Date;
     items: Array<{ quantity: number }>;
@@ -261,6 +279,8 @@ export class OrdersService {
         : null,
       subtotalToman: tomanBigIntToNumber(order.subtotalToman),
       taxToman: tomanBigIntToNumber(order.taxToman),
+      isInsured: order.isInsured,
+      insuranceFeeToman: tomanBigIntToNumber(order.insuranceFeeToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
       createdAt: order.createdAt.toISOString(),
@@ -273,6 +293,8 @@ export class OrdersService {
     status: OrderStatus;
     subtotalToman: bigint | number;
     taxToman: bigint | number;
+    isInsured: boolean;
+    insuranceFeeToman: bigint | number;
     totalToman: bigint | number;
     createdAt: Date;
     items: Array<{

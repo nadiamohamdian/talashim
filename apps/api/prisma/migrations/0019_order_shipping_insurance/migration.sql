@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Order" ADD COLUMN "isInsured" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Order" ADD COLUMN "insuranceFeeToman" BIGINT NOT NULL DEFAULT 0;

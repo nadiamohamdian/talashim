@@ -24,6 +24,7 @@ export interface CheckoutPayload {
   cartId: string;
   paymentProvider: CheckoutPaymentProvider;
   shippingAddressId: string;
+  isInsured?: boolean;
 }
 
 export const orderApi = {

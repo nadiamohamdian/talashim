@@ -83,6 +83,7 @@ export function OrdersListPanel() {
           <PersianDatePicker
             label="از"
             value={from}
+            valueFormat="iso"
             onChange={(value) => {
               setFrom(value);
               setPage(1);
@@ -93,6 +94,8 @@ export function OrdersListPanel() {
           <PersianDatePicker
             label="تا"
             value={to}
+            valueFormat="iso"
+            endOfDay
             onChange={(value) => {
               setTo(value);
               setPage(1);
@@ -118,6 +121,7 @@ export function OrdersListPanel() {
                 <TableHead>کاربر</TableHead>
                 <TableHead>اقلام</TableHead>
                 <TableHead>جمع</TableHead>
+                <TableHead>بیمه</TableHead>
                 <TableHead>وضعیت سفارش</TableHead>
                 <TableHead>وضعیت پرداخت</TableHead>
                 <TableHead>زمان</TableHead>
@@ -126,7 +130,7 @@ export function OrdersListPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-muted">
+                  <TableCell colSpan={8} className="py-8 text-center text-muted">
                     سفارشی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -141,6 +145,17 @@ export function OrdersListPanel() {
                     <TableCell>{order.user?.fullName ?? 'مهمان'}</TableCell>
                     <TableCell>{order.itemCount}</TableCell>
                     <TableCell>{formatToman(order.totalToman)}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={
+                          order.isInsured
+                            ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                            : 'bg-[var(--surface)] text-[var(--muted-foreground)]'
+                        }
+                      >
+                        {order.isInsured ? '✅ بیمه شده' : '❌ بدون بیمه'}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <Badge className={statusBadge[order.status]}>{ORDER_STATUS_FA[order.status] ?? order.status}</Badge>
                     </TableCell>

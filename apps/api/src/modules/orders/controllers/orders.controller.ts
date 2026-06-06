@@ -10,12 +10,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import type { UploadedImageFile } from '@/infrastructure/media/media-storage.service';
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import { CreateOrderDto } from '../dto/create-order.dto';
+import { CreateOrderResponseDto } from '../dto/order-response.dto';
 import { OrdersQueryDto } from '../dto/orders-query.dto';
 import { OrdersService } from '../services/orders.service';
 
@@ -73,6 +74,7 @@ export class OrdersController {
 
   @Post()
   @ApiOperation({ summary: 'Checkout cart and create order' })
+  @ApiResponse({ status: 201, type: CreateOrderResponseDto })
   checkout(
     @CurrentUser() user: AuthenticatedUser,
     @Body() payload: CreateOrderDto,

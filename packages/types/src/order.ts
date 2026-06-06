@@ -27,6 +27,8 @@ export interface OrderSummary {
   paymentStatus: PaymentStatus | null;
   subtotalToman: number;
   taxToman: number;
+  isInsured: boolean;
+  insuranceFeeToman: number;
   totalToman: number;
   itemCount: number;
   createdAt: string;

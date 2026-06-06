@@ -1,5 +1,5 @@
 import { ForbiddenException } from '@nestjs/common';
-import type { CheckoutPaymentProvider } from '@sadafgold/shared';
+import { SHIPPING_INSURANCE_PERCENT, type CheckoutPaymentProvider } from '@sadafgold/shared';
 import type { FeatureFlagsSettingsPayload } from '@/modules/admin/platform-settings.defaults';
 import { getPlatformSettings } from './platform-settings-runtime';
 
@@ -30,4 +30,12 @@ export function getCheckoutTaxRate(): number {
 
 export function getMinOrderToman(): number {
   return getPlatformSettings().commerce.minOrderToman;
+}
+
+export function getFreeShippingMinToman(): number {
+  return getPlatformSettings().commerce.freeShippingMinToman;
+}
+
+export function getShippingInsurancePercent(): number {
+  return SHIPPING_INSURANCE_PERCENT;
 }

@@ -114,6 +114,8 @@ export interface AdminOrderListItemDto {
   status: string;
   subtotalToman: number;
   taxToman: number;
+  isInsured: boolean;
+  insuranceFeeToman: number;
   totalToman: number;
   itemCount: number;
   paymentStatus: string | null;

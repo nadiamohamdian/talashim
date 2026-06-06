@@ -11,6 +11,21 @@ import type {
 import { AdminOrdersRepository } from '../repositories/admin-orders.repository';
 import { OrdersService } from '@/modules/orders/services/orders.service';
 
+function parseAdminFilterDate(value: string, endOfDay = false): Date {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const date = new Date(`${value}T00:00:00`);
+    if (endOfDay) {
+      date.setHours(23, 59, 59, 999);
+    }
+    return date;
+  }
+  const date = new Date(value);
+  if (endOfDay) {
+    date.setHours(23, 59, 59, 999);
+  }
+  return date;
+}
+
 type OrderListRow = Awaited<ReturnType<AdminOrdersRepository['listOrders']>>[0][number];
 type OrderDetailRow = NonNullable<
   Awaited<ReturnType<AdminOrdersRepository['findOrderById']>>
@@ -33,8 +48,8 @@ export class AdminOrdersService {
     const [items, total] = await this.ordersRepository.listOrders(skip, limit, {
       search: query.search,
       status: query.status,
-      from: query.from ? new Date(query.from) : undefined,
-      to: query.to ? new Date(query.to) : undefined,
+      from: query.from ? parseAdminFilterDate(query.from) : undefined,
+      to: query.to ? parseAdminFilterDate(query.to, true) : undefined,
     });
 
     return {
@@ -101,6 +116,8 @@ export class AdminOrdersService {
       status: order.status,
       subtotalToman: tomanBigIntToNumber(order.subtotalToman),
       taxToman: tomanBigIntToNumber(order.taxToman),
+      isInsured: order.isInsured,
+      insuranceFeeToman: tomanBigIntToNumber(order.insuranceFeeToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order._count.items,
       paymentStatus: payment?.status ?? null,
@@ -124,6 +141,8 @@ export class AdminOrdersService {
       status: order.status,
       subtotalToman: tomanBigIntToNumber(order.subtotalToman),
       taxToman: tomanBigIntToNumber(order.taxToman),
+      isInsured: order.isInsured,
+      insuranceFeeToman: tomanBigIntToNumber(order.insuranceFeeToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order.items.length,
       paymentStatus: payment?.status ?? null,

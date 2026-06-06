@@ -7,6 +7,9 @@ import { Button, Skeleton } from '@sadafgold/ui';
 import {
   CHECKOUT_PAYMENT_LABELS,
   DEFAULT_CARD_TO_CARD_INFO,
+  calculateInsuranceFeeToman,
+  calculateShippingFeeToman,
+  SHIPPING_INSURANCE_PERCENT,
   type CheckoutPaymentProvider,
 } from '@sadafgold/shared';
 import { getEnabledPaymentProviders } from '@/shared/model/storefront-settings';
@@ -28,6 +31,7 @@ export function CheckoutContent() {
   const receiptInputRef = useRef<HTMLInputElement>(null);
 
   const [addressId, setAddressId] = useState('');
+  const [isInsured, setIsInsured] = useState(false);
   const [paymentProvider, setPaymentProvider] = useState<CheckoutPaymentProvider>(
     paymentProviders[0] ?? 'card_to_card',
   );
@@ -71,7 +75,17 @@ export function CheckoutContent() {
   }
 
   const taxToman = Math.round(cart.subtotalToman * (commerce.defaultTaxPercent / 100));
-  const totalToman = cart.subtotalToman + taxToman;
+  const shippingToman = calculateShippingFeeToman(
+    cart.subtotalToman,
+    commerce.freeShippingMinToman,
+  );
+  const insuranceFeeToman = calculateInsuranceFeeToman(
+    cart.subtotalToman,
+    isInsured,
+    SHIPPING_INSURANCE_PERCENT,
+  );
+  const totalToman = cart.subtotalToman + taxToman + shippingToman + insuranceFeeToman;
+
   const belowMinOrder = cart.subtotalToman < commerce.minOrderToman;
   const needsReceipt = paymentProvider === 'card_to_card';
   const hasReceipt = Boolean(receiptFile);
@@ -117,6 +131,7 @@ export function CheckoutContent() {
         cartId: cart.id!,
         paymentProvider,
         shippingAddressId: selectedAddressId,
+        isInsured,
       },
       {
         onSuccess: (order) => {
@@ -213,6 +228,25 @@ export function CheckoutContent() {
                 ))}
               </div>
             )}
+          </section>
+
+          <section className="card-luxury space-y-3 p-6">
+            <h2 className="font-semibold text-foreground">بیمه و ارسال</h2>
+            <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-nude-200 p-4 transition hover:border-amber-200">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={isInsured}
+                onChange={(event) => setIsInsured(event.target.checked)}
+              />
+              <div className="text-sm">
+                <p className="font-semibold text-foreground">بیمه مرسوله</p>
+                <p className="mt-1 text-xs leading-6 text-muted">
+                  پوشش بیمه‌ای مرسوله با نرخ {formatPlainPercent(SHIPPING_INSURANCE_PERCENT)}٪ از
+                  مبلغ سفارش
+                </p>
+              </div>
+            </label>
           </section>
 
           <section className="card-luxury space-y-3 p-6">
@@ -330,8 +364,22 @@ export function CheckoutContent() {
           </div>
           <div className="space-y-2 border-t border-nude-200 pt-4 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted">جمع</span>
+              <span className="text-muted">جمع محصولات</span>
               <span>{formatPrice(cart.subtotalToman)} تومان</span>
+            </div>
+            <div className="flex justify-between text-muted">
+              <span>ارسال</span>
+              <span>
+                {shippingToman === 0 ? 'رایگان' : `${formatPrice(shippingToman)} تومان`}
+              </span>
+            </div>
+            <div className="flex justify-between text-muted">
+              <span>بیمه مرسوله</span>
+              <span>
+                {insuranceFeeToman > 0
+                  ? `${formatPrice(insuranceFeeToman)} تومان`
+                  : '—'}
+              </span>
             </div>
             <div className="flex justify-between text-muted">
               <span>مالیات ({commerce.defaultTaxPercent}٪)</span>
@@ -376,4 +424,8 @@ export function CheckoutContent() {
       ) : null}
     </>
   );
+}
+
+function formatPlainPercent(value: number): string {
+  return value.toLocaleString('fa-IR', { maximumFractionDigits: 2 });
 }

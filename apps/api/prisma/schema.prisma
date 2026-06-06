@@ -254,6 +254,8 @@ model Order {
   status            OrderStatus @default(PENDING)
   subtotalToman     BigInt
   taxToman          BigInt
+  isInsured         Boolean     @default(false)
+  insuranceFeeToman BigInt      @default(0)
   totalToman        BigInt
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt

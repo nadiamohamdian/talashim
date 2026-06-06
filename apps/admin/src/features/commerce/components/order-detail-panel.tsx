@@ -29,6 +29,7 @@ import {
 import { CommercePageShell } from './commerce-page-shell';
 import { PermissionGate } from '@/features/auth/components/permission-gate';
 import { ReceiptPreview, downloadReceipt, receiptFilenameFromUrl } from '@/shared/ui/receipt-preview';
+import { deriveShippingFeeToman } from '@sadafgold/shared';
 import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
 
 interface OrderDetailPanelProps {
@@ -103,7 +104,7 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
               </div>
               <Badge>{ORDER_STATUS_FA[data.status] ?? data.status}</Badge>
             </div>
-            <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-3">
+            <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <dt className="text-muted">جمع جزء</dt>
                 <dd>{formatToman(data.subtotalToman)} تومان</dd>
@@ -111,6 +112,26 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
               <div>
                 <dt className="text-muted">مالیات</dt>
                 <dd>{formatToman(data.taxToman)} تومان</dd>
+              </div>
+              <div>
+                <dt className="text-muted">هزینه ارسال</dt>
+                <dd>
+                  {deriveShippingFeeToman(data) === 0
+                    ? 'رایگان'
+                    : `${formatToman(deriveShippingFeeToman(data))} تومان`}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted">وضعیت بیمه</dt>
+                <dd>{data.isInsured ? '✅ بیمه شده' : '❌ بدون بیمه'}</dd>
+              </div>
+              <div>
+                <dt className="text-muted">حق بیمه</dt>
+                <dd>
+                  {data.isInsured
+                    ? `${formatToman(data.insuranceFeeToman)} تومان`
+                    : '—'}
+                </dd>
               </div>
               <div>
                 <dt className="text-muted">جمع کل</dt>

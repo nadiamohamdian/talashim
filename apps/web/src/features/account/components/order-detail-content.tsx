@@ -5,6 +5,7 @@ import { formatPersianDateTime } from '@/shared/lib/persian-date';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { Badge, Button, Skeleton } from '@sadafgold/ui';
+import { deriveShippingFeeToman } from '@sadafgold/shared';
 import { formatPrice } from '@/shared/lib/format-price';
 import { getApiErrorMessage } from '@/lib/api';
 import { useOrder, useUploadPaymentReceiptMutation } from '@/lib/api';
@@ -105,6 +106,26 @@ export function OrderDetailContent({ orderId }: OrderDetailContentProps) {
         <div className="flex justify-between">
           <span className="text-muted">مالیات</span>
           <span>{formatPrice(order.taxToman)} تومان</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted">هزینه ارسال</span>
+          <span>
+            {deriveShippingFeeToman(order) === 0
+              ? 'رایگان'
+              : `${formatPrice(deriveShippingFeeToman(order))} تومان`}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted">بیمه مرسوله</span>
+          <span>{order.isInsured ? 'فعال' : 'غیرفعال'}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-muted">هزینه بیمه</span>
+          <span>
+            {order.insuranceFeeToman > 0
+              ? `${formatPrice(order.insuranceFeeToman)} تومان`
+              : '—'}
+          </span>
         </div>
         <div className="flex justify-between border-t border-nude-200 pt-3 text-base font-bold text-gold-dark">
           <span>مبلغ نهایی</span>

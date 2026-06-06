@@ -101,9 +101,60 @@ function d2j(jdn: number) {
   return { jy, jm, jd };
 }
 
+function getIranWallClock(date: Date): {
+  gy: number;
+  gm: number;
+  gd: number;
+  hour: number;
+  minute: number;
+} {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Tehran',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  }).formatToParts(date);
+
+  const read = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value ?? '0');
+
+  return {
+    gy: read('year'),
+    gm: read('month'),
+    gd: read('day'),
+    hour: read('hour'),
+    minute: read('minute'),
+  };
+}
+
+export function jalaaliToGregorianParts(jy: number, jm: number, jd: number) {
+  return d2g(j2d(jy, jm, jd));
+}
+
+export function jalaaliToGregorianDateString(jy: number, jm: number, jd: number): string {
+  const { gy, gm, gd } = jalaaliToGregorianParts(jy, jm, jd);
+  return `${gy}-${String(gm).padStart(2, '0')}-${String(gd).padStart(2, '0')}`;
+}
+
+export function gregorianDateStringToDate(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) {
+    return null;
+  }
+  const gy = Number(match[1]);
+  const gm = Number(match[2]);
+  const gd = Number(match[3]);
+  const date = new Date(gy, gm - 1, gd, 12, 0, 0, 0);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export function toJalaali(date: Date): { jy: number; jm: number; jd: number; hour: number; minute: number } {
-  const { jy, jm, jd } = d2j(g2d(date.getFullYear(), date.getMonth() + 1, date.getDate()));
-  return { jy, jm, jd, hour: date.getHours(), minute: date.getMinutes() };
+  const { gy, gm, gd, hour, minute } = getIranWallClock(date);
+  const { jy, jm, jd } = d2j(g2d(gy, gm, gd));
+  return { jy, jm, jd, hour, minute };
 }
 
 export function fromJalaali(
