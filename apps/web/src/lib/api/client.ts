@@ -201,7 +201,10 @@ export function isApiUnreachableError(error: unknown): boolean {
   if (isApiConnectionError(error)) {
     return true;
   }
-  return error instanceof ApiClientError && error.status === 503;
+  if (error instanceof ApiClientError && (error.status === 503 || error.status === 429)) {
+    return true;
+  }
+  return false;
 }
 
 function isDevApiFallbackEnabled(): boolean {
@@ -264,13 +267,15 @@ export async function serverFetch<T>(
   const url = `${baseUrl}${path}`;
 
   try {
+    const cacheMode = options.cache ?? (options.revalidate ? undefined : 'no-store');
     const response = await fetch(url, {
       ...options,
+      cache: cacheMode,
       headers: {
         'Content-Type': 'application/json',
         ...(options.headers ?? {}),
       },
-      next: options.revalidate ? { revalidate: options.revalidate } : undefined,
+      next: options.revalidate ? { revalidate: options.revalidate } : { revalidate: 0 },
     });
 
     if (!response.ok) {

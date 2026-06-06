@@ -6,9 +6,11 @@ export function estimateTradeQuote(input: {
   side: TradeSide;
   quantityGram: number;
   unitPriceToman: number;
+  commissionPercent?: number;
 }) {
   return computeTradeQuote({
     ...input,
-    commissionPercent: webEnv.NEXT_PUBLIC_GOLD_TRADE_COMMISSION_PERCENT,
+    commissionPercent:
+      input.commissionPercent ?? webEnv.NEXT_PUBLIC_GOLD_TRADE_COMMISSION_PERCENT,
   });
 }

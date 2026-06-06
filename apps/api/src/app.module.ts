@@ -2,7 +2,8 @@ import './load-env';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -37,6 +38,7 @@ import { AddressesModule } from './modules/addresses/addresses.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { MediaModule } from './infrastructure/media/media.module';
+import { SiteModule } from './modules/site/site.module';
 
 @Module({
   imports: [
@@ -68,6 +70,7 @@ import { MediaModule } from './infrastructure/media/media.module';
     WishlistModule,
     ContactModule,
     MediaModule,
+    SiteModule,
   ],
   controllers: [AppController],
   providers: [
@@ -75,7 +78,7 @@ import { MediaModule } from './infrastructure/media/media.module';
     JwtAuthGuard,
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: AppThrottlerGuard,
     },
     {
       provide: APP_GUARD,

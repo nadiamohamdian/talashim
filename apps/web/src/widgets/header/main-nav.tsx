@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@sadafgold/ui';
 import { PRIMARY_NAV, STOREFRONT_CATEGORIES } from '@/shared/config/storefront-ia';
+import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { IconMenu } from '@/shared/ui/icons';
 
 export function CategoryNavMenu() {
@@ -46,9 +47,19 @@ export function CategoryNavMenu() {
 }
 
 export function MainNavLinks({ className }: { className?: string }) {
+  const { featureFlags } = useStorefrontSettings();
+
+  const links = [
+    ...PRIMARY_NAV,
+    ...(featureFlags.enableGoldTrading
+      ? [{ label: 'معاملات طلا', href: '/trading' }]
+      : []),
+    ...(featureFlags.enableBlog ? [{ label: 'مجله', href: '/blog' }] : []),
+  ];
+
   return (
     <nav className={cn('flex flex-wrap items-center gap-0.5', className)} aria-label="منوی اصلی">
-      {PRIMARY_NAV.map((item) => (
+      {links.map((item) => (
         <Link
           key={item.href}
           href={item.href}

@@ -9,6 +9,7 @@ import {
   useOtpRequestMutation,
   usePasswordLoginMutation,
 } from '@/features/auth/hooks/use-auth';
+import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 import {
   otpRequestSchema,
   passwordLoginSchema,
@@ -21,6 +22,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ next }: LoginFormProps) {
+  const otpEnabled = useFeatureFlag('enableOtpLogin');
   const [mode, setMode] = useState<'otp' | 'password'>('password');
   const otpMutation = useOtpRequestMutation(next);
   const loginMutation = usePasswordLoginMutation(next);
@@ -42,28 +44,30 @@ export function LoginForm({ next }: LoginFormProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-stone-100 p-1">
-        <button
-          type="button"
-          className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
-            mode === 'otp' ? 'bg-white text-stone-950 shadow-sm' : 'text-stone-600'
-          }`}
-          onClick={() => setMode('otp')}
-        >
-          ورود با OTP
-        </button>
-        <button
-          type="button"
-          className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
-            mode === 'password' ? 'bg-white text-stone-950 shadow-sm' : 'text-stone-600'
-          }`}
-          onClick={() => setMode('password')}
-        >
-          ورود با رمز
-        </button>
-      </div>
+      {otpEnabled ? (
+        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-stone-100 p-1">
+          <button
+            type="button"
+            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
+              mode === 'otp' ? 'bg-white text-stone-950 shadow-sm' : 'text-stone-600'
+            }`}
+            onClick={() => setMode('otp')}
+          >
+            ورود با OTP
+          </button>
+          <button
+            type="button"
+            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
+              mode === 'password' ? 'bg-white text-stone-950 shadow-sm' : 'text-stone-600'
+            }`}
+            onClick={() => setMode('password')}
+          >
+            ورود با رمز
+          </button>
+        </div>
+      ) : null}
 
-      {mode === 'otp' ? (
+      {otpEnabled && mode === 'otp' ? (
         <form
           className="space-y-4"
           onSubmit={otpForm.handleSubmit((values) => otpMutation.mutate(values))}

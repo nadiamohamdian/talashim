@@ -13,7 +13,9 @@ import { AdminOrdersController } from './controllers/admin-orders.controller';
 import { AdminProductsController } from './controllers/admin-products.controller';
 import { AdminNotificationsController } from './controllers/admin-notifications.controller';
 import { AdminController } from './controllers/admin.controller';
+import { AdminSettingsController } from './controllers/admin-settings.controller';
 import { AdminRbacRepository } from './repositories/admin-rbac.repository';
+import { PlatformSettingsRepository } from './repositories/platform-settings.repository';
 import { AdminCmsRepository } from './repositories/admin-cms.repository';
 import { AdminFinanceRepository } from './repositories/admin-finance.repository';
 import { AdminReportsRepository } from './repositories/admin-reports.repository';
@@ -33,12 +35,14 @@ import { AdminNotificationsService } from './services/admin-notifications.servic
 import { AdminTradingService } from './services/admin-trading.service';
 import { AdminReportsService } from './services/admin-reports.service';
 import { AdminRbacService } from './services/admin-rbac.service';
+import { AdminSettingsService } from './services/admin-settings.service';
 import { AdminService } from './services/admin.service';
 
 @Module({
   imports: [MediaModule, PricingModule, MarketModule, TradingModule, OrdersModule],
   controllers: [
     AdminController,
+    AdminSettingsController,
     AdminCmsController,
     AdminMediaController,
     AdminFinanceController,
@@ -52,6 +56,7 @@ import { AdminService } from './services/admin.service';
   providers: [
     AdminRepository,
     AdminRbacRepository,
+    PlatformSettingsRepository,
     AdminReportsRepository,
     AdminFinanceRepository,
     AdminTradingRepository,
@@ -62,6 +67,7 @@ import { AdminService } from './services/admin.service';
     AdminCmsRepository,
     AdminService,
     AdminRbacService,
+    AdminSettingsService,
     AdminReportsService,
     AdminFinanceService,
     AdminTradingService,
@@ -83,6 +89,7 @@ import { AdminService } from './services/admin.service';
     AdminNotificationsService,
     AdminPricingService,
     AdminCmsService,
+    AdminSettingsService,
   ],
 })
 export class AdminModule {}

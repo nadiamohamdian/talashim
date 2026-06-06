@@ -11,12 +11,8 @@ export function SettingsPersistenceNotice() {
   return (
     <Alert className="border-amber-200/80 bg-amber-50/90 text-amber-950">
       <p className="text-sm leading-6">
-        تنظیمات فعلاً در مرورگر شما ذخیره می‌شوند (تا اتصال API مدیریت تنظیمات). پس از
-        پیاده‌سازی{' '}
-        <code className="rounded bg-white/80 px-1 text-xs" dir="ltr">
-          GET/PATCH /admin/settings
-        </code>{' '}
-        همین فرم‌ها با سرور همگام می‌شوند.
+        تنظیمات با سرور همگام می‌شوند. حالت تعمیرات پس از ذخیره، روی فروشگاه آنلاین اعمال
+        می‌شود.
       </p>
       {updatedAt ? (
         <p className="mt-2 text-xs text-amber-900/80">

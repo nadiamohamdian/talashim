@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { getPlatformSettings } from '@/common/platform-settings/platform-settings-runtime';
 import { InventoryRepository } from '../repositories/inventory.repository';
 import type { ReserveInventoryDto } from '../dto/reserve-inventory.dto';
 
@@ -26,6 +28,9 @@ export class InventoryService {
   }
 
   async reserve(payload: ReserveInventoryDto) {
+    if (!getPlatformSettings().featureFlags.enableInventoryReservation) {
+      throw new ForbiddenException('رزرو موجودی هنگام پرداخت غیرفعال است');
+    }
     const item = await this.inventoryRepository.findByProductId(
       payload.productId,
     );

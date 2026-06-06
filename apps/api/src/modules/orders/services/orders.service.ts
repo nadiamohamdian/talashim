@@ -1,11 +1,18 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CartStatus, OrderStatus, PaymentStatus } from '@/generated/prisma';
-import { CHECKOUT_PAYMENT_PROVIDERS } from '@sadafgold/shared';
 import type { CheckoutPaymentProvider } from '@sadafgold/shared';
+import {
+  assertFeatureEnabled,
+  getCheckoutTaxRate,
+  getEnabledCheckoutProviders,
+  getMinOrderToman,
+} from '@/common/platform-settings/platform-settings-helpers';
+import { getPlatformSettings } from '@/common/platform-settings/platform-settings-runtime';
 import { CartRepository } from '@/modules/cart/repositories/cart.repository';
 import { AddressesRepository } from '@/modules/addresses/repositories/addresses.repository';
 import {
@@ -44,8 +51,9 @@ export class OrdersService {
   ) {}
 
   async checkout(payload: CreateOrderDto) {
-    if (!CHECKOUT_PAYMENT_PROVIDERS.includes(payload.paymentProvider as CheckoutPaymentProvider)) {
-      throw new BadRequestException('Invalid payment provider');
+    const allowedProviders = getEnabledCheckoutProviders();
+    if (!allowedProviders.includes(payload.paymentProvider as CheckoutPaymentProvider)) {
+      throw new BadRequestException('روش پرداخت انتخاب‌شده فعال نیست');
     }
 
     const cart = await this.cartRepository.findCartById(payload.cartId);
@@ -64,6 +72,7 @@ export class OrdersService {
 
     const userId = payload.userId ?? cart.userId;
     if (!userId) {
+      assertFeatureEnabled('enableGuestCheckout', 'خرید مهمان غیرفعال است — لطفاً وارد شوید');
       throw new BadRequestException('Checkout requires an authenticated user');
     }
 
@@ -79,11 +88,23 @@ export class OrdersService {
       throw new NotFoundException('Shipping address not found');
     }
 
+    const profile = await this.usersService.getProfile(userId);
+
+    const settings = getPlatformSettings();
+    if (settings.featureFlags.requireKycForCheckout && profile.kycStatus !== 'approved') {
+      throw new ForbiddenException('برای تکمیل خرید، احراز هویت (KYC) باید تأیید شده باشد');
+    }
+
     const subtotalToman = cart.items.reduce(
       (sum, item) => sum + item.quantity * tomanBigIntToNumber(item.unitPriceToman),
       0,
     );
-    const taxToman = Math.round(subtotalToman * 0.09);
+    const minOrder = getMinOrderToman();
+    if (subtotalToman < minOrder) {
+      throw new BadRequestException(`حداقل مبلغ سفارش ${minOrder.toLocaleString('fa-IR')} تومان است`);
+    }
+
+    const taxToman = Math.round(subtotalToman * getCheckoutTaxRate());
     const provider = payload.paymentProvider as CheckoutPaymentProvider;
 
     const created = await this.ordersRepository.createFromCart({

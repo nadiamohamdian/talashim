@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { Alert, Button, Card, Input, Label, Tabs, TabsContent, TabsList, TabsTrigger } from '@sadafgold/ui';
 import { getApiErrorMessage } from '@/lib/api';
 import { formatPrice } from '@/shared/lib/format-price';
+import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { useExecuteTrade } from '../hooks/use-execute-trade';
 import { useLiveGoldPrice } from '../hooks/use-live-gold-price';
 import { useWalletBalances } from '../hooks/use-wallet-balances';
@@ -14,6 +15,7 @@ import { tradeFormSchema, type TradeFormValues } from '../model/schemas';
 import { useTradingStore } from '../model/trading-store';
 
 export function TradeForm() {
+  const { gold } = useStorefrontSettings();
   const { side, setSide, karat, symbol } = useTradingStore();
   const { data: livePrice } = useLiveGoldPrice();
   const { data: balances } = useWalletBalances();
@@ -37,7 +39,9 @@ export function TradeForm() {
     tradeMutation.reset();
   }, [side]); // eslint-disable-line react-hooks/exhaustive-deps -- reset alerts when switching buy/sell
 
-  const gramPresets = ['0.5', '1', '5', '10'];
+  const gramPresets = ['0.5', '1', '5', '10'].filter(
+    (preset) => Number(preset) >= gold.minTradeGram,
+  );
 
   const quote = useMemo(() => {
     const qty = Number(quantityGram);
@@ -46,8 +50,16 @@ export function TradeForm() {
     const unitPrice =
       side === 'BUY' ? Number(livePrice.sellPrice) : Number(livePrice.buyPrice);
 
-    return estimateTradeQuote({ side, quantityGram: qty, unitPriceToman: unitPrice });
-  }, [quantityGram, livePrice, side]);
+    return estimateTradeQuote({
+      side,
+      quantityGram: qty,
+      unitPriceToman: unitPrice,
+      commissionPercent: gold.tradeCommissionPercent,
+    });
+  }, [quantityGram, livePrice, side, gold.tradeCommissionPercent]);
+
+  const belowMinTrade =
+    Number.isFinite(Number(quantityGram)) && Number(quantityGram) < gold.minTradeGram;
 
   const onSubmit = handleSubmit(async (values) => {
     await tradeMutation.mutateAsync({
@@ -96,6 +108,11 @@ export function TradeForm() {
               />
               {errors.quantityGram ? (
                 <p className="mt-1 text-xs text-rose-600">{errors.quantityGram.message}</p>
+              ) : null}
+              {belowMinTrade ? (
+                <p className="mt-1 text-xs text-rose-600">
+                  حداقل مقدار معامله {gold.minTradeGram} گرم است.
+                </p>
               ) : null}
               <div className="mt-2 flex flex-wrap gap-2">
                 {gramPresets.map((preset) => (
@@ -149,7 +166,11 @@ export function TradeForm() {
               variant={side === 'BUY' ? 'buy' : 'sell'}
               className="w-full"
               disabled={
-                tradeMutation.isPending || insufficientBalance || !livePrice || !quote
+                tradeMutation.isPending ||
+                insufficientBalance ||
+                !livePrice ||
+                !quote ||
+                belowMinTrade
               }
             >
               {tradeMutation.isPending

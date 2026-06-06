@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { patchPlatformSettings } from '../api/settings-api';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
@@ -20,6 +22,7 @@ export function GoldSettingsForm() {
   const setGold = usePlatformSettingsStore((s) => s.setGold);
   const resetSection = usePlatformSettingsStore((s) => s.resetSection);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const {
     register,
@@ -38,10 +41,17 @@ export function GoldSettingsForm() {
   const livePricing = watch('useLivePricingForProducts');
   const ticker = watch('showGoldTickerInHeader');
 
-  const onSubmit = handleSubmit((values) => {
-    setGold(values);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const onSubmit = handleSubmit(async (values) => {
+    setSaveError(null);
+    try {
+      const data = await patchPlatformSettings({ gold: values });
+      setGold(data.gold);
+      reset(data.gold);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      setSaveError(getApiErrorMessage(error));
+    }
   });
 
   return (
@@ -51,6 +61,9 @@ export function GoldSettingsForm() {
         <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
           تنظیمات طلا ذخیره شد.
         </Alert>
+      ) : null}
+      {saveError ? (
+        <Alert className="border-rose-200 bg-rose-50 text-rose-900">{saveError}</Alert>
       ) : null}
 
       <SettingsSectionCard

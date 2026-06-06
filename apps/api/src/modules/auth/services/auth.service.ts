@@ -10,6 +10,7 @@ import { randomInt } from 'node:crypto';
 import { getApiEnv } from '@/config/env';
 import { isStaffRoleEnum } from '@talashim/shared/admin-rbac';
 import { RedisService } from '@/infrastructure/redis/redis.service';
+import { assertFeatureEnabled } from '@/common/platform-settings/platform-settings-helpers';
 import { KycRepository } from '@/modules/kyc/repositories/kyc.repository';
 import { AuthRepository } from '../repositories/auth.repository';
 import { UsersService } from '@/modules/users/services/users.service';
@@ -163,6 +164,7 @@ export class AuthService {
   }
 
   async requestOtp(identifier: string) {
+    assertFeatureEnabled('enableOtpLogin', 'ورود با OTP غیرفعال است');
     const devCustomerBypass = this.isDevCustomerLoginEnabled();
     const user = devCustomerBypass
       ? await this.resolveOrCreateDevOtpUser(identifier)
@@ -188,6 +190,7 @@ export class AuthService {
   }
 
   async verifyOtp(identifier: string, code: string) {
+    assertFeatureEnabled('enableOtpLogin', 'ورود با OTP غیرفعال است');
     if (this.isDevCustomerLoginEnabled()) {
       const user = await this.resolveOrCreateDevOtpUser(identifier);
       if (!user) {

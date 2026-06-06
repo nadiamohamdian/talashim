@@ -1,4 +1,5 @@
 import { Controller, Delete, Get, Post } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
 import { ApiPublicErrors } from '@/swagger/decorators/api-protected.decorator';
@@ -12,6 +13,7 @@ import { MarketService } from '../services/market.service';
 @ApiTags('market')
 @ApiPublicErrors()
 @Public()
+@SkipThrottle()
 @Controller('market')
 export class MarketController {
   constructor(private readonly marketService: MarketService) {}

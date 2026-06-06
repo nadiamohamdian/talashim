@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Query } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '@/common/decorators/public.decorator';
 import { ApiPublicErrors } from '@/swagger/decorators/api-protected.decorator';
@@ -14,6 +15,7 @@ import { PricingGateway } from '../gateways/pricing.gateway';
 @ApiTags('pricing')
 @ApiPublicErrors()
 @Public()
+@SkipThrottle()
 @Controller('pricing')
 export class PricingController {
   constructor(

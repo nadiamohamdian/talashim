@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { ADMIN_ROUTE_BY_ID } from '@/shared/config/admin-routes';
 import { RoutePermissionGuard } from '@/features/auth/components/route-permission-guard';
 import { PageHeader } from '@/widgets/admin/page-header';
+import { usePlatformSettingsLoader } from '../hooks/use-platform-settings-loader';
 
 interface SettingsPageShellProps {
   routeId: string;
@@ -21,6 +22,7 @@ const ROUTE_DESCRIPTIONS: Record<string, string> = {
 };
 
 export function SettingsPageShell({ routeId, children, actions }: SettingsPageShellProps) {
+  usePlatformSettingsLoader();
   const route = ADMIN_ROUTE_BY_ID[routeId];
   if (!route) {
     notFound();
@@ -32,7 +34,7 @@ export function SettingsPageShell({ routeId, children, actions }: SettingsPageSh
         <PageHeader
           title={route.label}
           description={ROUTE_DESCRIPTIONS[routeId] ?? route.description}
-          availability="partial"
+          availability={route.availability}
           actions={actions}
         />
         <div className="min-w-0 space-y-6">{children}</div>

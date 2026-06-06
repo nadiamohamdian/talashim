@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { assertFeatureEnabled } from '@/common/platform-settings/platform-settings-helpers';
 import { CatalogRepository } from '@/modules/catalog/repositories/catalog.repository';
 import { WishlistRepository } from '../repositories/wishlist.repository';
 
@@ -10,6 +11,7 @@ export class WishlistService {
   ) {}
 
   async list(userId: string) {
+    assertFeatureEnabled('enableWishlist', 'لیست علاقه‌مندی غیرفعال است');
     const items = await this.wishlistRepository.findByUserId(userId);
     return items.map((item) => ({
       id: item.id,
@@ -34,6 +36,7 @@ export class WishlistService {
   }
 
   async add(userId: string, productId: string) {
+    assertFeatureEnabled('enableWishlist', 'لیست علاقه‌مندی غیرفعال است');
     const product = await this.catalogRepository.findById(productId);
     if (!product) {
       throw new NotFoundException('Product not found');
@@ -47,6 +50,7 @@ export class WishlistService {
   }
 
   async remove(userId: string, productId: string) {
+    assertFeatureEnabled('enableWishlist', 'لیست علاقه‌مندی غیرفعال است');
     const existing = await this.wishlistRepository.findEntry(userId, productId);
     if (!existing) {
       throw new NotFoundException('Wishlist item not found');

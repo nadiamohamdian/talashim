@@ -716,7 +716,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     sectionLabel: 'تنظیمات سیستم',
     template: 'settings',
     permission: ADMIN_PERMISSIONS.settings.read,
-    availability: 'partial',
+    availability: 'live',
     parentId: 'dashboard',
   }),
   r({
@@ -727,7 +727,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     sectionLabel: 'تنظیمات سیستم',
     template: 'settings',
     permission: ADMIN_PERMISSIONS.settings.read,
-    availability: 'partial',
+    availability: 'live',
     parentId: 'settings.home',
   }),
   r({
@@ -738,7 +738,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     sectionLabel: 'تنظیمات سیستم',
     template: 'settings',
     permission: ADMIN_PERMISSIONS.settings.write,
-    availability: 'partial',
+    availability: 'live',
     parentId: 'settings.home',
   }),
   r({
@@ -749,7 +749,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     sectionLabel: 'تنظیمات سیستم',
     template: 'settings',
     permission: ADMIN_PERMISSIONS.settings.write,
-    availability: 'pending',
+    availability: 'live',
     parentId: 'settings.home',
   }),
   r({
@@ -760,7 +760,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     sectionLabel: 'تنظیمات سیستم',
     template: 'settings',
     permission: ADMIN_PERMISSIONS.settings.write,
-    availability: 'partial',
+    availability: 'live',
     parentId: 'settings.home',
   }),
 ];

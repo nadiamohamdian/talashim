@@ -7,6 +7,7 @@ import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
 import { useCartStore } from '@/features/cart/model/cart-store';
 import { formatPrice } from '@/shared/lib/format-price';
 import { IconCart, IconHeart } from '@/shared/ui/icons';
+import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 import { UserAccountDropdown } from '@/widgets/account/user-account-dropdown';
 
 function HeaderActionLink({
@@ -66,6 +67,7 @@ function HeaderActionLink({
 }
 
 export function HeaderActions() {
+  const wishlistEnabled = useFeatureFlag('enableWishlist');
   const cartHydrated = useCartHydrated();
   const { count, total } = useDisplayCart();
   const openCart = useCartStore((s) => s.openCart);
@@ -75,11 +77,13 @@ export function HeaderActions() {
   return (
     <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
       <UserAccountDropdown />
-      <HeaderActionLink
-        href="/wishlist"
-        label="علاقه‌مندی"
-        icon={<IconHeart className="h-5 w-5" />}
-      />
+      {wishlistEnabled ? (
+        <HeaderActionLink
+          href="/wishlist"
+          label="علاقه‌مندی"
+          icon={<IconHeart className="h-5 w-5" />}
+        />
+      ) : null}
       <HeaderActionLink
         label="سبد خرید"
         sublabel={cartSublabel}

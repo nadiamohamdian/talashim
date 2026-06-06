@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { patchPlatformSettings } from '../api/settings-api';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -21,27 +23,56 @@ export function GeneralSettingsForm() {
   const setGeneral = usePlatformSettingsStore((s) => s.setGeneral);
   const resetSection = usePlatformSettingsStore((s) => s.resetSection);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    getValues,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<GeneralSettings>({
     resolver: zodResolver(generalSettingsSchema),
     defaultValues: general,
   });
 
-  useSyncSettingsForm(general, reset);
+  useSyncSettingsForm(general, reset, isDirty);
 
   const maintenanceMode = watch('maintenanceMode');
+  const [maintenanceSaving, setMaintenanceSaving] = useState(false);
 
-  const onSubmit = handleSubmit((values) => {
-    setGeneral(values);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const saveMaintenanceMode = async (checked: boolean) => {
+    setSaveError(null);
+    setValue('maintenanceMode', checked, { shouldDirty: false });
+    setMaintenanceSaving(true);
+    try {
+      const payload = { ...getValues(), maintenanceMode: checked };
+      const data = await patchPlatformSettings({ general: payload });
+      setGeneral(data.general);
+      reset(data.general);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      setValue('maintenanceMode', !checked, { shouldDirty: false });
+      setSaveError(getApiErrorMessage(error));
+    } finally {
+      setMaintenanceSaving(false);
+    }
+  };
+
+  const onSubmit = handleSubmit(async (values) => {
+    setSaveError(null);
+    try {
+      const data = await patchPlatformSettings({ general: values });
+      setGeneral(data.general);
+      reset(data.general);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      setSaveError(getApiErrorMessage(error));
+    }
   });
 
   return (
@@ -49,8 +80,11 @@ export function GeneralSettingsForm() {
       <SettingsPersistenceNotice />
       {saved ? (
         <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
-          تنظیمات عمومی ذخیره شد.
+          تنظیمات عمومی ذخیره شد. حالت تعمیرات روی فروشگاه اعمال می‌شود.
         </Alert>
+      ) : null}
+      {saveError ? (
+        <Alert className="border-rose-200 bg-rose-50 text-rose-900">{saveError}</Alert>
       ) : null}
 
       <SettingsSectionCard
@@ -128,15 +162,19 @@ export function GeneralSettingsForm() {
 
       <SettingsSectionCard
         title="حالت تعمیرات"
-        description="با فعال‌سازی، فروشگاه برای مشتریان غیرفعال می‌شود (پس از اتصال API)."
+        description="با فعال‌سازی، فروشگاه برای مشتریان غیرفعال می‌شود. تغییر این گزینه بلافاصله ذخیره و روی فروشگاه اعمال می‌شود."
       >
         <SettingsToggleRow
           id="maintenanceMode"
           label="فعال‌سازی حالت تعمیرات"
-          description="فقط سوپر ادمین و پرسنل به پنل دسترسی دارند."
+          description={
+            maintenanceSaving
+              ? 'در حال اعمال روی فروشگاه…'
+              : 'فقط سوپر ادمین و پرسنل به پنل دسترسی دارند.'
+          }
           checked={maintenanceMode}
-          disabled={!canWrite}
-          onChange={(checked) => setValue('maintenanceMode', checked, { shouldDirty: true })}
+          disabled={!canWrite || maintenanceSaving || isSubmitting}
+          onChange={(checked) => void saveMaintenanceMode(checked)}
         />
         {maintenanceMode ? (
           <div>

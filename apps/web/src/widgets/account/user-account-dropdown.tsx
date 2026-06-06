@@ -4,21 +4,25 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth, useLogoutMutation } from '@/features/auth/hooks/use-auth';
+import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import { IconUser } from '@/shared/ui/icons';
 
-const MENU_ITEMS = [
+const BASE_MENU_ITEMS = [
   { href: '/dashboard', label: 'پیشخوان' },
   { href: '/orders', label: 'سفارش‌ها' },
   { href: '/invoices', label: 'دانلودها' },
   { href: '/addresses', label: 'آدرس' },
   { href: '/profile', label: 'اطلاعات حساب کاربری' },
-  { href: '/wishlist', label: 'علاقه‌مندی' },
 ] as const;
 
 export function UserAccountDropdown() {
   const { isAuthenticated, user } = useAuth();
+  const wishlistEnabled = useFeatureFlag('enableWishlist');
   const logoutMutation = useLogoutMutation();
+  const menuItems = wishlistEnabled
+    ? [...BASE_MENU_ITEMS, { href: '/wishlist', label: 'علاقه‌مندی' } as const]
+    : BASE_MENU_ITEMS;
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -80,7 +84,7 @@ export function UserAccountDropdown() {
           <div className="border-b border-nude-100 px-4 py-2 text-xs text-muted">
             {user?.email}
           </div>
-          {MENU_ITEMS.map((item) => (
+          {menuItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

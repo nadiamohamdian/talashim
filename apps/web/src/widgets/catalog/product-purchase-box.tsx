@@ -11,6 +11,7 @@ import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import { formatPrice } from '@/shared/lib/format-price';
 import { IconHeart, IconMinus, IconPlus } from '@/shared/ui/icons';
 import { useAuth } from '@/features/auth/hooks/use-auth';
+import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 import { useAddWishlistMutation, useWishlist } from '@/lib/api/hooks/use-wishlist';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import Link from 'next/link';
@@ -37,6 +38,7 @@ export function ProductPurchaseBox({
   const [quantity, setQuantity] = useState(1);
   const [wishlistError, setWishlistError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
+  const wishlistEnabled = useFeatureFlag('enableWishlist');
   const { data: wishlist } = useWishlist();
   const addWishlist = useAddWishlistMutation();
   const isWishlisted = wishlist?.some((item) => item.productId === product.id) ?? false;
@@ -140,33 +142,37 @@ export function ProductPurchaseBox({
 
       <div className="flex flex-col gap-1 border-t border-nude-200 pt-3 text-xs text-muted">
         <div className="flex items-center justify-between gap-3">
-          {isAuthenticated ? (
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 hover:text-gold-dark disabled:opacity-50"
-              disabled={addWishlist.isPending || isWishlisted}
-              onClick={() => {
-                setWishlistError(null);
-                addWishlist.mutate(product.id, {
-                  onError: (error) => {
-                    setWishlistError(
-                      getApiErrorMessage(error, 'افزودن به علاقه‌مندی‌ها ناموفق بود'),
-                    );
-                  },
-                });
-              }}
-            >
-              <IconHeart className="h-4 w-4" />
-              {isWishlisted ? 'در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی'}
-            </button>
+          {wishlistEnabled ? (
+            isAuthenticated ? (
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 hover:text-gold-dark disabled:opacity-50"
+                disabled={addWishlist.isPending || isWishlisted}
+                onClick={() => {
+                  setWishlistError(null);
+                  addWishlist.mutate(product.id, {
+                    onError: (error) => {
+                      setWishlistError(
+                        getApiErrorMessage(error, 'افزودن به علاقه‌مندی‌ها ناموفق بود'),
+                      );
+                    },
+                  });
+                }}
+              >
+                <IconHeart className="h-4 w-4" />
+                {isWishlisted ? 'در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی'}
+              </button>
+            ) : (
+              <Link
+                href={buildLoginHref(`/products/${product.slug}`)}
+                className="inline-flex items-center gap-1.5 hover:text-gold-dark"
+              >
+                <IconHeart className="h-4 w-4" />
+                ورود برای علاقه‌مندی
+              </Link>
+            )
           ) : (
-            <Link
-              href={buildLoginHref(`/products/${product.slug}`)}
-              className="inline-flex items-center gap-1.5 hover:text-gold-dark"
-            >
-              <IconHeart className="h-4 w-4" />
-              ورود برای علاقه‌مندی
-            </Link>
+            <span />
           )}
           <span>{active.inventory > 0 ? `${active.inventory} عدد موجود` : 'ناموجود'}</span>
         </div>

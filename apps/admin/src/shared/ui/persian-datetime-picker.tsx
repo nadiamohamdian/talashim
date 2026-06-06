@@ -85,7 +85,7 @@ export function PersianDateTimePicker({ label, value, onChange }: PersianDateTim
             <select className={selectClass} value={j.jy} onChange={(e) => emit({ jy: Number(e.target.value) })}>
               {years.map((year) => (
                 <option key={year} value={year}>
-                  {year.toLocaleString('fa-IR')}
+                  {year.toLocaleString('fa-IR', { useGrouping: false })}
                 </option>
               ))}
             </select>

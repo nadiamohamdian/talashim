@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { patchPlatformSettings } from '../api/settings-api';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type Resolver } from 'react-hook-form';
@@ -20,6 +22,7 @@ export function CommerceSettingsForm() {
   const setCommerce = usePlatformSettingsStore((s) => s.setCommerce);
   const resetSection = usePlatformSettingsStore((s) => s.resetSection);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const {
     register,
@@ -42,10 +45,17 @@ export function CommerceSettingsForm() {
     autoConfirm: watch('autoConfirmPaidOrders'),
   };
 
-  const onSubmit = handleSubmit((values) => {
-    setCommerce(values);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const onSubmit = handleSubmit(async (values) => {
+    setSaveError(null);
+    try {
+      const data = await patchPlatformSettings({ commerce: values });
+      setCommerce(data.commerce);
+      reset(data.commerce);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      setSaveError(getApiErrorMessage(error));
+    }
   });
 
   return (
@@ -55,6 +65,9 @@ export function CommerceSettingsForm() {
         <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
           تنظیمات تجارت ذخیره شد.
         </Alert>
+      ) : null}
+      {saveError ? (
+        <Alert className="border-rose-200 bg-rose-50 text-rose-900">{saveError}</Alert>
       ) : null}
 
       <SettingsSectionCard title="سفارش و سبد" description="قوانین حداقل خرید و انقضای سبد.">

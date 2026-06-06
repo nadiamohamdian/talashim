@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Badge,
+  Button,
   Skeleton,
   Table,
   TableBody,
@@ -14,7 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from '@talashim/ui';
+import type { AdminAuditLog } from '@/features/admin/model/types';
 import { fetchAuditLogs } from '@/features/admin/api/admin-api';
+import { usePlatformSettingsLoader } from '@/features/settings/hooks/use-platform-settings-loader';
+import { usePlatformSettingsStore } from '@/features/settings/model/settings-store';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
@@ -22,7 +26,32 @@ import { Label } from '@talashim/ui';
 import { SecurityPageShell } from './security-page-shell';
 import { SOURCE_LABELS, selectFieldClass } from '../lib/labels';
 
+function downloadAuditCsv(items: AdminAuditLog[]) {
+  const header = ['منبع', 'عملیات', 'کاربر', 'جزئیات', 'زمان'];
+  const rows = items.map((log) => [
+    log.source,
+    log.action,
+    log.actor?.email ?? '',
+    log.context ? JSON.stringify(log.context) : '',
+    log.createdAt,
+  ]);
+  const csv = [header, ...rows]
+    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `audit-log-${new Date().toISOString().slice(0, 10)}.csv`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 export function AuditLogPanel() {
+  usePlatformSettingsLoader();
+  const auditExportEnabled = usePlatformSettingsStore(
+    (s) => s.featureFlags.enableAdminAuditExport,
+  );
   const [source, setSource] = useState('');
   const [page, setPage] = useState(1);
 
@@ -50,6 +79,15 @@ export function AuditLogPanel() {
             <option value="trade">معاملات</option>
           </select>
         </div>
+        {auditExportEnabled && data?.items.length ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => downloadAuditCsv(data.items)}
+          >
+            خروجی CSV
+          </Button>
+        ) : null}
       </FilterBar>
 
       <div className="card-luxury overflow-hidden p-0">

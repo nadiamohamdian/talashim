@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { patchPlatformSettings } from '../api/settings-api';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { useSyncSettingsForm } from '../hooks/use-sync-settings-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -62,7 +64,7 @@ const FLAG_FIELDS: Array<{
   {
     key: 'enableAdminAuditExport',
     label: 'خروجی CSV لاگ ممیزی',
-    description: 'دکمه export در صفحه امنیت (نیاز به API).',
+    description: 'نمایش دکمه خروجی CSV در صفحه لاگ ممیزی.',
   },
 ];
 
@@ -72,6 +74,7 @@ export function FeatureFlagsForm() {
   const setFeatureFlags = usePlatformSettingsStore((s) => s.setFeatureFlags);
   const resetSection = usePlatformSettingsStore((s) => s.resetSection);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -88,10 +91,17 @@ export function FeatureFlagsForm() {
 
   const values = watch();
 
-  const onSubmit = handleSubmit((data) => {
-    setFeatureFlags(data);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const onSubmit = handleSubmit(async (data) => {
+    setSaveError(null);
+    try {
+      const savedData = await patchPlatformSettings({ featureFlags: data });
+      setFeatureFlags(savedData.featureFlags);
+      reset(savedData.featureFlags);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      setSaveError(getApiErrorMessage(error));
+    }
   });
 
   return (
@@ -101,6 +111,9 @@ export function FeatureFlagsForm() {
         <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
           پرچم‌های ویژگی ذخیره شد.
         </Alert>
+      ) : null}
+      {saveError ? (
+        <Alert className="border-rose-200 bg-rose-50 text-rose-900">{saveError}</Alert>
       ) : null}
 
       <SettingsSectionCard

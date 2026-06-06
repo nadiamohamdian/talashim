@@ -426,6 +426,16 @@ model CmsSeoSettings {
   updatedAt         DateTime @updatedAt
 }
 
+model PlatformSettings {
+  id           String   @id @default("default")
+  general      Json
+  commerce     Json
+  gold         Json
+  featureFlags Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
 model MediaAsset {
   id         String   @id @default(cuid())
   filename   String

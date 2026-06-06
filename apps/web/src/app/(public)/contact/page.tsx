@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ContactForm } from '@/features/contact/components/contact-form';
+import { ContactInfoPanel } from '@/features/contact/components/contact-info-panel';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
 export const metadata: Metadata = {
@@ -13,7 +14,10 @@ export default function ContactPage() {
       title="تماس با ما"
       description="راه‌های ارتباط با تیم فروش و پشتیبانی."
     >
-      <ContactForm />
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <ContactForm />
+        <ContactInfoPanel />
+      </div>
     </PublicPageShell>
   );
 }

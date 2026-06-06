@@ -4,15 +4,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { MemberLoginPrompt } from '@/features/auth/components/member-login-prompt';
+import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 
-const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: '/dashboard', label: 'پیشخوان' },
   { href: '/orders', label: 'سفارش‌ها' },
   { href: '/invoices', label: 'دانلودها' },
   { href: '/addresses', label: 'آدرس' },
   { href: '/account', label: 'حساب کاربری' },
   { href: '/profile', label: 'اطلاعات حساب' },
-  { href: '/wishlist', label: 'علاقه‌مندی' },
 ] as const;
 
 interface AccountShellProps extends PropsWithChildren {
@@ -23,6 +23,10 @@ interface AccountShellProps extends PropsWithChildren {
 
 export function AccountShell({ title, description, returnPath, children }: AccountShellProps) {
   const pathname = usePathname();
+  const wishlistEnabled = useFeatureFlag('enableWishlist');
+  const navItems = wishlistEnabled
+    ? [...BASE_NAV_ITEMS, { href: '/wishlist', label: 'علاقه‌مندی' } as const]
+    : BASE_NAV_ITEMS;
 
   return (
     <MemberLoginPrompt
@@ -34,7 +38,7 @@ export function AccountShell({ title, description, returnPath, children }: Accou
         <aside className="card-luxury h-fit p-3">
           <p className="px-3 py-2 text-xs font-semibold text-muted">پنل کاربری</p>
           <nav className="space-y-1">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const active =
                 pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (

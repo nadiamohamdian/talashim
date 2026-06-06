@@ -6,10 +6,11 @@ import { useMemo, useState } from 'react';
 import { Button, Skeleton } from '@sadafgold/ui';
 import {
   CHECKOUT_PAYMENT_LABELS,
-  CHECKOUT_PAYMENT_PROVIDERS,
   DEFAULT_CARD_TO_CARD_INFO,
   type CheckoutPaymentProvider,
 } from '@sadafgold/shared';
+import { getEnabledPaymentProviders } from '@/shared/model/storefront-settings';
+import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { formatPrice } from '@/shared/lib/format-price';
 import { getApiErrorMessage } from '@/lib/api';
 import { useAddresses } from '@/features/account/hooks/use-addresses';
@@ -17,13 +18,17 @@ import { useCheckoutMutation, useCart } from '@/lib/api';
 import { CheckoutSuccessDialog } from '@/features/checkout/components/checkout-success-dialog';
 
 export function CheckoutContent() {
+  const { commerce } = useStorefrontSettings();
+  const paymentProviders = getEnabledPaymentProviders(commerce);
   const router = useRouter();
   const { data: cart, isLoading: cartLoading, isError: cartError, refetch } = useCart();
   const { data: addresses, isLoading: addressesLoading } = useAddresses();
   const checkoutMutation = useCheckoutMutation();
 
   const [addressId, setAddressId] = useState('');
-  const [paymentProvider, setPaymentProvider] = useState<CheckoutPaymentProvider>('card_to_card');
+  const [paymentProvider, setPaymentProvider] = useState<CheckoutPaymentProvider>(
+    paymentProviders[0] ?? 'card_to_card',
+  );
   const [successOrder, setSuccessOrder] = useState<{ orderNumber: string; message: string } | null>(
     null,
   );
@@ -61,13 +66,15 @@ export function CheckoutContent() {
     );
   }
 
-  const taxToman = Math.round(cart.subtotalToman * 0.09);
+  const taxToman = Math.round(cart.subtotalToman * (commerce.defaultTaxPercent / 100));
   const totalToman = cart.subtotalToman + taxToman;
+  const belowMinOrder = cart.subtotalToman < commerce.minOrderToman;
   const error =
     checkoutMutation.error &&
     getApiErrorMessage(checkoutMutation.error, 'ثبت سفارش ناموفق بود');
 
-  const canSubmit = Boolean(selectedAddressId) && !checkoutMutation.isPending;
+  const canSubmit =
+    Boolean(selectedAddressId) && !checkoutMutation.isPending && !belowMinOrder;
 
   return (
     <>
@@ -123,7 +130,7 @@ export function CheckoutContent() {
 
           <section className="card-luxury space-y-3 p-6">
             <h2 className="font-semibold text-foreground">روش پرداخت</h2>
-            {CHECKOUT_PAYMENT_PROVIDERS.map((provider) => {
+            {paymentProviders.map((provider) => {
               const meta = CHECKOUT_PAYMENT_LABELS[provider];
               return (
                 <label
@@ -190,9 +197,14 @@ export function CheckoutContent() {
               <span>{formatPrice(cart.subtotalToman)} تومان</span>
             </div>
             <div className="flex justify-between text-muted">
-              <span>مالیات (۹٪)</span>
+              <span>مالیات ({commerce.defaultTaxPercent}٪)</span>
               <span>{formatPrice(taxToman)} تومان</span>
             </div>
+            {belowMinOrder ? (
+              <p className="text-xs text-rose-600">
+                حداقل مبلغ سفارش {formatPrice(commerce.minOrderToman)} {commerce.currencyLabel} است.
+              </p>
+            ) : null}
             <div className="flex justify-between border-t border-nude-200 pt-3 text-base font-bold text-gold-dark">
               <span>مبلغ نهایی</span>
               <span>{formatPrice(totalToman)} تومان</span>

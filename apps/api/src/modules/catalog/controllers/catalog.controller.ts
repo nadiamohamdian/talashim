@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags } from '@nestjs/swagger';
 import { HttpCache } from '@/common/decorators/http-cache.decorator';
 import { Public } from '@/common/decorators/public.decorator';
@@ -9,6 +10,7 @@ import { CatalogService } from '../services/catalog.service';
 @ApiTags('catalog')
 @ApiPublicErrors()
 @Public()
+@SkipThrottle()
 @Controller('catalog')
 export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}

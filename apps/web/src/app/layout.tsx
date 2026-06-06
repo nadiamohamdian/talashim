@@ -5,7 +5,8 @@ import { platformConfig } from "@sadafgold/shared";
 
 import "./globals.css";
 
-import { ClientRoot } from "@/shared/providers/client-root";
+import { MaintenanceShell } from "@/features/site/components/maintenance-shell";
+import { fetchSiteConfig } from "@/lib/api/site.api";
 
 
 
@@ -27,6 +28,9 @@ const persianSans = IBM_Plex_Sans_Arabic({
 
 
 
+/** Always read maintenance flag fresh — stale cache would trap the storefront in maintenance mode. */
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: {
     default: `${platformConfig.storeName} | ${platformConfig.nameEn}`,
@@ -37,7 +41,7 @@ export const metadata: Metadata = {
 
 
 
-export default function RootLayout({
+export default async function RootLayout({
 
   children,
 
@@ -46,6 +50,7 @@ export default function RootLayout({
   children: React.ReactNode;
 
 }>) {
+  const settings = await fetchSiteConfig();
 
   return (
 
@@ -63,7 +68,7 @@ export default function RootLayout({
 
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
 
-        <ClientRoot>{children}</ClientRoot>
+        <MaintenanceShell initialSettings={settings}>{children}</MaintenanceShell>
 
       </body>
 

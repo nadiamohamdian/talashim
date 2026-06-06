@@ -6,9 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "prisma generate && nest build && tsc-alias -p tsconfig.build.json",
+    "build": "prisma generate && node scripts/sync-prisma-dist.cjs && nest build && tsc-alias -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"prisma/**/*.ts\"",
-    "dev": "prisma generate && pnpm --filter @sadafgold/types build && pnpm --filter @talashim/shared build && nest start --watch",
+    "dev": "prisma generate && node scripts/sync-prisma-dist.cjs && pnpm --filter @sadafgold/types build && pnpm --filter @talashim/shared build && nest start --watch",
+    "prisma:sync-dist": "node scripts/sync-prisma-dist.cjs",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",

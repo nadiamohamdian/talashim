@@ -1,8 +1,11 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { assertFeatureEnabled } from '@/common/platform-settings/platform-settings-helpers';
+import { getPlatformSettings } from '@/common/platform-settings/platform-settings-runtime';
 import {
   GoldTradeSide,
   GoldTradeStatus,
@@ -15,6 +18,7 @@ import { userWalletAccountCode } from '@/modules/ledger/constants/system-account
 import { LedgerRepository } from '@/modules/ledger/repositories/ledger.repository';
 import { LedgerService } from '@/modules/ledger/services/ledger.service';
 import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
+import { UsersService } from '@/modules/users/services/users.service';
 import { WalletRepository } from '@/modules/wallet/repositories/wallet.repository';
 import { TRADE_AUDIT_ACTIONS } from '../constants/trade-audit-actions';
 import type { MarketTradeDto } from '../dto/market-trade.dto';
@@ -30,6 +34,7 @@ export class TradingService {
     private readonly ledgerRepository: LedgerRepository,
     private readonly ledgerService: LedgerService,
     private readonly pricingEngine: PricingEngineService,
+    private readonly usersService: UsersService,
   ) {}
 
   marketBuy(payload: MarketTradeDto) {
@@ -146,6 +151,8 @@ export class TradingService {
   }
 
   private async executeMarketTrade(payload: MarketTradeDto, side: GoldTradeSide) {
+    assertFeatureEnabled('enableGoldTrading', 'معاملات طلا موقتاً غیرفعال است');
+
     const existing = await this.tradingRepository.findByIdempotencyKey(
       payload.idempotencyKey,
     );
@@ -153,6 +160,7 @@ export class TradingService {
       return this.mapOrderDetail(existing);
     }
 
+    const settings = getPlatformSettings();
     const env = getApiEnv();
     const symbol = payload.symbol ?? 'XAU-IRR';
     const karat = payload.karat ?? 18;
@@ -161,10 +169,16 @@ export class TradingService {
     if (!Number.isFinite(quantityGram) || quantityGram <= 0) {
       throw new BadRequestException('quantityGram must be a positive number');
     }
-    if (quantityGram < env.GOLD_TRADE_MIN_GRAM) {
-      throw new BadRequestException(
-        `Minimum trade size is ${env.GOLD_TRADE_MIN_GRAM} gram`,
-      );
+    const minTradeGram = settings.gold.minTradeGram;
+    if (quantityGram < minTradeGram) {
+      throw new BadRequestException(`حداقل حجم معامله ${minTradeGram} گرم است`);
+    }
+
+    if (settings.featureFlags.requireKycForTrading) {
+      const profile = await this.usersService.getProfile(payload.userId);
+      if (profile.kycStatus !== 'approved') {
+        throw new ForbiddenException('برای معامله طلا، احراز هویت (KYC) باید تأیید شده باشد');
+      }
     }
 
     await this.walletRepository.ensureUserWallets(payload.userId);
@@ -179,7 +193,7 @@ export class TradingService {
       side,
       quantityGram,
       unitPriceToman,
-      commissionPercent: env.GOLD_TRADE_COMMISSION_PERCENT,
+      commissionPercent: settings.gold.tradeCommissionPercent,
     });
 
     const orderNumber = this.buildOrderNumber(side);
