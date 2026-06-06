@@ -39,7 +39,7 @@ export function AdminLoginForm() {
       <p className="text-caption font-semibold uppercase tracking-wider text-[var(--primary)]">
         پنل مدیریت
       </p>
-      <h1 className="mt-3 text-display sm:text-[2.25rem]">ورود به پنل مدیریت طلاشیم</h1>
+      <h1 className="mt-2 text-display">ورود به پنل مدیریت طلاشیم</h1>
       <p className="mt-3 text-sm leading-relaxed text-muted">
         مدیریت محصولات، سفارش‌ها، معاملات طلا و عملیات پلتفرم.
       </p>

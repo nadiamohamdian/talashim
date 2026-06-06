@@ -26,9 +26,9 @@ import { UsersPageShell } from './users-page-shell';
 import { KYC_STATUS_FA, KYC_STATUS_OPTIONS, selectFieldClass } from '../lib/labels';
 
 const kycBadgeClass: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-900',
-  APPROVED: 'bg-emerald-50 text-emerald-800',
-  REJECTED: 'bg-rose-50 text-rose-800',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
+  APPROVED: 'bg-[var(--success-bg)] text-[var(--success)]',
+  REJECTED: 'bg-[var(--error-bg)] text-[var(--error)]',
 };
 
 export function KycManagement() {
@@ -72,11 +72,11 @@ export function KycManagement() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری درخواست‌های KYC ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری درخواست‌های KYC ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -93,7 +93,7 @@ export function KycManagement() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={7} className="py-8 text-center text-muted">
                     درخواستی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -101,17 +101,17 @@ export function KycManagement() {
                 data?.items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.user.fullName}</TableCell>
-                    <TableCell className="text-sm text-stone-600" dir="ltr">
+                    <TableCell className="text-sm text-[var(--muted-foreground)]" dir="ltr">
                       {item.user.email}
                     </TableCell>
                     <TableCell className="font-mono text-xs">{item.nationalId}</TableCell>
                     <TableCell>{item.phone}</TableCell>
                     <TableCell>
-                      <Badge className={kycBadgeClass[item.status] ?? 'bg-stone-100 text-stone-700'}>
+                      <Badge className={kycBadgeClass[item.status] ?? 'bg-[var(--surface)] text-[var(--muted-foreground)]'}>
                         {KYC_STATUS_FA[item.status] ?? item.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-stone-500">
+                    <TableCell className="text-xs text-muted">
                       {formatPersianDate(item.submittedAt)}
                     </TableCell>
                     <TableCell>

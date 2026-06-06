@@ -9,11 +9,14 @@ interface AdminTopbarProps {
 
 export function AdminTopbar({ onOpenSidebar }: AdminTopbarProps) {
   return (
-    <div className="sticky top-[var(--header-height)] z-20 border-b border-[var(--border)] bg-[var(--topbar-bg)] backdrop-blur-md">
-      <div className="flex h-12 items-center gap-3 px-4 sm:px-6 lg:px-8">
+    <div
+      className="sticky top-[var(--header-height)] z-20 border-b border-[var(--border-subtle)] bg-[var(--topbar-bg)] backdrop-blur-xl"
+      style={{ height: 'var(--topbar-height)' }}
+    >
+      <div className="flex h-full items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button
           type="button"
-          className="flex size-9 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-foreground shadow-[var(--shadow-xs)] transition hover:border-[var(--primary)] lg:hidden"
+          className="flex size-8 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--card)] text-foreground transition hover:border-[var(--primary)]/30 lg:hidden"
           onClick={onOpenSidebar}
           aria-label="باز کردن منو"
         >

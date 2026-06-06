@@ -76,7 +76,7 @@ export function LoginHistoryContent() {
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-sm text-rose-600">بارگذاری تاریخچه ورود ناموفق بود.</p>
+          <p className="p-6 text-sm text-[var(--error)]">بارگذاری تاریخچه ورود ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -90,7 +90,7 @@ export function LoginHistoryContent() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={4} className="py-8 text-center text-muted">
                     رویداد احراز هویتی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -98,16 +98,16 @@ export function LoginHistoryContent() {
                 data?.items.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>
-                      <p className="font-medium text-stone-900">
+                      <p className="font-medium text-foreground">
                         {getAuthActionLabel(item.action)}
                       </p>
-                      <p className="font-mono text-xs text-stone-400">{item.action}</p>
+                      <p className="font-mono text-xs text-muted">{item.action}</p>
                     </TableCell>
                     <TableCell>{item.actor?.email ?? '—'}</TableCell>
                     <TableCell className="text-sm">
                       {item.actor ? getRoleLabelFa(item.actor.role) : '—'}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-xs text-stone-600">
+                    <TableCell className="whitespace-nowrap text-xs text-[var(--muted-foreground)]">
                       {formatPersianDateTime(item.createdAt)}
                     </TableCell>
                   </TableRow>

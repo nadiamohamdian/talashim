@@ -84,19 +84,19 @@ export function FinanceReportsPanel() {
       {isLoading ? (
         <Skeleton className="h-48 w-full" />
       ) : isError ? (
-        <p className="text-rose-600">بارگذاری گزارش مالی ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری گزارش مالی ناموفق بود.</p>
       ) : summary ? (
         <>
           <ReportKpiGrid kpis={summary.kpis} />
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <Card className="border-border bg-white p-4">
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
               <p className="mb-3 text-sm font-medium">موجودی حساب‌های پلتفرم</p>
               <div className="space-y-2">
                 {summary.platformBalances.map((row) => (
                   <div
                     key={row.label}
-                    className="flex justify-between rounded-xl bg-nude-50 px-3 py-2 text-sm"
+                    className="flex justify-between rounded-[var(--radius-xl)] bg-[var(--surface)] px-3 py-2 text-sm"
                   >
                     <span>{row.label}</span>
                     <span className="font-mono" dir="ltr">
@@ -117,7 +117,7 @@ export function FinanceReportsPanel() {
         </>
       ) : null}
 
-      <Card className="mt-6 overflow-hidden border-border bg-white p-0">
+      <Card className="mt-6 overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-48" />
         ) : (

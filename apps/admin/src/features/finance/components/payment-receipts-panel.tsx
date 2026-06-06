@@ -87,13 +87,13 @@ export function PaymentReceiptsPanel() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-stone-500">
+      <p className="text-sm text-muted">
         فیش‌های واریز کارت‌به‌کارت ارسال‌شده توسط مشتریان. برای تأیید یا رد، فیش را باز کنید یا به
         جزئیات سفارش بروید.
       </p>
 
       {actionMessage ? (
-        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+        <p className="rounded-[var(--radius-xl)] border border-[var(--success-border)] bg-[var(--success-bg)] px-4 py-3 text-sm text-[var(--success)]">
           {actionMessage}
         </p>
       ) : null}
@@ -118,13 +118,13 @@ export function PaymentReceiptsPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {receiptsQuery.isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : receiptsQuery.isError ? (
-          <p className="p-6 text-rose-600">بارگذاری فیش‌ها ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری فیش‌ها ناموفق بود.</p>
         ) : receiptsQuery.data?.items.length === 0 ? (
-          <p className="p-6 text-sm text-stone-500">فیشی ثبت نشده است.</p>
+          <p className="p-6 text-sm text-muted">فیشی ثبت نشده است.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -143,7 +143,7 @@ export function PaymentReceiptsPanel() {
                   <TableCell>
                     <Link
                       href={`/orders/${item.orderId}`}
-                      className="font-mono text-xs text-amber-800 underline"
+                      className="font-mono text-xs text-[var(--warning)] underline"
                     >
                       {item.order.orderNumber}
                     </Link>
@@ -258,24 +258,24 @@ function ReceiptDetailDialog({
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-stone-900/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-[var(--secondary)]/50 backdrop-blur-sm"
         aria-label="بستن"
         onClick={onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
-        className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-border bg-white shadow-2xl sm:rounded-3xl"
+        className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-2xl)]"
       >
-        <div className="flex items-center justify-between border-b border-border bg-nude-50 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border bg-[var(--surface)] px-5 py-4">
           <div>
-            <h2 className="text-base font-bold text-stone-900">فیش پرداخت</h2>
-            <p className="mt-1 font-mono text-xs text-stone-500">{item.order.orderNumber}</p>
+            <h2 className="text-base font-bold text-foreground">فیش پرداخت</h2>
+            <p className="mt-1 font-mono text-xs text-muted">{item.order.orderNumber}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full px-3 py-1 text-sm text-stone-600 hover:bg-stone-100"
+            className="rounded-full px-3 py-1 text-sm text-[var(--muted-foreground)] hover:bg-[var(--surface)]"
           >
             بستن
           </button>
@@ -284,19 +284,19 @@ function ReceiptDetailDialog({
         <div className="space-y-4 overflow-y-auto p-5">
           <dl className="grid gap-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-stone-500">مشتری</dt>
+              <dt className="text-muted">مشتری</dt>
               <dd>{item.order.user?.fullName ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-stone-500">مبلغ</dt>
+              <dt className="text-muted">مبلغ</dt>
               <dd>{formatToman(item.amountToman)} تومان</dd>
             </div>
             <div>
-              <dt className="text-stone-500">وضعیت</dt>
+              <dt className="text-muted">وضعیت</dt>
               <dd>{PAYMENT_STATUS_FA[item.status] ?? item.status}</dd>
             </div>
             <div>
-              <dt className="text-stone-500">زمان ارسال</dt>
+              <dt className="text-muted">زمان ارسال</dt>
               <dd>
                 {item.receiptUploadedAt
                   ? formatPersianDateTime(item.receiptUploadedAt)
@@ -306,7 +306,7 @@ function ReceiptDetailDialog({
           </dl>
 
           {item.rejectionReason ? (
-            <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+            <p className="rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
               دلیل رد: {item.rejectionReason}
             </p>
           ) : null}
@@ -334,13 +334,13 @@ function ReceiptDetailDialog({
           </div>
 
           {canReview ? (
-            <div className="space-y-3 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
-              <p className="text-sm font-medium text-amber-900">بررسی فیش</p>
+            <div className="space-y-3 rounded-[var(--radius-xl)] border border-[var(--warning-border)] bg-[var(--warning-bg)]/60 p-4">
+              <p className="text-sm font-medium text-[var(--secondary)]">بررسی فیش</p>
               <div>
                 <Label htmlFor="reject-reason">دلیل رد (در صورت رد)</Label>
                 <textarea
                   id="reject-reason"
-                  className="mt-1 min-h-[72px] w-full rounded-2xl border border-border bg-white px-3 py-2 text-sm"
+                  className="mt-1 min-h-[72px] w-full rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-sm"
                   value={rejectReason}
                   onChange={(e) => onRejectReasonChange(e.target.value)}
                   placeholder="مثلاً: مبلغ با سفارش مطابقت ندارد"

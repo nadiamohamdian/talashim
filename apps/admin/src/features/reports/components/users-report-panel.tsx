@@ -27,7 +27,7 @@ import { ReportDateFilter } from './report-date-filter';
 import { defaultReportFrom, defaultReportTo } from '../lib/date-range';
 
 const selectClass =
-  'mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm';
+  'mt-1 flex h-11 w-full min-w-[140px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 text-sm';
 
 const KYC_FA: Record<string, string> = {
   PENDING: 'در انتظار',
@@ -101,9 +101,9 @@ export function UsersReportPanel() {
       </ReportDateFilter>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />
       ) : isError || !data ? (
-        <p className="text-sm text-rose-600">بارگذاری گزارش کاربران ناموفق بود.</p>
+        <p className="text-sm text-[var(--error)]">بارگذاری گزارش کاربران ناموفق بود.</p>
       ) : (
         <>
           <ReportKpiGrid kpis={data.summary.kpis} />
@@ -156,7 +156,7 @@ export function UsersReportPanel() {
                       {user.kycStatus ? (KYC_FA[user.kycStatus] ?? user.kycStatus) : '—'}
                     </TableCell>
                     <TableCell>{user.orderCount}</TableCell>
-                    <TableCell className="text-xs text-stone-500">
+                    <TableCell className="text-xs text-muted">
                       {formatPersianDate(user.createdAt)}
                     </TableCell>
                   </TableRow>

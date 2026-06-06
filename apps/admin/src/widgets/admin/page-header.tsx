@@ -23,9 +23,9 @@ const availabilityVariant: Record<ApiAvailability, 'success' | 'gold' | 'outline
 
 export function PageHeader({ title, description, availability, actions }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 pb-2 sm:flex-row sm:items-start sm:justify-between">
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col gap-3 border-b border-[var(--divider)] pb-5 sm:flex-row sm:items-start sm:justify-between">
+      <div className="space-y-1.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <h1 className="text-h1">{title}</h1>
           {availability ? (
             <Badge variant={availabilityVariant[availability]}>{availabilityLabel[availability]}</Badge>

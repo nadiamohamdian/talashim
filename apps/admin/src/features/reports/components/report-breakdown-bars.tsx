@@ -20,11 +20,11 @@ export function ReportBreakdownBars({
 
   return (
     <div className="card-luxury p-5">
-      <h2 className="text-sm font-semibold text-stone-900">{title}</h2>
+      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
       <ul className="mt-4 space-y-3">
         {rows.map((row) => (
           <li key={row.key}>
-            <div className="mb-1 flex justify-between text-xs text-stone-600">
+            <div className="mb-1 flex justify-between text-xs text-[var(--muted-foreground)]">
               <span>{labelMap?.[row.key] ?? row.label}</span>
               <span>
                 {row.count.toLocaleString('fa-IR')}

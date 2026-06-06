@@ -91,7 +91,7 @@ export function SessionsPanel() {
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-sm text-rose-600">بارگذاری نشست‌ها ناموفق بود.</p>
+          <p className="p-6 text-sm text-[var(--error)]">بارگذاری نشست‌ها ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -107,7 +107,7 @@ export function SessionsPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={6} className="py-8 text-center text-muted">
                     نشستی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -115,8 +115,8 @@ export function SessionsPanel() {
                 data?.items.map((session) => (
                   <TableRow key={session.id}>
                     <TableCell>
-                      <p className="font-medium text-stone-900">{session.user.fullName}</p>
-                      <p className="text-xs text-stone-500">{session.user.email}</p>
+                      <p className="font-medium text-foreground">{session.user.fullName}</p>
+                      <p className="text-xs text-muted">{session.user.email}</p>
                     </TableCell>
                     <TableCell className="text-sm">
                       {getRoleLabelFa(session.user.role)}
@@ -128,10 +128,10 @@ export function SessionsPanel() {
                         {SESSION_STATUS_LABELS[session.status]}
                       </span>
                     </TableCell>
-                    <TableCell className="text-xs text-stone-600">
+                    <TableCell className="text-xs text-[var(--muted-foreground)]">
                       {formatPersianDateTime(session.createdAt)}
                     </TableCell>
-                    <TableCell className="text-xs text-stone-600">
+                    <TableCell className="text-xs text-[var(--muted-foreground)]">
                       {formatPersianDateTime(session.expiresAt)}
                     </TableCell>
                     <TableCell>
@@ -148,7 +148,7 @@ export function SessionsPanel() {
                         ) : null}
                         <Button
                           variant="ghost"
-                          className="px-3 py-1.5 text-xs text-rose-700 hover:text-rose-800"
+                          className="px-3 py-1.5 text-xs text-[var(--error)] hover:text-[var(--error)]"
                           disabled={revokeAll.isPending}
                           onClick={() => revokeAll.mutate(session.userId)}
                         >

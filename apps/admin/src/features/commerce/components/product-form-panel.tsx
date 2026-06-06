@@ -207,18 +207,18 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   if (mode === 'edit' && detailQuery.isLoading) {
     return (
       <CatalogPageShell routeId={routeId}>
-        <Skeleton className="h-96 w-full rounded-2xl" />
+        <Skeleton className="h-96 w-full rounded-[var(--radius-xl)]" />
       </CatalogPageShell>
     );
   }
 
   return (
     <CatalogPageShell routeId={routeId}>
-      <Card className="border-border bg-white p-6">
+      <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
         {validationErrors.length > 0 ? (
-          <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
-            <p className="text-sm font-semibold text-rose-700">لطفاً موارد زیر را تکمیل کنید:</p>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-rose-600">
+          <div className="mb-4 rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3">
+            <p className="text-sm font-semibold text-[var(--error)]">لطفاً موارد زیر را تکمیل کنید:</p>
+            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--error)]">
               {validationErrors.map((error) => (
                 <li key={error}>{error}</li>
               ))}
@@ -226,7 +226,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           </div>
         ) : null}
         {submitError ? (
-          <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          <div className="mb-4 rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
             {submitError}
           </div>
         ) : null}

@@ -106,7 +106,7 @@ export function BannersPanel() {
       }
     >
       {editing ? (
-        <Card className="space-y-4 border-border bg-white p-6">
+        <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>عنوان</Label>
@@ -210,11 +210,11 @@ export function BannersPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-48" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری بنرها ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری بنرها ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -231,7 +231,7 @@ export function BannersPanel() {
                   <TableCell>{banner.title}</TableCell>
                   <TableCell>{BANNER_PLACEMENT_FA[banner.placement]}</TableCell>
                   <TableCell>
-                    <span className="inline-flex rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-700">
+                    <span className="inline-flex rounded-full bg-[var(--surface)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]">
                       {BANNER_STATUS_FA[banner.status]}
                     </span>
                   </TableCell>
@@ -245,7 +245,7 @@ export function BannersPanel() {
                         ویرایش
                       </Button>
                       <Button
-                        className="h-8 px-3 text-xs text-rose-600"
+                        className="h-8 px-3 text-xs text-[var(--error)]"
                         variant="ghost"
                         onClick={() => {
                           if (confirm('حذف بنر؟')) {

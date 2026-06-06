@@ -75,7 +75,7 @@ export function ProductMediaFields({
         <div className="flex items-center justify-between gap-2">
           <div>
             <Label>گالری تصاویر</Label>
-            <p className="text-xs text-stone-500">حداکثر {MAX_GALLERY} تصویر — از کتابخانه رسانه</p>
+            <p className="text-xs text-muted">حداکثر {MAX_GALLERY} تصویر — از کتابخانه رسانه</p>
           </div>
           <button
             type="button"
@@ -88,7 +88,7 @@ export function ProductMediaFields({
         </div>
         <div className="mt-3 space-y-4">
           {galleryImages.map((image, index) => (
-            <div key={`gallery-${index}`} className="rounded-2xl border border-border bg-nude-50/50 p-4">
+            <div key={`gallery-${index}`} className="rounded-[var(--radius-xl)] border border-border bg-[var(--surface)]/50 p-4">
               <ImageUrlField
                 label={`تصویر گالری ${index + 1}`}
                 value={image.url}
@@ -98,7 +98,7 @@ export function ProductMediaFields({
               />
               <div className="mt-3 flex gap-2">
                 <input
-                  className="flex-1 rounded-xl border border-border bg-white px-3 py-2 text-sm"
+                  className="flex-1 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-sm"
                   value={image.alt}
                   placeholder="متن جایگزین (alt)"
                   onChange={(e) => {
@@ -108,7 +108,7 @@ export function ProductMediaFields({
                 <Button
                   type="button"
                   variant="outline"
-                  className="text-rose-700"
+                  className="text-[var(--error)]"
                   onClick={() => onGalleryChange(galleryImages.filter((_, i) => i !== index))}
                 >
                   حذف
@@ -123,7 +123,7 @@ export function ProductMediaFields({
         <div className="flex items-center justify-between gap-2">
           <div>
             <Label>ویدیوهای محصول</Label>
-            <p className="text-xs text-stone-500">حداکثر {MAX_VIDEOS} ویدیو (URL مستقیم)</p>
+            <p className="text-xs text-muted">حداکثر {MAX_VIDEOS} ویدیو (URL مستقیم)</p>
           </div>
           <button
             type="button"
@@ -143,10 +143,10 @@ export function ProductMediaFields({
           {videos.map((video, index) => (
             <div
               key={`video-${index}`}
-              className="space-y-3 rounded-2xl border border-border bg-nude-50/50 p-4"
+              className="space-y-3 rounded-[var(--radius-xl)] border border-border bg-[var(--surface)]/50 p-4"
             >
               <input
-                className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm"
+                className="w-full rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-sm"
                 value={video.title}
                 placeholder="عنوان ویدیو"
                 onChange={(e) => {
@@ -154,7 +154,7 @@ export function ProductMediaFields({
                 }}
               />
               <input
-                className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm"
+                className="w-full rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-sm"
                 value={video.videoUrl}
                 placeholder="URL ویدیو"
                 dir="ltr"
@@ -172,7 +172,7 @@ export function ProductMediaFields({
               <Button
                 type="button"
                 variant="outline"
-                className="text-rose-700"
+                className="text-[var(--error)]"
                 onClick={() => onVideosChange(videos.filter((_, i) => i !== index))}
               >
                 حذف ویدیو

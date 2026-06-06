@@ -81,7 +81,7 @@ export function RulesPanel() {
           { href: '/notifications/delivery', label: 'لاگ ارسال' },
         ]}
       />
-      <Card className="border-border bg-white p-6">
+      <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
         <h3 className="font-medium">{editingId ? 'ویرایش قانون' : 'قانون جدید'}</h3>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <div>
@@ -130,11 +130,11 @@ export function RulesPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-48" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری قوانین ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری قوانین ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -152,10 +152,10 @@ export function RulesPanel() {
                 <TableRow key={row.id}>
                   <TableCell>{row.name}</TableCell>
                   <TableCell>{RULE_TRIGGER_FA[row.trigger] ?? row.trigger}</TableCell>
-                  <TableCell className="text-sm text-stone-600">{row.templateName}</TableCell>
+                  <TableCell className="text-sm text-[var(--muted-foreground)]">{row.templateName}</TableCell>
                   <TableCell>{NOTIFICATION_CHANNEL_FA[row.channel] ?? row.channel}</TableCell>
                   <TableCell>
-                    <Badge className={row.isEnabled ? 'bg-emerald-50 text-emerald-800' : 'bg-stone-100'}>
+                    <Badge className={row.isEnabled ? 'bg-[var(--success-bg)] text-[var(--success)]' : 'bg-[var(--surface)]'}>
                       {row.isEnabled ? 'فعال' : 'غیرفعال'}
                     </Badge>
                   </TableCell>
@@ -163,7 +163,7 @@ export function RulesPanel() {
                     <button type="button" className="text-xs text-gold-dark" onClick={() => { setEditingId(row.id); setForm({ name: row.name, trigger: row.trigger, templateId: row.templateId, channel: row.channel, isEnabled: row.isEnabled }); }}>
                       ویرایش
                     </button>
-                    <button type="button" className="text-xs text-rose-600" onClick={() => deleteMutation.mutate(row.id)}>
+                    <button type="button" className="text-xs text-[var(--error)]" onClick={() => deleteMutation.mutate(row.id)}>
                       حذف
                     </button>
                   </TableCell>

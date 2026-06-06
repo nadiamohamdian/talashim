@@ -87,11 +87,11 @@ export function LedgerPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری دفتر کل ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری دفتر کل ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -114,7 +114,7 @@ export function LedgerPanel() {
                     <p className="font-mono text-xs" dir="ltr">
                       {row.accountCode}
                     </p>
-                    <p className="text-xs text-stone-500">{row.accountName}</p>
+                    <p className="text-xs text-muted">{row.accountName}</p>
                   </TableCell>
                   <TableCell>{LEDGER_SIDE_FA[row.side] ?? row.side}</TableCell>
                   <TableCell>

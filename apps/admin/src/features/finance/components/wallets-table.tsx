@@ -36,13 +36,13 @@ export function WalletsTable() {
         <div className="min-w-[240px] flex-1">
           <Label>جستجوی کاربر</Label>
           <Input
-            className="mt-1 border-zinc-700 bg-zinc-900"
+            className="mt-1"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </FilterBar>
-      <Card className="overflow-hidden border-zinc-800 bg-zinc-900/40 p-0">
+      <Card className="overflow-hidden p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : (

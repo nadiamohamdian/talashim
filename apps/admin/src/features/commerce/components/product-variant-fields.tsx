@@ -65,7 +65,7 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
       <div className="flex items-start justify-between gap-2">
         <div>
           <Label>واریانت‌ها (رنگ / سایز)</Label>
-          <p className="mt-1 text-xs text-stone-500">
+          <p className="mt-1 text-xs text-muted">
             هر ترکیب رنگ و سایز می‌تواند قیمت، وزن، موجودی و تصویر جدا داشته باشد (حداکثر{' '}
             {MAX_VARIANTS}).
           </p>
@@ -93,7 +93,7 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
       </div>
 
       {variants.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-xs text-stone-500">
+        <p className="rounded-[var(--radius-xl)] border border-dashed border-border px-4 py-6 text-center text-xs text-muted">
           بدون واریانت — فقط قیمت پایه محصول اعمال می‌شود.
         </p>
       ) : null}
@@ -102,12 +102,12 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
         {variants.map((variant, index) => (
           <div
             key={`variant-${index}`}
-            className="space-y-3 rounded-2xl border border-border bg-stone-50/50 p-4"
+            className="space-y-3 rounded-[var(--radius-xl)] border border-border bg-[var(--surface)]/80 p-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-medium text-stone-800">واریانت {index + 1}</p>
+              <p className="text-sm font-medium text-foreground">واریانت {index + 1}</p>
               <div className="flex items-center gap-2">
-                <label className="flex items-center gap-1.5 text-xs text-stone-600">
+                <label className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
                   <input
                     type="radio"
                     name="default-variant"
@@ -119,7 +119,7 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-8 px-2 text-xs text-rose-600"
+                  className="h-8 px-2 text-xs text-[var(--error)]"
                   onClick={() => {
                     const next = variants.filter((_, i) => i !== index);
                     if (next.length > 0 && !next.some((v) => v.isDefault)) {

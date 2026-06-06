@@ -58,7 +58,7 @@ export function TransactionsPanel() {
             <div>
               <Label>نوع</Label>
               <select
-                className="mt-1 h-11 rounded-2xl border border-zinc-700 bg-zinc-900 px-3 text-sm"
+                className="mt-1"
                 value={walletType}
                 onChange={(e) => {
                   setWalletType(e.target.value);
@@ -73,7 +73,7 @@ export function TransactionsPanel() {
               </select>
             </div>
           </FilterBar>
-          <Card className="mt-4 overflow-hidden border-zinc-800 bg-zinc-900/40 p-0">
+          <Card className="mt-4 overflow-hidden p-0">
             {walletQuery.isLoading ? (
               <Skeleton className="m-6 h-64" />
             ) : (
@@ -117,7 +117,7 @@ export function TransactionsPanel() {
             <div>
               <Label>سمت</Label>
               <select
-                className="mt-1 h-11 rounded-2xl border border-zinc-700 bg-zinc-900 px-3 text-sm"
+                className="mt-1"
                 value={tradeSide}
                 onChange={(e) => {
                   setTradeSide(e.target.value);
@@ -130,7 +130,7 @@ export function TransactionsPanel() {
               </select>
             </div>
           </FilterBar>
-          <Card className="mt-4 overflow-hidden border-zinc-800 bg-zinc-900/40 p-0">
+          <Card className="mt-4 overflow-hidden p-0">
             {tradeQuery.isLoading ? (
               <Skeleton className="m-6 h-64" />
             ) : (

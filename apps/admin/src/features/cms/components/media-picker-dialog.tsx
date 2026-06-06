@@ -63,7 +63,7 @@ export function MediaPickerDialog({
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-stone-900/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-[var(--secondary)]/50 backdrop-blur-sm"
         aria-label="بستن"
         onClick={onClose}
       />
@@ -71,15 +71,15 @@ export function MediaPickerDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="media-picker-title"
-        className="relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-border bg-white shadow-2xl sm:rounded-3xl"
+        className="relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-2xl)]"
       >
-        <div className="flex items-center justify-between border-b border-border bg-nude-50 px-5 py-4">
-          <h2 id="media-picker-title" className="text-base font-bold text-stone-900">
+        <div className="flex items-center justify-between border-b border-border bg-[var(--surface)] px-5 py-4">
+          <h2 id="media-picker-title" className="text-base font-bold text-foreground">
             {title}
           </h2>
           <button
             type="button"
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-stone-600 hover:bg-white"
+            className="rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--muted-foreground)] hover:bg-white"
             onClick={onClose}
           >
             بستن
@@ -88,10 +88,10 @@ export function MediaPickerDialog({
 
         <div className="space-y-4 overflow-y-auto p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-medium text-stone-800">انتخاب از کتابخانه رسانه</p>
+            <p className="text-sm font-medium text-foreground">انتخاب از کتابخانه رسانه</p>
             <Link
               href={`/media?picker=1${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`}
-              className="text-sm font-semibold text-amber-800 underline"
+              className="text-sm font-semibold text-[var(--warning)] underline"
               onClick={onClose}
             >
               باز کردن صفحه کتابخانه (/media)
@@ -131,11 +131,11 @@ export function MediaPickerDialog({
           </div>
 
           {isLoading ? (
-            <Skeleton className="h-48 w-full rounded-2xl" />
+            <Skeleton className="h-48 w-full rounded-[var(--radius-xl)]" />
           ) : isError ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-center">
-              <p className="text-sm text-rose-700">{getApiErrorMessage(error)}</p>
-              <p className="mt-2 text-xs text-stone-600">
+            <div className="rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] p-4 text-center">
+              <p className="text-sm text-[var(--error)]">{getApiErrorMessage(error)}</p>
+              <p className="mt-2 text-xs text-[var(--muted-foreground)]">
                 API را اجرا کنید:{' '}
                 <code className="rounded bg-white px-1" dir="ltr">
                   pnpm dev:api
@@ -147,7 +147,7 @@ export function MediaPickerDialog({
                 </Button>
                 <Link
                   href={`/media?picker=1${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`}
-                  className="inline-flex h-10 items-center rounded-xl border border-border px-4 text-sm"
+                  className="inline-flex h-10 items-center rounded-[var(--radius-xl)] border border-border px-4 text-sm"
                   onClick={onClose}
                 >
                   رفتن به /media
@@ -155,11 +155,11 @@ export function MediaPickerDialog({
               </div>
             </div>
           ) : data?.items.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-nude-50 p-6 text-center text-sm text-stone-600">
+            <div className="rounded-[var(--radius-xl)] border border-border bg-[var(--surface)] p-6 text-center text-sm text-[var(--muted-foreground)]">
               <p>هنوز تصویری در کتابخانه نیست.</p>
               <Link
                 href={`/media?picker=1${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`}
-                className="mt-2 inline-block font-semibold text-amber-800 underline"
+                className="mt-2 inline-block font-semibold text-[var(--warning)] underline"
                 onClick={onClose}
               >
                 رفتن به کتابخانه برای آپلود
@@ -171,7 +171,7 @@ export function MediaPickerDialog({
                 <button
                   key={asset.id}
                   type="button"
-                  className="group overflow-hidden rounded-xl border border-border bg-nude-50 text-right transition hover:border-amber-500 hover:ring-2 hover:ring-amber-200"
+                  className="group overflow-hidden rounded-[var(--radius-xl)] border border-border bg-[var(--surface)] text-right transition hover:border-[var(--primary)] hover:ring-2 hover:ring-[var(--primary-muted)]"
                   onClick={() => {
                     onSelect(asset.url);
                     onClose();
@@ -185,7 +185,7 @@ export function MediaPickerDialog({
                       className="h-full w-full object-cover transition group-hover:scale-105"
                     />
                   </div>
-                  <p className="truncate px-2 py-1.5 text-[10px] font-medium text-stone-700">
+                  <p className="truncate px-2 py-1.5 text-[10px] font-medium text-[var(--muted-foreground)]">
                     {asset.filename}
                   </p>
                 </button>
@@ -202,7 +202,7 @@ export function MediaPickerDialog({
               >
                 قبلی
               </Button>
-              <span className="text-xs text-stone-500">
+              <span className="text-xs text-muted">
                 صفحه {data.page.toLocaleString('fa-IR')}
               </span>
               <Button
@@ -216,7 +216,7 @@ export function MediaPickerDialog({
           ) : null}
 
           <div
-            className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/80 p-5 text-center"
+            className="rounded-[var(--radius-xl)] border border-dashed border-[var(--border)] bg-[var(--surface)]/80 p-5 text-center"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
@@ -226,11 +226,11 @@ export function MediaPickerDialog({
               }
             }}
           >
-            <p className="text-sm font-medium text-stone-700">یا آپلود از کامپیوتر</p>
-            <p className="mt-1 text-xs text-stone-500">فایل را بکشید و رها کنید</p>
+            <p className="text-sm font-medium text-[var(--muted-foreground)]">یا آپلود از کامپیوتر</p>
+            <p className="mt-1 text-xs text-muted">فایل را بکشید و رها کنید</p>
             <button
               type="button"
-              className="mt-3 rounded-xl border border-border bg-white px-4 py-2 text-sm font-medium text-stone-800 hover:bg-nude-50"
+              className="mt-3 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-foreground hover:bg-[var(--surface)]"
               disabled={upload.isPending}
               onClick={() => fileInputRef.current?.click()}
             >
@@ -250,7 +250,7 @@ export function MediaPickerDialog({
               }}
             />
             {upload.isError ? (
-              <p className="mt-2 text-xs text-rose-600">{getApiErrorMessage(upload.error)}</p>
+              <p className="mt-2 text-xs text-[var(--error)]">{getApiErrorMessage(upload.error)}</p>
             ) : null}
           </div>
         </div>

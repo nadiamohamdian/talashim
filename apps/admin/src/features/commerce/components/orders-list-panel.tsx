@@ -29,17 +29,17 @@ import { CommercePageShell } from './commerce-page-shell';
 import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
 
 const statusBadge: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-900',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
   CONFIRMED: 'bg-blue-50 text-blue-800',
-  PAID: 'bg-emerald-50 text-emerald-800',
-  CANCELLED: 'bg-stone-100 text-stone-600',
+  PAID: 'bg-[var(--success-bg)] text-[var(--success)]',
+  CANCELLED: 'bg-[var(--surface)] text-[var(--muted-foreground)]',
 };
 
 const paymentBadge: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-900',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
   AUTHORIZED: 'bg-blue-50 text-blue-800',
-  PAID: 'bg-emerald-50 text-emerald-800',
-  FAILED: 'bg-rose-50 text-rose-800',
+  PAID: 'bg-[var(--success-bg)] text-[var(--success)]',
+  FAILED: 'bg-[var(--error-bg)] text-[var(--error)]',
 };
 
 export function OrdersListPanel() {
@@ -101,7 +101,7 @@ export function OrdersListPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
@@ -126,7 +126,7 @@ export function OrdersListPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={7} className="py-8 text-center text-muted">
                     سفارشی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -150,10 +150,10 @@ export function OrdersListPanel() {
                           {PAYMENT_STATUS_FA[order.paymentStatus] ?? order.paymentStatus}
                         </Badge>
                       ) : (
-                        <span className="text-xs text-stone-400">بدون پرداخت</span>
+                        <span className="text-xs text-muted">بدون پرداخت</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-xs text-stone-500">
+                    <TableCell className="text-xs text-muted">
                       {formatPersianDateTime(order.createdAt)}
                     </TableCell>
                   </TableRow>

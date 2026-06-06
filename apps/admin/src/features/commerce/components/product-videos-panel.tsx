@@ -74,7 +74,7 @@ export function ProductVideosPanel() {
 
   return (
     <CatalogPageShell routeId="products.videos">
-      <Card className="border-border bg-white p-6">
+      <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
         <h3 className="font-medium">{editingId ? 'ویرایش ویدیو' : 'ویدیو جدید'}</h3>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <div>
@@ -117,11 +117,11 @@ export function ProductVideosPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-48" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری ویدیوها ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری ویدیوها ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -136,7 +136,7 @@ export function ProductVideosPanel() {
               {data?.items.map((video) => (
                 <TableRow key={video.id}>
                   <TableCell>{video.title}</TableCell>
-                  <TableCell className="text-sm text-stone-600">{video.productTitle ?? '—'}</TableCell>
+                  <TableCell className="text-sm text-[var(--muted-foreground)]">{video.productTitle ?? '—'}</TableCell>
                   <TableCell>{video.sortOrder}</TableCell>
                   <TableCell className="gap-2 space-x-2 space-x-reverse">
                     <button
@@ -157,7 +157,7 @@ export function ProductVideosPanel() {
                     </button>
                     <button
                       type="button"
-                      className="text-xs text-rose-600"
+                      className="text-xs text-[var(--error)]"
                       onClick={() => deleteMutation.mutate(video.id)}
                     >
                       حذف

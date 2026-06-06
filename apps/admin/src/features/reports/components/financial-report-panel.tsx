@@ -26,7 +26,7 @@ import { ReportDateFilter } from './report-date-filter';
 import { defaultReportFrom, defaultReportTo } from '../lib/date-range';
 
 const selectClass =
-  'mt-1 flex h-11 w-full min-w-[160px] rounded-2xl border border-border bg-white px-3 text-sm';
+  'mt-1 flex h-11 w-full min-w-[160px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 text-sm';
 
 const TX_TYPE_FA: Record<string, string> = {
   DEPOSIT: 'واریز',
@@ -91,9 +91,9 @@ export function FinancialReportPanel() {
       </ReportDateFilter>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />
       ) : isError || !data ? (
-        <p className="text-sm text-rose-600">بارگذاری گزارش مالی ناموفق بود.</p>
+        <p className="text-sm text-[var(--error)]">بارگذاری گزارش مالی ناموفق بود.</p>
       ) : (
         <>
           <ReportKpiGrid kpis={data.summary.kpis} />
@@ -129,16 +129,16 @@ export function FinancialReportPanel() {
                   <TableRow key={tx.id}>
                     <TableCell className="font-mono text-xs">{tx.reference}</TableCell>
                     <TableCell>
-                      <Badge className="bg-nude-50 text-stone-700">
+                      <Badge className="bg-[var(--surface)] text-[var(--muted-foreground)]">
                         {TX_TYPE_FA[tx.type] ?? tx.type}
                       </Badge>
                     </TableCell>
                     <TableCell>{tx.user?.email ?? '—'}</TableCell>
                     <TableCell>{tx.status}</TableCell>
-                    <TableCell className="max-w-[200px] truncate text-xs text-stone-500">
+                    <TableCell className="max-w-[200px] truncate text-xs text-muted">
                       {tx.description ?? '—'}
                     </TableCell>
-                    <TableCell className="text-xs text-stone-500">
+                    <TableCell className="text-xs text-muted">
                       {formatPersianDateTime(tx.createdAt)}
                     </TableCell>
                   </TableRow>

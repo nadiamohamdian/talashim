@@ -56,11 +56,11 @@ export function InventoryHistoryContent() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری تاریخچه ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری تاریخچه ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -77,15 +77,15 @@ export function InventoryHistoryContent() {
             <TableBody>
               {data?.items.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell className="text-xs text-stone-500">
+                  <TableCell className="text-xs text-muted">
                     {formatPersianDateTime(row.createdAt)}
                   </TableCell>
                   <TableCell>
                     <div className="font-medium">{row.productTitle}</div>
-                    <div className="font-mono text-xs text-stone-500">{row.productSku}</div>
+                    <div className="font-mono text-xs text-muted">{row.productSku}</div>
                   </TableCell>
                   <TableCell>{INVENTORY_MOVEMENT_FA[row.type] ?? row.type}</TableCell>
-                  <TableCell className={row.quantityDelta >= 0 ? 'text-emerald-700' : 'text-rose-700'}>
+                  <TableCell className={row.quantityDelta >= 0 ? 'text-[var(--success)]' : 'text-[var(--error)]'}>
                     {row.quantityDelta > 0 ? `+${row.quantityDelta}` : row.quantityDelta}
                   </TableCell>
                   <TableCell className="text-xs">

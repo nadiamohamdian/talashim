@@ -34,11 +34,11 @@ export function DashboardShell({ route }: DashboardShellProps) {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="card-luxury p-6">
-            <p className="text-sm font-medium text-stone-800">نمودار فروش</p>
-            <div className="mt-4 h-48 rounded-xl bg-nude-100/80" />
+            <p className="text-sm font-medium text-foreground">نمودار فروش</p>
+            <div className="mt-4 h-48 rounded-[var(--radius-xl)] bg-nude-100/80" />
           </div>
           <div className="card-luxury p-6">
-            <p className="text-sm font-medium text-stone-800">فعالیت اخیر</p>
+            <p className="text-sm font-medium text-foreground">فعالیت اخیر</p>
             <ul className="mt-4 space-y-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <li key={i} className="h-10 rounded-lg bg-nude-100" />

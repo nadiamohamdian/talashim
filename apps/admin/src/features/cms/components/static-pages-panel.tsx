@@ -96,7 +96,7 @@ export function StaticPagesPanel() {
       }
     >
       {editing ? (
-        <Card className="space-y-4 border-border bg-white p-6">
+        <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>عنوان</Label>
@@ -177,11 +177,11 @@ export function StaticPagesPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-48" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری صفحات ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری صفحات ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -203,8 +203,8 @@ export function StaticPagesPanel() {
                     <span
                       className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         row.isPublished
-                          ? 'bg-emerald-50 text-emerald-800'
-                          : 'bg-stone-100 text-stone-600'
+                          ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                          : 'bg-[var(--surface)] text-[var(--muted-foreground)]'
                       }`}
                     >
                       {row.isPublished ? 'منتشر' : 'پیش‌نویس'}
@@ -220,7 +220,7 @@ export function StaticPagesPanel() {
                         ویرایش
                       </Button>
                       <Button
-                        className="h-8 px-3 text-xs text-rose-600"
+                        className="h-8 px-3 text-xs text-[var(--error)]"
                         variant="ghost"
                         onClick={() => {
                           if (confirm('حذف صفحه؟')) {

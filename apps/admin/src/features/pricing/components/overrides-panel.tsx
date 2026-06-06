@@ -102,7 +102,7 @@ export function OverridesPanel() {
       }
     >
       {editing ? (
-        <Card className="space-y-4 border-border bg-white p-6">
+        <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <Label>قیمت هر گرم (ریال)</Label>
@@ -190,11 +190,11 @@ export function OverridesPanel() {
         </Card>
       ) : null}
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-48" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری بازنویسی‌ها ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری بازنویسی‌ها ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -227,7 +227,7 @@ export function OverridesPanel() {
                         ویرایش
                       </Button>
                       <Button
-                        className="h-8 px-3 text-xs text-rose-600"
+                        className="h-8 px-3 text-xs text-[var(--error)]"
                         variant="ghost"
                         onClick={() => {
                           if (confirm('حذف این بازنویسی؟')) {

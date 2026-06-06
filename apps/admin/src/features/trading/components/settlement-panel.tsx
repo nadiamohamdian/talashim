@@ -88,21 +88,21 @@ export function SettlementPanel() {
         ]}
       />
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="border-border bg-white p-4">
-          <p className="text-xs text-stone-500">در انتظار تسویه</p>
-          <p className="mt-1 text-2xl font-semibold text-amber-800">
+        <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
+          <p className="text-xs text-muted">در انتظار تسویه</p>
+          <p className="mt-1 text-2xl font-semibold text-[var(--warning)]">
             {summaryQuery.isLoading ? '…' : (kpis?.pendingCount ?? 0)}
           </p>
         </Card>
-        <Card className="border-border bg-white p-4">
-          <p className="text-xs text-stone-500">ناموفق</p>
-          <p className="mt-1 text-2xl font-semibold text-rose-700">
+        <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
+          <p className="text-xs text-muted">ناموفق</p>
+          <p className="mt-1 text-2xl font-semibold text-[var(--error)]">
             {summaryQuery.isLoading ? '…' : (kpis?.failedCount ?? 0)}
           </p>
         </Card>
-        <Card className="border-border bg-white p-4">
-          <p className="text-xs text-stone-500">تکمیل‌شده امروز</p>
-          <p className="mt-1 text-2xl font-semibold text-emerald-800">
+        <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
+          <p className="text-xs text-muted">تکمیل‌شده امروز</p>
+          <p className="mt-1 text-2xl font-semibold text-[var(--success)]">
             {summaryQuery.isLoading ? '…' : (kpis?.filledTodayCount ?? 0)}
           </p>
         </Card>
@@ -138,11 +138,11 @@ export function SettlementPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {queueQuery.isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : queueQuery.isError ? (
-          <p className="p-6 text-rose-600">بارگذاری صف تسویه ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری صف تسویه ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -160,7 +160,7 @@ export function SettlementPanel() {
             <TableBody>
               {queueQuery.data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={8} className="py-8 text-center text-muted">
                     موردی در صف تسویه نیست.
                   </TableCell>
                 </TableRow>
@@ -173,8 +173,8 @@ export function SettlementPanel() {
                       <Badge
                         className={
                           order.side === 'BUY'
-                            ? 'bg-emerald-50 text-emerald-800'
-                            : 'bg-rose-50 text-rose-800'
+                            ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                            : 'bg-[var(--error-bg)] text-[var(--error)]'
                         }
                       >
                         {TRADE_SIDE_FA[order.side] ?? order.side}
@@ -183,7 +183,7 @@ export function SettlementPanel() {
                     <TableCell>{TRADE_STATUS_FA[order.status] ?? order.status}</TableCell>
                     <TableCell>{formatGram(order.quantityGram)}</TableCell>
                     <TableCell>{formatToman(order.netRial)}</TableCell>
-                    <TableCell className="max-w-[160px] truncate text-xs text-stone-500">
+                    <TableCell className="max-w-[160px] truncate text-xs text-muted">
                       {order.failureReason ?? '—'}
                     </TableCell>
                     <TableCell>
@@ -215,7 +215,7 @@ export function SettlementPanel() {
                               />
                               <Button
                                 variant="ghost"
-                                className="h-8 px-3 text-xs text-rose-700"
+                                className="h-8 px-3 text-xs text-[var(--error)]"
                                 disabled={
                                   cancelMutation.isPending || cancelReason.trim().length < 3
                                 }
@@ -232,7 +232,7 @@ export function SettlementPanel() {
                           ) : null}
                         </div>
                       ) : (
-                        <span className="text-xs text-stone-400">—</span>
+                        <span className="text-xs text-muted">—</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -244,7 +244,7 @@ export function SettlementPanel() {
       </Card>
 
       {(settleMutation.isError || cancelMutation.isError) && (
-        <p className="text-sm text-rose-600">عملیات تسویه یا لغو ناموفق بود.</p>
+        <p className="text-sm text-[var(--error)]">عملیات تسویه یا لغو ناموفق بود.</p>
       )}
 
       {queueQuery.data ? (

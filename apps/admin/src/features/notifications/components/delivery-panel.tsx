@@ -26,10 +26,10 @@ import { NotificationsPageShell } from './notifications-page-shell';
 import { DELIVERY_STATUS_FA, NOTIFICATION_CHANNEL_FA, selectFieldClass } from '../lib/labels';
 
 const statusClass: Record<string, string> = {
-  PENDING: 'bg-amber-50 text-amber-900',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
   SENT: 'bg-blue-50 text-blue-800',
-  DELIVERED: 'bg-emerald-50 text-emerald-800',
-  FAILED: 'bg-rose-50 text-rose-800',
+  DELIVERED: 'bg-[var(--success-bg)] text-[var(--success)]',
+  FAILED: 'bg-[var(--error-bg)] text-[var(--error)]',
 };
 
 export function DeliveryPanel() {
@@ -62,8 +62,8 @@ export function DeliveryPanel() {
       {data?.summary.byStatus.length ? (
         <div className="flex flex-wrap gap-3">
           {data.summary.byStatus.map((row) => (
-            <Card key={row.status} className="border-border bg-white px-4 py-3">
-              <p className="text-xs text-stone-500">{DELIVERY_STATUS_FA[row.status] ?? row.status}</p>
+            <Card key={row.status} className="border-[var(--border-subtle)] bg-[var(--card)] px-4 py-3">
+              <p className="text-xs text-muted">{DELIVERY_STATUS_FA[row.status] ?? row.status}</p>
               <p className="text-xl font-semibold">{row.count}</p>
             </Card>
           ))}
@@ -95,11 +95,11 @@ export function DeliveryPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری لاگ تحویل ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری لاگ تحویل ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -115,14 +115,14 @@ export function DeliveryPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={6} className="py-8 text-center text-muted">
                     رکوردی یافت نشد.
                   </TableCell>
                 </TableRow>
               ) : (
                 data?.items.map((row) => (
                   <TableRow key={row.id}>
-                    <TableCell className="text-xs text-stone-500">
+                    <TableCell className="text-xs text-muted">
                       {formatPersianDateTime(row.createdAt)}
                     </TableCell>
                     <TableCell className="font-mono text-xs" dir="ltr">
@@ -132,10 +132,10 @@ export function DeliveryPanel() {
                     <TableCell>
                       <Badge className={statusClass[row.status]}>{DELIVERY_STATUS_FA[row.status] ?? row.status}</Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-stone-600">
+                    <TableCell className="text-xs text-[var(--muted-foreground)]">
                       {row.templateName ?? '—'} / {row.ruleName ?? '—'}
                     </TableCell>
-                    <TableCell className="max-w-[140px] truncate text-xs text-rose-600">
+                    <TableCell className="max-w-[140px] truncate text-xs text-[var(--error)]">
                       {row.errorMessage ?? '—'}
                     </TableCell>
                   </TableRow>

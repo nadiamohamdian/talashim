@@ -136,11 +136,11 @@ export function TradeOrdersPanel({
         ) : null}
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری سفارش‌ها ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری سفارش‌ها ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -161,7 +161,7 @@ export function TradeOrdersPanel({
                 <TableRow>
                   <TableCell
                     colSpan={fixedSide ? 8 : 9}
-                    className="py-8 text-center text-stone-500"
+                    className="py-8 text-center text-muted"
                   >
                     سفارشی یافت نشد.
                   </TableCell>
@@ -172,15 +172,15 @@ export function TradeOrdersPanel({
                     <TableCell className="font-mono text-xs">{order.orderNumber}</TableCell>
                     <TableCell>
                       <div className="font-medium">{order.user.fullName}</div>
-                      <div className="text-xs text-stone-500">{order.user.email}</div>
+                      <div className="text-xs text-muted">{order.user.email}</div>
                     </TableCell>
                     {!fixedSide ? (
                       <TableCell>
                         <Badge
                           className={
                             order.side === 'BUY'
-                              ? 'bg-emerald-50 text-emerald-800'
-                              : 'bg-rose-50 text-rose-800'
+                              ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                              : 'bg-[var(--error-bg)] text-[var(--error)]'
                           }
                         >
                           {TRADE_SIDE_FA[order.side] ?? order.side}
@@ -192,7 +192,7 @@ export function TradeOrdersPanel({
                     <TableCell>{formatToman(order.unitPriceToman)}</TableCell>
                     <TableCell>{formatToman(order.netRial)}</TableCell>
                     <TableCell>{formatToman(order.commissionRial)}</TableCell>
-                    <TableCell className="text-xs text-stone-500">
+                    <TableCell className="text-xs text-muted">
                       {formatPersianDateTime(order.createdAt)}
                     </TableCell>
                   </TableRow>

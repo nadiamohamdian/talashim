@@ -58,12 +58,12 @@ export function GoldSettingsForm() {
     <form className="space-y-6" onSubmit={(e) => void onSubmit(e)}>
       <SettingsPersistenceNotice />
       {saved ? (
-        <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
+        <Alert className="border-[var(--success-border)] bg-[var(--success-bg)] text-[var(--success)]">
           تنظیمات طلا ذخیره شد.
         </Alert>
       ) : null}
       {saveError ? (
-        <Alert className="border-rose-200 bg-rose-50 text-rose-900">{saveError}</Alert>
+        <Alert className="border-[var(--error-border)] bg-[var(--error-bg)] text-[var(--error)]">{saveError}</Alert>
       ) : null}
 
       <SettingsSectionCard
@@ -75,7 +75,7 @@ export function GoldSettingsForm() {
             <Label htmlFor="displayKarat">عیار نمایش پیش‌فرض</Label>
             <select
               id="displayKarat"
-              className="mt-2 flex h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 text-sm disabled:opacity-50"
+              className="mt-2 flex h-11 w-full rounded-[var(--radius-xl)] border border-[var(--border)] bg-white px-4 text-sm disabled:opacity-50"
               disabled={!canWrite}
               {...register('displayKarat')}
             >
@@ -131,7 +131,7 @@ export function GoldSettingsForm() {
               {...register('spreadPercent')}
             />
             {errors.spreadPercent ? (
-              <p className="mt-1 text-xs text-rose-600">{errors.spreadPercent.message}</p>
+              <p className="mt-1 text-xs text-[var(--error)]">{errors.spreadPercent.message}</p>
             ) : null}
           </div>
           <div>
@@ -171,7 +171,7 @@ export function GoldSettingsForm() {
             />
           </div>
         </div>
-        <p className="text-xs leading-5 text-stone-500">
+        <p className="text-xs leading-5 text-muted">
           منبع بازار: BRS / fallback — پس از اتصال API تنظیمات، این مقادیر در Redis و worker
           اعمال می‌شوند.
         </p>

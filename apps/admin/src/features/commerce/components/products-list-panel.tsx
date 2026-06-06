@@ -110,14 +110,14 @@ export function ProductsListPanel() {
         </label>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">
+          <p className="p-6 text-[var(--error)]">
             بارگذاری محصولات ناموفق بود.
             {error ? (
-              <span className="mt-2 block text-sm text-stone-600">{getApiErrorMessage(error)}</span>
+              <span className="mt-2 block text-sm text-[var(--muted-foreground)]">{getApiErrorMessage(error)}</span>
             ) : null}
           </p>
         ) : (
@@ -136,7 +136,7 @@ export function ProductsListPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={7} className="py-8 text-center text-muted">
                     محصولی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -152,8 +152,8 @@ export function ProductsListPanel() {
                       <Badge
                         className={
                           (product.inventory?.available ?? 0) > 0
-                            ? 'bg-emerald-50 text-emerald-800'
-                            : 'bg-rose-50 text-rose-800'
+                            ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                            : 'bg-[var(--error-bg)] text-[var(--error)]'
                         }
                       >
                         {product.inventory?.available ?? 0}
@@ -168,13 +168,13 @@ export function ProductsListPanel() {
                       </Link>
                       <Link
                         href={`/products/${product.slug}/edit`}
-                        className="text-xs text-stone-600 hover:underline"
+                        className="text-xs text-[var(--muted-foreground)] hover:underline"
                       >
                         ویرایش
                       </Link>
                       <button
                         type="button"
-                        className="text-xs text-rose-600 hover:underline"
+                        className="text-xs text-[var(--error)] hover:underline"
                         onClick={() => {
                           if (window.confirm('حذف این محصول؟')) {
                             deleteMutation.mutate(product.id);

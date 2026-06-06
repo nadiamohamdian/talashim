@@ -108,12 +108,12 @@ export function FeatureFlagsForm() {
     <form className="space-y-6" onSubmit={(e) => void onSubmit(e)}>
       <SettingsPersistenceNotice />
       {saved ? (
-        <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
+        <Alert className="border-[var(--success-border)] bg-[var(--success-bg)] text-[var(--success)]">
           پرچم‌های ویژگی ذخیره شد.
         </Alert>
       ) : null}
       {saveError ? (
-        <Alert className="border-rose-200 bg-rose-50 text-rose-900">{saveError}</Alert>
+        <Alert className="border-[var(--error-border)] bg-[var(--error-bg)] text-[var(--error)]">{saveError}</Alert>
       ) : null}
 
       <SettingsSectionCard

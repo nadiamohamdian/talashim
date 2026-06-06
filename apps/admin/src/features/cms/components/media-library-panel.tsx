@@ -76,21 +76,21 @@ export function MediaLibraryPanel() {
   return (
     <CmsPageShell routeId="media.library">
       {isPickerMode ? (
-        <Card className="border-amber-300 bg-amber-50 p-4">
-          <p className="text-sm font-semibold text-amber-900">حالت انتخاب تصویر</p>
-          <p className="mt-1 text-sm text-amber-800">
+        <Card className="border-[var(--warning-border)] bg-[var(--warning-bg)] p-4">
+          <p className="text-sm font-semibold text-[var(--secondary)]">حالت انتخاب تصویر</p>
+          <p className="mt-1 text-sm text-[var(--warning)]">
             روی «انتخاب این تصویر» بزنید تا به فرم محصول/محتوا برگردید.
           </p>
         </Card>
       ) : null}
-      <Card className="border-amber-200 bg-gradient-to-l from-amber-50 to-white p-6">
-        <h3 className="text-sm font-bold text-stone-900">آپلود تصاویر سایت</h3>
-        <p className="mt-1 text-sm text-stone-600">
+      <Card className="border-[var(--warning-border)] bg-gradient-to-l from-[var(--warning-bg)] to-white p-6">
+        <h3 className="text-sm font-bold text-foreground">آپلود تصاویر سایت</h3>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           تمام تصاویر محصولات، بنرها، وبلاگ و صفحات از اینجا مدیریت می‌شوند. هنگام افزودن محصول یا
           محتوا، تصویر را از همین کتابخانه انتخاب کنید.
         </p>
         <div
-          className="mt-4 rounded-2xl border-2 border-dashed border-amber-400 bg-white/80 p-8 text-center"
+          className="mt-4 rounded-[var(--radius-xl)] border-2 border-dashed border-[var(--primary)] bg-white/80 p-8 text-center"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -98,8 +98,8 @@ export function MediaLibraryPanel() {
             files.forEach((file) => upload.mutate(file));
           }}
         >
-          <p className="text-sm font-medium text-stone-800">فایل‌ها را اینجا رها کنید</p>
-          <p className="mt-1 text-xs text-stone-500">JPEG، PNG، WebP، GIF</p>
+          <p className="text-sm font-medium text-foreground">فایل‌ها را اینجا رها کنید</p>
+          <p className="mt-1 text-xs text-muted">JPEG، PNG، WebP، GIF</p>
           <button
             type="button"
             className="btn-gold mt-4"
@@ -121,7 +121,7 @@ export function MediaLibraryPanel() {
             }}
           />
           {upload.isError ? (
-            <p className="mt-3 text-xs text-rose-600">{getApiErrorMessage(upload.error)}</p>
+            <p className="mt-3 text-xs text-[var(--error)]">{getApiErrorMessage(upload.error)}</p>
           ) : null}
         </div>
       </Card>
@@ -159,9 +159,9 @@ export function MediaLibraryPanel() {
       </FilterBar>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />
       ) : isError ? (
-        <Card className="overflow-hidden border-border bg-white p-0">
+        <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
           <AdminApiError
             title="بارگذاری کتابخانه رسانه ناموفق بود."
             error={error}
@@ -171,7 +171,7 @@ export function MediaLibraryPanel() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data?.items.map((asset) => (
-            <Card key={asset.id} className="overflow-hidden border-border bg-white p-0 shadow-sm">
+            <Card key={asset.id} className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0 shadow-sm">
               <div className="relative aspect-square bg-nude-100">
                 {asset.mimeType.startsWith('image/') ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -181,14 +181,14 @@ export function MediaLibraryPanel() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-stone-500">
+                  <div className="flex h-full items-center justify-center text-xs text-muted">
                     {asset.mimeType}
                   </div>
                 )}
               </div>
               <div className="space-y-2 p-3">
-                <p className="truncate text-sm font-semibold text-stone-900">{asset.filename}</p>
-                <p className="text-xs text-stone-500">
+                <p className="truncate text-sm font-semibold text-foreground">{asset.filename}</p>
+                <p className="text-xs text-muted">
                   {asset.folder} · {formatBytes(asset.sizeBytes)}
                 </p>
                 <div className="flex flex-col gap-2">
@@ -212,7 +212,7 @@ export function MediaLibraryPanel() {
                     {!isPickerMode ? (
                       <Button
                         variant="outline"
-                        className="h-auto px-3 py-2 text-xs text-rose-700"
+                        className="h-auto px-3 py-2 text-xs text-[var(--error)]"
                         onClick={() => {
                           if (confirm('حذف این فایل از کتابخانه؟')) {
                             deleteMutation.mutate(asset.id);

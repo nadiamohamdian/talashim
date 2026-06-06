@@ -12,8 +12,8 @@ export default function DashboardError({
 }) {
   return (
     <div className="card-luxury mx-auto max-w-lg p-8 text-center">
-      <p className="text-lg font-semibold text-stone-900">خطا در بارگذاری صفحه</p>
-      <p className="mt-2 text-sm text-stone-600">
+      <p className="text-lg font-semibold text-foreground">خطا در بارگذاری صفحه</p>
+      <p className="mt-2 text-sm text-[var(--muted-foreground)]">
         {error.message || 'مشکلی در نمایش این بخش پیش آمد.'}
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">

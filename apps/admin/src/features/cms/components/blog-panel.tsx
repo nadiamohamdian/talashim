@@ -127,11 +127,11 @@ export function BlogPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری وبلاگ ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری وبلاگ ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -148,7 +148,7 @@ export function BlogPanel() {
                 <TableRow key={post.id}>
                   <TableCell>
                     <p className="font-medium">{post.title}</p>
-                    <p className="font-mono text-xs text-stone-500" dir="ltr">
+                    <p className="font-mono text-xs text-muted" dir="ltr">
                       {post.slug}
                     </p>
                   </TableCell>
@@ -157,8 +157,8 @@ export function BlogPanel() {
                     <span
                       className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         post.isPublished
-                          ? 'bg-emerald-50 text-emerald-800'
-                          : 'bg-stone-100 text-stone-600'
+                          ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                          : 'bg-[var(--surface)] text-[var(--muted-foreground)]'
                       }`}
                     >
                       {post.isPublished ? 'منتشر' : 'پیش‌نویس'}
@@ -177,7 +177,7 @@ export function BlogPanel() {
                         ویرایش
                       </Button>
                       <Button
-                        className="h-8 px-3 text-xs text-rose-600"
+                        className="h-8 px-3 text-xs text-[var(--error)]"
                         variant="ghost"
                         onClick={() => {
                           if (confirm('حذف این پست؟')) {

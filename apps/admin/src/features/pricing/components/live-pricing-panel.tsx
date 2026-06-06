@@ -46,7 +46,7 @@ export function LivePricingPanel() {
     >
       <div className="flex flex-wrap gap-4">
         <div>
-          <label className="text-xs text-stone-500">نماد</label>
+          <label className="text-xs text-muted">نماد</label>
           <select
             className={selectFieldClass}
             value={symbol}
@@ -56,7 +56,7 @@ export function LivePricingPanel() {
           </select>
         </div>
         <div>
-          <label className="text-xs text-stone-500">عیار</label>
+          <label className="text-xs text-muted">عیار</label>
           <select
             className={selectFieldClass}
             value={karat}
@@ -69,7 +69,7 @@ export function LivePricingPanel() {
       </div>
 
       {liveQuery.isLoading ? (
-        <Skeleton className="h-40 w-full rounded-2xl" />
+        <Skeleton className="h-40 w-full rounded-[var(--radius-xl)]" />
       ) : live ? (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -79,19 +79,19 @@ export function LivePricingPanel() {
               { label: 'قیمت فروش', value: formatRial(live.sellPrice) },
               { label: 'اسپرد', value: `${live.spreadPercent}%` },
             ].map((item) => (
-              <Card key={item.label} className="border-border bg-white p-5">
-                <p className="text-xs text-stone-500">{item.label}</p>
+              <Card key={item.label} className="border-[var(--border-subtle)] bg-[var(--card)] p-5">
+                <p className="text-xs text-muted">{item.label}</p>
                 <p className="mt-2 text-xl font-semibold text-gold-dark">{item.value}</p>
               </Card>
             ))}
           </div>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-muted">
             {live.providerName} · {PRICE_SOURCE_FA[live.source] ?? live.source} ·{' '}
             {formatPersianDateTime(live.recordedAt)}
           </p>
         </>
       ) : liveQuery.isError ? (
-        <p className="text-rose-600">بارگذاری قیمت زنده ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری قیمت زنده ناموفق بود.</p>
       ) : null}
     </PricingPageShell>
   );

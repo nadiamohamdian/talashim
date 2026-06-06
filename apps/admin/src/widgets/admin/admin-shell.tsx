@@ -33,12 +33,12 @@ export function AdminShell({ children }: PropsWithChildren) {
             <div className="fixed inset-0 z-40 lg:hidden">
               <button
                 type="button"
-                className="absolute inset-0 bg-[var(--secondary)]/20 backdrop-blur-sm"
+                className="admin-overlay absolute inset-0"
                 aria-label="بستن منو"
                 onClick={() => setMobileNavOpen(false)}
               />
               <div
-                className="absolute inset-y-0 right-0 max-w-[85vw] border-l border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] shadow-xl"
+                className="absolute inset-y-0 right-0 max-w-[85vw] border-l border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] shadow-[var(--shadow-dialog)]"
                 style={{ width: 'var(--sidebar-width)' }}
               >
                 <AdminSidebar onNavigate={() => setMobileNavOpen(false)} />
@@ -49,7 +49,7 @@ export function AdminShell({ children }: PropsWithChildren) {
           {/* Main content */}
           <div className="flex min-w-0 flex-1 flex-col">
             <AdminTopbar onOpenSidebar={() => setMobileNavOpen(true)} />
-            <main className="mx-auto w-full max-w-[var(--content-max-width)] flex-1 px-4 py-6 sm:px-6 lg:px-8 animate-fade-in">
+            <main className="mx-auto w-full max-w-[var(--content-max-width)] flex-1 px-4 py-5 sm:px-6 lg:px-8 animate-fade-in">
               {children}
             </main>
           </div>

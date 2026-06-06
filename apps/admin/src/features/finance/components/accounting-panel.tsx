@@ -65,29 +65,29 @@ export function AccountingPanel() {
       {isLoading ? (
         <Skeleton className="h-48 w-full" />
       ) : isError ? (
-        <p className="text-rose-600">بارگذاری حسابداری ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری حسابداری ناموفق بود.</p>
       ) : data ? (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {data.kpis.map((kpi) => (
-              <Card key={kpi.key} className="border-border bg-white p-4">
-                <p className="text-xs text-stone-500">{kpi.label}</p>
-                <p className="mt-1 text-xl font-semibold text-stone-900">{kpi.value}</p>
+              <Card key={kpi.key} className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
+                <p className="text-xs text-muted">{kpi.label}</p>
+                <p className="mt-1 text-xl font-semibold text-foreground">{kpi.value}</p>
               </Card>
             ))}
           </div>
 
           {data.byCategory.length > 0 ? (
-            <Card className="border-border bg-white p-4">
-              <p className="mb-3 text-sm font-medium text-stone-900">تفکیک بر اساس نوع حساب</p>
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
+              <p className="mb-3 text-sm font-medium text-foreground">تفکیک بر اساس نوع حساب</p>
               <div className="space-y-2">
                 {data.byCategory.map((row) => (
                   <div
                     key={row.key}
-                    className="flex items-center justify-between rounded-xl bg-nude-50 px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-[var(--radius-xl)] bg-[var(--surface)] px-3 py-2 text-sm"
                   >
                     <span>{row.label}</span>
-                    <span className="text-stone-600">
+                    <span className="text-[var(--muted-foreground)]">
                       {row.count} حساب · {row.amount?.toLocaleString('fa-IR')}
                     </span>
                   </div>
@@ -96,7 +96,7 @@ export function AccountingPanel() {
             </Card>
           ) : null}
 
-          <Card className="overflow-hidden border-border bg-white p-0">
+          <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
             <Table>
               <TableHeader>
                 <TableRow>

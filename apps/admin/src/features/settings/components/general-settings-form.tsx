@@ -79,12 +79,12 @@ export function GeneralSettingsForm() {
     <form className="space-y-6" onSubmit={(e) => void onSubmit(e)}>
       <SettingsPersistenceNotice />
       {saved ? (
-        <Alert className="border-emerald-200 bg-emerald-50 text-emerald-900">
+        <Alert className="border-[var(--success-border)] bg-[var(--success-bg)] text-[var(--success)]">
           تنظیمات عمومی ذخیره شد. حالت تعمیرات روی فروشگاه اعمال می‌شود.
         </Alert>
       ) : null}
       {saveError ? (
-        <Alert className="border-rose-200 bg-rose-50 text-rose-900">{saveError}</Alert>
+        <Alert className="border-[var(--error-border)] bg-[var(--error-bg)] text-[var(--error)]">{saveError}</Alert>
       ) : null}
 
       <SettingsSectionCard
@@ -96,7 +96,7 @@ export function GeneralSettingsForm() {
             <Label htmlFor="storeName">نام فروشگاه</Label>
             <Input id="storeName" className="mt-2" disabled={!canWrite} {...register('storeName')} />
             {errors.storeName ? (
-              <p className="mt-1 text-xs text-rose-600">{errors.storeName.message}</p>
+              <p className="mt-1 text-xs text-[var(--error)]">{errors.storeName.message}</p>
             ) : null}
           </div>
           <div>
@@ -118,7 +118,7 @@ export function GeneralSettingsForm() {
             {...register('storefrontUrl')}
           />
           {errors.storefrontUrl ? (
-            <p className="mt-1 text-xs text-rose-600">{errors.storefrontUrl.message}</p>
+            <p className="mt-1 text-xs text-[var(--error)]">{errors.storefrontUrl.message}</p>
           ) : null}
         </div>
       </SettingsSectionCard>
@@ -136,7 +136,7 @@ export function GeneralSettingsForm() {
               {...register('supportEmail')}
             />
             {errors.supportEmail ? (
-              <p className="mt-1 text-xs text-rose-600">{errors.supportEmail.message}</p>
+              <p className="mt-1 text-xs text-[var(--error)]">{errors.supportEmail.message}</p>
             ) : null}
           </div>
           <div>

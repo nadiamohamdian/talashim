@@ -31,7 +31,7 @@ export function AdminBreadcrumbs() {
             {crumb.href && !isLast ? (
               <Link
                 href={crumb.href}
-                className="text-muted transition-colors hover:text-[var(--primary)]"
+                className="text-muted transition-colors hover:text-foreground"
               >
                 {crumb.label}
               </Link>

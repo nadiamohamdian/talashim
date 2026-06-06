@@ -24,7 +24,7 @@ import { ReportBreakdownBars } from './report-breakdown-bars';
 import { PRODUCT_CATEGORY_FA } from '../lib/format';
 
 const selectClass =
-  'mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm';
+  'mt-1 flex h-11 w-full min-w-[140px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 text-sm';
 
 export function InventoryReportPanel() {
   const [search, setSearch] = useState('');
@@ -75,7 +75,7 @@ export function InventoryReportPanel() {
             ))}
           </select>
         </div>
-        <label className="flex items-center gap-2 pb-1 text-sm text-stone-700">
+        <label className="flex items-center gap-2 pb-1 text-sm text-[var(--muted-foreground)]">
           <input
             type="checkbox"
             checked={lowStockOnly}
@@ -89,9 +89,9 @@ export function InventoryReportPanel() {
       </FilterBar>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />
       ) : isError || !data ? (
-        <p className="text-sm text-rose-600">بارگذاری گزارش موجودی ناموفق بود.</p>
+        <p className="text-sm text-[var(--error)]">بارگذاری گزارش موجودی ناموفق بود.</p>
       ) : (
         <>
           <ReportKpiGrid kpis={data.summary.kpis} />
@@ -128,11 +128,11 @@ export function InventoryReportPanel() {
                     <TableCell>{row.available}</TableCell>
                     <TableCell>
                       {row.available <= 0 ? (
-                        <Badge className="bg-rose-50 text-rose-800">ناموجود</Badge>
+                        <Badge className="bg-[var(--error-bg)] text-[var(--error)]">ناموجود</Badge>
                       ) : row.lowStock ? (
-                        <Badge className="bg-amber-50 text-amber-900">کم‌موجود</Badge>
+                        <Badge className="bg-[var(--warning-bg)] text-[var(--secondary)]">کم‌موجود</Badge>
                       ) : (
-                        <Badge className="bg-emerald-50 text-emerald-800">عادی</Badge>
+                        <Badge className="bg-[var(--success-bg)] text-[var(--success)]">عادی</Badge>
                       )}
                     </TableCell>
                   </TableRow>

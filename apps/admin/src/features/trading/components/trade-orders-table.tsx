@@ -43,17 +43,17 @@ export function TradeOrdersTable({ title, description, defaultSide }: TradeOrder
       <FilterBar>
         <div>
           <Label>سمت معامله</Label>
-          <p className="mt-1 text-sm text-zinc-300">
+          <p className="mt-1 text-sm text-muted">
             {defaultSide === 'BUY' ? 'خرید' : defaultSide === 'SELL' ? 'فروش' : 'همه'}
           </p>
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-zinc-800 bg-zinc-900/40 p-0">
+      <Card className="overflow-hidden p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-400">بارگذاری معاملات ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری معاملات ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>

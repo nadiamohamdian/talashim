@@ -76,7 +76,7 @@ export function UsersListPanel() {
           </select>
         </div>
         <div className="flex items-end pb-1">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-stone-700">
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--muted-foreground)]">
             <input
               type="checkbox"
               className="rounded border-border"
@@ -92,11 +92,11 @@ export function UsersListPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری کاربران ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری کاربران ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -112,7 +112,7 @@ export function UsersListPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={6} className="py-8 text-center text-muted">
                     کاربری یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -122,20 +122,20 @@ export function UsersListPanel() {
                   return (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.fullName}</TableCell>
-                      <TableCell className="text-sm text-stone-600" dir="ltr">
+                      <TableCell className="text-sm text-[var(--muted-foreground)]" dir="ltr">
                         {user.email}
                       </TableCell>
                       <TableCell>{getRoleLabelFa(String(user.role).toLowerCase())}</TableCell>
                       <TableCell>
                         {kycStatus ? (
-                          <Badge className="bg-nude-100 text-stone-700">
+                          <Badge className="bg-nude-100 text-[var(--muted-foreground)]">
                             {KYC_STATUS_FA[kycStatus] ?? kycStatus}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-stone-400">—</span>
+                          <span className="text-xs text-muted">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs text-stone-500">
+                      <TableCell className="text-xs text-muted">
                         {formatPersianDate(user.createdAt)}
                       </TableCell>
                       <TableCell>

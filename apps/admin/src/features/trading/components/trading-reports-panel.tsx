@@ -96,9 +96,9 @@ export function TradingReportsPanel() {
       </ReportDateFilter>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />
       ) : isError || !data ? (
-        <p className="text-sm text-rose-600">بارگذاری گزارش معاملات ناموفق بود.</p>
+        <p className="text-sm text-[var(--error)]">بارگذاری گزارش معاملات ناموفق بود.</p>
       ) : (
         <>
           <ReportKpiGrid kpis={data.summary.kpis} />
@@ -142,8 +142,8 @@ export function TradingReportsPanel() {
                       <Badge
                         className={
                           row.side === 'BUY'
-                            ? 'bg-emerald-50 text-emerald-800'
-                            : 'bg-rose-50 text-rose-800'
+                            ? 'bg-[var(--success-bg)] text-[var(--success)]'
+                            : 'bg-[var(--error-bg)] text-[var(--error)]'
                         }
                       >
                         {TRADE_SIDE_FA[row.side] ?? row.side}
@@ -153,7 +153,7 @@ export function TradingReportsPanel() {
                     <TableCell>{formatToman(row.netRial)}</TableCell>
                     <TableCell>{formatToman(row.commissionRial)}</TableCell>
                     <TableCell>{TRADE_STATUS_FA[row.status] ?? row.status}</TableCell>
-                    <TableCell className="text-xs text-stone-500">
+                    <TableCell className="text-xs text-muted">
                       {formatPersianDateTime(row.createdAt)}
                     </TableCell>
                   </TableRow>

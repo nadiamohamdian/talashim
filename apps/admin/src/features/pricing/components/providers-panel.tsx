@@ -43,9 +43,9 @@ export function ProvidersPanel() {
       }
     >
       {isLoading ? (
-        <Skeleton className="h-48 w-full rounded-2xl" />
+        <Skeleton className="h-48 w-full rounded-[var(--radius-xl)]" />
       ) : isError ? (
-        <Card className="overflow-hidden border-border bg-white p-0">
+        <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
           <AdminApiError
             title="بارگذاری وضعیت ارائه‌دهندگان ناموفق بود."
             error={error}
@@ -55,33 +55,33 @@ export function ProvidersPanel() {
       ) : data ? (
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border-amber-200 bg-amber-50/80 p-4">
-              <p className="text-xs font-semibold text-amber-900">BrsApi</p>
-              <p className="mt-1 font-bold text-stone-900">
+            <Card className="border-[var(--warning-border)] bg-[var(--warning-bg)]/80 p-4">
+              <p className="text-xs font-semibold text-[var(--secondary)]">BrsApi</p>
+              <p className="mt-1 font-bold text-foreground">
                 {data.env.brsApiConfigured ? 'پیکربندی شده' : 'بدون کلید API'}
               </p>
             </Card>
-            <Card className="border-amber-200 bg-amber-50/80 p-4">
-              <p className="text-xs font-semibold text-amber-900">URL اختصاصی</p>
-              <p className="mt-1 font-bold text-stone-900">
+            <Card className="border-[var(--warning-border)] bg-[var(--warning-bg)]/80 p-4">
+              <p className="text-xs font-semibold text-[var(--secondary)]">URL اختصاصی</p>
+              <p className="mt-1 font-bold text-foreground">
                 {data.env.primaryUrlConfigured ? 'فعال' : 'غیرفعال'}
               </p>
             </Card>
-            <Card className="border-amber-200 bg-amber-50/80 p-4">
-              <p className="text-xs font-semibold text-amber-900">بازه بازخوانی</p>
-              <p className="mt-1 font-bold text-stone-900">
+            <Card className="border-[var(--warning-border)] bg-[var(--warning-bg)]/80 p-4">
+              <p className="text-xs font-semibold text-[var(--secondary)]">بازه بازخوانی</p>
+              <p className="mt-1 font-bold text-foreground">
                 {(data.env.refreshIntervalMs / 1000).toLocaleString('fa-IR')} ثانیه
               </p>
             </Card>
           </div>
 
           {data.marketCache ? (
-            <Card className="border-border bg-white p-4">
-              <p className="text-sm font-bold text-stone-900">کش بازار (Redis)</p>
-              <p className="mt-2 text-sm text-stone-600">
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
+              <p className="text-sm font-bold text-foreground">کش بازار (Redis)</p>
+              <p className="mt-2 text-sm text-[var(--muted-foreground)]">
                 وضعیت: {data.marketCache.status} · Redis: {data.marketCache.redis}
               </p>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-muted">
                 آخرین همگام‌سازی:{' '}
                 {data.marketCache.lastSyncAt
                   ? formatPersianDateTime(data.marketCache.lastSyncAt)
@@ -92,11 +92,11 @@ export function ProvidersPanel() {
 
           <div className="grid gap-4 md:grid-cols-2">
             {data.providers.map((provider) => (
-              <Card key={provider.key} className="border-border bg-white p-4 shadow-sm">
+              <Card key={provider.key} className="border-[var(--border-subtle)] bg-[var(--card)] p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-bold text-stone-900">{provider.name}</p>
-                    <p className="text-xs text-stone-500">
+                    <p className="font-bold text-foreground">{provider.name}</p>
+                    <p className="text-xs text-muted">
                       نقش:{' '}
                       {provider.role === 'primary'
                         ? 'اصلی'
@@ -112,9 +112,9 @@ export function ProvidersPanel() {
                   </span>
                 </div>
                 {provider.message ? (
-                  <p className="mt-2 text-xs text-stone-600">{provider.message}</p>
+                  <p className="mt-2 text-xs text-[var(--muted-foreground)]">{provider.message}</p>
                 ) : null}
-                <p className="mt-2 text-[10px] text-stone-400">
+                <p className="mt-2 text-[10px] text-muted">
                   آخرین بررسی: {formatPersianDateTime(provider.lastCheckedAt)}
                 </p>
               </Card>

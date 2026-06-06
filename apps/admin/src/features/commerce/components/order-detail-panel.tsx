@@ -79,25 +79,25 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
     <CommercePageShell
       routeId="orders.detail"
       actions={
-        <Link href="/orders" className="text-sm text-stone-600 hover:text-stone-900">
+        <Link href="/orders" className="text-sm text-[var(--muted-foreground)] hover:text-foreground">
           ← بازگشت به لیست
         </Link>
       }
     >
       {isLoading ? (
-        <Skeleton className="h-80 w-full rounded-2xl" />
+        <Skeleton className="h-80 w-full rounded-[var(--radius-xl)]" />
       ) : isError || !data ? (
-        <p className="text-rose-600">سفارش یافت نشد.</p>
+        <p className="text-[var(--error)]">سفارش یافت نشد.</p>
       ) : (
         <div className="space-y-6">
-          <Card className="border-border bg-white p-6">
+          <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="font-mono text-lg">{data.orderNumber}</p>
-                <p className="mt-1 text-sm text-stone-600">
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                   {data.user?.fullName ?? 'مهمان'} — {data.user?.email ?? ''}
                 </p>
-                <p className="mt-2 text-xs text-stone-500">
+                <p className="mt-2 text-xs text-muted">
                   {formatPersianDateTime(data.createdAt)}
                 </p>
               </div>
@@ -105,15 +105,15 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
             </div>
             <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-3">
               <div>
-                <dt className="text-stone-500">جمع جزء</dt>
+                <dt className="text-muted">جمع جزء</dt>
                 <dd>{formatToman(data.subtotalToman)} تومان</dd>
               </div>
               <div>
-                <dt className="text-stone-500">مالیات</dt>
+                <dt className="text-muted">مالیات</dt>
                 <dd>{formatToman(data.taxToman)} تومان</dd>
               </div>
               <div>
-                <dt className="text-stone-500">جمع کل</dt>
+                <dt className="text-muted">جمع کل</dt>
                 <dd className="font-semibold">{formatToman(data.totalToman)} تومان</dd>
               </div>
             </dl>
@@ -153,16 +153,16 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
               </div>
             </PermissionGate>
             {statusSaved ? (
-              <p className="mt-2 text-sm text-emerald-700">
+              <p className="mt-2 text-sm text-[var(--success)]">
                 وضعیت سفارش ذخیره شد. برای اتمام، «ثبت نهایی و بازگشت به لیست» را بزنید.
               </p>
             ) : null}
             {statusMutation.isError ? (
-              <p className="mt-2 text-sm text-rose-600">تغییر وضعیت مجاز نیست یا ناموفق بود.</p>
+              <p className="mt-2 text-sm text-[var(--error)]">تغییر وضعیت مجاز نیست یا ناموفق بود.</p>
             ) : null}
           </Card>
 
-          <Card className="overflow-hidden border-border bg-white p-0">
+          <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -187,17 +187,17 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
             </Table>
           </Card>
 
-          <Card className="border-border bg-white p-6">
+          <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
             <h3 className="font-medium">پرداخت‌ها و فیش واریز</h3>
             {receiptActionMessage ? (
-              <p className="mt-2 text-sm text-emerald-700">{receiptActionMessage}</p>
+              <p className="mt-2 text-sm text-[var(--success)]">{receiptActionMessage}</p>
             ) : null}
             <ul className="mt-3 space-y-4 text-sm">
               {data.payments.length === 0 ? (
-                <li className="text-stone-500">پرداختی ثبت نشده.</li>
+                <li className="text-muted">پرداختی ثبت نشده.</li>
               ) : (
                 data.payments.map((p) => (
-                  <li key={p.id} className="rounded-xl border border-border p-4">
+                  <li key={p.id} className="rounded-[var(--radius-xl)] border border-border p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span>
                         {p.provider}
@@ -210,20 +210,20 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
                     </div>
                     {p.receiptUrl ? (
                       <div className="mt-3">
-                        <p className="text-xs text-stone-500">فیش واریز</p>
+                        <p className="text-xs text-muted">فیش واریز</p>
                         <ReceiptPreview url={p.receiptUrl} />
                         <div className="mt-2 flex flex-wrap gap-3">
                           <a
                             href={p.receiptUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-sm text-amber-800 underline"
+                            className="text-sm text-[var(--warning)] underline"
                           >
                             باز کردن در تب جدید
                           </a>
                           <button
                             type="button"
-                            className="text-sm text-amber-800 underline"
+                            className="text-sm text-[var(--warning)] underline"
                             onClick={() =>
                               downloadReceipt(
                                 p.receiptUrl!,
@@ -236,10 +236,10 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
                         </div>
                       </div>
                     ) : (
-                      <p className="mt-2 text-xs text-stone-500">فیشی بارگذاری نشده.</p>
+                      <p className="mt-2 text-xs text-muted">فیشی بارگذاری نشده.</p>
                     )}
                     {p.rejectionReason ? (
-                      <p className="mt-2 text-xs text-rose-600">دلیل رد: {p.rejectionReason}</p>
+                      <p className="mt-2 text-xs text-[var(--error)]">دلیل رد: {p.rejectionReason}</p>
                     ) : null}
                     {p.status === 'RECEIPT_SUBMITTED' ? (
                       <PermissionGate permission={ADMIN_PERMISSIONS.orders.write}>

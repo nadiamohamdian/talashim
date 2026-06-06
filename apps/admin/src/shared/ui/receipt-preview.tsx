@@ -14,15 +14,15 @@ export function ReceiptPreview({
   const isPdf = url.toLowerCase().includes('.pdf');
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-stone-50">
+    <div className="overflow-hidden rounded-[var(--radius-xl)] border border-border bg-[var(--surface)]">
       {isPdf ? (
         <div className="flex flex-col gap-2 p-4">
-          <p className="text-sm text-stone-600">فایل PDF فیش واریز</p>
+          <p className="text-sm text-[var(--muted-foreground)]">فایل PDF فیش واریز</p>
           <a
             href={url}
             target="_blank"
             rel="noreferrer"
-            className="text-sm font-medium text-amber-800 underline"
+            className="text-sm font-medium text-[var(--warning)] underline"
           >
             باز کردن PDF در تب جدید
           </a>

@@ -56,7 +56,7 @@ export function TabsList({
   return (
     <div
       className={cn(
-        'inline-flex w-full gap-1 rounded-[var(--radius-lg,0.75rem)] border border-[var(--border,#d9d0c8)] bg-[var(--surface,#f5f1ec)] p-1',
+        'inline-flex w-full gap-0.5 rounded-[var(--radius-lg,0.625rem)] border border-[var(--border-subtle,var(--border,#d9d0c8))] bg-[var(--surface,#f7f4f0)] p-1',
         className,
       )}
       role="tablist"
@@ -84,7 +84,7 @@ export function TabsTrigger({
       role="tab"
       aria-selected={active}
       className={cn(
-        'flex-1 rounded-[var(--radius-md,0.5rem)] px-4 py-2 text-sm font-medium transition-all duration-150',
+        'flex-1 rounded-[var(--radius-md,0.5rem)] px-3 py-1.5 text-sm font-medium transition-all duration-150',
         active
           ? 'bg-[var(--card,#fff)] text-[var(--foreground,#564739)] shadow-[var(--shadow-xs)]'
           : 'text-[var(--muted,#8a8078)] hover:text-[var(--foreground,#564739)]',

@@ -49,14 +49,14 @@ export function SeoPanel() {
   if (isError) {
     return (
       <CmsPageShell routeId="cms.seo">
-        <p className="text-rose-600">بارگذاری SEO ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری SEO ناموفق بود.</p>
       </CmsPageShell>
     );
   }
 
   return (
     <CmsPageShell routeId="cms.seo">
-      <Card className="space-y-4 border-border bg-white p-6">
+      <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
         <div>
           <Label>عنوان سایت</Label>
           <Input
@@ -68,7 +68,7 @@ export function SeoPanel() {
         <div>
           <Label>توضیحات متا (description)</Label>
           <textarea
-            className="mt-1 min-h-[100px] w-full rounded-2xl border border-border p-3 text-sm"
+            className="mt-1 min-h-[100px] w-full rounded-[var(--radius-xl)] border border-border p-3 text-sm"
             value={form.siteDescription}
             onChange={(e) => setForm({ ...form, siteDescription: e.target.value })}
           />

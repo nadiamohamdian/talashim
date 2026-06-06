@@ -27,10 +27,10 @@ import { PRODUCT_CATEGORY_FA, selectFieldClass } from '../lib/labels';
 type InventoryTab = 'stock' | 'history';
 
 const tabClass = (active: boolean) =>
-  `rounded-xl px-4 py-2 text-sm font-medium transition ${
+  `rounded-[var(--radius-xl)] px-4 py-2 text-sm font-medium transition ${
     active
-      ? 'bg-stone-900 text-white shadow-sm'
-      : 'bg-white text-stone-600 ring-1 ring-border hover:bg-nude-50'
+      ? 'bg-[var(--secondary)] text-white shadow-sm'
+      : 'bg-white text-[var(--muted-foreground)] ring-1 ring-border hover:bg-[var(--surface)]'
   }`;
 
 export function InventoryOverviewPanel() {
@@ -108,11 +108,11 @@ export function InventoryOverviewPanel() {
             </label>
           </FilterBar>
 
-          <Card className="overflow-hidden border-border bg-white p-0">
+          <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
             {isLoading ? (
               <Skeleton className="m-6 h-64" />
             ) : isError ? (
-              <p className="p-6 text-rose-600">بارگذاری موجودی ناموفق بود.</p>
+              <p className="p-6 text-[var(--error)]">بارگذاری موجودی ناموفق بود.</p>
             ) : (
               <Table>
                 <TableHeader>
@@ -133,7 +133,7 @@ export function InventoryOverviewPanel() {
                       <TableCell>{row.quantity}</TableCell>
                       <TableCell>{row.reserved}</TableCell>
                       <TableCell>
-                        <Badge className={row.lowStock ? 'bg-amber-50 text-amber-900' : 'bg-emerald-50 text-emerald-800'}>
+                        <Badge className={row.lowStock ? 'bg-[var(--warning-bg)] text-[var(--secondary)]' : 'bg-[var(--success-bg)] text-[var(--success)]'}>
                           {row.available}
                         </Badge>
                       </TableCell>
@@ -154,7 +154,7 @@ export function InventoryOverviewPanel() {
           </Card>
 
           {adjustProductId ? (
-            <Card className="border-border bg-white p-4">
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
               <h3 className="text-sm font-medium">تعدیل موجودی</h3>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
                 <div>

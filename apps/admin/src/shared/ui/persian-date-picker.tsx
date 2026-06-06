@@ -56,7 +56,7 @@ function formatPlainFa(value: number, options?: Intl.NumberFormatOptions): strin
 function SelectField({ title, children }: { title: string; children: ReactNode }) {
   return (
     <label className="block space-y-1">
-      <span className="text-[11px] font-semibold text-stone-500">{title}</span>
+      <span className="text-[11px] font-semibold text-muted">{title}</span>
       {children}
     </label>
   );
@@ -97,10 +97,10 @@ export function PersianDatePicker({
   return (
     <div>
       <Label>{label}</Label>
-      <div className="mt-2 overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-nude-50/90 to-white shadow-sm">
-        <div className="border-b border-border bg-white/70 px-4 py-3">
-          <p className="text-xs text-stone-500">تاریخ انتخاب‌شده</p>
-          <p className="mt-1 text-sm font-bold text-stone-900">
+      <div className="mt-2 overflow-hidden rounded-[var(--radius-xl)] border border-border bg-gradient-to-b from-nude-50/90 to-white shadow-sm">
+        <div className="border-b border-[var(--border-subtle)] bg-[var(--card)]/70 px-4 py-3">
+          <p className="text-xs text-muted">تاریخ انتخاب‌شده</p>
+          <p className="mt-1 text-sm font-bold text-foreground">
             {value ? formatPersianDate(current) : 'هنوز انتخاب نشده'}
           </p>
         </div>
@@ -141,7 +141,7 @@ export function PersianDatePicker({
           <div className="border-t border-border px-4 py-2">
             <button
               type="button"
-              className="text-xs font-semibold text-rose-700 hover:underline"
+              className="text-xs font-semibold text-[var(--error)] hover:underline"
               onClick={() => onChange('')}
             >
               پاک کردن تاریخ

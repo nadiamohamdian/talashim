@@ -47,11 +47,11 @@ export function WalletsPanel() {
         </div>
       </FilterBar>
 
-      <Card className="overflow-hidden border-border bg-white p-0">
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری کیف پول‌ها ناموفق بود.</p>
+          <p className="p-6 text-[var(--error)]">بارگذاری کیف پول‌ها ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -66,7 +66,7 @@ export function WalletsPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={5} className="py-8 text-center text-muted">
                     کاربری یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -74,7 +74,7 @@ export function WalletsPanel() {
                 data?.items.map((row) => (
                   <TableRow key={row.user.id}>
                     <TableCell className="font-medium">{row.user.fullName}</TableCell>
-                    <TableCell className="text-sm text-stone-600">{row.user.email}</TableCell>
+                    <TableCell className="text-sm text-[var(--muted-foreground)]">{row.user.email}</TableCell>
                     <TableCell className="text-xs">{row.user.role}</TableCell>
                     <TableCell>{formatToman(row.balances.rialBalance)}</TableCell>
                     <TableCell>{Number(row.balances.goldBalanceGram).toFixed(4)}</TableCell>

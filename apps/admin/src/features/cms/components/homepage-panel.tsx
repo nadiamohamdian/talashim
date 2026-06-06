@@ -47,15 +47,15 @@ export function HomepagePanel() {
   if (isError) {
     return (
       <CmsPageShell routeId="cms.homepage">
-        <p className="text-rose-600">بارگذاری تنظیمات صفحه اصلی ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری تنظیمات صفحه اصلی ناموفق بود.</p>
       </CmsPageShell>
     );
   }
 
   return (
     <CmsPageShell routeId="cms.homepage">
-      <Card className="space-y-4 border-border bg-white p-6">
-        <h2 className="text-sm font-semibold text-stone-900">بخش هیرو</h2>
+      <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
+        <h2 className="text-sm font-semibold text-foreground">بخش هیرو</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label>برچسب</Label>
@@ -154,8 +154,8 @@ export function HomepagePanel() {
         </div>
       </Card>
 
-      <Card className="space-y-4 border-border bg-white p-6">
-        <h2 className="text-sm font-semibold text-stone-900">بخش‌های محصول</h2>
+      <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
+        <h2 className="text-sm font-semibold text-foreground">بخش‌های محصول</h2>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label>عنوان محصولات ویژه</Label>
@@ -212,7 +212,7 @@ export function HomepagePanel() {
         {save.isPending ? 'در حال ذخیره…' : 'ذخیره صفحه اصلی'}
       </Button>
       {data?.updatedAt ? (
-        <p className="text-xs text-stone-500">
+        <p className="text-xs text-muted">
           آخرین به‌روزرسانی: {formatPersianDateTime(data.updatedAt)}
         </p>
       ) : null}

@@ -56,18 +56,18 @@ export function StaffUserEditDialog({
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-stone-900/50 backdrop-blur-sm"
+        className="absolute inset-0 admin-overlay"
         aria-label="بستن"
         onClick={onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-lg overflow-hidden rounded-t-3xl border border-border bg-white shadow-2xl sm:rounded-3xl"
+        className="relative w-full max-w-lg overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-2xl)]"
       >
-        <div className="border-b border-border bg-nude-50 px-5 py-4">
-          <h2 className="text-base font-bold text-stone-900">ویرایش پرسنل</h2>
-          <p className="mt-1 text-sm text-stone-500">{user.email}</p>
+        <div className="admin-dialog-header">
+          <h2 className="text-base font-bold text-foreground">ویرایش پرسنل</h2>
+          <p className="mt-1 text-sm text-muted">{user.email}</p>
         </div>
 
         <form
@@ -134,7 +134,7 @@ export function StaffUserEditDialog({
           </div>
 
           {errorMessage ? (
-            <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+            <p className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
               {errorMessage}
             </p>
           ) : null}

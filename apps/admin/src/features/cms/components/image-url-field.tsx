@@ -50,37 +50,37 @@ export function ImageUrlField({
         {label}
         {required ? ' *' : null}
       </Label>
-      {hint ? <p className="mt-1 text-xs text-stone-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <button type="button" className="btn-gold" onClick={() => setPickerOpen(true)}>
           {value ? 'تغییر تصویر' : 'انتخاب از کتابخانه'}
         </button>
         {value ? (
-          <Button type="button" variant="outline" className="text-rose-700" onClick={() => onChange('')}>
+          <Button type="button" variant="outline" className="text-[var(--error)]" onClick={() => onChange('')}>
             حذف
           </Button>
         ) : null}
       </div>
 
       {value ? (
-        <div className="mt-3 overflow-hidden rounded-xl border border-border bg-nude-50 p-2">
+        <div className="mt-3 overflow-hidden rounded-[var(--radius-xl)] border border-border bg-[var(--surface)] p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={value}
             alt={previewAlt}
             className="aspect-square max-h-40 rounded-lg object-cover"
           />
-          <p className="mt-2 truncate font-mono text-[10px] text-stone-500" dir="ltr">
+          <p className="mt-2 truncate font-mono text-[10px] text-muted" dir="ltr">
             {value}
           </p>
         </div>
       ) : (
-        <p className="mt-2 text-xs text-stone-400">
+        <p className="mt-2 text-xs text-muted">
           تصویر را از کتابخانه رسانه انتخاب کنید —{' '}
           <a
             href={`/media?picker=1&folder=${encodeURIComponent(folder)}`}
-            className="font-semibold text-amber-700 hover:underline"
+            className="font-semibold text-[var(--warning)] hover:underline"
           >
             باز کردن کتابخانه (/media)
           </a>

@@ -85,11 +85,11 @@ export function HistoryPricingPanel() {
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : isError ? (
-        <p className="text-rose-600">بارگذاری تاریخچه ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری تاریخچه ناموفق بود.</p>
       ) : (
         <>
-          <Card className="border-border bg-white p-4">
-            <p className="mb-2 text-sm font-medium text-stone-900">
+          <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
+            <p className="mb-2 text-sm font-medium text-foreground">
               روند قیمت — {data?.total ?? 0} رکورد
             </p>
             <div className="h-64 w-full">
@@ -105,7 +105,7 @@ export function HistoryPricingPanel() {
             </div>
           </Card>
 
-          <Card className="overflow-hidden border-border bg-white p-0">
+          <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
             <Table>
               <TableHeader>
                 <TableRow>

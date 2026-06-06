@@ -54,43 +54,43 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
     <UsersPageShell
       routeId="users.detail"
       actions={
-        <Link href="/users" className="text-sm text-stone-600 hover:text-stone-900">
+        <Link href="/users" className="text-sm text-[var(--muted-foreground)] hover:text-foreground">
           ← بازگشت به لیست
         </Link>
       }
     >
       {detailQuery.isLoading ? (
-        <Skeleton className="h-80 w-full rounded-2xl" />
+        <Skeleton className="h-80 w-full rounded-[var(--radius-xl)]" />
       ) : detailQuery.isError || !data ? (
-        <p className="text-rose-600">کاربر یافت نشد.</p>
+        <p className="text-[var(--error)]">کاربر یافت نشد.</p>
       ) : (
         <div className="space-y-6">
-          <Card className="border-border bg-white p-6">
+          <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold text-stone-900">{data.user.fullName}</h2>
-                <p className="mt-1 text-sm text-stone-600" dir="ltr">
+                <h2 className="text-lg font-semibold text-foreground">{data.user.fullName}</h2>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]" dir="ltr">
                   {data.user.email}
                 </p>
-                <p className="mt-2 text-xs text-stone-500">
+                <p className="mt-2 text-xs text-muted">
                   ثبت‌نام: {formatPersianDateTime(data.user.createdAt)}
                 </p>
               </div>
-              <Badge className="bg-nude-100 text-stone-700">
+              <Badge className="bg-nude-100 text-[var(--muted-foreground)]">
                 {getRoleLabelFa(String(data.user.role).toLowerCase())}
               </Badge>
             </div>
             <dl className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
               <div>
-                <dt className="text-stone-500">موجودی ریال</dt>
+                <dt className="text-muted">موجودی ریال</dt>
                 <dd className="mt-1 font-medium">{formatToman(data.balances.rialBalance)} ت</dd>
               </div>
               <div>
-                <dt className="text-stone-500">موجودی طلا</dt>
+                <dt className="text-muted">موجودی طلا</dt>
                 <dd className="mt-1 font-medium">{data.balances.goldBalanceGram} گرم</dd>
               </div>
               <div>
-                <dt className="text-stone-500">سفارش / معامله</dt>
+                <dt className="text-muted">سفارش / معامله</dt>
                 <dd className="mt-1 font-medium">
                   {data.stats.orders.toLocaleString('fa-IR')} /{' '}
                   {data.stats.goldTrades.toLocaleString('fa-IR')}
@@ -99,9 +99,9 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
             </dl>
           </Card>
 
-          <Card className="border-border bg-white p-6">
-            <h3 className="font-medium text-stone-900">تماس و آدرس</h3>
-            <p className="mt-1 text-sm text-stone-500">
+          <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
+            <h3 className="font-medium text-foreground">تماس و آدرس</h3>
+            <p className="mt-1 text-sm text-muted">
               ویرایش موبایل احراز هویت و آدرس ارسال سفارش‌های کاربر.
             </p>
             <div className="mt-6">
@@ -110,27 +110,27 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
           </Card>
 
           {data.kyc ? (
-            <Card className="border-border bg-white p-6">
-              <h3 className="font-medium text-stone-900">احراز هویت</h3>
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
+              <h3 className="font-medium text-foreground">احراز هویت</h3>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 <div>
-                  <dt className="text-stone-500">وضعیت</dt>
+                  <dt className="text-muted">وضعیت</dt>
                   <dd className="mt-1">
-                    <Badge className="bg-nude-100 text-stone-700">
+                    <Badge className="bg-nude-100 text-[var(--muted-foreground)]">
                       {KYC_STATUS_FA[data.kyc.status] ?? data.kyc.status}
                     </Badge>
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-stone-500">تاریخ ارسال</dt>
+                  <dt className="text-muted">تاریخ ارسال</dt>
                   <dd className="mt-1">
                     {formatPersianDateTime(data.kyc.submittedAt)}
                   </dd>
                 </div>
                 {data.kyc.reviewNote ? (
                   <div className="sm:col-span-2">
-                    <dt className="text-stone-500">یادداشت بررسی</dt>
-                    <dd className="mt-1 text-stone-700">{data.kyc.reviewNote}</dd>
+                    <dt className="text-muted">یادداشت بررسی</dt>
+                    <dd className="mt-1 text-[var(--muted-foreground)]">{data.kyc.reviewNote}</dd>
                   </div>
                 ) : null}
               </dl>
@@ -138,9 +138,9 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
           ) : null}
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <Card className="border-border bg-white p-0">
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-0">
               <div className="border-b border-border px-6 py-4">
-                <h3 className="font-medium text-stone-900">سفارش‌های اخیر</h3>
+                <h3 className="font-medium text-foreground">سفارش‌های اخیر</h3>
               </div>
               <Table>
                 <TableHeader>
@@ -153,7 +153,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                 <TableBody>
                   {data.recentOrders.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="py-6 text-center text-stone-500">
+                      <TableCell colSpan={3} className="py-6 text-center text-muted">
                         سفارشی ثبت نشده.
                       </TableCell>
                     </TableRow>
@@ -170,9 +170,9 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
               </Table>
             </Card>
 
-            <Card className="border-border bg-white p-0">
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-0">
               <div className="border-b border-border px-6 py-4">
-                <h3 className="font-medium text-stone-900">معاملات اخیر</h3>
+                <h3 className="font-medium text-foreground">معاملات اخیر</h3>
               </div>
               <Table>
                 <TableHeader>
@@ -185,7 +185,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                 <TableBody>
                   {data.recentTrades.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="py-6 text-center text-stone-500">
+                      <TableCell colSpan={3} className="py-6 text-center text-muted">
                         معامله‌ای ثبت نشده.
                       </TableCell>
                     </TableRow>
@@ -203,9 +203,9 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
             </Card>
           </div>
 
-          <Card className="border-border bg-white p-0">
+          <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-0">
             <div className="border-b border-border px-6 py-4">
-              <h3 className="font-medium text-stone-900">فعالیت اخیر</h3>
+              <h3 className="font-medium text-foreground">فعالیت اخیر</h3>
             </div>
             {activityQuery.isLoading ? (
               <Skeleton className="m-6 h-32" />
@@ -221,7 +221,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                 <TableBody>
                   {activityQuery.data?.items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={3} className="py-6 text-center text-stone-500">
+                      <TableCell colSpan={3} className="py-6 text-center text-muted">
                         فعالیتی ثبت نشده.
                       </TableCell>
                     </TableRow>
@@ -230,7 +230,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                       <TableRow key={item.id}>
                         <TableCell>{item.action}</TableCell>
                         <TableCell>{SOURCE_FA[item.source] ?? item.source}</TableCell>
-                        <TableCell className="text-xs text-stone-500">
+                        <TableCell className="text-xs text-muted">
                           {formatPersianDateTime(item.createdAt)}
                         </TableCell>
                       </TableRow>

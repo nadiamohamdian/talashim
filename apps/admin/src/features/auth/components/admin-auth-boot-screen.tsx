@@ -6,7 +6,7 @@ import { adminEnv } from '@/shared/config/env';
 export function AdminAuthBootScreen() {
   return (
     <div
-      className="relative flex min-h-screen flex-col overflow-hidden bg-white"
+      className="relative flex min-h-screen flex-col overflow-hidden bg-background"
       aria-busy="true"
       aria-live="polite"
     >
@@ -14,25 +14,18 @@ export function AdminAuthBootScreen() {
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
           background:
-            'radial-gradient(ellipse 90% 60% at 50% -10%, var(--nude-100) 0%, #ffffff 65%)',
+            'radial-gradient(ellipse 70% 50% at 50% 0%, color-mix(in srgb, var(--primary) 8%, var(--background)) 0%, var(--background) 70%)',
         }}
       />
-      <div
-        className="pointer-events-none absolute -left-24 top-32 h-56 w-56 rounded-full bg-gold-light/25 blur-3xl"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-nude-200/40 blur-3xl"
-        aria-hidden
-      />
 
-      <header className="header-glass border-b border-border">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-amber-800">
-              Talashim
-            </span>
-            <span className="text-sm font-bold text-stone-900">
+      <header className="header-glass">
+        <div
+          className="mx-auto flex items-center justify-between px-4 sm:px-6"
+          style={{ height: 'var(--header-height)' }}
+        >
+          <div className="flex flex-col leading-none">
+            <span className="text-overline text-[var(--primary)]">Talashim</span>
+            <span className="mt-1 text-sm font-semibold text-foreground">
               {adminEnv.NEXT_PUBLIC_ADMIN_APP_NAME}
             </span>
           </div>
@@ -40,13 +33,13 @@ export function AdminAuthBootScreen() {
       </header>
 
       <div className="flex flex-1 items-center justify-center px-4 py-16">
-        <div className="card-luxury w-full max-w-sm border-gold-light/40 bg-white/90 p-8 text-center shadow-sm backdrop-blur-sm">
+        <div className="card-luxury w-full max-w-sm p-8 text-center">
           <div
-            className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-gold-light/50 to-nude-100 ring-1 ring-gold-light/60"
+            className="mx-auto flex size-12 items-center justify-center rounded-[var(--radius-xl)] bg-[var(--surface)]"
             aria-hidden
           >
             <svg
-              className="h-7 w-7 animate-spin text-gold-dark"
+              className="size-5 animate-spin text-[var(--primary)]"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -67,15 +60,15 @@ export function AdminAuthBootScreen() {
             </svg>
           </div>
 
-          <p className="mt-6 text-base font-semibold text-stone-900">در حال بارگذاری پنل</p>
-          <p className="mt-2 text-sm leading-7 text-stone-500">
+          <p className="mt-5 text-sm font-semibold text-foreground">در حال بارگذاری پنل</p>
+          <p className="mt-1.5 text-sm leading-relaxed text-muted">
             اتصال به سرویس‌ها و آماده‌سازی پنل مدیریت طلاشیم
           </p>
 
-          <div className="mt-6 flex justify-center gap-1.5" aria-hidden>
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-dark/80 [animation-delay:0ms]" />
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-dark/60 [animation-delay:150ms]" />
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-dark/40 [animation-delay:300ms]" />
+          <div className="mt-5 flex justify-center gap-1.5" aria-hidden>
+            <span className="size-1.5 animate-pulse-subtle rounded-full bg-[var(--primary)] [animation-delay:0ms]" />
+            <span className="size-1.5 animate-pulse-subtle rounded-full bg-[var(--primary)]/70 [animation-delay:150ms]" />
+            <span className="size-1.5 animate-pulse-subtle rounded-full bg-[var(--primary)]/40 [animation-delay:300ms]" />
           </div>
         </div>
       </div>

@@ -38,7 +38,7 @@ export function FormattedNumberInput({
           {required ? ' *' : null}
         </Label>
       ) : null}
-      {hint ? <p className="mt-1 text-xs text-stone-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
       <div className="relative mt-1">
         <Input
           inputMode="numeric"
@@ -50,7 +50,7 @@ export function FormattedNumberInput({
           onChange={(event) => onChange(parseIntegerDigits(event.target.value))}
         />
         {suffix ? (
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-stone-500">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted">
             {suffix}
           </span>
         ) : null}

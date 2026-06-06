@@ -30,10 +30,10 @@ import { SOURCE_LABELS, selectFieldClass } from '../lib/labels';
 type AuditTab = 'operations' | 'auth';
 
 const tabClass = (active: boolean) =>
-  `rounded-xl px-4 py-2 text-sm font-medium transition ${
+  `rounded-[var(--radius-xl)] px-4 py-2 text-sm font-medium transition ${
     active
-      ? 'bg-stone-900 text-white shadow-sm'
-      : 'bg-white text-stone-600 ring-1 ring-border hover:bg-nude-50'
+      ? 'bg-[var(--secondary)] text-white shadow-sm'
+      : 'bg-white text-[var(--muted-foreground)] ring-1 ring-border hover:bg-[var(--surface)]'
   }`;
 
 function downloadAuditCsv(items: AdminAuditLog[]) {
@@ -104,7 +104,7 @@ function AuditOperationsContent() {
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-sm text-rose-600">بارگذاری لاگ ممیزی ناموفق بود.</p>
+          <p className="p-6 text-sm text-[var(--error)]">بارگذاری لاگ ممیزی ناموفق بود.</p>
         ) : (
           <Table>
             <TableHeader>
@@ -119,7 +119,7 @@ function AuditOperationsContent() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={5} className="py-8 text-center text-muted">
                     رویدادی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -127,16 +127,16 @@ function AuditOperationsContent() {
                 data?.items.map((log) => (
                   <TableRow key={`${log.source}-${log.id}`}>
                     <TableCell>
-                      <Badge className="border border-border bg-nude-50 text-stone-700">
+                      <Badge className="border border-border bg-[var(--surface)] text-[var(--muted-foreground)]">
                         {SOURCE_LABELS[log.source] ?? log.source}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-mono text-xs">{log.action}</TableCell>
                     <TableCell>{log.actor?.email ?? '—'}</TableCell>
-                    <TableCell className="max-w-[200px] truncate text-xs text-stone-500">
+                    <TableCell className="max-w-[200px] truncate text-xs text-muted">
                       {log.context ? JSON.stringify(log.context) : '—'}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-xs text-stone-600">
+                    <TableCell className="whitespace-nowrap text-xs text-[var(--muted-foreground)]">
                       {formatPersianDateTime(log.createdAt)}
                     </TableCell>
                   </TableRow>

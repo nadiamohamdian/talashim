@@ -159,8 +159,8 @@ export function RolesAssignmentContent() {
   return (
     <>
       <div className="card-luxury p-5">
-        <h2 className="text-sm font-semibold text-stone-900">نقش‌های تعریف‌شده</h2>
-        <p className="mt-2 text-sm leading-7 text-stone-600">
+        <h2 className="text-sm font-semibold text-foreground">نقش‌های تعریف‌شده</h2>
+        <p className="mt-2 text-sm leading-7 text-[var(--muted-foreground)]">
           پرسنل جدید از فرم زیر یا API{' '}
           <code className="text-xs" dir="ltr">
             POST /admin/staff
@@ -175,18 +175,18 @@ export function RolesAssignmentContent() {
           {ADMIN_ROLE_DEFINITIONS.map((role) => (
             <li
               key={role.slug}
-              className="rounded-xl border border-border bg-nude-50/80 px-3 py-2 text-sm"
+              className="rounded-[var(--radius-xl)] border border-border bg-[var(--surface)]/80 px-3 py-2 text-sm"
             >
-              <span className="font-medium text-stone-900">{role.labelFa}</span>
-              <span className="mt-0.5 block text-xs text-stone-500">{role.permissions.length} مجوز</span>
+              <span className="font-medium text-foreground">{role.labelFa}</span>
+              <span className="mt-0.5 block text-xs text-muted">{role.permissions.length} مجوز</span>
             </li>
           ))}
         </ul>
       </div>
 
       <div className="card-luxury p-5">
-        <h2 className="text-sm font-semibold text-stone-900">افزودن پرسنل جدید</h2>
-        <p className="mt-1 text-sm text-stone-600">ایمیل، نام، رمز عبور و نقش پرسنل را وارد کنید.</p>
+        <h2 className="text-sm font-semibold text-foreground">افزودن پرسنل جدید</h2>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">ایمیل، نام، رمز عبور و نقش پرسنل را وارد کنید.</p>
 
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={handleCreate}>
           <div>
@@ -288,7 +288,7 @@ export function RolesAssignmentContent() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center text-stone-500">
+                  <TableCell colSpan={4} className="py-8 text-center text-muted">
                     کاربر پرسنلی یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -297,7 +297,7 @@ export function RolesAssignmentContent() {
                   <TableRow key={user.id}>
                     <TableCell>
                       <p className="font-medium">{user.fullName}</p>
-                      <p className="text-xs text-stone-500">{user.email}</p>
+                      <p className="text-xs text-muted">{user.email}</p>
                     </TableCell>
                     <TableCell>{getRoleLabelFa(String(user.role))}</TableCell>
                     <TableCell>
@@ -317,7 +317,7 @@ export function RolesAssignmentContent() {
                           ))}
                         </select>
                         {roleMutation.isPending ? (
-                          <span className="text-xs text-stone-500">در حال ذخیره…</span>
+                          <span className="text-xs text-muted">در حال ذخیره…</span>
                         ) : null}
                       </div>
                     </TableCell>
@@ -351,7 +351,7 @@ export function RolesAssignmentContent() {
           >
             قبلی
           </Button>
-          <span className="flex items-center text-sm text-stone-600">صفحه {page}</span>
+          <span className="flex items-center text-sm text-[var(--muted-foreground)]">صفحه {page}</span>
           <Button
             variant="outline"
             disabled={page * data.limit >= data.total}

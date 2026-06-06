@@ -89,7 +89,7 @@ export function DashboardOverview() {
             </div>
           </div>
         ) : isError || !data ? (
-          <Card className="overflow-hidden border-border bg-white p-0">
+          <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
             <AdminApiError
               title="بارگذاری آمار داشبورد ناموفق بود."
               error={analyticsQuery.error}
@@ -223,7 +223,7 @@ export function DashboardOverview() {
                     <CardTitle>فعالیت‌های اخیر</CardTitle>
                     <Link
                       href="/security/audit"
-                      className="text-xs font-medium text-[var(--primary)] transition hover:opacity-80"
+                      className="link-accent text-xs"
                     >
                       مشاهده همه
                     </Link>
@@ -261,7 +261,7 @@ export function DashboardOverview() {
                     <CardTitle>آخرین معاملات</CardTitle>
                     <Link
                       href="/trading/history"
-                      className="text-xs font-medium text-[var(--primary)] transition hover:opacity-80"
+                      className="link-accent text-xs"
                     >
                       تاریخچه
                     </Link>

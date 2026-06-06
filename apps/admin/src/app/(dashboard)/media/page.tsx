@@ -4,7 +4,7 @@ import { Skeleton } from '@sadafgold/ui';
 
 export default function Page() {
   return (
-    <Suspense fallback={<Skeleton className="h-64 w-full rounded-2xl" />}>
+    <Suspense fallback={<Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />}>
       <MediaLibraryPanel />
     </Suspense>
   );

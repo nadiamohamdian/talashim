@@ -62,8 +62,8 @@ export function PostEditorForm({
     : categories.filter((c) => c.slug === 'faq');
 
   return (
-    <Card className="space-y-4 border-border bg-white p-6">
-      <p className="text-sm font-medium text-stone-900">
+    <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
+      <p className="text-sm font-medium text-foreground">
         {initial ? 'ویرایش محتوا' : 'محتوای جدید'}
       </p>
       <div className="grid gap-4 md:grid-cols-2">

@@ -38,26 +38,20 @@ export function FinanceTransactionsPanel() {
 
   return (
     <FinancePageShell routeId="finance.transactions">
-      <div className="flex flex-wrap gap-2 border-b border-border pb-4">
+      <div className="admin-tab-pills">
         <button
           type="button"
           onClick={() => setTab('wallet')}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            tab === 'wallet'
-              ? 'bg-[var(--primary)] text-white'
-              : 'bg-[var(--surface)] text-muted hover:text-foreground'
-          }`}
+          data-active={tab === 'wallet'}
+          className="admin-tab-pill"
         >
           تراکنش‌های کیف پول
         </button>
         <button
           type="button"
           onClick={() => setTab('receipts')}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-            tab === 'receipts'
-              ? 'bg-[var(--primary)] text-white'
-              : 'bg-[var(--surface)] text-muted hover:text-foreground'
-          }`}
+          data-active={tab === 'receipts'}
+          className="admin-tab-pill"
         >
           فیش‌های پرداخت
         </button>
@@ -67,7 +61,7 @@ export function FinanceTransactionsPanel() {
         <PaymentReceiptsPanel />
       ) : (
         <>
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-muted">
             تراکنش‌های کیف پول ریالی و طلای کاربران. معاملات آب‌شده در بخش «طلای آب‌شده» است.
           </p>
           <FilterBar>
@@ -90,11 +84,11 @@ export function FinanceTransactionsPanel() {
               </select>
             </div>
           </FilterBar>
-          <Card className="overflow-hidden border-border bg-white p-0">
+          <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
             {walletQuery.isLoading ? (
               <Skeleton className="m-6 h-64" />
             ) : walletQuery.isError ? (
-              <p className="p-6 text-rose-600">بارگذاری تراکنش‌ها ناموفق بود.</p>
+              <p className="p-6 text-[var(--error)]">بارگذاری تراکنش‌ها ناموفق بود.</p>
             ) : (
               <Table>
                 <TableHeader>
@@ -116,7 +110,7 @@ export function FinanceTransactionsPanel() {
                       <TableCell>{tx.user?.fullName ?? '—'}</TableCell>
                       <TableCell>{WALLET_TX_TYPE_FA[tx.type] ?? tx.type}</TableCell>
                       <TableCell>{WALLET_TX_STATUS_FA[tx.status] ?? tx.status}</TableCell>
-                      <TableCell className="max-w-xs text-xs text-stone-600">
+                      <TableCell className="max-w-xs text-xs text-[var(--muted-foreground)]">
                         {tx.entries?.map((e) => (
                           <div key={`${e.accountCode}-${e.side}`} dir="ltr">
                             {e.accountCode}: {e.side} {e.amount} {e.assetType}

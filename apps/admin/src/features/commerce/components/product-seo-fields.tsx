@@ -31,7 +31,7 @@ interface ProductSeoFieldsProps {
 function CharCounter({ current, max, min }: { current: number; max: number; min?: number }) {
   const ok = current >= (min ?? 0) && current <= max;
   return (
-    <span className={`text-[11px] ${ok ? 'text-stone-500' : 'text-amber-700'}`}>
+    <span className={`text-[11px] ${ok ? 'text-muted' : 'text-[var(--warning)]'}`}>
       {current.toLocaleString('fa-IR')} / {max.toLocaleString('fa-IR')}
     </span>
   );
@@ -50,23 +50,23 @@ export function ProductSeoFields({
     value.seoDescription.trim() || 'توضیح متا برای موتورهای جستجو در اینجا نمایش داده می‌شود.';
 
   return (
-    <div className="md:col-span-2 space-y-4 rounded-2xl border border-border bg-nude-50/40 p-5">
+    <div className="md:col-span-2 space-y-4 rounded-[var(--radius-xl)] border border-border bg-[var(--surface)]/40 p-5">
       <div>
-        <h3 className="text-sm font-bold text-stone-900">سئو و متادیتا</h3>
-        <p className="mt-1 text-xs leading-6 text-stone-500">
+        <h3 className="text-sm font-bold text-foreground">سئو و متادیتا</h3>
+        <p className="mt-1 text-xs leading-6 text-muted">
           عنوان متا، توضیحات، کلمات کلیدی و تصویر Open Graph — مطابق استانداردهای Google.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-border bg-white p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-stone-400">
+      <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
           پیش‌نمایش گوگل
         </p>
         <p className="mt-2 truncate text-base text-blue-700">{previewTitle} | طلاشیم</p>
-        <p className="truncate font-mono text-xs text-emerald-700" dir="ltr">
+        <p className="truncate font-mono text-xs text-[var(--success)]" dir="ltr">
           talashim.ir/products/{productSlug || 'slug'}
         </p>
-        <p className="mt-1 line-clamp-2 text-xs leading-6 text-stone-600">{previewDescription}</p>
+        <p className="mt-1 line-clamp-2 text-xs leading-6 text-[var(--muted-foreground)]">{previewDescription}</p>
       </div>
 
       <div>
@@ -80,7 +80,7 @@ export function ProductSeoFields({
           placeholder={productTitle || 'خالی = عنوان محصول'}
           onChange={(e) => patch({ seoTitle: e.target.value.slice(0, 60) })}
         />
-        <p className="mt-1 text-[11px] text-stone-500">حداکثر ۶۰ کاراکتر — در تب مرورگر نمایش داده می‌شود.</p>
+        <p className="mt-1 text-[11px] text-muted">حداکثر ۶۰ کاراکتر — در تب مرورگر نمایش داده می‌شود.</p>
       </div>
 
       <div>
@@ -89,7 +89,7 @@ export function ProductSeoFields({
           <CharCounter current={value.seoDescription.length} max={160} min={50} />
         </div>
         <textarea
-          className="mt-1 min-h-[96px] w-full rounded-2xl border border-border bg-white p-3 text-sm leading-7"
+          className="mt-1 min-h-[96px] w-full rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] p-3 text-sm leading-7"
           value={value.seoDescription}
           maxLength={160}
           placeholder="خلاصه جذاب ۵۰–۱۶۰ کاراکتری برای نتایج جستجو"
@@ -105,7 +105,7 @@ export function ProductSeoFields({
           placeholder="طلای ۱۸ عیار، انگشتر طلا، خرید آنلاین — با ویرگول جدا کنید"
           onChange={(e) => patch({ seoKeywords: e.target.value })}
         />
-        <p className="mt-1 text-[11px] text-stone-500">
+        <p className="mt-1 text-[11px] text-muted">
           حداکثر ۱۰ کلمه — هر کلمه ۲ تا ۴۰ کاراکتر. مثال: طلای زنانه، گردنبند طلا
         </p>
       </div>

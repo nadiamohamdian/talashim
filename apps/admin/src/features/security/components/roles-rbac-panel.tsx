@@ -8,10 +8,10 @@ import { PermissionsMatrixContent, usePermissionsEditor } from './permissions-pa
 type RbacTab = 'assignment' | 'matrix';
 
 const tabClass = (active: boolean) =>
-  `rounded-xl px-4 py-2 text-sm font-medium transition ${
+  `rounded-[var(--radius-xl)] px-4 py-2 text-sm font-medium transition ${
     active
-      ? 'bg-stone-900 text-white shadow-sm'
-      : 'bg-white text-stone-600 ring-1 ring-border hover:bg-nude-50'
+      ? 'bg-[var(--secondary)] text-white shadow-sm'
+      : 'bg-white text-[var(--muted-foreground)] ring-1 ring-border hover:bg-[var(--surface)]'
   }`;
 
 export function RolesRbacPanel() {

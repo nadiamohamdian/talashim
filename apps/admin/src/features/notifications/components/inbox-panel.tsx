@@ -110,19 +110,19 @@ export function InboxPanel() {
 
       {data?.summary ? (
         <div className="flex gap-4">
-          <Card className="flex-1 border-border bg-white p-4">
-            <p className="text-xs text-stone-500">خوانده‌نشده</p>
-            <p className="text-2xl font-semibold text-amber-800">{data.summary.unreadCount}</p>
+          <Card className="flex-1 border-[var(--border-subtle)] bg-[var(--card)] p-4">
+            <p className="text-xs text-muted">خوانده‌نشده</p>
+            <p className="text-2xl font-semibold text-[var(--warning)]">{data.summary.unreadCount}</p>
           </Card>
-          <Card className="flex-1 border-border bg-white p-4">
-            <p className="text-xs text-stone-500">کل اعلان‌ها</p>
+          <Card className="flex-1 border-[var(--border-subtle)] bg-[var(--card)] p-4">
+            <p className="text-xs text-muted">کل اعلان‌ها</p>
             <p className="text-2xl font-semibold">{data.summary.totalCount}</p>
           </Card>
         </div>
       ) : null}
 
       {showBroadcast ? (
-        <Card className="border-border bg-white p-4">
+        <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-4">
           <h3 className="font-medium">ارسال اعلان به تیم</h3>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div>
@@ -145,7 +145,7 @@ export function InboxPanel() {
             <div className="md:col-span-2">
               <Label>متن</Label>
               <textarea
-                className="mt-1 min-h-[80px] w-full rounded-2xl border border-border px-3 py-2 text-sm"
+                className="mt-1 min-h-[80px] w-full rounded-[var(--radius-xl)] border border-border px-3 py-2 text-sm"
                 value={broadcast.body}
                 onChange={(e) => setBroadcast({ ...broadcast, body: e.target.value })}
               />
@@ -174,27 +174,27 @@ export function InboxPanel() {
       </FilterBar>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />
       ) : isError ? (
-        <p className="text-rose-600">بارگذاری اعلان‌ها ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری اعلان‌ها ناموفق بود.</p>
       ) : (
         <ul className="space-y-2">
           {data?.items.length === 0 ? (
-            <li className="rounded-2xl border border-border bg-white p-8 text-center text-stone-500">
+            <li className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] p-8 text-center text-muted">
               اعلانی نیست.
             </li>
           ) : (
             data?.items.map((item) => (
               <li
                 key={item.id}
-                className={`rounded-2xl border border-border bg-white p-4 ${item.readAt ? 'opacity-75' : ''}`}
+                className={`rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] p-4 ${item.readAt ? 'opacity-75' : ''}`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <p className="font-medium">{item.title}</p>
-                    <p className="mt-1 text-sm text-stone-600">{item.body}</p>
+                    <p className="mt-1 text-sm text-[var(--muted-foreground)]">{item.body}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <Badge className="bg-nude-100 text-stone-700">
+                      <Badge className="bg-nude-100 text-[var(--muted-foreground)]">
                         {NOTIFICATION_CHANNEL_FA[item.channel] ?? item.channel}
                       </Badge>
                       <Badge>{NOTIFICATION_PRIORITY_FA[item.priority] ?? item.priority}</Badge>
@@ -206,7 +206,7 @@ export function InboxPanel() {
                     </div>
                   </div>
                   <div className="text-left">
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs text-muted">
                       {formatPersianDateTime(item.createdAt)}
                     </p>
                     {!item.readAt ? (

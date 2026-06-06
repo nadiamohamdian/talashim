@@ -27,7 +27,7 @@ import { defaultReportFrom, defaultReportTo } from '../lib/date-range';
 import { formatToman, ORDER_STATUS_FA } from '../lib/format';
 
 const selectClass =
-  'mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm';
+  'mt-1 flex h-11 w-full min-w-[140px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 text-sm';
 
 export function SalesReportPanel() {
   const [from, setFrom] = useState(defaultReportFrom);
@@ -81,9 +81,9 @@ export function SalesReportPanel() {
       </ReportDateFilter>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-[var(--radius-xl)]" />
       ) : isError || !data ? (
-        <p className="text-sm text-rose-600">بارگذاری گزارش فروش ناموفق بود.</p>
+        <p className="text-sm text-[var(--error)]">بارگذاری گزارش فروش ناموفق بود.</p>
       ) : (
         <>
           <ReportKpiGrid kpis={data.summary.kpis} />
@@ -117,7 +117,7 @@ export function SalesReportPanel() {
               <TableBody>
                 {data.items.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="py-8 text-center text-stone-500">
+                    <TableCell colSpan={6} className="py-8 text-center text-muted">
                       سفارشی در این بازه نیست.
                     </TableCell>
                   </TableRow>
@@ -127,13 +127,13 @@ export function SalesReportPanel() {
                       <TableCell className="font-mono text-xs">{order.orderNumber}</TableCell>
                       <TableCell>{order.user?.email ?? 'مهمان'}</TableCell>
                       <TableCell>
-                        <Badge className="bg-nude-50 text-stone-700">
+                        <Badge className="bg-[var(--surface)] text-[var(--muted-foreground)]">
                           {ORDER_STATUS_FA[order.status] ?? order.status}
                         </Badge>
                       </TableCell>
                       <TableCell>{order.itemCount}</TableCell>
                       <TableCell>{formatToman(order.totalToman)}</TableCell>
-                      <TableCell className="text-xs text-stone-500">
+                      <TableCell className="text-xs text-muted">
                         {formatPersianDateTime(order.createdAt)}
                       </TableCell>
                     </TableRow>

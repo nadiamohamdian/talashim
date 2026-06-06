@@ -28,41 +28,41 @@ export function SettingsOverviewPanel() {
   return (
     <div className="space-y-6">
       <div className="card-luxury p-5">
-        <h2 className="text-sm font-semibold text-stone-900">وضعیت فعلی</h2>
+        <h2 className="text-sm font-semibold text-foreground">وضعیت فعلی</h2>
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-          <div className="rounded-xl bg-nude-50 px-4 py-3">
-            <dt className="text-xs text-stone-500">فروشگاه</dt>
-            <dd className="mt-1 font-medium text-stone-900">{general.storeName}</dd>
+          <div className="rounded-[var(--radius-xl)] bg-[var(--surface)] px-4 py-3">
+            <dt className="text-xs text-muted">فروشگاه</dt>
+            <dd className="mt-1 font-medium text-foreground">{general.storeName}</dd>
           </div>
-          <div className="rounded-xl bg-nude-50 px-4 py-3">
-            <dt className="text-xs text-stone-500">حداقل سفارش</dt>
-            <dd className="mt-1 font-medium text-stone-900">
+          <div className="rounded-[var(--radius-xl)] bg-[var(--surface)] px-4 py-3">
+            <dt className="text-xs text-muted">حداقل سفارش</dt>
+            <dd className="mt-1 font-medium text-foreground">
               {commerce.minOrderToman.toLocaleString('fa-IR')} {commerce.currencyLabel}
             </dd>
           </div>
-          <div className="rounded-xl bg-nude-50 px-4 py-3">
-            <dt className="text-xs text-stone-500">اسپرد طلا</dt>
-            <dd className="mt-1 font-medium text-stone-900">{gold.spreadPercent}٪</dd>
+          <div className="rounded-[var(--radius-xl)] bg-[var(--surface)] px-4 py-3">
+            <dt className="text-xs text-muted">اسپرد طلا</dt>
+            <dd className="mt-1 font-medium text-foreground">{gold.spreadPercent}٪</dd>
           </div>
-          <div className="rounded-xl bg-nude-50 px-4 py-3">
-            <dt className="text-xs text-stone-500">معاملات طلا</dt>
-            <dd className="mt-1 font-medium text-stone-900">
+          <div className="rounded-[var(--radius-xl)] bg-[var(--surface)] px-4 py-3">
+            <dt className="text-xs text-muted">معاملات طلا</dt>
+            <dd className="mt-1 font-medium text-foreground">
               {featureFlags.enableGoldTrading ? 'فعال' : 'غیرفعال'}
             </dd>
           </div>
         </dl>
         {general.maintenanceMode ? (
-          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <p className="mt-4 rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] px-3 py-2 text-sm text-[var(--secondary)]">
             حالت تعمیرات فعال است.
           </p>
         ) : null}
         {updatedAt ? (
-          <p className="mt-3 text-xs text-stone-500">
+          <p className="mt-3 text-xs text-muted">
             آخرین ذخیره:{' '}
             {formatPersianDateTime(updatedAt)}
           </p>
         ) : (
-          <p className="mt-3 text-xs text-stone-500">هنوز تغییری ذخیره نشده — مقادیر پیش‌فرض.</p>
+          <p className="mt-3 text-xs text-muted">هنوز تغییری ذخیره نشده — مقادیر پیش‌فرض.</p>
         )}
       </div>
 
@@ -73,8 +73,8 @@ export function SettingsOverviewPanel() {
             href={route.path}
             className="card-luxury group p-5 transition hover:border-gold-light hover:shadow-md"
           >
-            <p className="font-semibold text-stone-900 group-hover:text-gold-dark">{route.label}</p>
-            <p className="mt-2 text-sm text-stone-500">
+            <p className="font-semibold text-foreground group-hover:text-gold-dark">{route.label}</p>
+            <p className="mt-2 text-sm text-muted">
               {OVERVIEW_HINTS[route.id] ?? route.sectionLabel}
             </p>
             <span className="mt-4 inline-block text-xs font-medium text-gold-dark">مشاهده ←</span>

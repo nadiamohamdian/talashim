@@ -49,9 +49,9 @@ export function MarginsPanel() {
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : isError ? (
-        <p className="text-rose-600">بارگذاری تنظیمات ناموفق بود.</p>
+        <p className="text-[var(--error)]">بارگذاری تنظیمات ناموفق بود.</p>
       ) : (
-        <Card className="max-w-2xl space-y-4 border-border bg-white p-6">
+        <Card className="max-w-2xl space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label>اسپرد خرید/فروش (%)</Label>
@@ -90,7 +90,7 @@ export function MarginsPanel() {
                 value={refreshIntervalMs}
                 onChange={(e) => setRefreshIntervalMs(Number(e.target.value))}
               />
-              <p className="mt-1 text-xs text-stone-500">
+              <p className="mt-1 text-xs text-muted">
                 معادل {(refreshIntervalMs / 1000).toLocaleString('fa-IR')} ثانیه
               </p>
             </div>
@@ -107,7 +107,7 @@ export function MarginsPanel() {
           </div>
 
           {data ? (
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-muted">
               ارائه‌دهنده اصلی: {data.primaryProviderName} · پشتیبان:{' '}
               {data.fallbackProviderName}
             </p>

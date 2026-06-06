@@ -43,7 +43,7 @@ function ToolbarButton({
       type="button"
       title={title}
       className={`rounded-lg px-2 py-1 text-xs font-semibold transition ${
-        active ? 'bg-amber-600 text-white' : 'bg-white text-stone-700 hover:bg-amber-50'
+        active ? 'bg-[var(--primary)] text-white' : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:bg-[var(--surface)]'
       }`}
       onMouseDown={(e) => {
         e.preventDefault();
@@ -91,10 +91,10 @@ export function RichTextEditor({
         {label}
         {required ? ' *' : null}
       </Label>
-      {hint ? <p className="mt-1 text-xs text-stone-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
 
-      <div className="mt-2 overflow-hidden rounded-2xl border border-border bg-white">
-        <div className="flex flex-wrap items-center gap-1 border-b border-border bg-nude-50 p-2">
+      <div className="mt-2 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)]">
+        <div className="flex flex-wrap items-center gap-1 border-b border-border bg-[var(--surface)] p-2">
           <ToolbarButton title="درشت" onClick={() => exec('bold')}>
             B
           </ToolbarButton>
@@ -109,7 +109,7 @@ export function RichTextEditor({
           </ToolbarButton>
           <span className="mx-1 h-5 w-px bg-border" />
           <select
-            className="rounded-lg border border-border bg-white px-2 py-1 text-xs"
+            className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-2 py-1 text-xs"
             defaultValue=""
             onChange={(e) => exec('fontName', e.target.value)}
           >
@@ -120,7 +120,7 @@ export function RichTextEditor({
             ))}
           </select>
           <select
-            className="rounded-lg border border-border bg-white px-2 py-1 text-xs"
+            className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-2 py-1 text-xs"
             defaultValue="3"
             onChange={(e) => exec('fontSize', e.target.value)}
           >
@@ -130,7 +130,7 @@ export function RichTextEditor({
               </option>
             ))}
           </select>
-          <label className="flex items-center gap-1 text-xs text-stone-600">
+          <label className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
             رنگ
             <input
               type="color"
@@ -138,7 +138,7 @@ export function RichTextEditor({
               onChange={(e) => exec('foreColor', e.target.value)}
             />
           </label>
-          <label className="flex items-center gap-1 text-xs text-stone-600">
+          <label className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
             پس‌زمینه
             <input
               type="color"
@@ -169,7 +169,7 @@ export function RichTextEditor({
           contentEditable
           suppressContentEditableWarning
           dir="rtl"
-          className="prose prose-sm max-w-none px-4 py-3 text-sm leading-8 text-stone-800 outline-none"
+          className="prose prose-sm max-w-none px-4 py-3 text-sm leading-8 text-foreground outline-none"
           style={{ minHeight }}
           onInput={() => {
             const html = editorRef.current?.innerHTML ?? '';
