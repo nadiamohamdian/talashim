@@ -35,9 +35,9 @@ export function AdminShell({ children }: PropsWithChildren) {
             </div>
           ) : null}
 
-          <div className="flex min-w-0 flex-1 flex-col bg-white">
+          <div className="flex min-w-0 flex-1 flex-col bg-gradient-to-b from-nude-50/40 to-white">
             <AdminTopbar onOpenSidebar={() => setMobileNavOpen(true)} />
-            <main className="flex-1 bg-white px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+            <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
           </div>
         </div>
       </div>

@@ -117,6 +117,7 @@ export class AdminOrdersService {
   }
 
   private mapDetail(order: OrderDetailRow): AdminOrderDetailDto {
+    const payment = order.payments[0] ?? null;
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -125,7 +126,14 @@ export class AdminOrdersService {
       taxToman: tomanBigIntToNumber(order.taxToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order.items.length,
-      paymentStatus: order.payments[0]?.status ?? null,
+      paymentStatus: payment?.status ?? null,
+      primaryPayment: payment
+        ? {
+            id: payment.id,
+            status: payment.status,
+            receiptUrl: payment.receiptUrl ?? null,
+          }
+        : null,
       user: order.user,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt.toISOString(),

@@ -9,7 +9,7 @@ import type {
   AdminProductDto,
   AdminProductVideoDto,
   PaginatedResponse,
-} from '@talashim/types';
+} from '@sadafgold/types';
 
 export function fetchAdminProducts(params?: {
   page?: number;

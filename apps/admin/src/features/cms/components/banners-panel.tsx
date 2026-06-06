@@ -23,6 +23,7 @@ import {
   updateBanner,
   type UpsertBannerPayload,
 } from '../api/cms-api';
+import { ImageUrlField } from './image-url-field';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
@@ -162,12 +163,11 @@ export function BannersPanel() {
               </select>
             </div>
             <div className="md:col-span-2">
-              <Label>تصویر (URL)</Label>
-              <Input
-                className="mt-1 font-mono text-xs"
-                dir="ltr"
+              <ImageUrlField
+                label="تصویر بنر"
                 value={form.imageUrl}
-                onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                folder="banners"
               />
             </div>
             <div className="md:col-span-2">

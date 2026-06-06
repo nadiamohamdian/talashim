@@ -7,7 +7,7 @@ export const adminEnvSchema = sharedEnvSchema
     NEXT_PUBLIC_API_BASE_URL: true,
   })
   .extend({
-    NEXT_PUBLIC_ADMIN_APP_NAME: z.string().min(1).default('Sadaf Gold Admin'),
+    NEXT_PUBLIC_ADMIN_APP_NAME: z.string().min(1).default('پنل مدیریت طلاشیم'),
     /** When not "false", admin login accepts any password (dev/test). */
     NEXT_PUBLIC_ADMIN_DEV_LOGIN: z.enum(['true', 'false']).optional().default('true'),
   });

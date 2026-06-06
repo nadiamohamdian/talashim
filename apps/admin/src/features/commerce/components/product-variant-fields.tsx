@@ -1,6 +1,7 @@
 'use client';
 
 import { Button, Input, Label } from '@talashim/ui';
+import { ImageUrlField } from '@/features/cms/components/image-url-field';
 
 const MAX_VARIANTS = 50;
 
@@ -209,15 +210,11 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
                 />
               </div>
               <div className="sm:col-span-2">
-                <Label className="text-xs">URL تصویر — اختیاری</Label>
-                <Input
-                  className="mt-1"
+                <ImageUrlField
+                  label="تصویر واریانت (اختیاری)"
                   value={variant.imageUrl}
-                  placeholder="https://..."
-                  dir="ltr"
-                  onChange={(e) =>
-                    onChange(patchVariant(variants, index, { imageUrl: e.target.value }))
-                  }
+                  onChange={(url) => onChange(patchVariant(variants, index, { imageUrl: url }))}
+                  folder="products"
                 />
               </div>
             </div>

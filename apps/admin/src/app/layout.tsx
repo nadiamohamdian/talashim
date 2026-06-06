@@ -16,7 +16,7 @@ const persianSans = IBM_Plex_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: adminEnv.NEXT_PUBLIC_ADMIN_APP_NAME,
-  description: 'پنل مدیریت Sadaf Gold',
+  description: 'پنل مدیریت طلاشیم',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -38,7 +38,7 @@ export function AdminLoginForm() {
     <div className="card-luxury w-full max-w-md p-6 sm:p-8">
       <p className="text-sm font-medium text-amber-800">پنل مدیریت</p>
       <h1 className="mt-3 text-2xl font-bold text-stone-950 sm:text-3xl">
-        ورود به Talashim Admin
+        ورود به پنل مدیریت طلاشیم
       </h1>
       <p className="mt-3 text-sm leading-7 text-stone-600">
         مدیریت محصولات، سفارش‌ها، معاملات طلا و عملیات پلتفرم.

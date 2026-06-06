@@ -7,6 +7,7 @@ import type { CmsHeroConfig, CmsHomepageDto, CmsHomepageSections } from '@talash
 import { fetchHomepageCms, updateHomepageCms } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { CmsPageShell } from './cms-page-shell';
+import { ImageUrlField } from './image-url-field';
 
 export function HomepagePanel() {
   const queryClient = useQueryClient();
@@ -140,12 +141,11 @@ export function HomepagePanel() {
             />
           </div>
           <div className="md:col-span-2">
-            <Label>تصویر هیرو (URL)</Label>
-            <Input
-              className="mt-1 font-mono text-xs"
-              dir="ltr"
+            <ImageUrlField
+              label="تصویر هیرو"
               value={hero.imageUrl}
-              onChange={(e) => setHero({ ...hero, imageUrl: e.target.value })}
+              onChange={(url) => setHero({ ...hero, imageUrl: url })}
+              folder="banners"
             />
           </div>
         </div>

@@ -20,12 +20,12 @@
       "@/*": ["src/*"],
       "@sadafgold/shared": ["../../packages/shared/dist/index"],
       "@sadafgold/shared/*": ["../../packages/shared/dist/*"],
-      "@sadafgold/types": ["../../packages/types/dist/index"],
-      "@sadafgold/types/*": ["../../packages/types/dist/*"],
+      "@sadafgold/types": ["../../packages/types/src/index"],
+      "@sadafgold/types/*": ["../../packages/types/src/*"],
       "@talashim/shared": ["../../packages/shared/dist/index"],
       "@talashim/shared/*": ["../../packages/shared/dist/*"],
-      "@talashim/types": ["../../packages/types/dist/index"],
-      "@talashim/types/*": ["../../packages/types/dist/*"]
+      "@talashim/types": ["../../packages/types/src/index"],
+      "@talashim/types/*": ["../../packages/types/src/*"]
     },
     "types": ["node", "jest"],
     "incremental": true,

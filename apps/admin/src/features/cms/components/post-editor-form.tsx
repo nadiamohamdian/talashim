@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button, Card, Input, Label } from '@talashim/ui';
 import type { AdminBlogCategoryDto, AdminBlogPostDto } from '@talashim/types';
 import type { UpsertBlogPostPayload } from '../api/cms-api';
+import { ImageUrlField } from './image-url-field';
 import { selectFieldClass } from '../lib/labels';
 
 const emptyPayload = (): UpsertBlogPostPayload => ({
@@ -141,12 +142,11 @@ export function PostEditorForm({
           />
         </div>
         <div className="md:col-span-2">
-          <Label>آدرس تصویر کاور</Label>
-          <Input
-            className="mt-1 font-mono text-xs"
-            dir="ltr"
+          <ImageUrlField
+            label="تصویر کاور"
             value={form.coverImageUrl}
-            onChange={(e) => setForm((f) => ({ ...f, coverImageUrl: e.target.value }))}
+            onChange={(url) => setForm((f) => ({ ...f, coverImageUrl: url }))}
+            folder="blog"
           />
         </div>
         <div className="md:col-span-2">

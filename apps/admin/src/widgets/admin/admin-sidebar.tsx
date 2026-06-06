@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@sadafgold/ui';
 import { getRoleLabelFa } from '@sadafgold/shared/admin-rbac';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
@@ -19,6 +19,23 @@ const availabilityDot: Record<ApiAvailability, string> = {
   pending: 'bg-nude-300',
 };
 
+function SectionChevron({ collapsed }: { collapsed: boolean }) {
+  return (
+    <svg
+      className={`h-4 w-4 shrink-0 text-stone-400 transition-transform duration-200 ${collapsed ? '-rotate-90' : 'rotate-0'}`}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path
+        fillRule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
 interface AdminSidebarProps {
   onNavigate?: () => void;
 }
@@ -30,38 +47,64 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   const hasPermission = useAdminAuthStore((s) => s.hasPermission);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
+  const visibleSections = useMemo(
+    () =>
+      ADMIN_NAV_SECTIONS.map((section) => ({
+        ...section,
+        items: section.items.filter((item) =>
+          hasPermission(item.permission as AdminPermissionKey),
+        ),
+      })).filter((section) => section.items.length > 0),
+    [hasPermission],
+  );
+
   return (
     <aside className="flex h-full flex-col bg-nude-50 text-foreground">
-      <div className="border-b border-border bg-white/80 p-4">
-        <p className="text-xs text-muted">کاربر فعال</p>
+      <div className="border-b border-border bg-gradient-to-l from-white to-nude-50/80 p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">کاربر فعال</p>
         {user ? (
           <>
-            <p className="mt-1 truncate text-sm font-medium text-stone-800">{user.email}</p>
-            <p className="mt-0.5 text-xs text-muted">{getRoleLabelFa(user.role)}</p>
+            <p className="mt-1 truncate text-sm font-semibold text-stone-800">{user.fullName ?? user.email}</p>
+            <p className="mt-0.5 truncate text-xs text-muted">{user.email}</p>
+            <span className="badge-gold mt-2 inline-flex">{getRoleLabelFa(user.role)}</span>
           </>
         ) : null}
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-3" aria-label="منوی اصلی">
-        {ADMIN_NAV_SECTIONS.map((section) => {
-          const isSectionCollapsed = collapsed[section.id];
+      <nav className="sidebar-nav flex-1 overflow-y-auto p-3" aria-label="منوی اصلی">
+        {visibleSections.map((section) => {
+          const isSectionCollapsed = collapsed[section.id] ?? false;
+          const sectionPanelId = `sidebar-section-${section.id}`;
+
           return (
-            <div key={section.id} className="mb-4">
+            <div key={section.id} className="mb-2">
               <button
                 type="button"
-                className="mb-1 flex w-full items-center justify-between px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted hover:text-stone-700"
+                aria-expanded={!isSectionCollapsed}
+                aria-controls={sectionPanelId}
+                className="sidebar-section-trigger group flex w-full items-center gap-2 rounded-xl border border-transparent px-2.5 py-2.5 transition hover:border-border hover:bg-white/90 hover:shadow-sm"
                 onClick={() =>
-                  setCollapsed((prev) => ({ ...prev, [section.id]: !prev[section.id] }))
+                  setCollapsed((prev) => ({ ...prev, [section.id]: !isSectionCollapsed }))
                 }
               >
-                {section.label}
-                <span className="text-nude-300">{isSectionCollapsed ? '+' : '−'}</span>
+                <SectionChevron collapsed={isSectionCollapsed} />
+                <span className="flex-1 text-right text-xs font-bold tracking-wide text-stone-700 group-hover:text-stone-900">
+                  {section.label}
+                </span>
+                <span className="rounded-full bg-nude-100 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-muted">
+                  {section.items.length}
+                </span>
               </button>
-              {!isSectionCollapsed ? (
-                <ul className="space-y-0.5">
-                  {section.items
-                    .filter((item) => hasPermission(item.permission as AdminPermissionKey))
-                    .map((item) => {
+
+              <div
+                id={sectionPanelId}
+                className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+                  isSectionCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'
+                }`}
+              >
+                <ul className="overflow-hidden">
+                  <div className="space-y-0.5 py-1 pr-1">
+                    {section.items.map((item) => {
                       const active = isNavItemActive(pathname, item.href);
                       return (
                         <li key={item.href}>
@@ -71,14 +114,14 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
                               syncAdminAuthCookieFromStore();
                               onNavigate?.();
                             }}
-                            className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition ${
+                            className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition ${
                               active
-                                ? 'border border-gold-light bg-white font-medium text-gold-dark shadow-sm'
-                                : 'text-stone-600 hover:bg-white/70 hover:text-stone-900'
+                                ? 'border-2 border-amber-500 bg-amber-50 font-bold text-amber-900 shadow-md'
+                                : 'text-stone-600 hover:bg-white hover:text-stone-900'
                             }`}
                           >
                             <span
-                              className={`h-1.5 w-1.5 shrink-0 rounded-full ${availabilityDot[item.availability]}`}
+                              className={`h-2 w-2 shrink-0 rounded-full ring-2 ring-white ${availabilityDot[item.availability]}`}
                               title={item.availability}
                             />
                             <span className="truncate">{item.label}</span>
@@ -86,8 +129,9 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
                         </li>
                       );
                     })}
+                  </div>
                 </ul>
-              ) : null}
+              </div>
             </div>
           );
         })}
@@ -102,7 +146,7 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
             window.location.href = '/login';
           }}
         >
-          خروج
+          خروج از حساب
         </Button>
       </div>
     </aside>

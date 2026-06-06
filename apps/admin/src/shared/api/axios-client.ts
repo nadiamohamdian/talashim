@@ -1,4 +1,4 @@
-import { createApiClient, getApiErrorMessage } from '@talashim/api-client';
+import { createApiClient, getApiErrorMessage } from '@sadafgold/api-client';
 import { adminEnv } from '@/shared/config/env';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 

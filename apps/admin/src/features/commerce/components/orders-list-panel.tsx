@@ -15,9 +15,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@talashim/ui';
+} from '@sadafgold/ui';
 import { fetchAdminOrders } from '../api/commerce-api';
+import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import { adminQueryKeys } from '@/lib/api/query-keys';
+import { AdminApiError } from '@/shared/ui/admin-api-error';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CommercePageShell } from './commerce-page-shell';
@@ -38,13 +40,14 @@ const paymentBadge: Record<string, string> = {
 };
 
 export function OrdersListPanel() {
+  const accessToken = useAdminAuthStore((s) => s.accessToken);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: adminQueryKeys.commerce.orders(page, search, status, from, to),
     queryFn: () =>
       fetchAdminOrders({
@@ -54,6 +57,7 @@ export function OrdersListPanel() {
         from: from || undefined,
         to: to || undefined,
       }),
+    enabled: Boolean(accessToken),
   });
 
   return (
@@ -86,7 +90,11 @@ export function OrdersListPanel() {
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
-          <p className="p-6 text-rose-600">بارگذاری سفارش‌ها ناموفق بود.</p>
+          <AdminApiError
+            title="بارگذاری سفارش‌ها ناموفق بود."
+            error={error}
+            onRetry={() => void refetch()}
+          />
         ) : (
           <Table>
             <TableHeader>

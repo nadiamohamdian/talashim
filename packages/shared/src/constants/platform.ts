@@ -1,6 +1,6 @@
 export const platformConfig = {
-  name: 'Sadaf Gold',
-  adminName: 'Sadaf Gold Admin',
+  name: 'طلاشیم',
+  adminName: 'پنل مدیریت طلاشیم',
   description: 'Luxury gold trading and e-commerce platform for retail and wholesale experiences.',
   locale: 'fa-IR',
   direction: 'rtl' as const,

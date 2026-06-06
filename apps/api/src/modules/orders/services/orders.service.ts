@@ -261,9 +261,9 @@ export class OrdersService {
       unitPriceToman: bigint | number;
       product: { title: string; slug: string };
     }>;
-      payments: Array<{
+    payments: Array<{
       id: string;
-      status: string;
+      status: PaymentStatus;
       provider: string;
       amountToman: bigint | number;
       receiptUrl?: string | null;

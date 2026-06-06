@@ -565,13 +565,14 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
   r({
     id: 'media.library',
     path: '/media',
-    label: 'کتابخانه رسانه',
+    label: 'کتابخانه تصاویر',
     sectionId: 'content',
     sectionLabel: 'محتوا و رسانه',
     template: 'list',
     permission: ADMIN_PERMISSIONS.media.read,
     availability: 'live',
     parentId: 'dashboard',
+    description: 'مرکز آپلود و انتخاب تصاویر برای محصولات، بنرها و محتوای سایت.',
   }),
   r({
     id: 'media.upload',
@@ -584,6 +585,7 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     availability: 'live',
     parentId: 'media.library',
     nav: false,
+    description: 'ادغام شده در کتابخانه تصاویر',
   }),
 
   // Reports

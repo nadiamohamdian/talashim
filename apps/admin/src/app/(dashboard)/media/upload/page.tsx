@@ -1,5 +1,5 @@
-import { MediaUploadPanel } from '@/features/cms/components/media-upload-panel';
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <MediaUploadPanel />;
+  redirect('/media');
 }

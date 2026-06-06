@@ -33,11 +33,6 @@ export const adminQueryKeys = {
     financial: (page: number, from: string, to: string, type: string) =>
       ['admin', 'reports', 'financial', page, from, to, type] as const,
   },
-  catalog: (page: number, search: string, category: string) =>
-    ['catalog', page, search, category] as const,
-  catalogDetail: (slug: string) => ['catalog', 'detail', slug] as const,
-  pricingLive: (symbol: string, karat: number) => ['pricing', 'live', symbol, karat] as const,
-  pricingHistory: (symbol: string, karat: number) => ['pricing', 'history', symbol, karat] as const,
   pricing: {
     live: (symbol: string, karat: number) => ['admin', 'pricing', 'live', symbol, karat] as const,
     history: (symbol: string, karat: number, from: string, to: string) =>
@@ -46,7 +41,6 @@ export const adminQueryKeys = {
     margins: ['admin', 'pricing', 'margins'] as const,
     overrides: (page: number) => ['admin', 'pricing', 'overrides', page] as const,
   },
-  blog: (page: number) => ['blog', page] as const,
   finance: {
     ledger: (page: number, search: string, assetType: string, side: string) =>
       ['admin', 'finance', 'ledger', page, search, assetType, side] as const,

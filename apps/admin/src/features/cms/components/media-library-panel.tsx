@@ -1,23 +1,30 @@
 'use client';
 
-import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
-import { deleteMediaAsset, fetchMediaAssets } from '../api/cms-api';
+import { Button, Card, Input, Label, Skeleton } from '@sadafgold/ui';
+import { deleteMediaAsset, fetchMediaAssets, uploadMediaImage } from '../api/cms-api';
+import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import { adminQueryKeys } from '@/lib/api/query-keys';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
+import { AdminApiError } from '@/shared/ui/admin-api-error';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
 import { formatBytes, selectFieldClass } from '../lib/labels';
 
+const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
+
 export function MediaLibraryPanel() {
+  const accessToken = useAdminAuthStore((s) => s.accessToken);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [folder, setFolder] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: adminQueryKeys.cms.media(page, search, folder),
     queryFn: () =>
       fetchMediaAssets({
@@ -26,6 +33,14 @@ export function MediaLibraryPanel() {
         search: search || undefined,
         folder: folder || undefined,
       }),
+    enabled: Boolean(accessToken),
+  });
+
+  const upload = useMutation({
+    mutationFn: (file: File) => uploadMediaImage(file, { folder: folder || 'general' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'cms', 'media'] });
+    },
   });
 
   const deleteMutation = useMutation({
@@ -35,18 +50,57 @@ export function MediaLibraryPanel() {
     },
   });
 
+  const copyUrl = async (id: string, url: string) => {
+    await navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
-    <CmsPageShell
-      routeId="media.library"
-      actions={
-        <Link
-          href="/media/upload"
-          className="inline-flex h-11 items-center justify-center rounded-2xl bg-stone-900 px-5 text-sm font-medium text-white hover:bg-stone-800"
+    <CmsPageShell routeId="media.library">
+      <Card className="border-amber-200 bg-gradient-to-l from-amber-50 to-white p-6">
+        <h3 className="text-sm font-bold text-stone-900">آپلود تصاویر سایت</h3>
+        <p className="mt-1 text-sm text-stone-600">
+          تمام تصاویر محصولات، بنرها، وبلاگ و صفحات از اینجا مدیریت می‌شوند. هنگام افزودن محصول یا
+          محتوا، تصویر را از همین کتابخانه انتخاب کنید.
+        </p>
+        <div
+          className="mt-4 rounded-2xl border-2 border-dashed border-amber-400 bg-white/80 p-8 text-center"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault();
+            const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
+            files.forEach((file) => upload.mutate(file));
+          }}
         >
-          آپلود فایل
-        </Link>
-      }
-    >
+          <p className="text-sm font-medium text-stone-800">فایل‌ها را اینجا رها کنید</p>
+          <p className="mt-1 text-xs text-stone-500">JPEG، PNG، WebP، GIF</p>
+          <button
+            type="button"
+            className="btn-gold mt-4"
+            disabled={upload.isPending}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {upload.isPending ? 'در حال آپلود…' : 'انتخاب و آپلود تصویر'}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={IMAGE_ACCEPT}
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              const files = Array.from(e.target.files ?? []);
+              files.forEach((file) => upload.mutate(file));
+              e.target.value = '';
+            }}
+          />
+          {upload.isError ? (
+            <p className="mt-3 text-xs text-rose-600">{getApiErrorMessage(upload.error)}</p>
+          ) : null}
+        </div>
+      </Card>
+
       <FilterBar>
         <div className="min-w-[200px] flex-1">
           <Label>جستجو</Label>
@@ -57,7 +111,7 @@ export function MediaLibraryPanel() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder="نام فایل یا URL"
+            placeholder="نام فایل"
           />
         </div>
         <div>
@@ -71,23 +125,29 @@ export function MediaLibraryPanel() {
             }}
           >
             <option value="">همه</option>
-            <option value="general">general</option>
-            <option value="products">products</option>
-            <option value="blog">blog</option>
-            <option value="banners">banners</option>
+            <option value="general">عمومی</option>
+            <option value="products">محصولات</option>
+            <option value="blog">وبلاگ</option>
+            <option value="banners">بنرها</option>
           </select>
         </div>
       </FilterBar>
 
       {isLoading ? (
-        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
       ) : isError ? (
-        <p className="text-rose-600">بارگذاری رسانه ناموفق بود.</p>
+        <Card className="overflow-hidden border-border bg-white p-0">
+          <AdminApiError
+            title="بارگذاری کتابخانه رسانه ناموفق بود."
+            error={error}
+            onRetry={() => void refetch()}
+          />
+        </Card>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data?.items.map((asset) => (
-            <Card key={asset.id} className="overflow-hidden border-border bg-white p-0">
-              <div className="relative aspect-video bg-nude-100">
+            <Card key={asset.id} className="overflow-hidden border-border bg-white p-0 shadow-sm">
+              <div className="relative aspect-square bg-nude-100">
                 {asset.mimeType.startsWith('image/') ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -102,28 +162,30 @@ export function MediaLibraryPanel() {
                 )}
               </div>
               <div className="space-y-2 p-3">
-                <p className="truncate text-sm font-medium">{asset.filename}</p>
+                <p className="truncate text-sm font-semibold text-stone-900">{asset.filename}</p>
                 <p className="text-xs text-stone-500">
                   {asset.folder} · {formatBytes(asset.sizeBytes)}
                 </p>
-                <Input
-                  className="font-mono text-[10px]"
-                  dir="ltr"
-                  readOnly
-                  value={asset.url}
-                  onFocus={(e) => e.target.select()}
-                />
-                <Button
-                  className="h-8 w-full text-xs text-rose-600"
-                  variant="ghost"
-                  onClick={() => {
-                    if (confirm('حذف این فایل از کتابخانه؟')) {
-                      deleteMutation.mutate(asset.id);
-                    }
-                  }}
-                >
-                  حذف
-                </Button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="btn-gold flex-1 py-2 text-xs"
+                    onClick={() => void copyUrl(asset.id, asset.url)}
+                  >
+                    {copiedId === asset.id ? 'کپی شد!' : 'کپی URL'}
+                  </button>
+                  <Button
+                    variant="outline"
+                    className="h-auto px-3 py-2 text-xs text-rose-700"
+                    onClick={() => {
+                      if (confirm('حذف این فایل از کتابخانه؟')) {
+                        deleteMutation.mutate(asset.id);
+                      }
+                    }}
+                  >
+                    حذف
+                  </Button>
+                </div>
               </div>
             </Card>
           ))}
@@ -131,12 +193,7 @@ export function MediaLibraryPanel() {
       )}
 
       {data ? (
-        <PaginationBar
-          page={data.page}
-          total={data.total}
-          limit={data.limit}
-          onPageChange={setPage}
-        />
+        <PaginationBar page={data.page} total={data.total} limit={data.limit} onPageChange={setPage} />
       ) : null}
     </CmsPageShell>
   );

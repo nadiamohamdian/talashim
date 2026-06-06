@@ -69,7 +69,7 @@ export function AdminAuthBootScreen() {
 
           <p className="mt-6 text-base font-semibold text-stone-900">در حال بارگذاری پنل</p>
           <p className="mt-2 text-sm leading-7 text-stone-500">
-            اتصال به سرویس‌ها و آماده‌سازی محیط مدیریت Talashim
+            اتصال به سرویس‌ها و آماده‌سازی پنل مدیریت طلاشیم
           </p>
 
           <div className="mt-6 flex justify-center gap-1.5" aria-hidden>
