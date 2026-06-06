@@ -6,6 +6,12 @@ Run after Postgres is up:
 pnpm --filter @sadafgold/api prisma:seed
 ```
 
+Smoke-test login + role-scoped APIs (API must be running on port 4000):
+
+```bash
+pnpm --filter @sadafgold/api smoke:roles
+```
+
 ## Staff (admin panel — `http://localhost:3002`)
 
 | Role | Email | Password | Typical access |

@@ -15,6 +15,7 @@
     "dev:store": "pnpm --filter @talashim/web dev",
     "dev:admin": "pnpm --filter @sadafgold/admin dev",
     "dev:api": "pnpm --filter @sadafgold/api dev",
+    "smoke:roles": "pnpm --filter @sadafgold/api smoke:roles",
     "dev:worker": "pnpm --filter @sadafgold/worker dev",
     "build": "turbo run build",
     "lint": "turbo run lint",

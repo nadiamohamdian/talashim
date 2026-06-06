@@ -7,6 +7,12 @@ import {
   DEFAULT_CMS_SECTIONS,
   DEFAULT_CMS_SEO,
 } from '../src/modules/admin/cms/cms-defaults';
+import {
+  DEV_CUSTOMER_ACCOUNT,
+  DEV_PASSWORD_CUSTOMER,
+  DEV_PASSWORD_STAFF,
+  DEV_STAFF_ACCOUNTS,
+} from '../src/modules/auth/constants/dev-test-accounts';
 import { getApiEnv } from '../src/config/env';
 
 const connectionString = process.env.DATABASE_URL;
@@ -17,24 +23,15 @@ if (!connectionString) {
 const pool = new Pool({ connectionString });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
-const DEV_PASSWORD_STAFF = 'Admin12345!';
-const DEV_PASSWORD_CUSTOMER = 'Customer12345!';
-
 async function main() {
   const staffPasswordHash = await argon2.hash(DEV_PASSWORD_STAFF);
   const customerPasswordHash = await argon2.hash(DEV_PASSWORD_CUSTOMER);
 
-  const staffAccounts: Array<{
-    email: string;
-    fullName: string;
-    role: Role;
-  }> = [
-    { email: 'admin@talashim.local', fullName: 'سوپر ادمین', role: Role.SUPER_ADMIN },
-    { email: 'support@talashim.local', fullName: 'پشتیبان سایت', role: Role.SUPPORT },
-    { email: 'accountant@talashim.local', fullName: 'حسابدار', role: Role.ACCOUNTANT },
-    { email: 'editor@talashim.local', fullName: 'ادیتور', role: Role.EDITOR },
-    { email: 'warehouse@talashim.local', fullName: 'انباردار', role: Role.WAREHOUSE },
-  ];
+  const staffAccounts = Object.entries(DEV_STAFF_ACCOUNTS).map(([email, account]) => ({
+    email,
+    fullName: account.fullName,
+    role: account.role,
+  }));
 
   let superAdminId: string | null = null;
 
@@ -59,44 +56,47 @@ async function main() {
   }
 
   const customer = await prisma.user.upsert({
-    where: { email: 'customer@talashim.local' },
+    where: { email: DEV_CUSTOMER_ACCOUNT.email },
     update: {
-      role: Role.CUSTOMER,
-      fullName: 'مشتری فروشگاه',
+      role: DEV_CUSTOMER_ACCOUNT.role,
+      fullName: DEV_CUSTOMER_ACCOUNT.fullName,
       passwordHash: customerPasswordHash,
     },
     create: {
-      email: 'customer@talashim.local',
-      fullName: 'مشتری فروشگاه',
+      email: DEV_CUSTOMER_ACCOUNT.email,
+      fullName: DEV_CUSTOMER_ACCOUNT.fullName,
       passwordHash: customerPasswordHash,
-      role: Role.CUSTOMER,
+      role: DEV_CUSTOMER_ACCOUNT.role,
     },
   });
 
   await prisma.kycVerification.upsert({
     where: { userId: customer.id },
     update: {
-      phone: '09121234567',
-      nationalId: '0012345678',
+      phone: DEV_CUSTOMER_ACCOUNT.otpPhone,
+      nationalId: DEV_CUSTOMER_ACCOUNT.nationalId,
       status: KycStatus.APPROVED,
       reviewedAt: new Date(),
       reviewedById: superAdminId ?? undefined,
     },
     create: {
       userId: customer.id,
-      phone: '09121234567',
-      nationalId: '0012345678',
+      phone: DEV_CUSTOMER_ACCOUNT.otpPhone,
+      nationalId: DEV_CUSTOMER_ACCOUNT.nationalId,
       status: KycStatus.APPROVED,
       reviewedAt: new Date(),
       reviewedById: superAdminId ?? undefined,
     },
   });
 
-  console.info('\n--- Dev accounts (passwords in docs/DEV_ACCOUNTS.md) ---');
+  console.info('\n--- Dev test accounts (see docs/DEV_ACCOUNTS.md) ---');
   for (const account of staffAccounts) {
-    console.info(`  [${account.role}] ${account.email}`);
+    console.info(`  [${account.role}] ${account.email} | ${DEV_PASSWORD_STAFF}`);
   }
-  console.info(`  [CUSTOMER] customer@talashim.local | OTP phone: 09121234567`);
+  console.info(
+    `  [CUSTOMER] ${DEV_CUSTOMER_ACCOUNT.email} | ${DEV_PASSWORD_CUSTOMER} | OTP: ${DEV_CUSTOMER_ACCOUNT.otpPhone}`,
+  );
+  console.info('  Smoke test: pnpm --filter @sadafgold/api smoke:roles');
   console.info('--------------------------------------------------------\n');
 
   await prisma.blogCategory.upsert({

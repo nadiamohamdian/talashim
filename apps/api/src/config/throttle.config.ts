@@ -13,7 +13,7 @@ export function buildThrottlerOptions(env: ApiEnv) {
     {
       name: 'auth',
       ttl: env.THROTTLE_AUTH_TTL_MS,
-      limit: env.THROTTLE_AUTH_LIMIT,
+      limit: env.THROTTLE_AUTH_LIMIT * devMultiplier,
     },
   ];
 }
