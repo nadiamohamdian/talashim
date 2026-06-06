@@ -2,7 +2,16 @@
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { Card, Skeleton } from '@sadafgold/ui';
+import {
+  Activity,
+  ArrowLeftRight,
+  Clock,
+  ShieldCheck,
+  TrendingUp,
+  Users,
+  Wallet,
+} from '@/shared/ui/icons';
+import { Card, CardContent, CardHeader, CardTitle, Skeleton } from '@sadafgold/ui';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { fetchAnalytics, fetchAuditLogs, fetchTradeOrders } from '@/features/admin/api/admin-api';
 import { fetchAdminLivePrice } from '@/features/pricing/api/pricing-admin-api';
@@ -12,9 +21,22 @@ import { adminQueryKeys } from '@/lib/api/query-keys';
 import { StatCard } from '@/widgets/admin/stat-card';
 import { PageHeader } from '@/widgets/admin/page-header';
 
+const CHART_PRIMARY = '#cba670';
+const CHART_SUCCESS = '#3d7a5f';
+const CHART_GRID = '#e3e3e3';
+const CHART_MUTED = '#8a8078';
+
 function formatToman(value: string | number) {
   return Number(value).toLocaleString('fa-IR');
 }
+
+const tooltipStyle = {
+  background: '#ffffff',
+  border: '1px solid #d9d0c8',
+  borderRadius: '0.75rem',
+  fontSize: '0.8125rem',
+  boxShadow: '0 2px 8px rgba(86, 71, 57, 0.08)',
+};
 
 export function DashboardOverview() {
   const route = ADMIN_ROUTE_BY_ID.dashboard;
@@ -59,12 +81,12 @@ export function DashboardOverview() {
           <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
-                <Skeleton key={i} className="h-28 rounded-2xl" />
+                <Skeleton key={i} className="h-28" />
               ))}
             </div>
           </div>
         ) : isError || !data ? (
-          <p className="text-rose-600">
+          <p className="rounded-[var(--radius-lg)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
             بارگذاری آمار داشبورد ناموفق بود — API و توکن ادمین را بررسی کنید.
           </p>
         ) : (
@@ -74,14 +96,28 @@ export function DashboardOverview() {
                 label="کل کاربران"
                 value={data.totalUsers.toLocaleString('fa-IR')}
                 hint="رشد کاربر"
+                icon={Users}
               />
-              <StatCard label="ادمین‌ها" value={data.adminUsers.toLocaleString('fa-IR')} />
-              <StatCard label="KYC در انتظار" value={data.pendingKyc.toLocaleString('fa-IR')} />
+              <StatCard
+                label="ادمین‌ها"
+                value={data.adminUsers.toLocaleString('fa-IR')}
+                icon={ShieldCheck}
+              />
+              <StatCard
+                label="KYC در انتظار"
+                value={data.pendingKyc.toLocaleString('fa-IR')}
+                icon={Activity}
+              />
               <StatCard
                 label="تراکنش کیف ۲۴س"
                 value={data.walletTransactions24h.toLocaleString('fa-IR')}
+                icon={Wallet}
               />
-              <StatCard label="معاملات طلا ۲۴س" value={data.goldTrades24h.toLocaleString('fa-IR')} />
+              <StatCard
+                label="معاملات طلا ۲۴س"
+                value={data.goldTrades24h.toLocaleString('fa-IR')}
+                icon={TrendingUp}
+              />
               <StatCard
                 label="قیمت هر گرم (۱۸)"
                 value={
@@ -94,6 +130,7 @@ export function DashboardOverview() {
                     ? `منبع: ${livePriceQuery.data.providerName}`
                     : 'در حال بارگذاری…'
                 }
+                icon={TrendingUp}
               />
               <StatCard
                 label="خرید / فروش زنده"
@@ -107,6 +144,7 @@ export function DashboardOverview() {
                     ? `اسپرد ${livePriceQuery.data.spreadPercent}%`
                     : undefined
                 }
+                icon={ArrowLeftRight}
               />
               <StatCard
                 label="به‌روزرسانی قیمت"
@@ -115,124 +153,137 @@ export function DashboardOverview() {
                     ? new Date(livePriceQuery.data.recordedAt).toLocaleString('fa-IR')
                     : '—'
                 }
+                icon={Clock}
               />
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <Card className="border-border bg-white p-6">
-                <h2 className="font-semibold text-stone-900">تراکنش کیف پول (۲۴ ساعت)</h2>
-                <p className="mt-1 text-xs text-stone-500">منبع: GET /admin/analytics</p>
-                <div className="mt-4 h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={data.walletVolumeByType.map((row) => ({
-                        name: row.type,
-                        count: row.count,
-                      }))}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#78716c' }} />
-                      <YAxis tick={{ fontSize: 11, fill: '#78716c' }} />
-                      <Tooltip
-                        contentStyle={{
-                          background: '#fff',
-                          border: '1px solid #e7e5e4',
-                          borderRadius: '12px',
-                        }}
-                      />
-                      <Bar dataKey="count" fill="#c4a265" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>تراکنش کیف پول (۲۴ ساعت)</CardTitle>
+                  <p className="text-caption">منبع: GET /admin/analytics</p>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={data.walletVolumeByType.map((row) => ({
+                          name: row.type,
+                          count: row.count,
+                        }))}
+                      >
+                        <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: CHART_MUTED }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: CHART_MUTED }} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        <Bar dataKey="count" fill={CHART_PRIMARY} radius={[6, 6, 0, 0]} maxBarSize={48} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
               </Card>
-              <Card className="border-border bg-white p-6">
-                <h2 className="font-semibold text-stone-900">معاملات طلا (۲۴ ساعت)</h2>
-                <p className="mt-1 text-xs text-stone-500">منبع: GET /admin/analytics</p>
-                <div className="mt-4 h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={data.tradesBySide.map((row) => ({
-                        name: row.side === 'BUY' ? 'خرید' : 'فروش',
-                        count: row.count,
-                      }))}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                      <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#78716c' }} />
-                      <YAxis tick={{ fontSize: 11, fill: '#78716c' }} />
-                      <Tooltip
-                        contentStyle={{
-                          background: '#fff',
-                          border: '1px solid #e7e5e4',
-                          borderRadius: '12px',
-                        }}
-                      />
-                      <Bar dataKey="count" fill="#34d399" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>معاملات طلا (۲۴ ساعت)</CardTitle>
+                  <p className="text-caption">منبع: GET /admin/analytics</p>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={data.tradesBySide.map((row) => ({
+                          name: row.side === 'BUY' ? 'خرید' : 'فروش',
+                          count: row.count,
+                        }))}
+                      >
+                        <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: CHART_MUTED }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: CHART_MUTED }} axisLine={false} tickLine={false} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                        <Bar dataKey="count" fill={CHART_SUCCESS} radius={[6, 6, 0, 0]} maxBarSize={48} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
               </Card>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <Card className="border-border bg-white p-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-stone-900">فعالیت‌های اخیر</h2>
-                  <Link href="/security/audit" className="text-xs text-gold-dark hover:underline">
-                    مشاهده همه
-                  </Link>
-                </div>
-                <ul className="mt-4 space-y-3">
-                  {auditQuery.isLoading ? (
-                    <Skeleton className="h-24 w-full" />
-                  ) : (
-                    auditQuery.data?.items.slice(0, 6).map((log) => (
-                      <li
-                        key={log.id}
-                        className="flex items-start justify-between gap-2 border-b border-border pb-2 text-sm last:border-0"
-                      >
-                        <div>
-                          <p className="text-stone-800">{log.action}</p>
-                          <p className="text-xs text-stone-500">
-                            {log.actor?.fullName ?? 'سیستم'} · {log.source}
-                          </p>
-                        </div>
-                        <time className="shrink-0 text-xs text-stone-500">
-                          {new Date(log.createdAt).toLocaleString('fa-IR')}
-                        </time>
-                      </li>
-                    ))
-                  )}
-                </ul>
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-4">
+                    <CardTitle>فعالیت‌های اخیر</CardTitle>
+                    <Link
+                      href="/security/audit"
+                      className="text-xs font-medium text-[var(--primary)] transition hover:opacity-80"
+                    >
+                      مشاهده همه
+                    </Link>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ul className="space-y-1">
+                    {auditQuery.isLoading ? (
+                      <Skeleton className="h-24 w-full" />
+                    ) : (
+                      auditQuery.data?.items.slice(0, 6).map((log) => (
+                        <li
+                          key={log.id}
+                          className="flex items-start justify-between gap-3 rounded-[var(--radius-md)] px-2 py-2.5 transition hover:bg-[var(--surface)]"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-foreground">{log.action}</p>
+                            <p className="text-caption">
+                              {log.actor?.fullName ?? 'سیستم'} · {log.source}
+                            </p>
+                          </div>
+                          <time className="shrink-0 text-caption">
+                            {new Date(log.createdAt).toLocaleString('fa-IR')}
+                          </time>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </CardContent>
               </Card>
-              <Card className="border-border bg-white p-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-stone-900">آخرین معاملات</h2>
-                  <Link href="/trading/history" className="text-xs text-gold-dark hover:underline">
-                    تاریخچه
-                  </Link>
-                </div>
-                <ul className="mt-4 space-y-3">
-                  {tradesQuery.isLoading ? (
-                    <Skeleton className="h-24 w-full" />
-                  ) : (
-                    tradesQuery.data?.items.slice(0, 6).map((order) => (
-                      <li
-                        key={order.id}
-                        className="flex items-start justify-between gap-2 border-b border-border pb-2 text-sm last:border-0"
-                      >
-                        <div>
-                          <p className="font-mono text-xs text-stone-500">{order.orderNumber}</p>
-                          <p className="text-stone-800">
-                            {order.user.fullName} · {order.side === 'BUY' ? 'خرید' : 'فروش'}
-                          </p>
-                        </div>
-                        <span className="text-xs text-stone-600">
-                          {Number(order.netRial).toLocaleString('fa-IR')} ریال
-                        </span>
-                      </li>
-                    ))
-                  )}
-                </ul>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-4">
+                    <CardTitle>آخرین معاملات</CardTitle>
+                    <Link
+                      href="/trading/history"
+                      className="text-xs font-medium text-[var(--primary)] transition hover:opacity-80"
+                    >
+                      تاریخچه
+                    </Link>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ul className="space-y-1">
+                    {tradesQuery.isLoading ? (
+                      <Skeleton className="h-24 w-full" />
+                    ) : (
+                      tradesQuery.data?.items.slice(0, 6).map((order) => (
+                        <li
+                          key={order.id}
+                          className="flex items-start justify-between gap-3 rounded-[var(--radius-md)] px-2 py-2.5 transition hover:bg-[var(--surface)]"
+                        >
+                          <div className="min-w-0">
+                            <p className="font-mono text-xs text-muted">{order.orderNumber}</p>
+                            <p className="text-sm text-foreground">
+                              {order.user.fullName} · {order.side === 'BUY' ? 'خرید' : 'فروش'}
+                            </p>
+                          </div>
+                          <span className="shrink-0 text-xs font-medium text-foreground">
+                            {Number(order.netRial).toLocaleString('fa-IR')} ریال
+                          </span>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </CardContent>
               </Card>
             </div>
           </>

@@ -1,31 +1,36 @@
 import Link from 'next/link';
+import { ExternalLink } from '@/shared/ui/icons';
 import { adminEnv } from '@/shared/config/env';
 
 export function AdminStoreHeader() {
   return (
-    <header className="header-glass sticky top-0 z-30 border-b border-border">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <header className="header-glass sticky top-0 z-30">
+      <div
+        className="mx-auto flex items-center justify-between px-4 sm:px-6"
+        style={{ height: 'var(--header-height)' }}
+      >
         <Link href="/" className="group flex items-center gap-3">
           <span
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-gold-light to-gold text-sm font-bold text-white shadow-sm ring-1 ring-gold-light/60 transition group-hover:shadow-md"
+            className="flex size-9 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--primary)] text-sm font-bold text-white shadow-[var(--shadow-xs)] transition group-hover:shadow-[var(--shadow-soft)]"
             aria-hidden
           >
             ط
           </span>
-          <span className="flex flex-col">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-amber-800">
+          <span className="flex flex-col leading-tight">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--primary)]">
               Talashim
             </span>
-            <span className="text-sm font-bold text-stone-900">
+            <span className="text-sm font-bold text-foreground">
               {adminEnv.NEXT_PUBLIC_ADMIN_APP_NAME}
             </span>
           </span>
         </Link>
         <Link
           href="http://localhost:3000"
-          className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-semibold text-amber-800 shadow-sm transition hover:border-gold-light hover:bg-nude-50 hover:text-amber-950"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-medium text-foreground shadow-[var(--shadow-xs)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
         >
           فروشگاه
+          <ExternalLink className="size-3" strokeWidth={1.75} aria-hidden />
         </Link>
       </div>
     </header>

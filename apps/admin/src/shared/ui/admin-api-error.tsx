@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertCircle } from '@/shared/ui/icons';
 import { Button } from '@sadafgold/ui';
 import { getApiErrorMessage } from '@/shared/api/axios-client';
 
@@ -32,36 +33,29 @@ export function AdminApiError({
       className={`flex flex-col items-center gap-4 px-6 py-10 text-center ${className ?? ''}`}
       role="alert"
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 ring-1 ring-rose-100">
-        <svg
-          className="h-6 w-6 text-rose-500"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.75"
-          aria-hidden
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 8v4m0 4h.01" strokeLinecap="round" />
-        </svg>
+      <div className="flex size-12 items-center justify-center rounded-[var(--radius-xl)] bg-[var(--error-bg)] text-[var(--error)]">
+        <AlertCircle className="size-6" strokeWidth={1.75} aria-hidden />
       </div>
 
       <div className="max-w-md space-y-2">
-        <p className="text-sm font-semibold text-stone-900">{title}</p>
+        <p className="text-sm font-semibold text-foreground">{title}</p>
         {offline ? (
-          <p className="text-sm leading-7 text-stone-600">
+          <p className="text-sm leading-relaxed text-muted">
             اتصال به API برقرار نیست. سرویس API را اجرا کنید:{' '}
-            <code className="rounded bg-nude-50 px-1.5 py-0.5 text-xs text-stone-700" dir="ltr">
+            <code
+              className="rounded-[var(--radius-sm)] bg-[var(--surface)] px-1.5 py-0.5 text-xs text-foreground"
+              dir="ltr"
+            >
               pnpm dev:api
             </code>
           </p>
         ) : detail ? (
-          <p className="text-sm leading-7 text-stone-600">{detail}</p>
+          <p className="text-sm leading-relaxed text-muted">{detail}</p>
         ) : null}
       </div>
 
       {onRetry ? (
-        <Button variant="outline" onClick={onRetry} className="border-border px-4 py-2 text-sm">
+        <Button variant="outline" size="sm" onClick={onRetry}>
           تلاش مجدد
         </Button>
       ) : null}

@@ -5,6 +5,8 @@ export type {
   AdminLoginHistoryItem,
   AdminPaginated,
   AdminPermissionRegistry,
+  AdminMyPermissions,
+  UpdateRolePermissionsBatchPayload,
   AdminSession,
   AdminTradeOrder,
   AdminUser,

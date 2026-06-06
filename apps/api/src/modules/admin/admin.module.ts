@@ -13,6 +13,7 @@ import { AdminOrdersController } from './controllers/admin-orders.controller';
 import { AdminProductsController } from './controllers/admin-products.controller';
 import { AdminNotificationsController } from './controllers/admin-notifications.controller';
 import { AdminController } from './controllers/admin.controller';
+import { AdminRbacRepository } from './repositories/admin-rbac.repository';
 import { AdminCmsRepository } from './repositories/admin-cms.repository';
 import { AdminFinanceRepository } from './repositories/admin-finance.repository';
 import { AdminReportsRepository } from './repositories/admin-reports.repository';
@@ -31,6 +32,7 @@ import { AdminProductsService } from './services/admin-products.service';
 import { AdminNotificationsService } from './services/admin-notifications.service';
 import { AdminTradingService } from './services/admin-trading.service';
 import { AdminReportsService } from './services/admin-reports.service';
+import { AdminRbacService } from './services/admin-rbac.service';
 import { AdminService } from './services/admin.service';
 
 @Module({
@@ -49,6 +51,7 @@ import { AdminService } from './services/admin.service';
   ],
   providers: [
     AdminRepository,
+    AdminRbacRepository,
     AdminReportsRepository,
     AdminFinanceRepository,
     AdminTradingRepository,
@@ -58,6 +61,7 @@ import { AdminService } from './services/admin.service';
     AdminNotificationsRepository,
     AdminCmsRepository,
     AdminService,
+    AdminRbacService,
     AdminReportsService,
     AdminFinanceService,
     AdminTradingService,

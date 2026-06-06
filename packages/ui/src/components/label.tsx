@@ -8,7 +8,10 @@ export function Label({
 }: PropsWithChildren<LabelHTMLAttributes<HTMLLabelElement>>) {
   return (
     <label
-      className={cn('text-sm font-medium text-stone-700 dark:text-zinc-300', className)}
+      className={cn(
+        'text-[var(--text-label,0.8125rem)] font-medium text-[var(--foreground,#564739)]',
+        className,
+      )}
       {...props}
     >
       {children}

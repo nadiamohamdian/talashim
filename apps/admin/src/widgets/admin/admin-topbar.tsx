@@ -1,5 +1,6 @@
 'use client';
 
+import { Menu } from '@/shared/ui/icons';
 import { AdminBreadcrumbs } from './admin-breadcrumbs';
 
 interface AdminTopbarProps {
@@ -8,18 +9,15 @@ interface AdminTopbarProps {
 
 export function AdminTopbar({ onOpenSidebar }: AdminTopbarProps) {
   return (
-    <div
-      className="border-b border-border px-4 py-3 sm:px-6 lg:px-8"
-      style={{ background: 'var(--topbar-bg)' }}
-    >
-      <div className="flex items-center gap-4">
+    <div className="sticky top-[var(--header-height)] z-20 border-b border-[var(--border)] bg-[var(--topbar-bg)] backdrop-blur-md">
+      <div className="flex h-12 items-center gap-3 px-4 sm:px-6 lg:px-8">
         <button
           type="button"
-          className="rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-stone-700 shadow-sm lg:hidden"
+          className="flex size-9 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--card)] text-foreground shadow-[var(--shadow-xs)] transition hover:border-[var(--primary)] lg:hidden"
           onClick={onOpenSidebar}
           aria-label="باز کردن منو"
         >
-          منو
+          <Menu className="size-4" strokeWidth={1.75} />
         </button>
         <div className="min-w-0 flex-1">
           <AdminBreadcrumbs />

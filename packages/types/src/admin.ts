@@ -109,6 +109,17 @@ export interface AdminPermissionRegistry {
   groups: Record<string, Record<string, string>>;
 }
 
+export interface UpdateRolePermissionsBatchPayload {
+  updates: Array<{
+    roleSlug: string;
+    permissions: string[];
+  }>;
+}
+
+export interface AdminMyPermissions {
+  permissions: string[];
+}
+
 export interface CreateStaffUserPayload {
   email: string;
   fullName: string;

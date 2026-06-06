@@ -11,33 +11,47 @@ export function AdminShell({ children }: PropsWithChildren) {
 
   return (
     <AdminGuard>
-      <div className="flex min-h-screen flex-col bg-white">
+      <div className="flex min-h-screen flex-col bg-background">
         <AdminStoreHeader />
 
-        <div className="flex min-h-0 flex-1 bg-white">
-          <div className="hidden w-72 shrink-0 border-l border-border lg:block">
-            <div className="sticky top-14 h-[calc(100vh-3.5rem)] bg-nude-50">
+        <div className="flex min-h-0 flex-1">
+          {/* Desktop sidebar */}
+          <div
+            className="hidden shrink-0 border-l border-[var(--sidebar-border)] lg:block"
+            style={{ width: 'var(--sidebar-width)' }}
+          >
+            <div
+              className="sticky top-[var(--header-height)] bg-[var(--sidebar-bg)]"
+              style={{ height: 'calc(100vh - var(--header-height))' }}
+            >
               <AdminSidebar />
             </div>
           </div>
 
+          {/* Mobile drawer */}
           {mobileNavOpen ? (
             <div className="fixed inset-0 z-40 lg:hidden">
               <button
                 type="button"
-                className="absolute inset-0 bg-stone-900/30"
+                className="absolute inset-0 bg-[var(--secondary)]/20 backdrop-blur-sm"
                 aria-label="بستن منو"
                 onClick={() => setMobileNavOpen(false)}
               />
-              <div className="absolute inset-y-0 right-0 w-72 max-w-[85vw] border-l border-border bg-nude-50 shadow-xl">
+              <div
+                className="absolute inset-y-0 right-0 max-w-[85vw] border-l border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] shadow-xl"
+                style={{ width: 'var(--sidebar-width)' }}
+              >
                 <AdminSidebar onNavigate={() => setMobileNavOpen(false)} />
               </div>
             </div>
           ) : null}
 
-          <div className="flex min-w-0 flex-1 flex-col bg-gradient-to-b from-nude-50/40 to-white">
+          {/* Main content */}
+          <div className="flex min-w-0 flex-1 flex-col">
             <AdminTopbar onOpenSidebar={() => setMobileNavOpen(true)} />
-            <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+            <main className="mx-auto w-full max-w-[var(--content-max-width)] flex-1 px-4 py-6 sm:px-6 lg:px-8 animate-fade-in">
+              {children}
+            </main>
           </div>
         </div>
       </div>

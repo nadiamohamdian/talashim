@@ -17,11 +17,11 @@ export function ListPageTemplate({ route, children, actions }: ListPageTemplateP
     <AdminPageTemplate route={route} actions={actions}>
       <FilterBar>
         <div
-          className="h-10 min-w-[140px] flex-1 rounded-xl border border-border bg-white"
+          className="h-10 min-w-[140px] flex-1 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--input-bg)]"
           aria-hidden
         />
-        <div className="h-10 w-32 rounded-xl border border-border bg-nude-50" aria-hidden />
-        <div className="h-10 w-24 rounded-xl border border-border bg-nude-100" aria-hidden />
+        <div className="h-10 w-32 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]" aria-hidden />
+        <div className="h-10 w-24 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)]" aria-hidden />
       </FilterBar>
       {children ?? <PlaceholderPanel template="list" moduleLabel={route.label} />}
     </AdminPageTemplate>

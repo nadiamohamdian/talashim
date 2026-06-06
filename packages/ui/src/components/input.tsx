@@ -5,7 +5,12 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <input
       className={cn(
-        'flex h-11 w-full rounded-2xl border border-stone-200 bg-white px-4 py-2 text-sm text-stone-950 outline-none ring-amber-400 transition placeholder:text-stone-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:placeholder:text-zinc-500',
+        'flex h-10 w-full rounded-[var(--radius-lg,0.75rem)] border border-[var(--border,#d9d0c8)]',
+        'bg-[var(--input-bg,#fff)] px-3.5 py-2 text-sm text-[var(--foreground,#564739)]',
+        'placeholder:text-[var(--muted,#8a8078)]',
+        'transition-colors duration-150',
+        'focus-visible:border-[var(--primary,#cba670)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary,#cba670)]/20',
+        'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-[var(--surface,#f5f1ec)]',
         className,
       )}
       {...props}

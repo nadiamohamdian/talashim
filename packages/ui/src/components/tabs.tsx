@@ -56,7 +56,7 @@ export function TabsList({
   return (
     <div
       className={cn(
-        'inline-flex w-full rounded-2xl border border-stone-200 bg-stone-100 p-1 dark:border-zinc-800 dark:bg-zinc-900',
+        'inline-flex w-full gap-1 rounded-[var(--radius-lg,0.75rem)] border border-[var(--border,#d9d0c8)] bg-[var(--surface,#f5f1ec)] p-1',
         className,
       )}
       role="tablist"
@@ -84,10 +84,10 @@ export function TabsTrigger({
       role="tab"
       aria-selected={active}
       className={cn(
-        'flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition',
+        'flex-1 rounded-[var(--radius-md,0.5rem)] px-4 py-2 text-sm font-medium transition-all duration-150',
         active
-          ? 'bg-white text-stone-950 shadow-sm dark:bg-zinc-800 dark:text-zinc-50'
-          : 'text-stone-600 hover:text-stone-950 dark:text-zinc-400 dark:hover:text-zinc-100',
+          ? 'bg-[var(--card,#fff)] text-[var(--foreground,#564739)] shadow-[var(--shadow-xs)]'
+          : 'text-[var(--muted,#8a8078)] hover:text-[var(--foreground,#564739)]',
         className,
       )}
       onClick={() => ctx.setValue(value)}

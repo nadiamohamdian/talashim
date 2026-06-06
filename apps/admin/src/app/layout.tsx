@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
       className={`${persianSans.variable} light h-full antialiased`}
     >
-      <body className="admin-canvas min-h-full bg-white font-sans text-foreground">
+      <body className="admin-canvas min-h-full bg-background font-sans text-foreground antialiased">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

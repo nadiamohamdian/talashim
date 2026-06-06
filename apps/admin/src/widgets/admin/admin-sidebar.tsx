@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ChevronDown, LogOut } from '@/shared/ui/icons';
 import { useMemo, useState } from 'react';
 import { Button } from '@sadafgold/ui';
 import { getRoleLabelFa } from '@sadafgold/shared/admin-rbac';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
 import { ADMIN_NAV_SECTIONS, type ApiAvailability } from '@/shared/config/admin-navigation';
+import { getSectionIcon } from '@/shared/lib/admin-nav-icons';
 import { isNavItemActive } from '@/shared/lib/admin-route-resolver';
 import {
   syncAdminAuthCookieFromStore,
@@ -14,27 +16,10 @@ import {
 } from '@/features/auth/model/admin-auth-store';
 
 const availabilityDot: Record<ApiAvailability, string> = {
-  live: 'bg-emerald-500',
-  partial: 'bg-amber-500',
-  pending: 'bg-nude-300',
+  live: 'bg-[var(--success)]',
+  partial: 'bg-[var(--warning)]',
+  pending: 'bg-[var(--muted)]',
 };
-
-function SectionChevron({ collapsed }: { collapsed: boolean }) {
-  return (
-    <svg
-      className={`h-4 w-4 shrink-0 text-stone-400 transition-transform duration-200 ${collapsed ? '-rotate-90' : 'rotate-0'}`}
-      viewBox="0 0 20 20"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path
-        fillRule="evenodd"
-        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
-        clipRule="evenodd"
-      />
-    </svg>
-  );
-}
 
 interface AdminSidebarProps {
   onNavigate?: () => void;
@@ -59,41 +44,69 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   );
 
   return (
-    <aside className="flex h-full flex-col bg-nude-50 text-foreground">
-      <div className="border-b border-border bg-gradient-to-l from-white to-nude-50/80 p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted">کاربر فعال</p>
+    <aside className="flex h-full flex-col bg-[var(--sidebar-bg)] text-foreground">
+      {/* User profile */}
+      <div className="border-b border-[var(--sidebar-border)] px-4 py-4">
         {user ? (
-          <>
-            <p className="mt-1 truncate text-sm font-semibold text-stone-800">{user.fullName ?? user.email}</p>
-            <p className="mt-0.5 truncate text-xs text-muted">{user.email}</p>
-            <span className="badge-gold mt-2 inline-flex">{getRoleLabelFa(user.role)}</span>
-          </>
+          <div className="flex items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--primary)] text-sm font-bold text-white">
+              {(user.fullName ?? user.email).charAt(0).toUpperCase()}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-foreground">
+                {user.fullName ?? user.email}
+              </p>
+              <p className="truncate text-xs text-muted">{user.email}</p>
+              <span className="badge-gold mt-1.5 inline-flex">{getRoleLabelFa(user.role)}</span>
+            </div>
+          </div>
         ) : null}
       </div>
 
-      <nav className="sidebar-nav flex-1 overflow-y-auto p-3" aria-label="منوی اصلی">
+      {/* Navigation */}
+      <nav className="sidebar-nav flex-1 overflow-y-auto px-3 py-4" aria-label="منوی اصلی">
         {visibleSections.map((section) => {
           const isSectionCollapsed = collapsed[section.id] ?? false;
           const sectionPanelId = `sidebar-section-${section.id}`;
+          const SectionIcon = getSectionIcon(section.id);
+          const hasActiveItem = section.items.some((item) =>
+            isNavItemActive(pathname, item.href),
+          );
 
           return (
-            <div key={section.id} className="mb-2">
+            <div key={section.id} className="mb-1">
               <button
                 type="button"
                 aria-expanded={!isSectionCollapsed}
                 aria-controls={sectionPanelId}
-                className="sidebar-section-trigger group flex w-full items-center gap-2 rounded-xl border border-transparent px-2.5 py-2.5 transition hover:border-border hover:bg-white/90 hover:shadow-sm"
+                className={`sidebar-section-trigger group flex w-full items-center gap-2.5 rounded-[var(--radius-lg)] px-2.5 py-2 transition-all duration-150 ${
+                  hasActiveItem
+                    ? 'bg-[var(--sidebar-active)] text-foreground'
+                    : 'text-[var(--muted-foreground)] hover:bg-[var(--sidebar-hover)] hover:text-foreground'
+                }`}
                 onClick={() =>
                   setCollapsed((prev) => ({ ...prev, [section.id]: !isSectionCollapsed }))
                 }
               >
-                <SectionChevron collapsed={isSectionCollapsed} />
-                <span className="flex-1 text-right text-xs font-bold tracking-wide text-stone-700 group-hover:text-stone-900">
+                <SectionIcon
+                  size={16}
+                  className={hasActiveItem ? 'text-[var(--primary)]' : 'text-[var(--muted)] group-hover:text-[var(--primary)]'}
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+                <span className="flex-1 text-right text-xs font-semibold tracking-wide">
                   {section.label}
                 </span>
-                <span className="rounded-full bg-nude-100 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-muted">
+                <span className="rounded-full bg-[var(--surface-muted)] px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-muted">
                   {section.items.length}
                 </span>
+                <ChevronDown
+                  size={14}
+                  className={`shrink-0 text-muted transition-transform duration-200 ${
+                    isSectionCollapsed ? '-rotate-90' : 'rotate-0'
+                  }`}
+                  aria-hidden
+                />
               </button>
 
               <div
@@ -103,7 +116,7 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
                 }`}
               >
                 <ul className="overflow-hidden">
-                  <div className="space-y-0.5 py-1 pr-1">
+                  <div className="space-y-0.5 py-1 pe-1 ps-7">
                     {section.items.map((item) => {
                       const active = isNavItemActive(pathname, item.href);
                       return (
@@ -114,17 +127,20 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
                               syncAdminAuthCookieFromStore();
                               onNavigate?.();
                             }}
-                            className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition ${
+                            className={`group/link flex items-center gap-2 rounded-[var(--radius-md)] px-2.5 py-2 text-sm transition-all duration-150 ${
                               active
-                                ? 'border-2 border-amber-500 bg-amber-50 font-bold text-amber-900 shadow-md'
-                                : 'text-stone-600 hover:bg-white hover:text-stone-900'
+                                ? 'bg-[var(--sidebar-active)] font-semibold text-foreground ring-1 ring-[var(--primary)]/25'
+                                : 'text-[var(--muted-foreground)] hover:bg-[var(--sidebar-hover)] hover:text-foreground'
                             }`}
                           >
                             <span
-                              className={`h-2 w-2 shrink-0 rounded-full ring-2 ring-white ${availabilityDot[item.availability]}`}
+                              className={`size-1.5 shrink-0 rounded-full ${availabilityDot[item.availability]}`}
                               title={item.availability}
                             />
                             <span className="truncate">{item.label}</span>
+                            {active ? (
+                              <span className="ms-auto size-1.5 rounded-full bg-[var(--primary)]" />
+                            ) : null}
                           </Link>
                         </li>
                       );
@@ -137,15 +153,18 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
         })}
       </nav>
 
-      <div className="border-t border-border bg-white/80 p-4">
+      {/* Logout */}
+      <div className="border-t border-[var(--sidebar-border)] p-3">
         <Button
           variant="outline"
-          className="w-full border-border bg-white text-stone-700 hover:border-gold-light hover:bg-nude-50"
+          size="sm"
+          className="w-full justify-center gap-2"
           onClick={() => {
             clearSession();
             window.location.href = '/login';
           }}
         >
+          <LogOut size={14} aria-hidden />
           خروج از حساب
         </Button>
       </div>

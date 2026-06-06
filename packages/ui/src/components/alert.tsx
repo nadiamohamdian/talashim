@@ -1,15 +1,19 @@
 import type { HTMLAttributes, PropsWithChildren } from 'react';
 import { cn } from '../lib/utils';
 
-type AlertVariant = 'default' | 'destructive' | 'success';
+type AlertVariant = 'default' | 'destructive' | 'success' | 'warning' | 'info';
 
 const variantMap: Record<AlertVariant, string> = {
   default:
-    'border-stone-200 bg-stone-50 text-stone-900 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-100',
+    'border-[var(--border,#d9d0c8)] bg-[var(--surface,#f5f1ec)] text-[var(--foreground,#564739)]',
   destructive:
-    'border-red-200 bg-red-50 text-red-900 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-100',
+    'border-[var(--error-border,#ebcaca)] bg-[var(--error-bg,#fdf0f0)] text-[var(--error,#b54a4a)]',
   success:
-    'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-100',
+    'border-[var(--success-border,#c5ddd0)] bg-[var(--success-bg,#eef6f1)] text-[var(--success,#3d7a5f)]',
+  warning:
+    'border-[var(--warning-border,#e8d5b5)] bg-[var(--warning-bg,#faf3e8)] text-[var(--warning,#b8955c)]',
+  info:
+    'border-[var(--info-border,#c8d8e0)] bg-[var(--info-bg,#eef4f7)] text-[var(--info,#5a7a8c)]',
 };
 
 export function Alert({
@@ -20,7 +24,11 @@ export function Alert({
 }: PropsWithChildren<HTMLAttributes<HTMLDivElement> & { variant?: AlertVariant }>) {
   return (
     <div
-      className={cn('rounded-2xl border px-4 py-3 text-sm', variantMap[variant], className)}
+      className={cn(
+        'rounded-[var(--radius-lg,0.75rem)] border px-4 py-3 text-sm leading-relaxed',
+        variantMap[variant],
+        className,
+      )}
       role="alert"
       {...props}
     >

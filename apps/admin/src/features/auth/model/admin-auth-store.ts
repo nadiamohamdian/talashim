@@ -17,6 +17,7 @@ interface AdminAuthState {
   accessToken: string | null;
   permissions: AdminPermissionKey[];
   setSession: (session: AuthSession) => void;
+  setPermissions: (permissions: AdminPermissionKey[]) => void;
   clearSession: () => void;
   isStaffUser: () => boolean;
   /** @deprecated Use isStaffUser — kept for existing callers */
@@ -41,6 +42,9 @@ export const useAdminAuthStore = create<AdminAuthState>()(
           permissions,
         });
         setAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE, session.tokens.accessToken);
+      },
+      setPermissions: (permissions) => {
+        set({ permissions });
       },
       clearSession: () => {
         clearAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE);

@@ -8,8 +8,6 @@ import * as argon2 from 'argon2';
 import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 import {
   ADMIN_PERMISSIONS,
-  ADMIN_ROLE_DEFINITIONS,
-  ALL_ADMIN_PERMISSIONS,
 } from '@talashim/shared/admin-rbac';
 import { KycStatus, Role } from '@/generated/prisma';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
@@ -31,11 +29,16 @@ import type {
 } from '../dto/admin-security-query.dto';
 import type { CreateStaffUserDto } from '../dto/create-staff-user.dto';
 import type { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
+import type { UpdateRolePermissionsBatchDto } from '../dto/update-role-permissions.dto';
 import { AdminRepository } from '../repositories/admin.repository';
+import { AdminRbacService } from './admin-rbac.service';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly adminRepository: AdminRepository) {}
+  constructor(
+    private readonly adminRepository: AdminRepository,
+    private readonly adminRbacService: AdminRbacService,
+  ) {}
 
   async getAnalytics(actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.dashboard.view);
@@ -523,19 +526,15 @@ export class AdminService {
   }
 
   getPermissionRegistry(actor: AuthenticatedUser) {
-    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.security.rbac);
+    return this.adminRbacService.getPermissionRegistry(actor);
+  }
 
-    return {
-      permissions: [...ALL_ADMIN_PERMISSIONS],
-      roles: ADMIN_ROLE_DEFINITIONS.map((role) => ({
-        enum: role.enum,
-        slug: role.slug,
-        labelFa: role.labelFa,
-        descriptionFa: role.descriptionFa,
-        permissions: [...role.permissions],
-      })),
-      groups: ADMIN_PERMISSIONS,
-    };
+  getMyPermissions(actor: AuthenticatedUser) {
+    return this.adminRbacService.getMyPermissions(actor);
+  }
+
+  updateRolePermissions(payload: UpdateRolePermissionsBatchDto, actor: AuthenticatedUser) {
+    return this.adminRbacService.updateRolePermissions(payload, actor);
   }
 
   async createStaffUser(payload: CreateStaffUserDto, actor: AuthenticatedUser) {

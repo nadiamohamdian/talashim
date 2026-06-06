@@ -15,13 +15,13 @@ const templateHint: Record<AdminPageTemplate, string> = {
 
 export function PlaceholderPanel({ template, moduleLabel }: PlaceholderPanelProps) {
   return (
-    <div className="card-luxury border-dashed border-border bg-nude-50/80 p-8">
-      <p className="text-sm font-medium text-stone-700">محل محتوای ماژول — {moduleLabel}</p>
-      <p className="mt-2 text-sm text-stone-500">{templateHint[template]}</p>
+    <div className="card-luxury border-dashed border-[var(--border)] bg-[var(--surface)]/50 p-8">
+      <p className="text-sm font-medium text-foreground">محل محتوای ماژول — {moduleLabel}</p>
+      <p className="mt-2 text-sm text-muted">{templateHint[template]}</p>
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="h-24 rounded-xl bg-nude-100/80" />
-        <div className="h-24 rounded-xl bg-nude-100/80" />
-        <div className="col-span-full h-32 rounded-xl bg-nude-100/60" />
+        <div className="h-24 rounded-[var(--radius-lg)] bg-[var(--surface-muted)]/60" />
+        <div className="h-24 rounded-[var(--radius-lg)] bg-[var(--surface-muted)]/60" />
+        <div className="col-span-full h-32 rounded-[var(--radius-lg)] bg-[var(--surface-muted)]/40" />
       </div>
     </div>
   );

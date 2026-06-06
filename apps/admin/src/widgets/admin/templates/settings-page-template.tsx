@@ -13,13 +13,17 @@ interface SettingsPageTemplateProps {
 export function SettingsPageTemplate({ route, children }: SettingsPageTemplateProps) {
   return (
     <AdminPageTemplate route={route}>
-      <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-        <div className="card-luxury hidden p-3 lg:block">
-          <ul className="space-y-1 text-sm text-stone-500">
-            {['عمومی', 'پیشرفته', 'امنیت'].map((item) => (
+      <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+        <div className="card-luxury hidden p-2 lg:block">
+          <ul className="space-y-0.5 text-sm">
+            {['عمومی', 'پیشرفته', 'امنیت'].map((item, index) => (
               <li
                 key={item}
-                className="rounded-lg px-3 py-2 first:bg-amber-50 first:font-medium first:text-amber-900"
+                className={`rounded-[var(--radius-md)] px-3 py-2.5 transition ${
+                  index === 0
+                    ? 'bg-[var(--sidebar-active)] font-medium text-foreground'
+                    : 'text-muted hover:bg-[var(--surface)] hover:text-foreground'
+                }`}
               >
                 {item}
               </li>

@@ -18,6 +18,7 @@ import { AdminUpdateUserContactDto } from '../dto/admin-update-user-contact.dto'
 import { UpdateUserRoleDto } from '../dto/update-user-role.dto';
 import { CreateStaffUserDto } from '../dto/create-staff-user.dto';
 import { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
+import { UpdateRolePermissionsBatchDto } from '../dto/update-role-permissions.dto';
 import {
   AdminLoginHistoryQueryDto,
   AdminSessionsQueryDto,
@@ -193,6 +194,21 @@ export class AdminController {
   @ApiOperation({ summary: 'RBAC permission registry' })
   getPermissions(@CurrentUser() actor: AuthenticatedUser) {
     return this.adminService.getPermissionRegistry(actor);
+  }
+
+  @Get('security/permissions/me')
+  @ApiOperation({ summary: 'Current staff user permissions' })
+  getMyPermissions(@CurrentUser() actor: AuthenticatedUser) {
+    return this.adminService.getMyPermissions(actor);
+  }
+
+  @Patch('security/permissions')
+  @ApiOperation({ summary: 'Update role permissions matrix' })
+  updatePermissions(
+    @Body() body: UpdateRolePermissionsBatchDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.updateRolePermissions(body, actor);
   }
 
   @Get('reports/sales')

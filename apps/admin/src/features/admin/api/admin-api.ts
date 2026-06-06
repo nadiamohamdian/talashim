@@ -6,6 +6,8 @@ import type {
   AdminLoginHistoryItem,
   AdminPaginated,
   AdminPermissionRegistry,
+  AdminMyPermissions,
+  UpdateRolePermissionsBatchPayload,
   AdminSession,
   AdminTradeOrder,
   AdminUser,
@@ -106,6 +108,18 @@ export function fetchLoginHistory(params: { page?: number; search?: string; acti
 export function fetchPermissionRegistry() {
   return axiosClient
     .get<AdminPermissionRegistry>('/admin/security/permissions')
+    .then((r) => r.data);
+}
+
+export function fetchMyPermissions() {
+  return axiosClient
+    .get<AdminMyPermissions>('/admin/security/permissions/me')
+    .then((r) => r.data);
+}
+
+export function updateRolePermissions(payload: UpdateRolePermissionsBatchPayload) {
+  return axiosClient
+    .patch<AdminPermissionRegistry>('/admin/security/permissions', payload)
     .then((r) => r.data);
 }
 
