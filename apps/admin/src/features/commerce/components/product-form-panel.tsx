@@ -14,14 +14,20 @@ import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { CatalogPageShell } from './catalog-page-shell';
 import { ProductMediaFields } from './product-media-fields';
 import { ProductVariantFields } from './product-variant-fields';
-import { PRODUCT_CATEGORY_FA, selectFieldClass } from '../lib/labels';
+import { PRODUCT_CATEGORY_FA, STANDARD_PRODUCT_KARATS, selectFieldClass } from '../lib/labels';
 import {
   buildProductCreateBody,
   ProductFormValidationError,
-  toDatetimeLocalInput,
   validateProductForm,
   type ProductFormValues,
 } from '../lib/product-form-validation';
+import { PersianDateTimePicker } from '@/shared/ui/persian-datetime-picker';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor';
+import { FormattedNumberInput } from '@/shared/ui/formatted-number-input';
+import {
+  ProductSeoFields,
+  type ProductSeoFormValues,
+} from './product-seo-fields';
 import type { GalleryImageField, ProductVideoField } from './product-media-fields';
 import type { ProductVariantField } from './product-variant-fields';
 
@@ -36,6 +42,11 @@ const emptyForm = {
   title: '',
   description: '',
   seoDescription: '',
+  seoTitle: '',
+  seoKeywords: '',
+  ogImageUrl: '',
+  seoCanonicalPath: '',
+  seoNoIndex: false,
   category: 'RING',
   karat: '18',
   weightGram: '1',
@@ -74,8 +85,15 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         title: p.title,
         description: p.description,
         seoDescription: p.seoDescription,
+        seoTitle: p.seoTitle ?? '',
+        seoKeywords: p.seoKeywords ?? '',
+        ogImageUrl: p.ogImageUrl ?? '',
+        seoCanonicalPath: p.seoCanonicalPath ?? '',
+        seoNoIndex: p.seoNoIndex ?? false,
         category: p.category,
-        karat: String(p.karat),
+        karat: STANDARD_PRODUCT_KARATS.some((k) => k.value === String(p.karat))
+          ? String(p.karat)
+          : '18',
         weightGram: p.weightGram,
         makingFeePercent: String(p.makingFeePercent),
         priceToman: String(p.priceToman),
@@ -83,8 +101,8 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         featured: p.featured,
         initialQuantity: '0',
         discountPercent: p.discountPercent ? String(p.discountPercent) : '',
-        discountStartsAt: toDatetimeLocalInput(p.discountStartsAt),
-        discountEndsAt: toDatetimeLocalInput(p.discountEndsAt),
+        discountStartsAt: p.discountStartsAt ?? '',
+        discountEndsAt: p.discountEndsAt ?? '',
       });
       setGalleryImages(
         p.galleryImages.map((image) => ({ url: image.url, alt: image.alt })),
@@ -132,7 +150,16 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         discountEndsAt: form.discountEndsAt,
       };
 
-      const errors = validateProductForm(formValues, variants);
+      const seoValues: ProductSeoFormValues = {
+        seoTitle: form.seoTitle,
+        seoDescription: form.seoDescription,
+        seoKeywords: form.seoKeywords,
+        ogImageUrl: form.ogImageUrl,
+        seoCanonicalPath: form.seoCanonicalPath,
+        seoNoIndex: form.seoNoIndex,
+      };
+
+      const errors = validateProductForm(formValues, variants, seoValues);
       if (errors.length > 0) {
         setValidationErrors(errors);
         setSubmitError(null);
@@ -232,21 +259,39 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             />
           </div>
           <div className="md:col-span-2">
-            <Label>توضیحات *</Label>
-            <textarea
-              className="mt-1 min-h-[100px] w-full rounded-2xl border border-border px-3 py-2 text-sm"
+            <RichTextEditor
+              label="توضیحات"
+              required
+              hint="متن کامل محصول — فونت، رنگ، لیست و قالب‌بندی."
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(description) => setForm({ ...form, description })}
+              minHeight={200}
             />
           </div>
-          <div className="md:col-span-2">
-            <Label>توضیح سئو</Label>
-            <Input
-              className="mt-1"
-              value={form.seoDescription}
-              onChange={(e) => setForm({ ...form, seoDescription: e.target.value })}
-            />
-          </div>
+
+          <ProductSeoFields
+            value={{
+              seoTitle: form.seoTitle,
+              seoDescription: form.seoDescription,
+              seoKeywords: form.seoKeywords,
+              ogImageUrl: form.ogImageUrl,
+              seoCanonicalPath: form.seoCanonicalPath,
+              seoNoIndex: form.seoNoIndex,
+            }}
+            onChange={(seo) =>
+              setForm({
+                ...form,
+                seoTitle: seo.seoTitle,
+                seoDescription: seo.seoDescription,
+                seoKeywords: seo.seoKeywords,
+                ogImageUrl: seo.ogImageUrl,
+                seoCanonicalPath: seo.seoCanonicalPath,
+                seoNoIndex: seo.seoNoIndex,
+              })
+            }
+            productTitle={form.title}
+            productSlug={form.slug}
+          />
           <div>
             <Label>دسته</Label>
             <select
@@ -263,12 +308,17 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           </div>
           <div>
             <Label>عیار</Label>
-            <Input
-              className="mt-1"
-              type="number"
+            <select
+              className={selectFieldClass}
               value={form.karat}
               onChange={(e) => setForm({ ...form, karat: e.target.value })}
-            />
+            >
+              {STANDARD_PRODUCT_KARATS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <Label>وزن (گرم)</Label>
@@ -286,14 +336,12 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
               onChange={(e) => setForm({ ...form, makingFeePercent: e.target.value })}
             />
           </div>
-          <div>
-            <Label>قیمت پایه (تومان)</Label>
-            <Input
-              className="mt-1"
-              value={form.priceToman}
-              onChange={(e) => setForm({ ...form, priceToman: e.target.value })}
-            />
-          </div>
+          <FormattedNumberInput
+            label="قیمت پایه (تومان)"
+            value={form.priceToman}
+            onChange={(priceToman) => setForm({ ...form, priceToman })}
+            hint="هر سه رقم با جداکننده فارسی نمایش داده می‌شود."
+          />
           {mode === 'create' ? (
             <div>
               <Label>موجودی اولیه</Label>
@@ -317,24 +365,16 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
               placeholder="۰ = بدون تخفیف"
             />
           </div>
-          <div>
-            <Label>شروع تخفیف</Label>
-            <Input
-              className="mt-1"
-              type="datetime-local"
-              value={form.discountStartsAt}
-              onChange={(e) => setForm({ ...form, discountStartsAt: e.target.value })}
-            />
-          </div>
-          <div>
-            <Label>پایان تخفیف</Label>
-            <Input
-              className="mt-1"
-              type="datetime-local"
-              value={form.discountEndsAt}
-              onChange={(e) => setForm({ ...form, discountEndsAt: e.target.value })}
-            />
-          </div>
+          <PersianDateTimePicker
+            label="شروع تخفیف"
+            value={form.discountStartsAt}
+            onChange={(discountStartsAt) => setForm({ ...form, discountStartsAt })}
+          />
+          <PersianDateTimePicker
+            label="پایان تخفیف"
+            value={form.discountEndsAt}
+            onChange={(discountEndsAt) => setForm({ ...form, discountEndsAt })}
+          />
           <label className="flex items-center gap-2 text-sm md:col-span-2">
             <input
               type="checkbox"

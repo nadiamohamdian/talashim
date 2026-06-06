@@ -13,6 +13,11 @@ export interface AdminProductDto {
   title: string;
   description: string;
   seoDescription: string;
+  seoTitle?: string | null;
+  seoKeywords?: string | null;
+  ogImageUrl?: string | null;
+  seoCanonicalPath?: string | null;
+  seoNoIndex?: boolean;
   category: string;
   karat: number;
   weightGram: string;

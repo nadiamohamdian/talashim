@@ -174,6 +174,32 @@ export class CreateAdminProductDto {
   @IsString()
   seoDescription?: string;
 
+  @ApiPropertyOptional({ description: 'SEO meta title (max 60 chars)' })
+  @IsOptional()
+  @IsString()
+  seoTitle?: string;
+
+  @ApiPropertyOptional({ description: 'Comma-separated keywords' })
+  @IsOptional()
+  @IsString()
+  seoKeywords?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  ogImageUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  seoCanonicalPath?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  seoNoIndex?: boolean;
+
   @ApiProperty({ enum: ProductCategory })
   @IsEnum(ProductCategory)
   category!: ProductCategory;
@@ -274,6 +300,32 @@ export class UpdateAdminProductDto {
   @IsOptional()
   @IsString()
   seoDescription?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  seoTitle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  seoKeywords?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  ogImageUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  seoCanonicalPath?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  seoNoIndex?: boolean;
 
   @ApiPropertyOptional({ enum: ProductCategory })
   @IsOptional()

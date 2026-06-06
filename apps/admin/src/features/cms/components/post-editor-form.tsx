@@ -5,6 +5,7 @@ import { Button, Card, Input, Label } from '@talashim/ui';
 import type { AdminBlogCategoryDto, AdminBlogPostDto } from '@talashim/types';
 import type { UpsertBlogPostPayload } from '../api/cms-api';
 import { ImageUrlField } from './image-url-field';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 import { selectFieldClass } from '../lib/labels';
 
 const emptyPayload = (): UpsertBlogPostPayload => ({
@@ -150,11 +151,12 @@ export function PostEditorForm({
           />
         </div>
         <div className="md:col-span-2">
-          <Label>متن کامل</Label>
-          <textarea
-            className="mt-1 min-h-[160px] w-full rounded-2xl border border-border bg-white p-3 text-sm"
+          <RichTextEditor
+            label="متن کامل"
+            hint="محتوای مقاله یا سوال — با قالب‌بندی کامل."
             value={form.content}
-            onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+            onChange={(content) => setForm((f) => ({ ...f, content }))}
+            minHeight={220}
           />
         </div>
       </div>

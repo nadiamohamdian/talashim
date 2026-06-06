@@ -1,5 +1,11 @@
-import type { GalleryImageField, ProductVideoField } from '../components/product-media-fields';
-import type { ProductVariantField } from '../components/product-variant-fields';
+import { stripHtml } from '@/shared/ui/rich-text-editor';
+import { parseIntegerDigitsToNumber } from '@/shared/lib/format-input';
+import { STANDARD_PRODUCT_KARAT_VALUES } from '../lib/labels';
+import {
+  parseSeoKeywords,
+  validateProductSeo,
+  type ProductSeoFormValues,
+} from '../components/product-seo-fields';import type { ProductVariantField } from '../components/product-variant-fields';
 
 export class ProductFormValidationError extends Error {
   constructor(message: string) {
@@ -31,6 +37,18 @@ export function toDatetimeLocalInput(iso: string | null | undefined): string {
   }
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function normalizeDateTimeInput(value: string): string | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  if (/^\d{4}-\d{2}-\d{2}T/.test(trimmed)) {
+    const parsed = new Date(trimmed);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+  }
+  return datetimeLocalToIso(trimmed);
 }
 
 export function datetimeLocalToIso(value: string): string | undefined {
@@ -70,6 +88,7 @@ const MAX_PRICE_TOMAN = 9_999_999_999_999;
 export function validateProductForm(
   form: ProductFormValues,
   variants: ProductVariantField[],
+  seo?: ProductSeoFormValues,
 ): string[] {
   const errors: string[] = [];
 
@@ -79,7 +98,7 @@ export function validateProductForm(
   if (form.title.trim().length < 2) {
     errors.push('عنوان محصول را وارد کنید.');
   }
-  if (form.description.trim().length < 10) {
+  if (stripHtml(form.description).length < 10) {
     errors.push('توضیحات باید حداقل ۱۰ کاراکتر باشد.');
   }
 
@@ -94,13 +113,17 @@ export function validateProductForm(
   }
 
   const karat = Number(form.karat);
-  if (!Number.isInteger(karat) || karat < 1) {
-    errors.push('عیار طلا را به‌درستی وارد کنید.');
+  if (!STANDARD_PRODUCT_KARAT_VALUES.includes(String(karat))) {
+    errors.push('عیار طلا باید یکی از مقادیر استاندارد (۱۸، ۲۱، ۲۲ یا ۲۴) باشد.');
   }
 
-  const basePrice = Number(form.priceToman);
+  const basePrice = parseIntegerDigitsToNumber(form.priceToman);
   if (!Number.isInteger(basePrice) || basePrice < 0 || basePrice > MAX_PRICE_TOMAN) {
     errors.push('قیمت پایه (تومان) نامعتبر است.');
+  }
+
+  if (seo) {
+    errors.push(...validateProductSeo(seo));
   }
 
   const discountRaw = form.discountPercent?.trim() ?? '';
@@ -109,12 +132,12 @@ export function validateProductForm(
     if (!Number.isInteger(percent) || percent < 1 || percent > 100) {
       errors.push('درصد تخفیف باید عدد صحیح بین ۱ تا ۱۰۰ باشد.');
     }
-    const endsIso = datetimeLocalToIso(form.discountEndsAt ?? '');
+    const endsIso = normalizeDateTimeInput(form.discountEndsAt ?? '');
     if (!endsIso) {
       errors.push('تاریخ پایان تخفیف الزامی است.');
     } else {
       const startsIso =
-        datetimeLocalToIso(form.discountStartsAt ?? '') ?? new Date().toISOString();
+        normalizeDateTimeInput(form.discountStartsAt ?? '') ?? new Date().toISOString();
       if (new Date(endsIso) <= new Date(startsIso)) {
         errors.push('تاریخ پایان تخفیف باید بعد از شروع باشد.');
       }
@@ -129,7 +152,7 @@ export function validateProductForm(
       errors.push(`واریانت ${index + 1}: SKU واریانت را وارد کنید.`);
       continue;
     }
-    const variantPrice = Number(variant.priceToman);
+    const variantPrice = parseIntegerDigitsToNumber(variant.priceToman);
     if (!Number.isInteger(variantPrice) || variantPrice < 0 || variantPrice > MAX_PRICE_TOMAN) {
       errors.push(`واریانت ${index + 1}: قیمت (تومان) نامعتبر است.`);
     }
@@ -162,6 +185,11 @@ export function buildProductCreateBody(
   form: ProductFormValues & {
     slug: string;
     seoDescription: string;
+    seoTitle: string;
+    seoKeywords: string;
+    ogImageUrl: string;
+    seoCanonicalPath: string;
+    seoNoIndex: boolean;
     category: string;
     makingFeePercent: string;
     priceToman: string;
@@ -178,18 +206,23 @@ export function buildProductCreateBody(
 ) {
   const discountRaw = form.discountPercent?.trim() ?? '';
   const discountPercent = discountRaw ? Number(discountRaw) : 0;
-  const discountStartsAt = datetimeLocalToIso(form.discountStartsAt ?? '');
-  const discountEndsAt = datetimeLocalToIso(form.discountEndsAt ?? '');
+  const discountStartsAt = normalizeDateTimeInput(form.discountStartsAt ?? '');
+  const discountEndsAt = normalizeDateTimeInput(form.discountEndsAt ?? '');
 
   const shared = {
     title: form.title.trim(),
     description: form.description.trim(),
     seoDescription: form.seoDescription.trim() || undefined,
+    seoTitle: form.seoTitle.trim() || undefined,
+    seoKeywords: parseSeoKeywords(form.seoKeywords).join(', ') || undefined,
+    ogImageUrl: form.ogImageUrl.trim() ? normalizeMediaUrl(form.ogImageUrl) : undefined,
+    seoCanonicalPath: form.seoCanonicalPath.trim() || undefined,
+    seoNoIndex: form.seoNoIndex,
     category: form.category,
     karat: Number(form.karat),
     weightGram: Number(form.weightGram),
     makingFeePercent: Number(form.makingFeePercent),
-    priceToman: Number(form.priceToman),
+    priceToman: parseIntegerDigitsToNumber(form.priceToman),
     imageUrl: normalizeMediaUrl(form.imageUrl),
     featured: form.featured,
     discountPercent,
@@ -224,7 +257,7 @@ export function buildProductCreateBody(
           sku: variant.sku.trim(),
           color: variant.color.trim() || undefined,
           size: variant.size.trim() || undefined,
-          priceToman: Number(variant.priceToman),
+          priceToman: parseIntegerDigitsToNumber(variant.priceToman),
           weightGram:
             weightGram !== undefined && Number.isFinite(weightGram) && weightGram >= 0.01
               ? weightGram

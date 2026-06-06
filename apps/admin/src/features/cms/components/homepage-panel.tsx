@@ -8,6 +8,7 @@ import { fetchHomepageCms, updateHomepageCms } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { CmsPageShell } from './cms-page-shell';
 import { ImageUrlField } from './image-url-field';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 
 export function HomepagePanel() {
   const queryClient = useQueryClient();
@@ -79,11 +80,11 @@ export function HomepagePanel() {
             />
           </div>
           <div className="md:col-span-2">
-            <Label>توضیح</Label>
-            <textarea
-              className="mt-1 min-h-[80px] w-full rounded-2xl border border-border p-3 text-sm"
+            <RichTextEditor
+              label="توضیح"
               value={hero.description}
-              onChange={(e) => setHero({ ...hero, description: e.target.value })}
+              onChange={(description) => setHero({ ...hero, description })}
+              minHeight={120}
             />
           </div>
           <div>

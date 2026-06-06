@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { ProductDetails } from '@sadafgold/types';
-import { ProductPurchaseBox } from './product-purchase-box';
+import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { ProductSpecsPanel } from './product-specs-panel';
 
 interface ProductDetailTabsProps {
@@ -39,25 +39,19 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
         ))}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-        <div className="card-luxury min-h-[240px] p-5 md:p-6">
-          {activeTab === 'description' ? (
-            <div className="prose prose-sm max-w-none text-sm leading-8 text-muted">
-              <p>{product.description}</p>
-              {product.seoDescription ? (
-                <p className="mt-4 text-xs">{product.seoDescription}</p>
-              ) : null}
-            </div>
-          ) : null}
+      <div className="card-luxury min-h-[240px] p-5 md:p-6">
+        {activeTab === 'description' ? (
+          <RichHtmlContent
+            html={product.description}
+            className="prose prose-sm max-w-none text-sm leading-8 text-muted [&_a]:text-amber-700 [&_a]:underline"
+          />
+        ) : null}
 
-          {activeTab === 'specs' ? <ProductSpecsPanel product={product} /> : null}
+        {activeTab === 'specs' ? <ProductSpecsPanel product={product} /> : null}
 
-          {activeTab === 'reviews' ? (
-            <p className="text-sm text-muted">هنوز نظری ثبت نشده است.</p>
-          ) : null}
-        </div>
-
-        <ProductPurchaseBox product={product} compact />
+        {activeTab === 'reviews' ? (
+          <p className="text-sm text-muted">هنوز نظری ثبت نشده است.</p>
+        ) : null}
       </div>
     </section>
   );

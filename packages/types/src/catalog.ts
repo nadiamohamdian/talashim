@@ -62,6 +62,19 @@ export interface ProductInventory {
   lowStockThreshold?: number;
 }
 
+export interface ProductVariant {
+  id: string;
+  sku: string;
+  color: string | null;
+  size: string | null;
+  priceToman: number;
+  weightGram: number | null;
+  makingFeePercent: number | null;
+  imageUrl: string | null;
+  quantity: number;
+  isDefault: boolean;
+}
+
 /** Current REST API list shape (backward compatible). */
 export interface ProductSummary {
   id: string;
@@ -86,8 +99,14 @@ export interface ProductSummary {
 export interface ProductDetails extends ProductSummary {
   description: string;
   seoDescription: string;
+  seoTitle?: string | null;
+  seoKeywords?: string | null;
+  ogImageUrl?: string | null;
+  seoCanonicalPath?: string | null;
+  seoNoIndex?: boolean;
   color?: string;
   specifications?: Record<string, string>;
+  variants?: ProductVariant[];
 }
 
 /** Target storefront catalog model (full IA — align API in P1). */

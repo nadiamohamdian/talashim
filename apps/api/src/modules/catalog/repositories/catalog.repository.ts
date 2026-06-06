@@ -77,7 +77,11 @@ export class CatalogRepository {
   findBySlug(slug: string) {
     return this.prisma.product.findUnique({
       where: { slug },
-      include: { inventoryItem: true },
+      include: {
+        inventoryItem: true,
+        variants: { orderBy: { sortOrder: 'asc' } },
+        images: { orderBy: { sortOrder: 'asc' } },
+      },
     });
   }
 

@@ -27,6 +27,8 @@ import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
+import { ImageUrlField } from './image-url-field';
+import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 
 const emptyPage = (): UpsertStaticPagePayload => ({
   title: '',
@@ -141,11 +143,12 @@ export function StaticPagesPanel() {
               />
             </div>
             <div className="md:col-span-2">
-              <Label>محتوا (HTML/Markdown)</Label>
-              <textarea
-                className="mt-1 min-h-[200px] w-full rounded-2xl border border-border p-3 text-sm"
+              <RichTextEditor
+                label="محتوا"
+                hint="متن کامل صفحه — HTML و قالب‌بندی."
                 value={form.content}
-                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+                onChange={(content) => setForm((f) => ({ ...f, content }))}
+                minHeight={240}
               />
             </div>
           </div>

@@ -105,6 +105,11 @@ model Product {
   title             String
   description       String
   seoDescription    String
+  seoTitle          String?
+  seoKeywords       String?
+  ogImageUrl        String?
+  seoCanonicalPath  String?
+  seoNoIndex        Boolean         @default(false)
   category          ProductCategory
   karat             Int
   weightGram        Decimal         @db.Decimal(10, 2)

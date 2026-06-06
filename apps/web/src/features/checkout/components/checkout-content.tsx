@@ -1,1 +1,240 @@
+'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { Button, Skeleton } from '@sadafgold/ui';
+import {
+  CHECKOUT_PAYMENT_LABELS,
+  CHECKOUT_PAYMENT_PROVIDERS,
+  DEFAULT_CARD_TO_CARD_INFO,
+  type CheckoutPaymentProvider,
+} from '@sadafgold/shared';
+import { formatPrice } from '@/shared/lib/format-price';
+import { getApiErrorMessage } from '@/lib/api';
+import { useAddresses } from '@/features/account/hooks/use-addresses';
+import { useCheckoutMutation, useCart } from '@/lib/api';
+import { CheckoutSuccessDialog } from '@/features/checkout/components/checkout-success-dialog';
+
+export function CheckoutContent() {
+  const router = useRouter();
+  const { data: cart, isLoading: cartLoading, isError: cartError, refetch } = useCart();
+  const { data: addresses, isLoading: addressesLoading } = useAddresses();
+  const checkoutMutation = useCheckoutMutation();
+
+  const [addressId, setAddressId] = useState('');
+  const [paymentProvider, setPaymentProvider] = useState<CheckoutPaymentProvider>('card_to_card');
+  const [successOrder, setSuccessOrder] = useState<{ orderNumber: string; message: string } | null>(
+    null,
+  );
+
+  const selectedAddressId = useMemo(() => {
+    if (addressId) {
+      return addressId;
+    }
+    return addresses?.[0]?.id ?? '';
+  }, [addressId, addresses]);
+
+  if (cartLoading || addressesLoading) {
+    return <Skeleton className="h-64 w-full rounded-2xl" />;
+  }
+
+  if (cartError) {
+    return (
+      <div className="card-luxury p-6 text-sm text-rose-600">
+        بارگذاری سبد خرید ناموفق بود.{' '}
+        <button type="button" className="underline" onClick={() => refetch()}>
+          تلاش مجدد
+        </button>
+      </div>
+    );
+  }
+
+  if (!cart?.id || !cart.items.length) {
+    return (
+      <div className="card-luxury p-6 text-sm text-muted">
+        سبد خرید خالی است.{' '}
+        <Link href="/products" className="text-amber-700 underline">
+          بازگشت به فروشگاه
+        </Link>
+      </div>
+    );
+  }
+
+  const taxToman = Math.round(cart.subtotalToman * 0.09);
+  const totalToman = cart.subtotalToman + taxToman;
+  const error =
+    checkoutMutation.error &&
+    getApiErrorMessage(checkoutMutation.error, 'ثبت سفارش ناموفق بود');
+
+  const canSubmit = Boolean(selectedAddressId) && !checkoutMutation.isPending;
+
+  return (
+    <>
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-6">
+          <section className="card-luxury space-y-4 p-6">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-semibold text-foreground">آدرس تحویل</h2>
+              <Link href="/addresses" className="text-xs font-semibold text-amber-700 hover:underline">
+                مدیریت آدرس‌ها
+              </Link>
+            </div>
+            {!addresses?.length ? (
+              <div className="rounded-2xl border border-dashed border-nude-300 bg-nude-50/60 p-4 text-sm text-muted">
+                برای ثبت سفارش ابتدا یک آدرس اضافه کنید.{' '}
+                <Link href="/addresses" className="font-semibold text-amber-700 underline">
+                  افزودن آدرس
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {addresses.map((address) => (
+                  <label
+                    key={address.id}
+                    className={`flex cursor-pointer gap-3 rounded-2xl border p-4 transition ${
+                      selectedAddressId === address.id
+                        ? 'border-amber-400 bg-amber-50/60 ring-2 ring-amber-200'
+                        : 'border-nude-200 hover:border-amber-200'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="shippingAddress"
+                      className="mt-1"
+                      checked={selectedAddressId === address.id}
+                      onChange={() => setAddressId(address.id)}
+                    />
+                    <div className="text-sm">
+                      <p className="font-semibold text-foreground">{address.title}</p>
+                      <p className="mt-1 text-muted">
+                        {address.recipient} — {address.phone}
+                      </p>
+                      <p className="mt-1">{address.line1}</p>
+                      <p className="text-muted">
+                        {address.city}، {address.state} — {address.postalCode}
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="card-luxury space-y-3 p-6">
+            <h2 className="font-semibold text-foreground">روش پرداخت</h2>
+            {CHECKOUT_PAYMENT_PROVIDERS.map((provider) => {
+              const meta = CHECKOUT_PAYMENT_LABELS[provider];
+              return (
+                <label
+                  key={provider}
+                  className={`flex cursor-pointer gap-3 rounded-2xl border p-4 transition ${
+                    paymentProvider === provider
+                      ? 'border-amber-400 bg-amber-50/60 ring-2 ring-amber-200'
+                      : 'border-nude-200 hover:border-amber-200'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentProvider"
+                    className="mt-1"
+                    checked={paymentProvider === provider}
+                    onChange={() => setPaymentProvider(provider)}
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{meta.title}</p>
+                    <p className="mt-1 text-xs leading-6 text-muted">{meta.description}</p>
+                  </div>
+                </label>
+              );
+            })}
+            {paymentProvider === 'card_to_card' ? (
+              <div className="rounded-2xl border border-nude-200 bg-nude-50/70 p-4 text-xs leading-7 text-stone-700">
+                <p>
+                  <span className="font-semibold">بانک:</span> {DEFAULT_CARD_TO_CARD_INFO.bankName}
+                </p>
+                <p>
+                  <span className="font-semibold">به نام:</span>{' '}
+                  {DEFAULT_CARD_TO_CARD_INFO.accountHolder}
+                </p>
+                <p className="font-mono">
+                  <span className="font-sans font-semibold">کارت:</span>{' '}
+                  {DEFAULT_CARD_TO_CARD_INFO.cardNumber}
+                </p>
+                <p className="font-mono">
+                  <span className="font-sans font-semibold">شبا:</span>{' '}
+                  {DEFAULT_CARD_TO_CARD_INFO.iban}
+                </p>
+              </div>
+            ) : null}
+          </section>
+        </div>
+
+        <aside className="card-luxury h-fit space-y-4 p-6">
+          <h2 className="font-semibold text-foreground">خلاصه سفارش</h2>
+          <div className="space-y-2 text-sm">
+            {cart.items.map((item) => (
+              <div key={item.id} className="flex justify-between gap-3">
+                <span className="text-muted">
+                  {item.title} × {item.quantity}
+                </span>
+                <span className="font-medium">
+                  {formatPrice(item.unitPriceToman * item.quantity)} تومان
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2 border-t border-nude-200 pt-4 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted">جمع</span>
+              <span>{formatPrice(cart.subtotalToman)} تومان</span>
+            </div>
+            <div className="flex justify-between text-muted">
+              <span>مالیات (۹٪)</span>
+              <span>{formatPrice(taxToman)} تومان</span>
+            </div>
+            <div className="flex justify-between border-t border-nude-200 pt-3 text-base font-bold text-gold-dark">
+              <span>مبلغ نهایی</span>
+              <span>{formatPrice(totalToman)} تومان</span>
+            </div>
+          </div>
+          <Button
+            className="w-full"
+            disabled={!canSubmit}
+            onClick={() =>
+              checkoutMutation.mutate(
+                {
+                  cartId: cart.id!,
+                  paymentProvider,
+                  shippingAddressId: selectedAddressId,
+                },
+                {
+                  onSuccess: (order) => {
+                    setSuccessOrder({
+                      orderNumber: order.orderNumber,
+                      message:
+                        paymentProvider === 'card_to_card'
+                          ? 'لطفاً فیش واریز را در جزئیات سفارش بارگذاری کنید.'
+                          : 'سفارش شما ثبت شد.',
+                    });
+                  },
+                },
+              )
+            }
+          >
+            {checkoutMutation.isPending ? 'در حال ثبت...' : 'ثبت سفارش'}
+          </Button>
+          {error ? <p className="text-sm text-rose-600">{error}</p> : null}
+        </aside>
+      </div>
+
+      {successOrder ? (
+        <CheckoutSuccessDialog
+          orderNumber={successOrder.orderNumber}
+          message={successOrder.message}
+          onClose={() => router.push('/orders')}
+        />
+      ) : null}
+    </>
+  );
+}

@@ -1,5 +1,5 @@
 import { ProtectedPageShell } from '@/widgets/content/protected-page-shell';
-import { CheckoutContent } from '@/features/account/components/wallet-checkout-content';
+import { CheckoutContent } from '@/features/checkout/components/checkout-content';
 
 export default function CheckoutPage() {
   return (

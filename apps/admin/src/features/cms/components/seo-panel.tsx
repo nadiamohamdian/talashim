@@ -7,6 +7,7 @@ import type { CmsSeoSettingsDto } from '@talashim/types';
 import { fetchSeoSettings, updateSeoSettings } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { CmsPageShell } from './cms-page-shell';
+import { ImageUrlField } from './image-url-field';
 
 export function SeoPanel() {
   const queryClient = useQueryClient();
@@ -72,17 +73,13 @@ export function SeoPanel() {
             onChange={(e) => setForm({ ...form, siteDescription: e.target.value })}
           />
         </div>
-        <div>
-          <Label>تصویر Open Graph پیش‌فرض</Label>
-          <Input
-            className="mt-1 font-mono text-xs"
-            dir="ltr"
-            value={form.defaultOgImageUrl ?? ''}
-            onChange={(e) =>
-              setForm({ ...form, defaultOgImageUrl: e.target.value || null })
-            }
-          />
-        </div>
+        <ImageUrlField
+          label="تصویر Open Graph پیش‌فرض"
+          hint="از کتابخانه رسانه انتخاب کنید."
+          value={form.defaultOgImageUrl ?? ''}
+          onChange={(url) => setForm({ ...form, defaultOgImageUrl: url || null })}
+          folder="cms"
+        />
         <div>
           <Label>شناسه Google Analytics</Label>
           <Input

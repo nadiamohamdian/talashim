@@ -2,6 +2,7 @@
 
 import { Button, Input, Label } from '@talashim/ui';
 import { ImageUrlField } from '@/features/cms/components/image-url-field';
+import { FormattedNumberInput } from '@/shared/ui/formatted-number-input';
 
 const MAX_VARIANTS = 50;
 
@@ -145,18 +146,14 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
                   onChange={(e) => onChange(patchVariant(variants, index, { sku: e.target.value }))}
                 />
               </div>
-              <div>
-                <Label className="text-xs">قیمت (تومان) *</Label>
-                <Input
-                  className="mt-1"
-                  type="number"
-                  min={0}
-                  value={variant.priceToman}
-                  onChange={(e) =>
-                    onChange(patchVariant(variants, index, { priceToman: e.target.value }))
-                  }
-                />
-              </div>
+              <FormattedNumberInput
+                label="قیمت (تومان) *"
+                value={variant.priceToman}
+                onChange={(priceToman) =>
+                  onChange(patchVariant(variants, index, { priceToman }))
+                }
+                inputClassName="mt-0"
+              />
               <div>
                 <Label className="text-xs">رنگ</Label>
                 <Input

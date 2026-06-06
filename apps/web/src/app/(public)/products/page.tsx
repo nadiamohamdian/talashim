@@ -14,7 +14,12 @@ interface ProductsPageProps {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const { sale } = await searchParams;
   const onSale = sale === '1';
-  const products = await getProducts(24, undefined, onSale);
+  let products: Awaited<ReturnType<typeof getProducts>> = [];
+  try {
+    products = await getProducts(24, undefined, onSale);
+  } catch {
+    products = [];
+  }
 
   return (
     <div className="space-y-8">

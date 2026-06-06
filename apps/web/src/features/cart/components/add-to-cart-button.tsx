@@ -15,6 +15,7 @@ interface AddToCartButtonProps {
   quantity?: number;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function AddToCartButton({
@@ -27,6 +28,7 @@ export function AddToCartButton({
   quantity = 1,
   label = 'افزودن به سبد',
   className,
+  disabled = false,
 }: AddToCartButtonProps) {
   const addItem = useCartStore((s) => s.addItem);
   const { isAuthenticated } = useAuth();
@@ -52,7 +54,7 @@ export function AddToCartButton({
     <button
       type="button"
       onClick={handleClick}
-      disabled={upsertMutation.isPending}
+      disabled={disabled || upsertMutation.isPending}
       className={cn(
         'inline-flex items-center justify-center transition disabled:opacity-60',
         className,

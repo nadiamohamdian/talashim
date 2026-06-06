@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -50,8 +51,10 @@ interface OrderDetailPanelProps {
 }
 
 export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [nextStatus, setNextStatus] = useState('');
+  const [statusSaved, setStatusSaved] = useState(false);
   const [receiptActionMessage, setReceiptActionMessage] = useState<string | null>(null);
 
   const { data, isLoading, isError } = useQuery({
@@ -63,6 +66,7 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
     mutationFn: (status: string) => updateAdminOrderStatus(orderId, status),
     onSuccess: (updated) => {
       setNextStatus(updated.status);
+      setStatusSaved(true);
       void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'order', orderId] });
       void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'orders'] });
     },
@@ -136,7 +140,10 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
                   <select
                     className={selectFieldClass}
                     value={nextStatus || data.status}
-                    onChange={(e) => setNextStatus(e.target.value)}
+                    onChange={(e) => {
+                      setNextStatus(e.target.value);
+                      setStatusSaved(false);
+                    }}
                   >
                     {Object.entries(ORDER_STATUS_FA).map(([k, l]) => (
                       <option key={k} value={k}>{l}</option>
@@ -148,12 +155,22 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
                   disabled={!nextStatus || nextStatus === data.status || statusMutation.isPending}
                   onClick={() => statusMutation.mutate(nextStatus || data.status)}
                 >
-                  اعمال وضعیت
+                  {statusMutation.isPending ? 'در حال اعمال...' : 'اعمال وضعیت'}
                 </Button>
+                {statusSaved ? (
+                  <Button
+                    className="btn-gold h-10 px-5"
+                    onClick={() => router.push('/orders')}
+                  >
+                    ثبت نهایی و بازگشت به لیست
+                  </Button>
+                ) : null}
               </div>
             </PermissionGate>
-            {statusMutation.isSuccess ? (
-              <p className="mt-2 text-sm text-emerald-700">وضعیت سفارش به‌روزرسانی شد.</p>
+            {statusSaved ? (
+              <p className="mt-2 text-sm text-emerald-700">
+                وضعیت سفارش ذخیره شد. برای اتمام، «ثبت نهایی و بازگشت به لیست» را بزنید.
+              </p>
             ) : null}
             {statusMutation.isError ? (
               <p className="mt-2 text-sm text-rose-600">تغییر وضعیت مجاز نیست یا ناموفق بود.</p>

@@ -13,6 +13,18 @@ import type { CatalogQueryDto } from '../dto/catalog-query.dto';
 
 type ProductWithInventory = Product & {
   inventoryItem: { quantity: number; reserved: number } | null;
+  variants?: Array<{
+    id: string;
+    sku: string;
+    color: string | null;
+    size: string | null;
+    priceToman: bigint;
+    weightGram: { toString(): string } | null;
+    makingFeePercent: number | null;
+    imageUrl: string | null;
+    quantity: number;
+    isDefault: boolean;
+  }>;
 };
 
 @Injectable()
@@ -84,8 +96,25 @@ export class CatalogService {
       ...summary,
       description: product.description,
       seoDescription: product.seoDescription,
+      seoTitle: product.seoTitle ?? undefined,
+      seoKeywords: product.seoKeywords ?? undefined,
+      ogImageUrl: product.ogImageUrl ?? undefined,
+      seoCanonicalPath: product.seoCanonicalPath ?? undefined,
+      seoNoIndex: product.seoNoIndex,
       color: 'طلایی',
       specifications: this.buildSpecifications(product, summary.pricing),
+      variants: (product.variants ?? []).map((variant) => ({
+        id: variant.id,
+        sku: variant.sku,
+        color: variant.color,
+        size: variant.size,
+        priceToman: Number(variant.priceToman),
+        weightGram: variant.weightGram != null ? Number(variant.weightGram) : null,
+        makingFeePercent: variant.makingFeePercent,
+        imageUrl: variant.imageUrl,
+        quantity: variant.quantity,
+        isDefault: variant.isDefault,
+      })),
     };
   }
 
