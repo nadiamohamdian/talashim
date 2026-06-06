@@ -73,12 +73,32 @@ export function CheckoutContent() {
   const taxToman = Math.round(cart.subtotalToman * (commerce.defaultTaxPercent / 100));
   const totalToman = cart.subtotalToman + taxToman;
   const belowMinOrder = cart.subtotalToman < commerce.minOrderToman;
+  const needsReceipt = paymentProvider === 'card_to_card';
+  const hasReceipt = Boolean(receiptFile);
+  const hasAddress = Boolean(selectedAddressId);
   const error =
     checkoutMutation.error &&
     getApiErrorMessage(checkoutMutation.error, 'ثبت سفارش ناموفق بود');
 
+  const submitBlockers = (() => {
+    const blockers: string[] = [];
+    if (!hasAddress) {
+      blockers.push('ابتدا یک آدرس تحویل اضافه یا انتخاب کنید.');
+    }
+    if (needsReceipt && !hasReceipt) {
+      blockers.push('برای پرداخت کارت‌به‌کارت، تصویر فیش را بارگذاری کنید.');
+    }
+    if (belowMinOrder) {
+      blockers.push(
+        `حداقل مبلغ سفارش ${formatPrice(commerce.minOrderToman)} ${commerce.currencyLabel} است.`,
+      );
+    }
+    return blockers;
+  })();
+
   const canSubmit =
-    Boolean(selectedAddressId) &&
+    hasAddress &&
+    (!needsReceipt || hasReceipt) &&
     !checkoutMutation.isPending &&
     !uploadReceiptMutation.isPending &&
     !belowMinOrder;
@@ -143,17 +163,21 @@ export function CheckoutContent() {
     <>
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
-          <section className="card-luxury space-y-4 p-6">
+          <section
+            className={`card-luxury space-y-4 p-6 ${
+              !hasAddress ? 'ring-2 ring-amber-200' : ''
+            }`}
+          >
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-semibold text-foreground">آدرس تحویل</h2>
-              <Link href="/addresses" className="text-xs font-semibold text-amber-700 hover:underline">
+              <Link href="/addresses?returnTo=/checkout" className="text-xs font-semibold text-amber-700 hover:underline">
                 مدیریت آدرس‌ها
               </Link>
             </div>
             {!addresses?.length ? (
               <div className="rounded-2xl border border-dashed border-nude-300 bg-nude-50/60 p-4 text-sm text-muted">
                 برای ثبت سفارش ابتدا یک آدرس اضافه کنید.{' '}
-                <Link href="/addresses" className="font-semibold text-amber-700 underline">
+                <Link href="/addresses?returnTo=/checkout" className="font-semibold text-amber-700 underline">
                   افزودن آدرس
                 </Link>
               </div>
@@ -237,7 +261,13 @@ export function CheckoutContent() {
                     {DEFAULT_CARD_TO_CARD_INFO.iban}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-nude-200 bg-white p-4">
+                <div
+                  className={`rounded-2xl border bg-white p-4 ${
+                    needsReceipt && !hasReceipt
+                      ? 'border-amber-300 ring-2 ring-amber-100'
+                      : 'border-nude-200'
+                  }`}
+                >
                   <h3 className="text-sm font-semibold text-foreground">بارگذاری فیش کارت‌به‌کارت</h3>
                   <p className="mt-1 text-xs leading-6 text-muted">
                     پس از واریز، تصویر فیش را همین‌جا بارگذاری کنید تا همراه ثبت سفارش برای بررسی ارسال شود.
@@ -272,6 +302,11 @@ export function CheckoutContent() {
                       alt="پیش‌نمایش فیش"
                       className="mt-3 max-h-48 rounded-xl border border-nude-200 object-contain"
                     />
+                  ) : null}
+                  {needsReceipt && !hasReceipt ? (
+                    <p className="mt-3 text-xs text-amber-800">
+                      بارگذاری فیش برای فعال شدن دکمه «ثبت سفارش» الزامی است.
+                    </p>
                   ) : null}
                 </div>
               </>
@@ -321,6 +356,13 @@ export function CheckoutContent() {
               ? 'در حال ثبت...'
               : 'ثبت سفارش'}
           </Button>
+          {!canSubmit && submitBlockers.length > 0 ? (
+            <ul className="space-y-1 text-xs leading-6 text-amber-800">
+              {submitBlockers.map((blocker) => (
+                <li key={blocker}>• {blocker}</li>
+              ))}
+            </ul>
+          ) : null}
           {error ? <p className="text-sm text-rose-600">{error}</p> : null}
         </aside>
       </div>

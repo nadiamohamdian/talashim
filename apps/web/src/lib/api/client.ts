@@ -178,9 +178,9 @@ export async function apiDelete<T>(url: string, config?: ApiRequestConfig): Prom
   return data;
 }
 
-/** Server Component / RSC fetch with ISR support. */
 export interface ServerFetchOptions extends RequestInit {
   revalidate?: number;
+  tags?: string[];
   /** When true, connection errors are rethrown as-is (for dev fallbacks in callers). */
   preserveConnectionError?: boolean;
 }
@@ -275,7 +275,10 @@ export async function serverFetch<T>(
         'Content-Type': 'application/json',
         ...(options.headers ?? {}),
       },
-      next: options.revalidate ? { revalidate: options.revalidate } : { revalidate: 0 },
+      next: {
+        revalidate: options.revalidate ?? 0,
+        ...(options.tags?.length ? { tags: options.tags } : {}),
+      },
     });
 
     if (!response.ok) {

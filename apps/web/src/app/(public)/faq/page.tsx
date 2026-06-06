@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: 'سوالات متداول',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function FaqPage() {
   const posts = await productApi.getFaqPosts();
   return (

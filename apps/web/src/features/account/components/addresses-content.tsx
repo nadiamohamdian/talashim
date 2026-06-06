@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { Button, Skeleton } from '@sadafgold/ui';
 import { getApiErrorMessage } from '@/lib/api';
@@ -10,8 +11,19 @@ import {
 } from '@/features/account/hooks/use-addresses';
 import { AddressForm } from '@/features/account/components/address-form';
 
+function normalizeReturnTo(value: string | null): string | null {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) {
+    return null;
+  }
+  return value;
+}
+
 export function AddressesContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = normalizeReturnTo(searchParams.get('returnTo'));
   const [showForm, setShowForm] = useState(false);
+  const [addressJustSaved, setAddressJustSaved] = useState(false);
   const { data, isLoading, isError, refetch } = useAddresses();
   const createMutation = useCreateAddressMutation();
   const deleteMutation = useDeleteAddressMutation();
@@ -35,8 +47,23 @@ export function AddressesContent() {
     createMutation.error &&
     getApiErrorMessage(createMutation.error, 'ثبت آدرس ناموفق بود');
 
+  const canReturnToCheckout = Boolean(returnTo && data?.length);
+  const showReturnPrompt = canReturnToCheckout && (addressJustSaved || !showForm);
+
   return (
     <div className="space-y-4">
+      {showReturnPrompt ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+          <p className="text-sm text-stone-800">
+            {addressJustSaved
+              ? 'آدرس با موفقیت ثبت شد. می‌توانید به فرایند ثبت سفارش برگردید.'
+              : 'برای ادامه خرید و ثبت سفارش به صفحه پرداخت برگردید.'}
+          </p>
+          <Button type="button" className="mt-3" onClick={() => router.push(returnTo!)}>
+            ادامه ثبت سفارش
+          </Button>
+        </div>
+      ) : null}
       {!data?.length ? (
         <div className="card-luxury p-6 text-sm text-muted">
           هنوز آدرسی ثبت نشده است. برای تحویل سفارش، یک آدرس اضافه کنید.
@@ -73,7 +100,10 @@ export function AddressesContent() {
           onCancel={() => setShowForm(false)}
           onSubmit={(values) =>
             createMutation.mutate(values, {
-              onSuccess: () => setShowForm(false),
+              onSuccess: () => {
+                setShowForm(false);
+                setAddressJustSaved(true);
+              },
             })
           }
         />

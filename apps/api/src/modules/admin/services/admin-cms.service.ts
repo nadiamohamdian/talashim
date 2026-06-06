@@ -34,6 +34,7 @@ import {
   MediaStorageService,
   type UploadedImageFile,
 } from '@/infrastructure/media/media-storage.service';
+import { revalidateStorefrontFaq } from '@/infrastructure/storefront/storefront-cache.util';
 
 type BlogPostWithCategory = Prisma.BlogPostGetPayload<{ include: { category: true } }>;
 
@@ -142,7 +143,11 @@ export class AdminCmsService {
     if (!existing) {
       throw new NotFoundException('Blog post not found');
     }
+    const isFaq = existing.category?.slug === 'faq';
     await this.cmsRepository.deleteBlogPost(id);
+    if (isFaq) {
+      void revalidateStorefrontFaq();
+    }
     return { ok: true };
   }
 
@@ -152,10 +157,12 @@ export class AdminCmsService {
 
   async createFaqPost(dto: UpsertFaqPostDto, actor: AuthenticatedUser) {
     const faqCategory = await this.cmsRepository.ensureFaqCategory();
-    return this.createBlogPost(
+    const post = await this.createBlogPost(
       { ...this.normalizeFaqDto(dto), categoryId: faqCategory.id },
       actor,
     );
+    void revalidateStorefrontFaq();
+    return post;
   }
 
   async updateFaqPost(id: string, dto: UpsertFaqPostDto, actor: AuthenticatedUser) {
@@ -166,7 +173,9 @@ export class AdminCmsService {
     if (existing.category?.slug !== 'faq') {
       throw new BadRequestException('Post is not an FAQ entry');
     }
-    return this.updateBlogPost(id, this.normalizeFaqDto(dto), actor);
+    const post = await this.updateBlogPost(id, this.normalizeFaqDto(dto), actor);
+    void revalidateStorefrontFaq();
+    return post;
   }
 
   async listBanners(query: AdminBannersQueryDto, actor: AuthenticatedUser) {

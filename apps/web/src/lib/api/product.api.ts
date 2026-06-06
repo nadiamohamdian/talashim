@@ -144,7 +144,8 @@ export const productApi = {
 
   async getFaqPosts(): Promise<BlogPostSummary[]> {
     return serverFetchCatalogList<BlogPostSummary[]>('/blog?category=faq&limit=20', {
-      revalidate: 300,
+      tags: ['content:faq'],
+      cache: 'no-store',
     });
   },
 
