@@ -1,6 +1,7 @@
 import type {
   CmsBannerPlacement,
   PublicCmsBanner,
+  PublicCmsHomepage,
   PublicCmsStaticPage,
   PublicCmsStaticPageSummary,
 } from '@sadafgold/types';
@@ -8,6 +9,7 @@ import {
   ApiClientError,
   isApiUnreachableError,
   serverFetch,
+  serverFetchCatalogDetail,
   serverFetchCatalogList,
 } from '@/lib/api/client';
 
@@ -19,6 +21,35 @@ export async function getPublishedBanners(
     revalidate: 120,
     tags: ['content:banners'],
   });
+}
+
+export async function getPublicHomepage(): Promise<PublicCmsHomepage> {
+  const result = await serverFetchCatalogDetail<PublicCmsHomepage>('/cms/homepage', {
+    revalidate: 120,
+    tags: ['content:homepage'],
+  });
+
+  return (
+    result ?? {
+      hero: {
+        badge: 'کالکشن جدید',
+        title: 'زیبایی ماندگار',
+        titleAccent: 'در هر قطعه طلا',
+        description:
+          'گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.',
+        primaryCta: { label: 'مشاهده فروشگاه', href: '/products' },
+        secondaryCta: { label: 'انگشترهای زنانه', href: '/categories/rings' },
+        imageUrl: '',
+      },
+      sections: {
+        featuredTitle: 'جدیدترین محصولات',
+        featuredSubtitle: 'آخرین طراحی‌های طلا و جواهر',
+        bestsellerTitle: 'پرفروش‌ترین محصولات',
+        bestsellerSubtitle: 'بر اساس تعداد فروش واقعی',
+        showCategoryShowcase: true,
+      },
+    }
+  );
 }
 
 export async function getPublishedStaticPages(): Promise<PublicCmsStaticPageSummary[]> {

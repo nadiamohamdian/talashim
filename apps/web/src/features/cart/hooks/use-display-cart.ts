@@ -28,24 +28,29 @@ function mapServerItems(
 export function useDisplayCart() {
   const { isAuthenticated, hydrated } = useAuth();
   const localItems = useCartStore((s) => s.items);
-  const localTotal = useCartStore((s) => s.total());
-  const localCount = useCartStore((s) => s.itemCount());
+  const localTotal = localItems.reduce(
+    (sum, line) => sum + line.quantity * line.priceToman,
+    0,
+  );
+  const localCount = localItems.reduce((sum, line) => sum + line.quantity, 0);
   const cartQuery = useCart({ enabled: hydrated && isAuthenticated });
   const serverCart = cartQuery.data;
-  const serverHasItems = (serverCart?.items.length ?? 0) > 0;
+  const hasServerCart =
+    isAuthenticated && !cartQuery.isError && serverCart !== undefined;
 
-  const useServer = isAuthenticated && !cartQuery.isError && serverHasItems;
+  const useServer = hasServerCart;
 
   const items = useServer
-    ? mapServerItems(serverCart!.items)
+    ? mapServerItems(serverCart.items)
     : localItems;
 
-  const total = useServer ? serverCart!.subtotalToman : localTotal;
+  const total = useServer ? serverCart.subtotalToman : localTotal;
   const count = useServer
-    ? serverCart!.items.reduce((sum, line) => sum + line.quantity, 0)
+    ? serverCart.items.reduce((sum, line) => sum + line.quantity, 0)
     : localCount;
 
-  const isLoading = hydrated && isAuthenticated && cartQuery.isLoading && localItems.length === 0;
+  const isLoading =
+    hydrated && isAuthenticated && cartQuery.isLoading && serverCart === undefined;
 
   return {
     items,

@@ -26,7 +26,7 @@ import { NotificationsPageShell } from './notifications-page-shell';
 import { DELIVERY_STATUS_FA, NOTIFICATION_CHANNEL_FA, selectFieldClass } from '../lib/labels';
 
 const statusClass: Record<string, string> = {
-  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--warning-foreground)] border-[var(--warning-border)]',
   SENT: 'bg-blue-50 text-blue-800',
   DELIVERED: 'bg-[var(--success-bg)] text-[var(--success)]',
   FAILED: 'bg-[var(--error-bg)] text-[var(--error)]',

@@ -25,12 +25,13 @@ function stripHtml(html: string): string {
 
 function faqPayloadToApiBody(payload: UpsertFaqPayload) {
   const plain = stripHtml(payload.answer);
+  const coverImageUrl = payload.coverImageUrl?.trim();
   return {
     title: payload.question.trim(),
     slug: payload.slug.trim(),
     content: payload.answer,
     excerpt: plain.slice(0, 400),
-    coverImageUrl: payload.coverImageUrl!,
+    ...(coverImageUrl ? { coverImageUrl } : {}),
     isPublished: payload.isPublished ?? true,
     sortOrder: payload.sortOrder ?? 0,
     publishedAt: new Date().toISOString(),

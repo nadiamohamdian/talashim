@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { useCartStore } from '@/features/cart/model/cart-store';
 import { orderApi, type CheckoutPayload } from '@/lib/api/order.api';
 import { queryKeys, type OrdersListParams } from '@/lib/api/query-keys';
 import { useAuth } from '@/features/auth/hooks/use-auth';
@@ -27,6 +28,7 @@ export function useCheckoutMutation() {
   return useMutation({
     mutationFn: (payload: CheckoutPayload) => orderApi.checkout(payload),
     onSuccess: () => {
+      useCartStore.getState().clearCart();
       queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.user.dashboard() });
       queryClient.invalidateQueries({ queryKey: queryKeys.cart.all });
@@ -83,7 +85,8 @@ export function useRemoveCartItemMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: orderApi.removeCartItem,
-    onSuccess: () => {
+    onSuccess: (_data, productId) => {
+      useCartStore.getState().removeItem(productId);
       queryClient.invalidateQueries({ queryKey: queryKeys.cart.all });
     },
   });

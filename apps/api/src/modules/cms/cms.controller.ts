@@ -7,6 +7,7 @@ import { ApiPublicErrors } from '@/swagger/decorators/api-protected.decorator';
 import {
   PublicBannersQueryDto,
   PublicCmsBannerResponseDto,
+  PublicCmsHomepageResponseDto,
   PublicCmsStaticPageResponseDto,
   PublicCmsStaticPageSummaryResponseDto,
 } from '@/modules/admin/dto/admin-cms.dto';
@@ -42,5 +43,13 @@ export class CmsPublicController {
   @ApiOkResponse({ type: PublicCmsStaticPageResponseDto })
   getStaticPage(@Param('slug') slug: string) {
     return this.adminCmsService.getPublicStaticPageBySlug(slug);
+  }
+
+  @Get('homepage')
+  @HttpCache({ ttlSeconds: 120 })
+  @ApiOperation({ summary: 'Get storefront homepage CMS config' })
+  @ApiOkResponse({ type: PublicCmsHomepageResponseDto })
+  getHomepage() {
+    return this.adminCmsService.getPublicHomepage();
   }
 }

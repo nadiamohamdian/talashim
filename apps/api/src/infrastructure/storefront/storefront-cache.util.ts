@@ -32,6 +32,35 @@ export async function revalidateStorefrontBanners(): Promise<void> {
   }
 }
 
+export async function revalidateStorefrontHomepage(): Promise<void> {
+  const env = getApiEnv();
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) {
+    return;
+  }
+
+  const url = `${env.WEB_URL.replace(/\/$/, '')}/api/revalidate`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': secret,
+      },
+      body: JSON.stringify({ path: '/', tag: 'content:homepage' }),
+    });
+
+    if (!response.ok) {
+      logger.warn(`Storefront homepage revalidation failed (${response.status})`);
+    }
+  } catch (error) {
+    logger.warn(
+      `Storefront homepage revalidation error: ${error instanceof Error ? error.message : 'unknown'}`,
+    );
+  }
+}
+
 export async function revalidateStorefrontFaq(): Promise<void> {
   const env = getApiEnv();
   const secret = process.env.REVALIDATE_SECRET;
@@ -53,6 +82,19 @@ export async function revalidateStorefrontFaq(): Promise<void> {
 
     if (!response.ok) {
       logger.warn(`Storefront FAQ revalidation failed (${response.status})`);
+    }
+
+    const homeResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': secret,
+      },
+      body: JSON.stringify({ path: '/', tag: 'content:faq' }),
+    });
+
+    if (!homeResponse.ok) {
+      logger.warn(`Storefront homepage FAQ revalidation failed (${homeResponse.status})`);
     }
   } catch (error) {
     logger.warn(

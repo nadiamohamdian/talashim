@@ -83,24 +83,32 @@ export function FaqEditorForm({
       return;
     }
 
-    const imageError = validateLibraryImageUrl(form.coverImageUrl ?? '', 'تصویر سوال');
-    if (imageError) {
-      setValidationError(imageError);
-      return;
-    }
-
     const slug = form.slug.trim() || suggestSlug(question);
     if (slug.length < 2) {
       setValidationError('شناسه (slug) باید حداقل ۲ کاراکتر باشد.');
       return;
     }
 
+    const coverImageUrl = form.coverImageUrl?.trim();
+    if (coverImageUrl) {
+      const imageError = validateLibraryImageUrl(coverImageUrl, 'تصویر سوال');
+      if (imageError) {
+        setValidationError(imageError);
+        return;
+      }
+    }
+
     setValidationError(null);
-    await onSave({
-      ...form,
-      question,
-      slug,
-    });
+    try {
+      await onSave({
+        ...form,
+        question,
+        slug,
+        coverImageUrl: coverImageUrl || undefined,
+      });
+    } catch {
+      // Parent mutation surfaces API errors via errorMessage.
+    }
   };
 
   return (
@@ -125,12 +133,11 @@ export function FaqEditorForm({
 
       <div className="field-group">
         <ImageUrlField
-          label="تصویر همراه سوال"
+          label="تصویر همراه سوال (اختیاری)"
           hint="از کتابخانه رسانه انتخاب کنید."
           value={form.coverImageUrl ?? ''}
           onChange={(url) => setForm((f) => ({ ...f, coverImageUrl: url }))}
           folder="blog"
-          required
         />
       </div>
 

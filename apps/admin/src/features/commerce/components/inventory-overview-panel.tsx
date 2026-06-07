@@ -133,7 +133,7 @@ export function InventoryOverviewPanel() {
                       <TableCell>{row.quantity}</TableCell>
                       <TableCell>{row.reserved}</TableCell>
                       <TableCell>
-                        <Badge className={row.lowStock ? 'bg-[var(--warning-bg)] text-[var(--secondary)]' : 'bg-[var(--success-bg)] text-[var(--success)]'}>
+                        <Badge className={row.lowStock ? 'bg-[var(--warning-bg)] text-[var(--warning-foreground)] border-[var(--warning-border)]' : 'bg-[var(--success-bg)] text-[var(--success)]'}>
                           {row.available}
                         </Badge>
                       </TableCell>

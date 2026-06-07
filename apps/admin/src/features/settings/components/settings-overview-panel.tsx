@@ -58,7 +58,7 @@ export function SettingsOverviewPanel() {
           </div>
         </dl>
         {general.maintenanceMode ? (
-          <p className="mt-4 rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] px-3 py-2 text-sm text-[var(--secondary)]">
+          <p className="mt-4 rounded-lg border border-[var(--warning-border)] bg-[var(--warning-bg)] px-3 py-2 text-sm text-[var(--warning-foreground)]">
             حالت تعمیرات فعال است.
           </p>
         ) : null}

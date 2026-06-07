@@ -106,6 +106,19 @@ export interface AdminOrderUserDto {
   id: string;
   email: string;
   fullName: string;
+  phone?: string | null;
+  nationalId?: string | null;
+}
+
+export interface AdminOrderShippingAddressDto {
+  id: string;
+  title: string;
+  recipient: string;
+  phone: string;
+  line1: string;
+  city: string;
+  state: string;
+  postalCode: string;
 }
 
 export interface AdminOrderListItemDto {
@@ -154,6 +167,7 @@ export interface AdminOrderPaymentDto {
 export interface AdminOrderDetailDto extends AdminOrderListItemDto {
   items: AdminOrderItemDto[];
   payments: AdminOrderPaymentDto[];
+  shippingAddress: AdminOrderShippingAddressDto | null;
   updatedAt: string;
 }
 

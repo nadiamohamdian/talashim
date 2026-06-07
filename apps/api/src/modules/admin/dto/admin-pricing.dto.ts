@@ -11,6 +11,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { emptyStringToUndefined } from '@/common/dto/empty-string';
 import { PriceHistoryQueryDto } from '@/modules/pricing/dto/price-history-query.dto';
 import { PaginationQueryDto } from './admin-query.dto';
 
@@ -82,6 +83,7 @@ export class UpsertGoldPriceOverrideDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @Type(() => Number)
   @IsNumber()
   @Min(1)
@@ -89,6 +91,7 @@ export class UpsertGoldPriceOverrideDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @Type(() => Number)
   @IsNumber()
   @Min(1)
@@ -96,6 +99,7 @@ export class UpsertGoldPriceOverrideDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @IsString()
   @MinLength(2)
   reason?: string;

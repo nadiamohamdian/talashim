@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CmsBannerPlacement, CmsBannerStatus } from '@/generated/prisma';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
@@ -15,6 +15,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { emptyStringToUndefined } from '@/common/dto/empty-string';
 import {
   LIBRARY_MEDIA_URL_MESSAGE,
   LIBRARY_MEDIA_URL_PATTERN,
@@ -64,6 +65,7 @@ export class UpsertFaqPostDto {
 
   @ApiPropertyOptional()
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @IsString()
   @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
   coverImageUrl?: string;
@@ -191,6 +193,14 @@ export class PublicCmsBannerResponseDto {
 
   @ApiProperty()
   sortOrder!: number;
+}
+
+export class PublicCmsHomepageResponseDto {
+  @ApiProperty({ type: Object })
+  hero!: Record<string, unknown>;
+
+  @ApiProperty({ type: Object })
+  sections!: Record<string, unknown>;
 }
 
 export class AdminBannersQueryDto extends PaginationQueryDto {

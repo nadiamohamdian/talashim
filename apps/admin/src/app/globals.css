@@ -79,6 +79,7 @@
   --warning: #b8924f;
   --warning-bg: #faf6ee;
   --warning-border: #e8dcc4;
+  --warning-foreground: #6d4f1a;
 
   --error: #b54a4a;
   --error-bg: #fdf0f0;
@@ -201,6 +202,7 @@
   --warning: #d9bc8a;
   --warning-bg: rgba(203, 166, 112, 0.12);
   --warning-border: rgba(203, 166, 112, 0.22);
+  --warning-foreground: #f2e0b8;
 
   --error: #e08a8a;
   --error-bg: rgba(181, 74, 74, 0.14);

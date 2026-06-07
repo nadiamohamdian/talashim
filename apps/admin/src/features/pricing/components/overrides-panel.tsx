@@ -26,9 +26,11 @@ import {
   type UpsertPriceOverridePayload,
 } from '../api/pricing-admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { PricingPageShell } from './pricing-page-shell';
 import { formatRial } from '../lib/labels';
+import { FormattedNumberInput } from '@/shared/ui/formatted-number-input';
 
 const emptyForm = (): UpsertPriceOverridePayload => ({
   symbol: 'XAU-IRR',
@@ -37,10 +39,25 @@ const emptyForm = (): UpsertPriceOverridePayload => ({
   isActive: true,
 });
 
+function buildOverridePayload(form: UpsertPriceOverridePayload): UpsertPriceOverridePayload {
+  const reason = form.reason?.trim();
+  return {
+    symbol: form.symbol ?? 'XAU-IRR',
+    karat: form.karat ?? 18,
+    pricePerGram: form.pricePerGram,
+    ...(form.buyPrice ? { buyPrice: form.buyPrice } : {}),
+    ...(form.sellPrice ? { sellPrice: form.sellPrice } : {}),
+    ...(reason ? { reason } : {}),
+    isActive: form.isActive ?? true,
+    ...(form.expiresAt ? { expiresAt: new Date(form.expiresAt).toISOString() } : {}),
+  };
+}
+
 export function OverridesPanel() {
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<GoldPriceOverrideDto | null | 'new'>(null);
   const [form, setForm] = useState<UpsertPriceOverridePayload>(emptyForm());
+  const [saveError, setSaveError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
@@ -72,18 +89,19 @@ export function OverridesPanel() {
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload = {
-        ...form,
-        expiresAt: form.expiresAt ? new Date(form.expiresAt).toISOString() : undefined,
-      };
+      const payload = buildOverridePayload(form);
       if (editing && editing !== 'new') {
         return updatePriceOverride(editing.id, payload);
       }
       return createPriceOverride(payload);
     },
     onSuccess: () => {
+      setSaveError(null);
       setEditing(null);
       invalidate();
+    },
+    onError: (error: unknown) => {
+      setSaveError(getApiErrorMessage(error, 'ذخیره بازنویسی قیمت ناموفق بود'));
     },
   });
 
@@ -96,7 +114,7 @@ export function OverridesPanel() {
     <PricingPageShell
       routeId="pricing.overrides"
       actions={
-        <Button type="button" onClick={() => setEditing('new')}>
+        <Button type="button" onClick={() => { setEditing('new'); setSaveError(null); }}>
           بازنویسی جدید
         </Button>
       }
@@ -104,17 +122,14 @@ export function OverridesPanel() {
       {editing ? (
         <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
           <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <Label>قیمت هر گرم (ریال)</Label>
-              <Input
-                className="mt-1"
-                type="number"
-                value={form.pricePerGram || ''}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, pricePerGram: Number(e.target.value) || 0 }))
-                }
-              />
-            </div>
+            <FormattedNumberInput
+              label="قیمت هر گرم (ریال)"
+              value={form.pricePerGram > 0 ? String(form.pricePerGram) : ''}
+              onChange={(raw) =>
+                setForm((f) => ({ ...f, pricePerGram: raw ? Number(raw) : 0 }))
+              }
+              suffix="ریال"
+            />
             <div>
               <Label>عیار</Label>
               <Input
@@ -124,34 +139,28 @@ export function OverridesPanel() {
                 onChange={(e) => setForm((f) => ({ ...f, karat: Number(e.target.value) }))}
               />
             </div>
-            <div>
-              <Label>قیمت خرید (اختیاری)</Label>
-              <Input
-                className="mt-1"
-                type="number"
-                value={form.buyPrice ?? ''}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    buyPrice: e.target.value ? Number(e.target.value) : undefined,
-                  }))
-                }
-              />
-            </div>
-            <div>
-              <Label>قیمت فروش (اختیاری)</Label>
-              <Input
-                className="mt-1"
-                type="number"
-                value={form.sellPrice ?? ''}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    sellPrice: e.target.value ? Number(e.target.value) : undefined,
-                  }))
-                }
-              />
-            </div>
+            <FormattedNumberInput
+              label="قیمت خرید (اختیاری)"
+              value={form.buyPrice != null ? String(form.buyPrice) : ''}
+              onChange={(raw) =>
+                setForm((f) => ({
+                  ...f,
+                  buyPrice: raw ? Number(raw) : undefined,
+                }))
+              }
+              suffix="ریال"
+            />
+            <FormattedNumberInput
+              label="قیمت فروش (اختیاری)"
+              value={form.sellPrice != null ? String(form.sellPrice) : ''}
+              onChange={(raw) =>
+                setForm((f) => ({
+                  ...f,
+                  sellPrice: raw ? Number(raw) : undefined,
+                }))
+              }
+              suffix="ریال"
+            />
             <div className="md:col-span-2">
               <Label>دلیل</Label>
               <Input
@@ -179,11 +188,14 @@ export function OverridesPanel() {
               <Label htmlFor="override-active">فعال</Label>
             </div>
           </div>
+          {saveError ? (
+            <p className="text-sm text-[var(--error)]">{saveError}</p>
+          ) : null}
           <div className="flex gap-2">
             <Button disabled={save.isPending || !form.pricePerGram} onClick={() => save.mutate()}>
               ذخیره
             </Button>
-            <Button variant="outline" onClick={() => setEditing(null)}>
+            <Button variant="outline" onClick={() => { setEditing(null); setSaveError(null); }}>
               انصراف
             </Button>
           </div>

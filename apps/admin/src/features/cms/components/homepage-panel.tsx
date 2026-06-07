@@ -8,6 +8,7 @@ import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
 import type { CmsHeroConfig, CmsHomepageDto, CmsHomepageSections } from '@talashim/types';
 import { fetchHomepageCms, updateHomepageCms } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { CmsPageShell } from './cms-page-shell';
 import { ImageUrlField } from './image-url-field';
 import { validateLibraryImageUrl } from '../lib/validate-library-image';
@@ -34,7 +35,11 @@ export function HomepagePanel() {
   const save = useMutation({
     mutationFn: (payload: Pick<CmsHomepageDto, 'hero' | 'sections'>) => updateHomepageCms(payload),
     onSuccess: () => {
+      setSaveError(null);
       void queryClient.invalidateQueries({ queryKey: adminQueryKeys.cms.homepage });
+    },
+    onError: (error: unknown) => {
+      setSaveError(getApiErrorMessage(error, 'ذخیره صفحه اصلی ناموفق بود'));
     },
   });
 

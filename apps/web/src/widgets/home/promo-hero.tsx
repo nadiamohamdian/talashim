@@ -1,21 +1,23 @@
 import Link from 'next/link';
-import type { PublicCmsBanner } from '@sadafgold/types';
+import type { CmsHeroConfig } from '@sadafgold/types';
+import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { StoreImage } from '@/shared/ui/store-image';
 
 interface PromoHeroProps {
-  banner?: PublicCmsBanner | null;
+  hero: CmsHeroConfig;
 }
 
-export function PromoHero({ banner }: PromoHeroProps) {
-  const badge = banner ? 'پیشنهاد ویژه' : 'کالکشن جدید';
-  const title = banner?.title?.trim() || 'زیبایی ماندگار';
-  const titleAccent = banner ? '' : 'در هر قطعه طلا';
-  const description = banner?.subtitle?.trim()
-    ? banner.subtitle
-    : 'گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.';
-  const heroImage = banner?.imageUrl?.trim() || '';
-  const primaryHref = banner?.linkUrl || '/products';
-  const imageCaption = banner?.title || 'گوشواره زنانه';
+export function PromoHero({ hero }: PromoHeroProps) {
+  const badge = hero.badge.trim() || 'کالکشن جدید';
+  const title = hero.title.trim() || 'زیبایی ماندگار';
+  const titleAccent = hero.titleAccent.trim();
+  const description = hero.description.trim();
+  const heroImage = hero.imageUrl.trim();
+  const primaryLabel = hero.primaryCta.label.trim() || 'مشاهده فروشگاه';
+  const primaryHref = hero.primaryCta.href.trim() || '/products';
+  const secondaryLabel = hero.secondaryCta.label.trim();
+  const secondaryHref = hero.secondaryCta.href.trim() || '/categories/rings';
+  const imageCaption = title;
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-nude-50 via-background to-nude-100/50">
@@ -37,14 +39,19 @@ export function PromoHero({ banner }: PromoHeroProps) {
               <span className="mt-1 block text-gold-dark">{titleAccent}</span>
             ) : null}
           </h1>
-          <p className="max-w-md text-sm leading-8 text-muted md:text-base">{description}</p>
+          {description ? (
+            <RichHtmlContent
+              html={description}
+              className="max-w-md text-sm leading-8 text-muted md:text-base [&_p]:mb-0"
+            />
+          ) : null}
           <div className="flex flex-wrap gap-3 pt-1">
             <Link href={primaryHref} className="btn-gold px-7 py-3">
-              {banner?.linkUrl ? 'مشاهده پیشنهاد' : 'مشاهده فروشگاه'}
+              {primaryLabel}
             </Link>
-            {!banner ? (
-              <Link href="/categories/rings" className="btn-nude px-7 py-3">
-                انگشترهای زنانه
+            {secondaryLabel ? (
+              <Link href={secondaryHref} className="btn-nude px-7 py-3">
+                {secondaryLabel}
               </Link>
             ) : null}
           </div>

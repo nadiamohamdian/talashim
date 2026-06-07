@@ -29,14 +29,14 @@ import { CommercePageShell } from './commerce-page-shell';
 import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
 
 const statusBadge: Record<string, string> = {
-  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--warning-foreground)] border-[var(--warning-border)]',
   CONFIRMED: 'bg-blue-50 text-blue-800',
   PAID: 'bg-[var(--success-bg)] text-[var(--success)]',
   CANCELLED: 'bg-[var(--surface)] text-[var(--muted-foreground)]',
 };
 
 const paymentBadge: Record<string, string> = {
-  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--warning-foreground)] border-[var(--warning-border)]',
   AUTHORIZED: 'bg-blue-50 text-blue-800',
   PAID: 'bg-[var(--success-bg)] text-[var(--success)]',
   FAILED: 'bg-[var(--error-bg)] text-[var(--error)]',

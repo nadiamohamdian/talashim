@@ -12,6 +12,7 @@ import type {
   CmsSeoSettingsDto,
   CmsStaticPageDto,
   MediaAssetDto,
+  PublicCmsHomepage,
 } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import {
@@ -42,6 +43,7 @@ import {
 import {
   revalidateStorefrontBanners,
   revalidateStorefrontFaq,
+  revalidateStorefrontHomepage,
   revalidateStorefrontStaticPages,
 } from '@/infrastructure/storefront/storefront-cache.util';
 
@@ -162,16 +164,29 @@ export class AdminCmsService {
   }
 
   async createFaqPost(dto: UpsertFaqPostDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
     const faqCategory = await this.cmsRepository.ensureFaqCategory();
-    const post = await this.createBlogPost(
-      { ...this.normalizeFaqDto(dto), categoryId: faqCategory.id },
-      actor,
-    );
+    const normalized = this.normalizeFaqDto(dto);
+    await this.assertUniqueBlogSlug(normalized.slug);
+
+    const post = await this.cmsRepository.createBlogPost({
+      title: normalized.title,
+      slug: normalized.slug,
+      excerpt: normalized.excerpt,
+      content: normalized.content,
+      coverImageUrl: normalized.coverImageUrl,
+      publishedAt: normalized.publishedAt ? new Date(normalized.publishedAt) : new Date(),
+      isPublished: normalized.isPublished ?? true,
+      sortOrder: normalized.sortOrder ?? 0,
+      category: { connect: { id: faqCategory.id } },
+    });
+
     void revalidateStorefrontFaq();
-    return post;
+    return this.mapBlogPost(post);
   }
 
   async updateFaqPost(id: string, dto: UpsertFaqPostDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
     const existing = await this.cmsRepository.findBlogPostById(id);
     if (!existing) {
       throw new NotFoundException('FAQ entry not found');
@@ -179,9 +194,25 @@ export class AdminCmsService {
     if (existing.category?.slug !== 'faq') {
       throw new BadRequestException('Post is not an FAQ entry');
     }
-    const post = await this.updateBlogPost(id, this.normalizeFaqDto(dto), actor);
+
+    const normalized = this.normalizeFaqDto(dto);
+    if (normalized.slug !== existing.slug) {
+      await this.assertUniqueBlogSlug(normalized.slug, id);
+    }
+
+    const post = await this.cmsRepository.updateBlogPost(id, {
+      title: normalized.title,
+      slug: normalized.slug,
+      excerpt: normalized.excerpt,
+      content: normalized.content,
+      coverImageUrl: normalized.coverImageUrl,
+      publishedAt: normalized.publishedAt ? new Date(normalized.publishedAt) : undefined,
+      isPublished: normalized.isPublished,
+      sortOrder: normalized.sortOrder,
+    });
+
     void revalidateStorefrontFaq();
-    return post;
+    return this.mapBlogPost(post);
   }
 
   async listPublicBanners(placement?: string) {
@@ -200,6 +231,15 @@ export class AdminCmsService {
       throw new NotFoundException('Static page not found');
     }
     return this.mapPublicStaticPage(page);
+  }
+
+  async getPublicHomepage(): Promise<PublicCmsHomepage> {
+    const row = await this.cmsRepository.getOrCreateHomepage();
+    const mapped = this.mapHomepage(row);
+    return {
+      hero: mapped.hero,
+      sections: mapped.sections,
+    };
   }
 
   async listBanners(query: AdminBannersQueryDto, actor: AuthenticatedUser) {
@@ -300,6 +340,8 @@ export class AdminCmsService {
       hero as Prisma.InputJsonValue,
       dto.sections as Prisma.InputJsonValue,
     );
+
+    void revalidateStorefrontHomepage();
 
     return this.mapHomepage(row);
   }
@@ -516,7 +558,9 @@ export class AdminCmsService {
       slug: dto.slug.trim(),
       content: dto.content,
       excerpt: dto.excerpt?.trim() || plain.slice(0, 400),
-      coverImageUrl: requireLibraryImageUrl(dto.coverImageUrl, 'تصویر سوال'),
+      coverImageUrl: dto.coverImageUrl?.trim()
+        ? (optionalLibraryImageUrl(dto.coverImageUrl, 'تصویر سوال') ?? '')
+        : '',
       publishedAt: dto.publishedAt,
       isPublished: dto.isPublished ?? true,
       sortOrder: dto.sortOrder ?? 0,

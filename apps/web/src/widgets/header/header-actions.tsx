@@ -72,7 +72,8 @@ export function HeaderActions() {
   const { count, total } = useDisplayCart();
   const openCart = useCartStore((s) => s.openCart);
   const cartBadge = cartHydrated && count > 0 ? count : undefined;
-  const cartSublabel = cartHydrated ? `${formatPrice(total)} تومان` : 'سبد خرید';
+  const cartSublabel =
+    cartHydrated && count > 0 ? `${formatPrice(total)} تومان` : 'سبد خرید';
 
   return (
     <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">

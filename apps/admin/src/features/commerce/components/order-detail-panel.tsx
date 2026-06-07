@@ -183,6 +183,86 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
             ) : null}
           </Card>
 
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
+              <h3 className="text-sm font-semibold text-foreground">مشخصات مشتری</h3>
+              {data.user ? (
+                <dl className="mt-4 space-y-3 text-sm">
+                  <div>
+                    <dt className="text-muted">نام</dt>
+                    <dd className="font-medium">{data.user.fullName}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">ایمیل</dt>
+                    <dd dir="ltr" className="font-mono text-xs">
+                      {data.user.email}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">موبایل</dt>
+                    <dd dir="ltr">{data.user.phone ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">کد ملی</dt>
+                    <dd dir="ltr">{data.user.nationalId ?? '—'}</dd>
+                  </div>
+                  <div>
+                    <Link
+                      href={`/users/${data.user.id}`}
+                      className="text-sm text-[var(--warning)] hover:underline"
+                    >
+                      مشاهده پروفایل کاربر ←
+                    </Link>
+                  </div>
+                </dl>
+              ) : (
+                <p className="mt-4 text-sm text-muted">سفارش مهمان — حساب کاربری متصل نیست.</p>
+              )}
+            </Card>
+
+            <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
+              <h3 className="text-sm font-semibold text-foreground">آدرس ارسال</h3>
+              {data.shippingAddress ? (
+                <dl className="mt-4 space-y-3 text-sm">
+                  <div>
+                    <dt className="text-muted">عنوان آدرس</dt>
+                    <dd>{data.shippingAddress.title}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">گیرنده</dt>
+                    <dd>{data.shippingAddress.recipient}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">موبایل گیرنده</dt>
+                    <dd dir="ltr">{data.shippingAddress.phone}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">آدرس</dt>
+                    <dd className="leading-relaxed">{data.shippingAddress.line1}</dd>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <dt className="text-muted">شهر</dt>
+                      <dd>{data.shippingAddress.city}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted">استان</dt>
+                      <dd>{data.shippingAddress.state}</dd>
+                    </div>
+                  </div>
+                  <div>
+                    <dt className="text-muted">کد پستی</dt>
+                    <dd dir="ltr" className="font-mono text-xs">
+                      {data.shippingAddress.postalCode}
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="mt-4 text-sm text-muted">آدرس ارسال برای این سفارش ثبت نشده است.</p>
+              )}
+            </Card>
+          </div>
+
           <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
             <Table>
               <TableHeader>

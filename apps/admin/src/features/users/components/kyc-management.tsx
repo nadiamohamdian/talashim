@@ -26,7 +26,7 @@ import { UsersPageShell } from './users-page-shell';
 import { KYC_STATUS_FA, KYC_STATUS_OPTIONS, selectFieldClass } from '../lib/labels';
 
 const kycBadgeClass: Record<string, string> = {
-  PENDING: 'bg-[var(--warning-bg)] text-[var(--secondary)]',
+  PENDING: 'bg-[var(--warning-bg)] text-[var(--warning-foreground)] border-[var(--warning-border)]',
   APPROVED: 'bg-[var(--success-bg)] text-[var(--success)]',
   REJECTED: 'bg-[var(--error-bg)] text-[var(--error)]',
 };

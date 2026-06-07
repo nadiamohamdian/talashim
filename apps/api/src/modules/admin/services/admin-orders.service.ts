@@ -108,6 +108,42 @@ export class AdminOrdersService {
     return this.getOrder(orderId, actor);
   }
 
+  private mapUser(
+    user: OrderDetailRow['user'],
+    shippingAddress: OrderDetailRow['shippingAddress'],
+  ): AdminOrderDetailDto['user'] {
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      phone: shippingAddress?.phone ?? user.kycVerification?.phone ?? null,
+      nationalId: user.kycVerification?.nationalId ?? null,
+    };
+  }
+
+  private mapShippingAddress(
+    address: OrderDetailRow['shippingAddress'],
+  ): AdminOrderDetailDto['shippingAddress'] {
+    if (!address) {
+      return null;
+    }
+
+    return {
+      id: address.id,
+      title: address.title,
+      recipient: address.recipient,
+      phone: address.phone,
+      line1: address.line1,
+      city: address.city,
+      state: address.state,
+      postalCode: address.postalCode,
+    };
+  }
+
   private mapListItem(order: OrderListRow): AdminOrderListItemDto {
     const payment = order.payments[0] ?? null;
     return {
@@ -135,6 +171,7 @@ export class AdminOrdersService {
 
   private mapDetail(order: OrderDetailRow): AdminOrderDetailDto {
     const payment = order.payments[0] ?? null;
+    const shippingAddress = this.mapShippingAddress(order.shippingAddress);
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -153,7 +190,8 @@ export class AdminOrdersService {
             receiptUrl: payment.receiptUrl ?? null,
           }
         : null,
-      user: order.user,
+      user: this.mapUser(order.user, order.shippingAddress),
+      shippingAddress,
       createdAt: order.createdAt.toISOString(),
       updatedAt: order.updatedAt.toISOString(),
       items: order.items.map((item) => ({

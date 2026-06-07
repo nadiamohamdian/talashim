@@ -69,6 +69,11 @@ export interface CmsHomepageDto {
   updatedAt: string;
 }
 
+export interface PublicCmsHomepage {
+  hero: CmsHeroConfig;
+  sections: CmsHomepageSections;
+}
+
 export interface CmsStaticPageDto {
   id: string;
   slug: string;

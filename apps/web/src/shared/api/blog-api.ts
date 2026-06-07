@@ -24,9 +24,12 @@ export async function getBlogPostBySlugOrThrow(slug: string): Promise<BlogPostDe
   return post;
 }
 
-export function getFaqPosts(): Promise<BlogPostSummary[]> {
-  return serverFetchCatalogList<BlogPostSummary[]>('/blog?category=faq&limit=20', {
-    tags: ['content:faq'],
-    cache: 'no-store',
-  });
+export function getFaqPosts(limit = 20): Promise<BlogPostSummary[]> {
+  return serverFetchCatalogList<BlogPostSummary[]>(
+    `/blog?category=faq&limit=${limit}`,
+    {
+      tags: ['content:faq'],
+      revalidate: 120,
+    },
+  );
 }

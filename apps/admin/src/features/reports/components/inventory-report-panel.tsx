@@ -130,7 +130,7 @@ export function InventoryReportPanel() {
                       {row.available <= 0 ? (
                         <Badge className="bg-[var(--error-bg)] text-[var(--error)]">ناموجود</Badge>
                       ) : row.lowStock ? (
-                        <Badge className="bg-[var(--warning-bg)] text-[var(--secondary)]">کم‌موجود</Badge>
+                        <Badge className="bg-[var(--warning-bg)] text-[var(--warning-foreground)] border-[var(--warning-border)]">کم‌موجود</Badge>
                       ) : (
                         <Badge className="bg-[var(--success-bg)] text-[var(--success)]">عادی</Badge>
                       )}

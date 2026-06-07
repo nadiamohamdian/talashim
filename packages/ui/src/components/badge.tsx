@@ -10,11 +10,11 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 const variantMap: Record<BadgeVariant, string> = {
   default:
     'bg-[var(--surface,#f7f4f0)] text-[var(--foreground,#564739)] border-[var(--border,#d9d0c8)]',
-  gold: 'bg-[var(--warning-bg,#faf3e8)] text-[var(--secondary,#564739)] border-[var(--warning-border,#e8d5b5)]',
+  gold: 'bg-[var(--warning-bg,#faf3e8)] text-[var(--warning-foreground,#6d4f1a)] border-[var(--warning-border,#e8d5b5)]',
   success:
     'bg-[var(--success-bg,#eef6f1)] text-[var(--success,#3d7a5f)] border-[var(--success-border,#c5ddd0)]',
   warning:
-    'bg-[var(--warning-bg,#faf3e8)] text-[var(--warning,#b8955c)] border-[var(--warning-border,#e8d5b5)]',
+    'bg-[var(--warning-bg,#faf3e8)] text-[var(--warning-foreground,#6d4f1a)] border-[var(--warning-border,#e8d5b5)]',
   error:
     'bg-[var(--error-bg,#fdf0f0)] text-[var(--error,#b54a4a)] border-[var(--error-border,#ebcaca)]',
   info: 'bg-[var(--info-bg,#eef4f7)] text-[var(--info,#5a7a8c)] border-[var(--info-border,#c8d8e0)]',

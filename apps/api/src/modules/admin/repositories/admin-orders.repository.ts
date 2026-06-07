@@ -62,7 +62,15 @@ export class AdminOrdersRepository {
     return this.prisma.order.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, email: true, fullName: true } },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            kycVerification: { select: { phone: true, nationalId: true } },
+          },
+        },
+        shippingAddress: true,
         items: {
           include: {
             product: { select: { id: true, title: true, slug: true, sku: true } },
@@ -78,7 +86,15 @@ export class AdminOrdersRepository {
       where: { id },
       data: { status },
       include: {
-        user: { select: { id: true, email: true, fullName: true } },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            kycVerification: { select: { phone: true, nationalId: true } },
+          },
+        },
+        shippingAddress: true,
         items: {
           include: {
             product: { select: { id: true, title: true, slug: true, sku: true } },
