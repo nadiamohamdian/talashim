@@ -344,4 +344,161 @@ export class LedgerRepository {
       return transaction;
     });
   }
+
+  completePendingRialWithdrawal(transactionId: string, actorId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const pending = await tx.walletTransaction.findUnique({
+        where: { id: transactionId },
+      });
+
+      if (!pending) {
+        throw new NotFoundException('تراکنش یافت نشد');
+      }
+      if (pending.status !== WalletTransactionStatus.PENDING) {
+        throw new BadRequestException('این درخواست در وضعیت بررسی نیست');
+      }
+      if (pending.type !== WalletTransactionType.WITHDRAWAL || !pending.userId) {
+        throw new BadRequestException('درخواست برداشت معتبر نیست');
+      }
+
+      const metadata = pending.metadata as Record<string, unknown> | null;
+      const amountToman = metadata?.amountToman;
+      const iban = metadata?.iban;
+      if (typeof amountToman !== 'string' || typeof iban !== 'string') {
+        throw new BadRequestException('اطلاعات درخواست برداشت ناقص است');
+      }
+
+      const amount = Number(amountToman);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new BadRequestException('مبلغ برداشت معتبر نیست');
+      }
+
+      const userAccountCode = userWalletAccountCode(pending.userId, WalletAssetType.RIAL);
+      const [platformAccount, userAccount] = await Promise.all([
+        tx.ledgerAccount.findUniqueOrThrow({ where: { code: 'PLATFORM_CASH_RIAL' } }),
+        tx.ledgerAccount.findUniqueOrThrow({ where: { code: userAccountCode } }),
+      ]);
+
+      const entries = await tx.ledgerEntry.findMany({
+        where: { accountId: userAccount.id },
+        include: { account: true },
+        orderBy: { createdAt: 'asc' },
+      });
+      const userBalance = entries.reduce((balance, entry) => {
+        const entryAmount = Number(entry.amount);
+        const delta =
+          entry.account.category === LedgerAccountCategory.ASSET ||
+          entry.account.category === LedgerAccountCategory.EXPENSE
+            ? entry.side === LedgerSide.DEBIT
+              ? entryAmount
+              : -entryAmount
+            : entry.side === LedgerSide.CREDIT
+              ? entryAmount
+              : -entryAmount;
+        return balance + delta;
+      }, 0);
+
+      if (userBalance < amount) {
+        throw new BadRequestException('موجودی کیف پول برای برداشت کافی نیست');
+      }
+
+      const transaction = await tx.walletTransaction.update({
+        where: { id: transactionId },
+        data: {
+          status: WalletTransactionStatus.POSTED,
+          postedAt: new Date(),
+          metadata: {
+            ...metadata,
+            approvedAt: new Date().toISOString(),
+            approvedById: actorId,
+          },
+          entries: {
+            create: [
+              {
+                accountId: userAccount.id,
+                side: LedgerSide.DEBIT,
+                assetType: WalletAssetType.RIAL,
+                amount: new Prisma.Decimal(amountToman),
+              },
+              {
+                accountId: platformAccount.id,
+                side: LedgerSide.CREDIT,
+                assetType: WalletAssetType.RIAL,
+                amount: new Prisma.Decimal(amountToman),
+              },
+            ],
+          },
+        },
+        include: {
+          user: { select: { id: true, email: true, fullName: true } },
+          entries: { include: { account: true } },
+        },
+      });
+
+      await tx.walletAuditLog.create({
+        data: {
+          transactionId: transaction.id,
+          actorId,
+          action: 'wallet.withdrawal.approved',
+          context: {
+            amountToman,
+            iban,
+          },
+        },
+      });
+
+      return transaction;
+    });
+  }
+
+  rejectPendingRialWithdrawal(transactionId: string, actorId: string, reason: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const pending = await tx.walletTransaction.findUnique({
+        where: { id: transactionId },
+      });
+
+      if (!pending) {
+        throw new NotFoundException('تراکنش یافت نشد');
+      }
+      if (pending.status !== WalletTransactionStatus.PENDING) {
+        throw new BadRequestException('این درخواست در وضعیت بررسی نیست');
+      }
+      if (pending.type !== WalletTransactionType.WITHDRAWAL) {
+        throw new BadRequestException('درخواست برداشت معتبر نیست');
+      }
+
+      const metadata = (pending.metadata as Record<string, unknown> | null) ?? {};
+      if (typeof metadata.iban !== 'string' || typeof metadata.amountToman !== 'string') {
+        throw new BadRequestException('اطلاعات درخواست برداشت ناقص است');
+      }
+
+      const transaction = await tx.walletTransaction.update({
+        where: { id: transactionId },
+        data: {
+          status: WalletTransactionStatus.FAILED,
+          metadata: {
+            ...metadata,
+            rejectionReason: reason,
+            rejectedAt: new Date().toISOString(),
+            rejectedById: actorId,
+          },
+        },
+        include: {
+          user: { select: { id: true, email: true, fullName: true } },
+          entries: { include: { account: true } },
+        },
+      });
+
+      await tx.walletAuditLog.create({
+        data: {
+          transactionId: transaction.id,
+          actorId,
+          action: 'wallet.withdrawal.rejected',
+          context: { reason },
+        },
+      });
+
+      return transaction;
+    });
+  }
 }

@@ -1,60 +1,103 @@
 'use client';
 
-import { Badge, Card, Skeleton } from '@sadafgold/ui';
+import { Badge, Skeleton } from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
 import { useWalletBalances } from '../hooks/use-wallet-balances';
 
-export function WalletBalancesCard() {
+interface WalletBalancesCardProps {
+  variant?: 'default' | 'hero';
+}
+
+export function WalletBalancesCard({ variant = 'default' }: WalletBalancesCardProps) {
   const { data, isLoading, isError, refetch, isFetching } = useWalletBalances();
 
   if (isLoading) {
     return (
-      <Card className="p-6">
-        <Skeleton className="mb-4 h-5 w-32" />
-        <Skeleton className="mb-3 h-14 w-full" />
-        <Skeleton className="h-14 w-full" />
-      </Card>
+      <div className="card-luxury overflow-hidden">
+        <div className="h-1 bg-gradient-to-l from-gold via-gold-light to-gold-dark" />
+        <div className="p-6 md:p-8">
+          <Skeleton className="mb-6 h-5 w-36" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Skeleton className="h-28 w-full rounded-2xl" />
+            <Skeleton className="h-28 w-full rounded-2xl" />
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (isError || !data) {
     return (
-      <Card className="p-6">
+      <div className="card-luxury p-6 md:p-8">
         <p className="text-sm text-rose-600 dark:text-rose-300">بارگذاری کیف پول ناموفق بود</p>
         <button
           type="button"
-          className="mt-3 text-sm text-amber-600 underline dark:text-amber-400"
+          className="link-gold mt-3 text-sm"
           onClick={() => refetch()}
         >
           تلاش مجدد
         </button>
-      </Card>
+      </div>
     );
   }
 
   const rial = Number(data.rialBalance);
   const gold = Number(data.goldBalanceGram);
+  const isHero = variant === 'hero';
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between gap-2">
-        <Badge className="w-[45px]">کیف پول</Badge>
-        {isFetching ? <span className="text-xs text-stone-500">...</span> : null}
-      </div>
-      <div className="mt-5 space-y-4">
-        <div className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900/50">
-          <p className="text-xs text-stone-500 dark:text-zinc-400">موجودی ریالی</p>
-          <p className="mt-1 text-xl font-bold text-stone-950 dark:text-zinc-50">
-            {formatPrice(rial)} <span className="text-sm font-normal">تومان</span>
-          </p>
+    <div className="card-luxury overflow-hidden">
+      <div className="h-1 bg-gradient-to-l from-gold via-gold-light to-gold-dark" />
+
+      <div className={isHero ? 'p-6 md:p-8' : 'p-6'}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <Badge variant="gold" className="mb-2">
+              کیف پول
+            </Badge>
+            <p className="text-sm text-muted">
+              {isHero
+                ? 'موجودی لحظه‌ای ریال و طلای شما'
+                : 'موجودی ریالی و طلای حساب'}
+            </p>
+          </div>
+          {isFetching ? (
+            <span className="badge-gold animate-pulse">به‌روزرسانی…</span>
+          ) : null}
         </div>
-        <div className="rounded-2xl border border-amber-200/60 bg-amber-50/50 px-4 py-4 dark:border-amber-500/20 dark:bg-amber-500/5">
-          <p className="text-xs text-stone-500 dark:text-zinc-400">موجودی طلا</p>
-          <p className="mt-1 text-xl font-bold text-amber-800 dark:text-amber-300">
-            {gold.toLocaleString('fa-IR', { maximumFractionDigits: 6 })} گرم
-          </p>
+
+        <div className={`mt-6 grid gap-4 ${isHero ? 'sm:grid-cols-2' : 'space-y-4 sm:grid sm:grid-cols-2 sm:space-y-0'}`}>
+          <div className="group relative overflow-hidden rounded-2xl border border-nude-200 bg-gradient-to-br from-card to-nude-50/80 p-5 transition hover:border-gold-light/60">
+            <div className="absolute -left-6 -top-6 h-24 w-24 rounded-full bg-gold/5 transition group-hover:bg-gold/10" />
+            <p className="relative text-xs font-medium uppercase tracking-wide text-muted">
+              موجودی ریالی
+            </p>
+            <p
+              className={`relative mt-2 font-bold tracking-tight text-foreground ${
+                isHero ? 'text-3xl md:text-4xl' : 'text-2xl'
+              }`}
+            >
+              {formatPrice(rial)}
+            </p>
+            <p className="relative mt-1 text-sm text-muted">تومان</p>
+          </div>
+
+          <div className="group relative overflow-hidden rounded-2xl border border-gold-light/50 bg-gradient-to-br from-gold/5 via-card to-nude-50/50 p-5 transition hover:border-gold/40">
+            <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-gold/10 transition group-hover:bg-gold/15" />
+            <p className="relative text-xs font-medium uppercase tracking-wide text-muted">
+              موجودی طلا
+            </p>
+            <p
+              className={`relative mt-2 font-bold tracking-tight text-gold-dark ${
+                isHero ? 'text-3xl md:text-4xl' : 'text-2xl'
+              }`}
+            >
+              {gold.toLocaleString('fa-IR', { maximumFractionDigits: 6 })}
+            </p>
+            <p className="relative mt-1 text-sm text-muted">گرم طلای ۱۸ عیار</p>
+          </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

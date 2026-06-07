@@ -255,6 +255,19 @@ export class WalletService {
     return this.ledgerRepository.rejectPendingRialDeposit(transactionId, actorId, reason);
   }
 
+  async approveRialWithdrawalRequest(transactionId: string, actorId: string) {
+    const pending = await this.ledgerRepository.findTransactionById(transactionId);
+    if (!pending?.userId) {
+      throw new NotFoundException('تراکنش یافت نشد');
+    }
+    await this.walletRepository.ensureUserWallets(pending.userId);
+    return this.ledgerRepository.completePendingRialWithdrawal(transactionId, actorId);
+  }
+
+  async rejectRialWithdrawalRequest(transactionId: string, actorId: string, reason: string) {
+    return this.ledgerRepository.rejectPendingRialWithdrawal(transactionId, actorId, reason);
+  }
+
   async getHistory(userId: string, query: WalletHistoryQueryDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;

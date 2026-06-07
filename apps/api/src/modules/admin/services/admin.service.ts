@@ -36,6 +36,22 @@ import type { RejectWalletDepositDto } from '../dto/reject-wallet-deposit.dto';
 import { AdminRepository } from '../repositories/admin.repository';
 import { AdminRbacService } from './admin-rbac.service';
 
+function parseWalletWithdrawalMetadata(metadata: unknown) {
+  if (!metadata || typeof metadata !== 'object') {
+    return null;
+  }
+  const record = metadata as Record<string, unknown>;
+  if (typeof record.iban !== 'string') {
+    return null;
+  }
+  return {
+    iban: record.iban,
+    amountToman: typeof record.amountToman === 'string' ? record.amountToman : null,
+    rejectionReason:
+      typeof record.rejectionReason === 'string' ? record.rejectionReason : null,
+  };
+}
+
 function parseWalletDepositMetadata(metadata: unknown) {
   if (!metadata || typeof metadata !== 'object') {
     return null;
@@ -67,6 +83,7 @@ function mapAdminWalletTransaction(
     createdAt:
       tx.createdAt instanceof Date ? tx.createdAt.toISOString() : String(tx.createdAt),
     depositRequest: parseWalletDepositMetadata(tx.metadata),
+    withdrawalRequest: parseWalletWithdrawalMetadata(tx.metadata),
     entries: tx.entries.map((e) => ({
       accountCode: e.account.code,
       side: e.side,
@@ -393,6 +410,7 @@ export class AdminService {
       query.userId,
       query.status,
       query.hasReceipt === 'true' || query.hasReceipt === '1',
+      query.hasWithdrawalRequest === 'true' || query.hasWithdrawalRequest === '1',
     );
     return {
       page,
@@ -418,6 +436,29 @@ export class AdminService {
   ) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.transactions);
     const transaction = await this.walletService.rejectRialDepositRequest(
+      transactionId,
+      actor.id,
+      dto.reason,
+    );
+    return mapAdminWalletTransaction(transaction);
+  }
+
+  async approveWalletWithdrawal(transactionId: string, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.transactions);
+    const transaction = await this.walletService.approveRialWithdrawalRequest(
+      transactionId,
+      actor.id,
+    );
+    return mapAdminWalletTransaction(transaction);
+  }
+
+  async rejectWalletWithdrawal(
+    transactionId: string,
+    dto: RejectWalletDepositDto,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.transactions);
+    const transaction = await this.walletService.rejectRialWithdrawalRequest(
       transactionId,
       actor.id,
       dto.reason,

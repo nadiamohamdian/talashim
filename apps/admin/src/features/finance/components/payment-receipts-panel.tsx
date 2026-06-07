@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
@@ -16,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from '@talashim/ui';
-import type { AdminPaymentReceiptItem } from '@talashim/types';
 import { formatPersianDateTime } from '@/shared/lib/format-date';
 import {
   ReceiptPreview,
@@ -27,15 +26,34 @@ import {
   approveAdminPaymentReceipt,
   rejectAdminPaymentReceipt,
 } from '@/features/commerce/api/commerce-api';
-import { PAYMENT_STATUS_FA, formatToman } from '@/features/commerce/lib/labels';
+import {
+  approveAdminWalletDeposit,
+  fetchWalletTransactions,
+  rejectAdminWalletDeposit,
+} from '@/features/admin/api/admin-api';
+import { formatToman } from '@/features/commerce/lib/labels';
 import { fetchPaymentReceipts } from '../api/finance-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { selectFieldClass } from '../lib/labels';
+import {
+  RECEIPT_SOURCE_FA,
+  type UnifiedReceiptRow,
+  type UnifiedReceiptSource,
+  mergeUnifiedReceipts,
+} from '../lib/unified-receipts';
 
-const RECEIPT_STATUS_OPTIONS = [
-  { value: '', label: 'همه' },
+const PAGE_SIZE = 20;
+
+const SOURCE_OPTIONS: Array<{ value: '' | UnifiedReceiptSource; label: string }> = [
+  { value: '', label: 'همه فیش‌ها' },
+  { value: 'order', label: 'خرید سفارش' },
+  { value: 'wallet', label: 'شارژ کیف پول' },
+];
+
+const ORDER_STATUS_OPTIONS = [
+  { value: '', label: 'همه وضعیت‌ها' },
   { value: 'RECEIPT_SUBMITTED', label: 'در انتظار بررسی' },
   { value: 'PAID', label: 'تأیید شده' },
   { value: 'AWAITING_RECEIPT', label: 'در انتظار فیش جدید' },
@@ -44,30 +62,72 @@ const RECEIPT_STATUS_OPTIONS = [
 
 export function PaymentReceiptsPanel() {
   const [page, setPage] = useState(1);
-  const [status, setStatus] = useState('');
-  const [selected, setSelected] = useState<AdminPaymentReceiptItem | null>(null);
+  const [sourceFilter, setSourceFilter] = useState<'' | UnifiedReceiptSource>('');
+  const [orderStatus, setOrderStatus] = useState('');
+  const [walletStatus, setWalletStatus] = useState('');
+  const [selected, setSelected] = useState<UnifiedReceiptRow | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
 
-  const receiptsQuery = useQuery({
-    queryKey: adminQueryKeys.paymentReceipts(page, status),
-    queryFn: () => fetchPaymentReceipts({ page, status: status || undefined }),
+  const fetchOrders = sourceFilter !== 'wallet';
+  const fetchWallets = sourceFilter !== 'order';
+
+  const ordersQuery = useQuery({
+    queryKey: adminQueryKeys.paymentReceipts(1, orderStatus),
+    queryFn: () =>
+      fetchPaymentReceipts({
+        page: 1,
+        limit: 100,
+        status: orderStatus || undefined,
+      }),
+    enabled: fetchOrders,
   });
 
-  const approveMutation = useMutation({
+  const walletsQuery = useQuery({
+    queryKey: adminQueryKeys.walletDepositReceipts(1, walletStatus),
+    queryFn: () =>
+      fetchWalletTransactions({
+        page: 1,
+        limit: 100,
+        type: 'DEPOSIT',
+        status: walletStatus || undefined,
+        hasReceipt: true,
+      }),
+    enabled: fetchWallets,
+  });
+
+  const mergedRows = useMemo(() => {
+    const orders = fetchOrders ? (ordersQuery.data?.items ?? []) : [];
+    const wallets = fetchWallets ? (walletsQuery.data?.items ?? []) : [];
+    return mergeUnifiedReceipts(orders, wallets, sourceFilter);
+  }, [fetchOrders, fetchWallets, ordersQuery.data?.items, walletsQuery.data?.items, sourceFilter]);
+
+  const total = mergedRows.length;
+  const pageRows = mergedRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const invalidateAll = () => {
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'payment-receipts'] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-deposit-receipts'] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-tx'] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallets'] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'orders'] });
+  };
+
+  const approveOrderMutation = useMutation({
     mutationFn: ({ orderId, paymentId }: { orderId: string; paymentId: string }) =>
       approveAdminPaymentReceipt(orderId, paymentId),
     onSuccess: () => {
-      setActionMessage('فیش تأیید شد.');
+      setActionMessage('فیش سفارش تأیید شد.');
       setSelected(null);
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'payment-receipts'] });
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'orders'] });
+      invalidateAll();
     },
+    onError: () => setErrorMessage('تأیید فیش سفارش ناموفق بود.'),
   });
 
-  const rejectMutation = useMutation({
+  const rejectOrderMutation = useMutation({
     mutationFn: ({
       orderId,
       paymentId,
@@ -78,18 +138,85 @@ export function PaymentReceiptsPanel() {
       reason: string;
     }) => rejectAdminPaymentReceipt(orderId, paymentId, reason),
     onSuccess: () => {
-      setActionMessage('فیش رد شد.');
+      setActionMessage('فیش سفارش رد شد.');
       setSelected(null);
       setRejectReason('');
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'payment-receipts'] });
+      invalidateAll();
     },
+    onError: () => setErrorMessage('رد فیش سفارش ناموفق بود.'),
   });
+
+  const approveWalletMutation = useMutation({
+    mutationFn: (transactionId: string) => approveAdminWalletDeposit(transactionId),
+    onSuccess: () => {
+      setActionMessage('فیش شارژ کیف پول تأیید شد و موجودی کاربر افزایش یافت.');
+      setSelected(null);
+      invalidateAll();
+    },
+    onError: () => setErrorMessage('تأیید فیش کیف پول ناموفق بود.'),
+  });
+
+  const rejectWalletMutation = useMutation({
+    mutationFn: ({ transactionId, reason }: { transactionId: string; reason: string }) =>
+      rejectAdminWalletDeposit(transactionId, reason),
+    onSuccess: () => {
+      setActionMessage('فیش شارژ کیف پول رد شد.');
+      setSelected(null);
+      setRejectReason('');
+      invalidateAll();
+    },
+    onError: () => setErrorMessage('رد فیش کیف پول ناموفق بود.'),
+  });
+
+  const isLoading =
+    (fetchOrders && ordersQuery.isLoading) || (fetchWallets && walletsQuery.isLoading);
+  const isError = (fetchOrders && ordersQuery.isError) || (fetchWallets && walletsQuery.isError);
+
+  const handleApprove = (row: UnifiedReceiptRow) => {
+    const amountLabel = `${formatToman(row.amountToman)} تومان`;
+    const typeLabel = RECEIPT_SOURCE_FA[row.source];
+    const confirmed = window.confirm(
+      `فیش «${typeLabel}» به مبلغ ${amountLabel} برای «${row.userName}» تأیید شود؟`,
+    );
+    if (!confirmed) {
+      return;
+    }
+    setErrorMessage(null);
+    if (row.source === 'order' && row.orderId && row.paymentId) {
+      approveOrderMutation.mutate({ orderId: row.orderId, paymentId: row.paymentId });
+    } else if (row.transactionId) {
+      approveWalletMutation.mutate(row.transactionId);
+    }
+  };
+
+  const handleReject = (row: UnifiedReceiptRow) => {
+    const reason = window.prompt('دلیل رد فیش:');
+    if (!reason?.trim()) {
+      return;
+    }
+    setErrorMessage(null);
+    if (row.source === 'order' && row.orderId && row.paymentId) {
+      rejectOrderMutation.mutate({
+        orderId: row.orderId,
+        paymentId: row.paymentId,
+        reason: reason.trim(),
+      });
+    } else if (row.transactionId) {
+      rejectWalletMutation.mutate({ transactionId: row.transactionId, reason: reason.trim() });
+    }
+  };
+
+  const isActionPending =
+    approveOrderMutation.isPending ||
+    rejectOrderMutation.isPending ||
+    approveWalletMutation.isPending ||
+    rejectWalletMutation.isPending;
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted">
-        فیش‌های واریز کارت‌به‌کارت ارسال‌شده توسط مشتریان. برای تأیید یا رد، فیش را باز کنید یا به
-        جزئیات سفارش بروید.
+        همه فیش‌های کارت‌به‌کارت — هم برای خرید سفارش و هم برای شارژ کیف پول. نوع هر فیش در
+        ستون «هدف» مشخص است.
       </p>
 
       {actionMessage ? (
@@ -97,39 +224,82 @@ export function PaymentReceiptsPanel() {
           {actionMessage}
         </p>
       ) : null}
+      {errorMessage ? (
+        <p className="rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
+          {errorMessage}
+        </p>
+      ) : null}
 
       <FilterBar>
         <div>
-          <Label>وضعیت پرداخت</Label>
+          <Label>هدف فیش</Label>
           <select
             className={selectFieldClass}
-            value={status}
+            value={sourceFilter}
             onChange={(e) => {
-              setStatus(e.target.value);
+              setSourceFilter(e.target.value as '' | UnifiedReceiptSource);
               setPage(1);
             }}
           >
-            {RECEIPT_STATUS_OPTIONS.map((opt) => (
+            {SOURCE_OPTIONS.map((opt) => (
               <option key={opt.value || 'all'} value={opt.value}>
                 {opt.label}
               </option>
             ))}
           </select>
         </div>
+        {fetchOrders ? (
+          <div>
+            <Label>وضعیت سفارش</Label>
+            <select
+              className={selectFieldClass}
+              value={orderStatus}
+              onChange={(e) => {
+                setOrderStatus(e.target.value);
+                setPage(1);
+              }}
+            >
+              {ORDER_STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value || 'all'} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+        {fetchWallets ? (
+          <div>
+            <Label>وضعیت کیف پول</Label>
+            <select
+              className={selectFieldClass}
+              value={walletStatus}
+              onChange={(e) => {
+                setWalletStatus(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="PENDING">در انتظار بررسی</option>
+              <option value="POSTED">تأیید شده</option>
+              <option value="FAILED">رد شده</option>
+              <option value="">همه</option>
+            </select>
+          </div>
+        ) : null}
       </FilterBar>
 
       <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
-        {receiptsQuery.isLoading ? (
+        {isLoading ? (
           <Skeleton className="m-6 h-64" />
-        ) : receiptsQuery.isError ? (
+        ) : isError ? (
           <p className="p-6 text-[var(--error)]">بارگذاری فیش‌ها ناموفق بود.</p>
-        ) : receiptsQuery.data?.items.length === 0 ? (
+        ) : pageRows.length === 0 ? (
           <p className="p-6 text-sm text-muted">فیشی ثبت نشده است.</p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>سفارش</TableHead>
+                <TableHead>هدف</TableHead>
+                <TableHead>مرجع</TableHead>
                 <TableHead>مشتری</TableHead>
                 <TableHead>مبلغ</TableHead>
                 <TableHead>وضعیت</TableHead>
@@ -138,31 +308,41 @@ export function PaymentReceiptsPanel() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {receiptsQuery.data?.items.map((item) => (
-                <TableRow key={item.id}>
+              {pageRows.map((row) => (
+                <TableRow key={row.key}>
                   <TableCell>
-                    <Link
-                      href={`/orders/${item.orderId}`}
-                      className="font-mono text-xs text-[var(--warning)] underline"
-                    >
-                      {item.order.orderNumber}
-                    </Link>
-                  </TableCell>
-                  <TableCell>{item.order.user?.fullName ?? '—'}</TableCell>
-                  <TableCell>{formatToman(item.amountToman)} تومان</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {PAYMENT_STATUS_FA[item.status] ?? item.status}
+                    <Badge variant={row.source === 'wallet' ? 'info' : 'gold'}>
+                      {RECEIPT_SOURCE_FA[row.source]}
                     </Badge>
                   </TableCell>
+                  <TableCell>
+                    {row.referenceHref ? (
+                      <Link
+                        href={row.referenceHref}
+                        className="font-mono text-xs text-[var(--warning)] underline"
+                      >
+                        {row.referenceLabel}
+                      </Link>
+                    ) : (
+                      <span className="font-mono text-xs">{row.referenceLabel}</span>
+                    )}
+                  </TableCell>
+                  <TableCell>{row.userName}</TableCell>
+                  <TableCell>{formatToman(row.amountToman)} تومان</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{row.statusLabel}</Badge>
+                  </TableCell>
                   <TableCell className="text-xs">
-                    {item.receiptUploadedAt
-                      ? formatPersianDateTime(item.receiptUploadedAt)
-                      : '—'}
+                    {row.uploadedAt ? formatPersianDateTime(row.uploadedAt) : '—'}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" size="sm" variant="outline" onClick={() => setSelected(item)}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelected(row)}
+                      >
                         مشاهده فیش
                       </Button>
                       <Button
@@ -171,13 +351,34 @@ export function PaymentReceiptsPanel() {
                         variant="ghost"
                         onClick={() =>
                           downloadReceipt(
-                            item.receiptUrl,
-                            receiptFilenameFromUrl(item.receiptUrl, `receipt-${item.order.orderNumber}`),
+                            row.receiptUrl,
+                            receiptFilenameFromUrl(row.receiptUrl, `receipt-${row.referenceLabel}`),
                           )
                         }
                       >
                         دانلود
                       </Button>
+                      {row.canReview ? (
+                        <>
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={isActionPending}
+                            onClick={() => handleApprove(row)}
+                          >
+                            تأیید
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={isActionPending}
+                            onClick={() => handleReject(row)}
+                          >
+                            رد
+                          </Button>
+                        </>
+                      ) : null}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -187,18 +388,18 @@ export function PaymentReceiptsPanel() {
         )}
       </Card>
 
-      {receiptsQuery.data ? (
+      {total > 0 ? (
         <PaginationBar
-          page={receiptsQuery.data.page}
-          total={receiptsQuery.data.total}
-          limit={receiptsQuery.data.limit}
+          page={page}
+          total={total}
+          limit={PAGE_SIZE}
           onPageChange={setPage}
         />
       ) : null}
 
       {selected ? (
-        <ReceiptDetailDialog
-          item={selected}
+        <UnifiedReceiptDialog
+          row={selected}
           rejectReason={rejectReason}
           onRejectReasonChange={setRejectReason}
           onClose={() => {
@@ -208,29 +409,39 @@ export function PaymentReceiptsPanel() {
           onDownload={() =>
             downloadReceipt(
               selected.receiptUrl,
-              receiptFilenameFromUrl(selected.receiptUrl, `receipt-${selected.order.orderNumber}`),
+              receiptFilenameFromUrl(selected.receiptUrl, `receipt-${selected.referenceLabel}`),
             )
           }
-          onApprove={() =>
-            approveMutation.mutate({ orderId: selected.orderId, paymentId: selected.id })
-          }
-          onReject={() =>
-            rejectMutation.mutate({
-              orderId: selected.orderId,
-              paymentId: selected.id,
-              reason: rejectReason.trim() || 'فیش نامعتبر است',
-            })
-          }
-          isApproving={approveMutation.isPending}
-          isRejecting={rejectMutation.isPending}
+          onApprove={() => handleApprove(selected)}
+          onReject={() => {
+            if (!rejectReason.trim()) {
+              setErrorMessage('برای رد فیش، دلیل را وارد کنید.');
+              return;
+            }
+            setErrorMessage(null);
+            if (selected.source === 'order' && selected.orderId && selected.paymentId) {
+              rejectOrderMutation.mutate({
+                orderId: selected.orderId,
+                paymentId: selected.paymentId,
+                reason: rejectReason.trim(),
+              });
+            } else if (selected.transactionId) {
+              rejectWalletMutation.mutate({
+                transactionId: selected.transactionId,
+                reason: rejectReason.trim(),
+              });
+            }
+          }}
+          isApproving={approveOrderMutation.isPending || approveWalletMutation.isPending}
+          isRejecting={rejectOrderMutation.isPending || rejectWalletMutation.isPending}
         />
       ) : null}
     </div>
   );
 }
 
-interface ReceiptDetailDialogProps {
-  item: AdminPaymentReceiptItem;
+interface UnifiedReceiptDialogProps {
+  row: UnifiedReceiptRow;
   rejectReason: string;
   onRejectReasonChange: (value: string) => void;
   onClose: () => void;
@@ -241,8 +452,8 @@ interface ReceiptDetailDialogProps {
   isRejecting: boolean;
 }
 
-function ReceiptDetailDialog({
-  item,
+function UnifiedReceiptDialog({
+  row,
   rejectReason,
   onRejectReasonChange,
   onClose,
@@ -251,9 +462,7 @@ function ReceiptDetailDialog({
   onReject,
   isApproving,
   isRejecting,
-}: ReceiptDetailDialogProps) {
-  const canReview = item.status === 'RECEIPT_SUBMITTED';
-
+}: UnifiedReceiptDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
       <button
@@ -269,8 +478,13 @@ function ReceiptDetailDialog({
       >
         <div className="flex items-center justify-between border-b border-border bg-[var(--surface)] px-5 py-4">
           <div>
-            <h2 className="text-base font-bold text-foreground">فیش پرداخت</h2>
-            <p className="mt-1 font-mono text-xs text-muted">{item.order.orderNumber}</p>
+            <h2 className="text-base font-bold text-foreground">فیش واریز</h2>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Badge variant={row.source === 'wallet' ? 'info' : 'gold'}>
+                {RECEIPT_SOURCE_FA[row.source]}
+              </Badge>
+              <span className="font-mono text-xs text-muted">{row.referenceLabel}</span>
+            </div>
           </div>
           <button
             type="button"
@@ -285,57 +499,59 @@ function ReceiptDetailDialog({
           <dl className="grid gap-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted">مشتری</dt>
-              <dd>{item.order.user?.fullName ?? '—'}</dd>
+              <dd>{row.userName}</dd>
             </div>
             <div>
               <dt className="text-muted">مبلغ</dt>
-              <dd>{formatToman(item.amountToman)} تومان</dd>
+              <dd>{formatToman(row.amountToman)} تومان</dd>
             </div>
             <div>
               <dt className="text-muted">وضعیت</dt>
-              <dd>{PAYMENT_STATUS_FA[item.status] ?? item.status}</dd>
+              <dd>{row.statusLabel}</dd>
             </div>
             <div>
               <dt className="text-muted">زمان ارسال</dt>
-              <dd>
-                {item.receiptUploadedAt
-                  ? formatPersianDateTime(item.receiptUploadedAt)
-                  : '—'}
-              </dd>
+              <dd>{row.uploadedAt ? formatPersianDateTime(row.uploadedAt) : '—'}</dd>
             </div>
           </dl>
 
-          {item.rejectionReason ? (
+          {row.rejectionReason ? (
             <p className="rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
-              دلیل رد: {item.rejectionReason}
+              دلیل رد: {row.rejectionReason}
             </p>
           ) : null}
 
-          <ReceiptPreview url={item.receiptUrl} maxHeightClass="max-h-[50vh]" />
+          <ReceiptPreview url={row.receiptUrl} maxHeightClass="max-h-[50vh]" />
 
           <div className="flex flex-wrap gap-2">
             <Button type="button" variant="outline" onClick={onDownload}>
               دانلود فیش
             </Button>
             <a
-              href={item.receiptUrl}
+              href={row.receiptUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#564739)] hover:bg-[var(--surface,#f5f1ec)]"
             >
               باز کردن در تب جدید
             </a>
-            <Link
-              href={`/orders/${item.orderId}`}
-              className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#564739)] hover:bg-[var(--surface,#f5f1ec)]"
-            >
-              جزئیات سفارش
-            </Link>
+            {row.source === 'order' && row.referenceHref ? (
+              <Link
+                href={row.referenceHref}
+                className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#564739)] hover:bg-[var(--surface,#f5f1ec)]"
+              >
+                جزئیات سفارش
+              </Link>
+            ) : null}
           </div>
 
-          {canReview ? (
+          {row.canReview ? (
             <div className="space-y-3 rounded-[var(--radius-xl)] border border-[var(--warning-border)] bg-[var(--warning-bg)]/60 p-4">
-              <p className="text-sm font-medium text-[var(--secondary)]">بررسی فیش</p>
+              <p className="text-sm font-medium text-[var(--secondary)]">
+                {row.source === 'wallet'
+                  ? 'پس از تأیید، مبلغ به کیف پول کاربر واریز می‌شود.'
+                  : 'پس از تأیید، سفارش نهایی می‌شود.'}
+              </p>
               <div>
                 <Label htmlFor="reject-reason">دلیل رد (در صورت رد)</Label>
                 <textarea
@@ -343,19 +559,14 @@ function ReceiptDetailDialog({
                   className="mt-1 min-h-[72px] w-full rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-sm"
                   value={rejectReason}
                   onChange={(e) => onRejectReasonChange(e.target.value)}
-                  placeholder="مثلاً: مبلغ با سفارش مطابقت ندارد"
+                  placeholder="مثلاً: مبلغ با درخواست مطابقت ندارد"
                 />
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" disabled={isApproving} onClick={onApprove}>
                   {isApproving ? 'در حال تأیید…' : 'تأیید فیش'}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isRejecting}
-                  onClick={onReject}
-                >
+                <Button type="button" variant="outline" disabled={isRejecting} onClick={onReject}>
                   {isRejecting ? 'در حال رد…' : 'رد فیش'}
                 </Button>
               </div>

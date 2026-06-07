@@ -154,6 +154,25 @@ export class AdminController {
     return this.adminService.rejectWalletDeposit(transactionId, dto, actor);
   }
 
+  @Post('transactions/wallet/:transactionId/approve-withdrawal')
+  @ApiOperation({ summary: 'Approve wallet withdrawal and debit user balance' })
+  approveWalletWithdrawal(
+    @Param('transactionId') transactionId: string,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.approveWalletWithdrawal(transactionId, actor);
+  }
+
+  @Post('transactions/wallet/:transactionId/reject-withdrawal')
+  @ApiOperation({ summary: 'Reject wallet withdrawal request' })
+  rejectWalletWithdrawal(
+    @Param('transactionId') transactionId: string,
+    @Body() dto: RejectWalletDepositDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.rejectWalletWithdrawal(transactionId, dto, actor);
+  }
+
   @Get('transactions/trades')
   @ApiOperation({ summary: 'Monitor gold trade orders' })
   listTradeOrders(

@@ -59,6 +59,7 @@ export function fetchWalletTransactions(params: {
   type?: string;
   status?: string;
   hasReceipt?: boolean;
+  hasWithdrawalRequest?: boolean;
   userId?: string;
 }) {
   return axiosClient
@@ -66,6 +67,7 @@ export function fetchWalletTransactions(params: {
       params: {
         ...params,
         hasReceipt: params.hasReceipt ? 'true' : undefined,
+        hasWithdrawalRequest: params.hasWithdrawalRequest ? 'true' : undefined,
       },
     })
     .then((r) => r.data);
@@ -85,13 +87,27 @@ export function rejectAdminWalletDeposit(transactionId: string, reason: string) 
     .then((r) => r.data);
 }
 
+export function approveAdminWalletWithdrawal(transactionId: string) {
+  return axiosClient
+    .post<AdminWalletTransaction>(`/admin/transactions/wallet/${transactionId}/approve-withdrawal`)
+    .then((r) => r.data);
+}
+
+export function rejectAdminWalletWithdrawal(transactionId: string, reason: string) {
+  return axiosClient
+    .post<AdminWalletTransaction>(`/admin/transactions/wallet/${transactionId}/reject-withdrawal`, {
+      reason,
+    })
+    .then((r) => r.data);
+}
+
 export function fetchTradeOrders(params: { page?: number; side?: string; userId?: string }) {
   return axiosClient
     .get<AdminPaginated<AdminTradeOrder>>('/admin/transactions/trades', { params })
     .then((r) => r.data);
 }
 
-export function fetchPaymentReceipts(params: { page?: number; status?: string }) {
+export function fetchPaymentReceipts(params: { page?: number; limit?: number; status?: string }) {
   return axiosClient
     .get<AdminPaginated<AdminPaymentReceiptItem>>('/admin/transactions/payment-receipts', {
       params,

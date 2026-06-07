@@ -18,14 +18,9 @@ import {
 import type { AdminWalletTransaction } from '@talashim/types';
 import { formatPersianDateTime } from '@/shared/lib/format-date';
 import {
-  ReceiptPreview,
-  downloadReceipt,
-  receiptFilenameFromUrl,
-} from '@/shared/ui/receipt-preview';
-import {
-  approveAdminWalletDeposit,
+  approveAdminWalletWithdrawal,
   fetchWalletTransactions,
-  rejectAdminWalletDeposit,
+  rejectAdminWalletWithdrawal,
 } from '@/features/admin/api/admin-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
@@ -39,29 +34,65 @@ const STATUS_OPTIONS = [
   { value: '', label: 'همه' },
 ];
 
-export function WalletDepositReceiptsPanel() {
+export function WalletWithdrawalRequestsPanel() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('PENDING');
   const [selected, setSelected] = useState<AdminWalletTransaction | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
 
-  const invalidateReceiptQueries = () => {
-    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-deposit-receipts'] });
+  const invalidateQueries = () => {
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-withdrawal-requests'] });
     void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-tx'] });
     void queryClient.invalidateQueries({ queryKey: ['admin', 'wallets'] });
   };
 
+  const requestsQuery = useQuery({
+    queryKey: adminQueryKeys.walletWithdrawalRequests(page, status),
+    queryFn: () =>
+      fetchWalletTransactions({
+        page,
+        type: 'WITHDRAWAL',
+        status: status || undefined,
+        hasWithdrawalRequest: true,
+      }),
+  });
+
+  const approveMutation = useMutation({
+    mutationFn: (transactionId: string) => approveAdminWalletWithdrawal(transactionId),
+    onSuccess: () => {
+      setActionMessage('درخواست برداشت تأیید شد و مبلغ از کیف پول کاربر کسر شد.');
+      setSelected(null);
+      invalidateQueries();
+    },
+    onError: () => {
+      setErrorMessage('تأیید برداشت ناموفق بود. موجودی یا وضعیت درخواست را بررسی کنید.');
+    },
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: ({ transactionId, reason }: { transactionId: string; reason: string }) =>
+      rejectAdminWalletWithdrawal(transactionId, reason),
+    onSuccess: () => {
+      setActionMessage('درخواست برداشت رد شد.');
+      setSelected(null);
+      invalidateQueries();
+    },
+    onError: () => {
+      setErrorMessage('رد درخواست برداشت ناموفق بود.');
+    },
+  });
+
   const handleApprove = (item: AdminWalletTransaction) => {
-    const amountLabel = item.depositRequest?.amountToman
-      ? `${formatToman(item.depositRequest.amountToman)} تومان`
+    const amountLabel = item.withdrawalRequest?.amountToman
+      ? `${formatToman(item.withdrawalRequest.amountToman)} تومان`
       : 'مبلغ درخواستی';
     const userLabel = item.user?.fullName ?? 'کاربر';
+    const iban = item.withdrawalRequest?.iban ?? '—';
     const confirmed = window.confirm(
-      `فیش تأیید شود و ${amountLabel} به کیف پول «${userLabel}» واریز گردد؟`,
+      `برداشت ${amountLabel} از کیف پول «${userLabel}» تأیید شود؟\n\nواریز به شبا:\n${iban}`,
     );
     if (!confirmed) {
       return;
@@ -71,7 +102,7 @@ export function WalletDepositReceiptsPanel() {
   };
 
   const handleReject = (item: AdminWalletTransaction) => {
-    const reason = window.prompt('دلیل رد فیش:');
+    const reason = window.prompt('دلیل رد درخواست برداشت:');
     if (!reason?.trim()) {
       return;
     }
@@ -79,48 +110,11 @@ export function WalletDepositReceiptsPanel() {
     rejectMutation.mutate({ transactionId: item.id, reason: reason.trim() });
   };
 
-  const receiptsQuery = useQuery({
-    queryKey: adminQueryKeys.walletDepositReceipts(page, status),
-    queryFn: () =>
-      fetchWalletTransactions({
-        page,
-        type: 'DEPOSIT',
-        status: status || undefined,
-        hasReceipt: true,
-      }),
-  });
-
-  const approveMutation = useMutation({
-    mutationFn: (transactionId: string) => approveAdminWalletDeposit(transactionId),
-    onSuccess: () => {
-      setActionMessage('فیش تأیید شد و مبلغ به کیف پول کاربر واریز شد.');
-      setSelected(null);
-      invalidateReceiptQueries();
-    },
-    onError: () => {
-      setErrorMessage('تأیید فیش ناموفق بود. دوباره تلاش کنید.');
-    },
-  });
-
-  const rejectMutation = useMutation({
-    mutationFn: ({ transactionId, reason }: { transactionId: string; reason: string }) =>
-      rejectAdminWalletDeposit(transactionId, reason),
-    onSuccess: () => {
-      setActionMessage('فیش رد شد.');
-      setSelected(null);
-      setRejectReason('');
-      invalidateReceiptQueries();
-    },
-    onError: () => {
-      setErrorMessage('رد فیش ناموفق بود. دوباره تلاش کنید.');
-    },
-  });
-
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted">
-        فیش‌های واریز کارت‌به‌کارت برای شارژ کیف پول. پس از بررسی فیش، در صورت تأیید مبلغ به
-        موجودی ریالی کاربر اضافه می‌شود.
+        درخواست‌های برداشت از کیف پول کاربران. پس از تأیید، مبلغ از موجودی ریالی کسر می‌شود و
+        باید به شبای ثبت‌شده واریز گردد.
       </p>
 
       {actionMessage ? (
@@ -155,32 +149,35 @@ export function WalletDepositReceiptsPanel() {
       </FilterBar>
 
       <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
-        {receiptsQuery.isLoading ? (
+        {requestsQuery.isLoading ? (
           <Skeleton className="m-6 h-64" />
-        ) : receiptsQuery.isError ? (
-          <p className="p-6 text-[var(--error)]">بارگذاری فیش‌های واریز کیف پول ناموفق بود.</p>
-        ) : receiptsQuery.data?.items.length === 0 ? (
-          <p className="p-6 text-sm text-muted">فیش واریز کیف پولی ثبت نشده است.</p>
+        ) : requestsQuery.isError ? (
+          <p className="p-6 text-[var(--error)]">بارگذاری درخواست‌های برداشت ناموفق بود.</p>
+        ) : requestsQuery.data?.items.length === 0 ? (
+          <p className="p-6 text-sm text-muted">درخواست برداشتی ثبت نشده است.</p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>کاربر</TableHead>
                 <TableHead>مبلغ</TableHead>
+                <TableHead>شبا مقصد</TableHead>
                 <TableHead>وضعیت</TableHead>
                 <TableHead>زمان ثبت</TableHead>
-                <TableHead>فیش</TableHead>
                 <TableHead>تأیید</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {receiptsQuery.data?.items.map((item) => (
+              {requestsQuery.data?.items.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.user?.fullName ?? '—'}</TableCell>
                   <TableCell>
-                    {item.depositRequest?.amountToman
-                      ? `${formatToman(item.depositRequest.amountToman)} تومان`
+                    {item.withdrawalRequest?.amountToman
+                      ? `${formatToman(item.withdrawalRequest.amountToman)} تومان`
                       : '—'}
+                  </TableCell>
+                  <TableCell className="font-mono text-xs" dir="ltr">
+                    {item.withdrawalRequest?.iban ?? '—'}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">
@@ -191,40 +188,16 @@ export function WalletDepositReceiptsPanel() {
                     {formatPersianDateTime(item.createdAt)}
                   </TableCell>
                   <TableCell>
-                    {item.depositRequest?.receiptUrl ? (
-                      <div className="flex flex-wrap gap-2">
+                    {item.status === 'PENDING' && item.withdrawalRequest?.iban ? (
+                      <div className="flex min-w-[220px] flex-wrap gap-2">
                         <Button
                           type="button"
                           size="sm"
                           variant="outline"
                           onClick={() => setSelected(item)}
                         >
-                          مشاهده فیش
+                          جزئیات
                         </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          onClick={() =>
-                            downloadReceipt(
-                              item.depositRequest!.receiptUrl,
-                              receiptFilenameFromUrl(
-                                item.depositRequest!.receiptUrl,
-                                `wallet-receipt-${item.reference}`,
-                              ),
-                            )
-                          }
-                        >
-                          دانلود
-                        </Button>
-                      </div>
-                    ) : (
-                      '—'
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {item.status === 'PENDING' && item.depositRequest?.receiptUrl ? (
-                      <div className="flex min-w-[220px] flex-wrap gap-2">
                         <Button
                           type="button"
                           size="sm"
@@ -235,12 +208,12 @@ export function WalletDepositReceiptsPanel() {
                         >
                           {approveMutation.isPending && approveMutation.variables === item.id
                             ? 'در حال تأیید…'
-                            : 'تأیید و واریز'}
+                            : 'تأیید برداشت'}
                         </Button>
                         <Button
                           type="button"
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           disabled={
                             rejectMutation.isPending &&
                             rejectMutation.variables?.transactionId === item.id
@@ -250,7 +223,7 @@ export function WalletDepositReceiptsPanel() {
                           {rejectMutation.isPending &&
                           rejectMutation.variables?.transactionId === item.id
                             ? 'در حال رد…'
-                            : 'رد فیش'}
+                            : 'رد'}
                         </Button>
                       </div>
                     ) : (
@@ -264,45 +237,21 @@ export function WalletDepositReceiptsPanel() {
         )}
       </Card>
 
-      {receiptsQuery.data ? (
+      {requestsQuery.data ? (
         <PaginationBar
-          page={receiptsQuery.data.page}
-          total={receiptsQuery.data.total}
-          limit={receiptsQuery.data.limit}
+          page={requestsQuery.data.page}
+          total={requestsQuery.data.total}
+          limit={requestsQuery.data.limit}
           onPageChange={setPage}
         />
       ) : null}
 
-      {selected?.depositRequest?.receiptUrl ? (
-        <WalletDepositReceiptDialog
+      {selected?.withdrawalRequest ? (
+        <WithdrawalDetailDialog
           item={selected}
-          rejectReason={rejectReason}
-          onRejectReasonChange={setRejectReason}
-          onClose={() => {
-            setSelected(null);
-            setRejectReason('');
-          }}
-          onDownload={() =>
-            downloadReceipt(
-              selected.depositRequest!.receiptUrl,
-              receiptFilenameFromUrl(
-                selected.depositRequest!.receiptUrl,
-                `wallet-receipt-${selected.reference}`,
-              ),
-            )
-          }
+          onClose={() => setSelected(null)}
           onApprove={() => handleApprove(selected)}
-          onReject={() => {
-            if (!rejectReason.trim()) {
-              setErrorMessage('برای رد فیش، دلیل را وارد کنید.');
-              return;
-            }
-            setErrorMessage(null);
-            rejectMutation.mutate({
-              transactionId: selected.id,
-              reason: rejectReason.trim(),
-            });
-          }}
+          onReject={() => handleReject(selected)}
           isApproving={approveMutation.isPending}
           isRejecting={rejectMutation.isPending}
         />
@@ -311,30 +260,23 @@ export function WalletDepositReceiptsPanel() {
   );
 }
 
-interface WalletDepositReceiptDialogProps {
+interface WithdrawalDetailDialogProps {
   item: AdminWalletTransaction;
-  rejectReason: string;
-  onRejectReasonChange: (value: string) => void;
   onClose: () => void;
-  onDownload: () => void;
   onApprove: () => void;
   onReject: () => void;
   isApproving: boolean;
   isRejecting: boolean;
 }
 
-function WalletDepositReceiptDialog({
+function WithdrawalDetailDialog({
   item,
-  rejectReason,
-  onRejectReasonChange,
   onClose,
-  onDownload,
   onApprove,
   onReject,
   isApproving,
   isRejecting,
-}: WalletDepositReceiptDialogProps) {
-  const receiptUrl = item.depositRequest?.receiptUrl ?? '';
+}: WithdrawalDetailDialogProps) {
   const canReview = item.status === 'PENDING';
 
   return (
@@ -348,11 +290,11 @@ function WalletDepositReceiptDialog({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-2xl)]"
+        className="relative flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-2xl)]"
       >
         <div className="flex items-center justify-between border-b border-border bg-[var(--surface)] px-5 py-4">
           <div>
-            <h2 className="text-base font-bold text-foreground">فیش واریز کیف پول</h2>
+            <h2 className="text-base font-bold text-foreground">درخواست برداشت</h2>
             <p className="mt-1 font-mono text-xs text-muted">{item.reference}</p>
           </div>
           <button
@@ -365,17 +307,23 @@ function WalletDepositReceiptDialog({
         </div>
 
         <div className="space-y-4 overflow-y-auto p-5">
-          <dl className="grid gap-3 text-sm sm:grid-cols-2">
+          <dl className="grid gap-3 text-sm">
             <div>
               <dt className="text-muted">کاربر</dt>
               <dd>{item.user?.fullName ?? '—'}</dd>
             </div>
             <div>
-              <dt className="text-muted">مبلغ درخواستی</dt>
+              <dt className="text-muted">مبلغ</dt>
               <dd>
-                {item.depositRequest?.amountToman
-                  ? `${formatToman(item.depositRequest.amountToman)} تومان`
+                {item.withdrawalRequest?.amountToman
+                  ? `${formatToman(item.withdrawalRequest.amountToman)} تومان`
                   : '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-muted">شبا مقصد</dt>
+              <dd className="font-mono text-xs" dir="ltr">
+                {item.withdrawalRequest?.iban ?? '—'}
               </dd>
             </div>
             <div>
@@ -388,54 +336,23 @@ function WalletDepositReceiptDialog({
             </div>
           </dl>
 
-          {item.depositRequest?.rejectionReason ? (
+          {item.withdrawalRequest?.rejectionReason ? (
             <p className="rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
-              دلیل رد: {item.depositRequest.rejectionReason}
+              دلیل رد: {item.withdrawalRequest.rejectionReason}
             </p>
           ) : null}
-
-          <ReceiptPreview url={receiptUrl} maxHeightClass="max-h-[50vh]" />
-
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={onDownload}>
-              دانلود فیش
-            </Button>
-            <a
-              href={receiptUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#564739)] hover:bg-[var(--surface,#f5f1ec)]"
-            >
-              باز کردن در تب جدید
-            </a>
-          </div>
 
           {canReview ? (
             <div className="space-y-3 rounded-[var(--radius-xl)] border border-[var(--warning-border)] bg-[var(--warning-bg)]/60 p-4">
               <p className="text-sm font-medium text-[var(--secondary)]">
-                بررسی فیش — پس از تأیید، مبلغ به کیف پول کاربر واریز می‌شود
+                پس از واریز دستی به شبای بالا، برداشت را تأیید کنید تا مبلغ از کیف پول کسر شود.
               </p>
-              <div>
-                <Label htmlFor="wallet-reject-reason">دلیل رد (در صورت رد)</Label>
-                <textarea
-                  id="wallet-reject-reason"
-                  className="mt-1 min-h-[72px] w-full rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-sm"
-                  value={rejectReason}
-                  onChange={(e) => onRejectReasonChange(e.target.value)}
-                  placeholder="مثلاً: مبلغ واریزی با درخواست مطابقت ندارد"
-                />
-              </div>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" disabled={isApproving} onClick={onApprove}>
-                  {isApproving ? 'در حال تأیید…' : 'تأیید و واریز به کیف پول'}
+                  {isApproving ? 'در حال تأیید…' : 'تأیید برداشت'}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isRejecting}
-                  onClick={onReject}
-                >
-                  {isRejecting ? 'در حال رد…' : 'رد فیش'}
+                <Button type="button" variant="outline" disabled={isRejecting} onClick={onReject}>
+                  {isRejecting ? 'در حال رد…' : 'رد درخواست'}
                 </Button>
               </div>
             </div>

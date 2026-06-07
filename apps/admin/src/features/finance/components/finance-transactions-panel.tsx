@@ -21,10 +21,10 @@ import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { FinancePageShell } from './finance-page-shell';
 import { PaymentReceiptsPanel } from './payment-receipts-panel';
-import { WalletDepositReceiptsPanel } from './wallet-deposit-receipts-panel';
+import { WalletWithdrawalRequestsPanel } from './wallet-withdrawal-requests-panel';
 import { selectFieldClass, WALLET_TX_STATUS_FA, WALLET_TX_TYPE_FA } from '../lib/labels';
 
-type TransactionsTab = 'wallet' | 'wallet-receipts' | 'receipts';
+type TransactionsTab = 'wallet' | 'wallet-withdrawals' | 'receipts';
 
 export function FinanceTransactionsPanel() {
   const [tab, setTab] = useState<TransactionsTab>('wallet');
@@ -50,11 +50,11 @@ export function FinanceTransactionsPanel() {
         </button>
         <button
           type="button"
-          onClick={() => setTab('wallet-receipts')}
-          data-active={tab === 'wallet-receipts'}
+          onClick={() => setTab('wallet-withdrawals')}
+          data-active={tab === 'wallet-withdrawals'}
           className="admin-tab-pill"
         >
-          فیش‌های واریز کیف پول
+          درخواست‌های برداشت
         </button>
         <button
           type="button"
@@ -62,12 +62,12 @@ export function FinanceTransactionsPanel() {
           data-active={tab === 'receipts'}
           className="admin-tab-pill"
         >
-          فیش‌های پرداخت سفارش
+          فیش‌های واریز
         </button>
       </div>
 
-      {tab === 'wallet-receipts' ? (
-        <WalletDepositReceiptsPanel />
+      {tab === 'wallet-withdrawals' ? (
+        <WalletWithdrawalRequestsPanel />
       ) : tab === 'receipts' ? (
         <PaymentReceiptsPanel />
       ) : (

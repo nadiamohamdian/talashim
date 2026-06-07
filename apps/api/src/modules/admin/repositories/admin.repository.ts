@@ -175,13 +175,22 @@ export class AdminRepository {
     userId?: string,
     status?: WalletTransactionStatus,
     hasReceipt?: boolean,
+    hasWithdrawalRequest?: boolean,
   ) {
     const where: Prisma.WalletTransactionWhereInput = { type, userId, status };
+    const metadataFilters: Prisma.WalletTransactionWhereInput[] = [];
     if (hasReceipt) {
-      where.metadata = {
-        path: ['receiptUrl'],
-        not: Prisma.AnyNull,
-      };
+      metadataFilters.push({
+        metadata: { path: ['receiptUrl'], not: Prisma.AnyNull },
+      });
+    }
+    if (hasWithdrawalRequest) {
+      metadataFilters.push({
+        metadata: { path: ['iban'], not: Prisma.AnyNull },
+      });
+    }
+    if (metadataFilters.length > 0) {
+      where.AND = metadataFilters;
     }
     return Promise.all([
       this.prisma.walletTransaction.findMany({

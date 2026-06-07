@@ -69,6 +69,11 @@ export class AdminWalletTxQueryDto extends PaginationQueryDto {
   @IsString()
   hasReceipt?: string;
 
+  @ApiPropertyOptional({ description: 'Only wallet withdrawal requests with destination IBAN' })
+  @IsOptional()
+  @IsString()
+  hasWithdrawalRequest?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

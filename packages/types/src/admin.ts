@@ -39,6 +39,12 @@ export interface AdminWalletDepositRequest {
   rejectionReason: string | null;
 }
 
+export interface AdminWalletWithdrawalRequest {
+  iban: string;
+  amountToman: string | null;
+  rejectionReason: string | null;
+}
+
 export interface AdminWalletTransaction {
   id: string;
   reference: string;
@@ -49,6 +55,7 @@ export interface AdminWalletTransaction {
   user: { id: string; email: string; fullName: string } | null;
   createdAt: string;
   depositRequest?: AdminWalletDepositRequest | null;
+  withdrawalRequest?: AdminWalletWithdrawalRequest | null;
   entries?: Array<{
     accountCode: string;
     side: string;
