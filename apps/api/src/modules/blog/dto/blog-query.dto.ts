@@ -1,9 +1,10 @@
+import { Transform } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { normalizeOptionalInt } from '@/common/dto/normalize-query-int';
 
 export class BlogQueryDto {
   @IsOptional()
-  @Type(() => Number)
+  @Transform(({ value }) => normalizeOptionalInt(value))
   @IsInt()
   @Min(1)
   @Max(50)
@@ -12,4 +13,11 @@ export class BlogQueryDto {
   @IsOptional()
   @IsString()
   category?: string;
+
+  /** Accepted for client compatibility — ignored by the blog list endpoint. */
+  @IsOptional()
+  @Transform(({ value }) => normalizeOptionalInt(value))
+  @IsInt()
+  @Min(1)
+  page?: number;
 }

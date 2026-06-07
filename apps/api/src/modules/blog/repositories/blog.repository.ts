@@ -10,7 +10,9 @@ export class BlogRepository {
       where: {
         isPublished: true,
         publishedAt: { lte: new Date() },
-        ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+        ...(categorySlug
+          ? { category: { slug: categorySlug } }
+          : { NOT: { category: { slug: 'faq' } } }),
       },
       orderBy: [{ sortOrder: 'asc' }, { publishedAt: 'desc' }],
       take: limit,
@@ -19,8 +21,12 @@ export class BlogRepository {
   }
 
   findBySlug(slug: string) {
-    return this.prisma.blogPost.findUnique({
-      where: { slug },
+    return this.prisma.blogPost.findFirst({
+      where: {
+        slug,
+        isPublished: true,
+        publishedAt: { lte: new Date() },
+      },
     });
   }
 }

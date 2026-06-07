@@ -31,6 +31,7 @@ import { CmsPageShell } from './cms-page-shell';
 import { PostEditorForm } from './post-editor-form';
 import { selectFieldClass } from '../lib/labels';
 import type { AdminBlogPostDto } from '@talashim/types';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 
 export function BlogPanel() {
   const [page, setPage] = useState(1);
@@ -58,6 +59,8 @@ export function BlogPanel() {
     void queryClient.invalidateQueries({ queryKey: ['admin', 'cms', 'blog'] });
   };
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const saveMutation = useMutation({
     mutationFn: async (payload: Parameters<typeof createBlogPost>[0]) => {
       if (editing && editing !== 'new') {
@@ -66,8 +69,12 @@ export function BlogPanel() {
       return createBlogPost(payload);
     },
     onSuccess: () => {
+      setSaveError(null);
       setEditing(null);
       invalidate();
+    },
+    onError: (error: unknown) => {
+      setSaveError(getApiErrorMessage(error, 'ذخیره پست ناموفق بود'));
     },
   });
 
@@ -89,9 +96,14 @@ export function BlogPanel() {
         <PostEditorForm
           categories={categories.data ?? []}
           initial={editing === 'new' ? null : editing}
-          onCancel={() => setEditing(null)}
+          onCancel={() => {
+            setSaveError(null);
+            setEditing(null);
+          }}
           saving={saveMutation.isPending}
+          saveError={saveError}
           onSave={async (payload) => {
+            setSaveError(null);
             await saveMutation.mutateAsync(payload);
           }}
         />

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { FaqPageShell } from '@/features/content/components/faq-list';
-import { FeatureGate } from '@/features/site/components/feature-gate';
-import { productApi } from '@/lib/api/product.api';
+import { FeatureDisabledPage } from '@/features/site/components/feature-disabled-page';
+import { fetchSiteConfig } from '@/lib/api/site.api';
+import { getFaqPosts } from '@/shared/api/blog-api';
 
 export const metadata: Metadata = {
   title: 'سوالات متداول',
@@ -10,10 +11,22 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function FaqPage() {
-  const posts = await productApi.getFaqPosts();
-  return (
-    <FeatureGate flag="enableBlog">
-      <FaqPageShell posts={posts} />
-    </FeatureGate>
-  );
+  const config = await fetchSiteConfig();
+  if (!config.featureFlags.enableBlog) {
+    return (
+      <FeatureDisabledPage
+        title="بخش محتوا غیرفعال است"
+        description="وبلاگ و مقالات فعلاً در دسترس نیستند."
+      />
+    );
+  }
+
+  let posts: Awaited<ReturnType<typeof getFaqPosts>> = [];
+  try {
+    posts = await getFaqPosts();
+  } catch {
+    posts = [];
+  }
+
+  return <FaqPageShell posts={posts} />;
 }

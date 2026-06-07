@@ -7,8 +7,12 @@ import type {
 } from '@sadafgold/types';
 import { enrichProductDetails, withLivePricingList } from '@/shared/lib/live-gold-pricing';
 import {
+  getBlogPostBySlug as getBlogPostBySlugFromBlogApi,
+  getBlogPosts as getBlogPostsFromBlogApi,
+  getFaqPosts as getFaqPostsFromBlogApi,
+} from '@/shared/api/blog-api';
+import {
   apiGet,
-  serverFetch,
   serverFetchCatalogDetail,
   serverFetchCatalogList,
   serverFetchPaginatedCatalog,
@@ -139,18 +143,15 @@ export const productApi = {
   },
 
   async getBlogPosts(): Promise<BlogPostSummary[]> {
-    return serverFetchCatalogList<BlogPostSummary[]>('/blog', { revalidate: 300 });
+    return getBlogPostsFromBlogApi();
   },
 
   async getFaqPosts(): Promise<BlogPostSummary[]> {
-    return serverFetchCatalogList<BlogPostSummary[]>('/blog?category=faq&limit=20', {
-      tags: ['content:faq'],
-      cache: 'no-store',
-    });
+    return getFaqPostsFromBlogApi();
   },
 
-  async getBlogPostBySlug(slug: string): Promise<BlogPostDetails> {
-    return serverFetch<BlogPostDetails>(`/blog/${slug}`, { revalidate: 300 });
+  async getBlogPostBySlug(slug: string): Promise<BlogPostDetails | null> {
+    return getBlogPostBySlugFromBlogApi(slug);
   },
 };
 

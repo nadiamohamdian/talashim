@@ -9,12 +9,16 @@ import {
   IsObject,
   IsOptional,
   IsString,
-  IsUrl,
+  Matches,
   Max,
   MaxLength,
   Min,
   MinLength,
 } from 'class-validator';
+import {
+  LIBRARY_MEDIA_URL_MESSAGE,
+  LIBRARY_MEDIA_URL_PATTERN,
+} from '@/common/media/library-media-url';
 import { PaginationQueryDto } from './admin-query.dto';
 
 export class AdminBlogQueryDto extends PaginationQueryDto {
@@ -61,7 +65,7 @@ export class UpsertFaqPostDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  @IsUrl({ require_protocol: true }, { message: 'coverImageUrl must be a valid URL' })
+  @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
   coverImageUrl?: string;
 
   @ApiPropertyOptional()
@@ -106,7 +110,7 @@ export class UpsertBlogPostDto {
 
   @ApiProperty()
   @IsString()
-  @IsUrl({ require_protocol: true }, { message: 'coverImageUrl must be a valid URL' })
+  @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
   coverImageUrl!: string;
 
   @ApiPropertyOptional()
@@ -214,7 +218,7 @@ export class UpsertCmsBannerDto {
 
   @ApiProperty()
   @IsString()
-  @IsUrl({ require_protocol: true })
+  @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
   imageUrl!: string;
 
   @ApiPropertyOptional()
@@ -369,7 +373,7 @@ export class RegisterMediaAssetDto {
 
   @ApiProperty()
   @IsString()
-  @IsUrl({ require_protocol: true })
+  @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
   url!: string;
 
   @ApiProperty()

@@ -1,20 +1,20 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { KycStatus, PaymentStatus, Role, GoldTradeSide, WalletTransactionType } from '@/generated/prisma';
-import { Type } from 'class-transformer';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { normalizeOptionalInt } from '@/common/dto/normalize-query-int';
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(({ value }) => normalizeOptionalInt(value))
   @IsInt()
   @Min(1)
   page?: number = 1;
 
   @ApiPropertyOptional({ default: 20 })
   @IsOptional()
-  @Type(() => Number)
+  @Transform(({ value }) => normalizeOptionalInt(value))
   @IsInt()
   @Min(1)
   @Max(100)

@@ -28,6 +28,7 @@ interface PostEditorFormProps {
   onSave: (payload: UpsertBlogPostPayload) => Promise<void>;
   onCancel: () => void;
   saving?: boolean;
+  saveError?: string | null;
 }
 
 export function PostEditorForm({
@@ -37,6 +38,7 @@ export function PostEditorForm({
   onSave,
   onCancel,
   saving,
+  saveError,
 }: PostEditorFormProps) {
   const [form, setForm] = useState<UpsertBlogPostPayload>(emptyPayload());
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -167,6 +169,7 @@ export function PostEditorForm({
       {validationError ? (
         <p className="text-sm text-[var(--error)]">{validationError}</p>
       ) : null}
+      {saveError ? <p className="text-sm text-[var(--error)]">{saveError}</p> : null}
       <div className="flex gap-2">
         <Button
           disabled={saving}
@@ -177,7 +180,9 @@ export function PostEditorForm({
               return;
             }
             setValidationError(null);
-            void onSave(form);
+            void onSave(form).catch(() => {
+              // Parent mutation surfaces API validation errors via saveError.
+            });
           }}
         >
           {saving ? 'در حال ذخیره…' : 'ذخیره'}

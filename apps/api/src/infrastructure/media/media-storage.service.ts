@@ -45,8 +45,8 @@ export class MediaStorageService {
     await writeFile(absolutePath, file.buffer);
 
     const env = getApiEnv();
-    const base = `http://localhost:${env.API_PORT}`;
-    const url = `${base}/${env.API_PREFIX}/v${env.API_VERSION}/media-files/${safeFolder}/${filename}`;
+    const publicBase = env.UPLOAD_PUBLIC_BASE_URL.replace(/\/$/, '');
+    const url = `${publicBase}/${env.API_PREFIX}/v${env.API_VERSION}/media-files/${safeFolder}/${filename}`;
 
     this.logger.debug(`Saved media file ${absolutePath}`);
 

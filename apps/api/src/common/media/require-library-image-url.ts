@@ -1,4 +1,9 @@
 import { BadRequestException } from '@nestjs/common';
+import {
+  isLibraryMediaUrl,
+  LIBRARY_MEDIA_URL_MESSAGE,
+  normalizeLibraryMediaUrl,
+} from './library-media-url';
 
 export function requireLibraryImageUrl(
   url: string | undefined | null,
@@ -8,10 +13,13 @@ export function requireLibraryImageUrl(
   if (!trimmed) {
     throw new BadRequestException(`${fieldLabel} باید از کتابخانه رسانه انتخاب شود`);
   }
-  if (!trimmed.includes('/media-files/')) {
-    throw new BadRequestException(`${fieldLabel} باید از کتابخانه رسانه آپلود شده باشد`);
+
+  const normalized = normalizeLibraryMediaUrl(trimmed);
+  if (!isLibraryMediaUrl(normalized)) {
+    throw new BadRequestException(`${fieldLabel} باید ${LIBRARY_MEDIA_URL_MESSAGE.toLowerCase()}`);
   }
-  return trimmed;
+
+  return normalized;
 }
 
 export function optionalLibraryImageUrl(
