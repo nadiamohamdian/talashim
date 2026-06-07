@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { WalletAssetType } from '@/generated/prisma';
+import type { MediaStorageService } from '@/infrastructure/media/media-storage.service';
 import { LedgerRepository } from '@/modules/ledger/repositories/ledger.repository';
 import { LedgerService } from '@/modules/ledger/services/ledger.service';
 import { WalletRepository } from '../repositories/wallet.repository';
@@ -10,8 +11,17 @@ describe('WalletService', () => {
   let walletRepository: jest.Mocked<Pick<WalletRepository, 'ensureUserWallets' | 'getUserWalletCodes'>>;
   let ledgerService: jest.Mocked<Pick<LedgerService, 'postJournal'>>;
   let ledgerRepository: jest.Mocked<
-    Pick<LedgerRepository, 'findAccountByCode' | 'calculateAccountBalance' | 'listTransactions' | 'countTransactions'>
+    Pick<
+      LedgerRepository,
+      | 'findAccountByCode'
+      | 'calculateAccountBalance'
+      | 'listTransactions'
+      | 'countTransactions'
+      | 'findExistingTransaction'
+      | 'createPendingTransaction'
+    >
   >;
+  let mediaStorage: jest.Mocked<Pick<MediaStorageService, 'saveReceipt'>>;
 
   beforeEach(() => {
     walletRepository = {
@@ -29,12 +39,18 @@ describe('WalletService', () => {
       calculateAccountBalance: jest.fn(),
       listTransactions: jest.fn(),
       countTransactions: jest.fn(),
+      findExistingTransaction: jest.fn().mockResolvedValue(null),
+      createPendingTransaction: jest.fn(),
+    };
+    mediaStorage = {
+      saveReceipt: jest.fn(),
     };
 
     service = new WalletService(
       walletRepository as unknown as WalletRepository,
       ledgerService as unknown as LedgerService,
       ledgerRepository as unknown as LedgerRepository,
+      mediaStorage as unknown as MediaStorageService,
     );
   });
 

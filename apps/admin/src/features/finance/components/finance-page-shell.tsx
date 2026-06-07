@@ -8,7 +8,8 @@ import { PageHeader } from '@/widgets/admin/page-header';
 
 const DESCRIPTIONS: Record<string, string> = {
   'finance.wallets': 'موجودی ریالی و طلای کاربران بر اساس دفتر کل دوطرفه.',
-  'finance.transactions': 'تراکنش‌های کیف پول و سفارش‌های معاملات طلا.',
+  'finance.transactions':
+    'تراکنش‌های کیف پول، فیش‌های واریز کیف پول، فیش‌های پرداخت سفارش و معاملات طلا.',
   'finance.ledger': 'سطرهای دفتر کل (بدهکار/بستانکار) با پیوند به تراکنش.',
   'finance.accounting': 'تراز آزمایشی و مانده حساب‌ها به تفکیک نوع.',
   'finance.reports': 'گزارش مالی پلتفرم، موجودی سیستم و حجم معاملات.',

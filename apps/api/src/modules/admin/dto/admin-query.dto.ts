@@ -1,5 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { KycStatus, PaymentStatus, Role, GoldTradeSide, WalletTransactionType } from '@/generated/prisma';
+import {
+  KycStatus,
+  PaymentStatus,
+  Role,
+  GoldTradeSide,
+  WalletTransactionStatus,
+  WalletTransactionType,
+} from '@/generated/prisma';
 import { Transform } from 'class-transformer';
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { normalizeOptionalInt } from '@/common/dto/normalize-query-int';
@@ -51,6 +58,16 @@ export class AdminWalletTxQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsEnum(WalletTransactionType)
   type?: WalletTransactionType;
+
+  @ApiPropertyOptional({ enum: WalletTransactionStatus })
+  @IsOptional()
+  @IsEnum(WalletTransactionStatus)
+  status?: WalletTransactionStatus;
+
+  @ApiPropertyOptional({ description: 'Only wallet deposit requests with uploaded receipt' })
+  @IsOptional()
+  @IsString()
+  hasReceipt?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

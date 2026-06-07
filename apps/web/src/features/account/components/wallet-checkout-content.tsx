@@ -1,19 +1,23 @@
 'use client';
 
+import { Card } from '@sadafgold/ui';
 import { WalletBalancesCard } from '@/features/trading/components/wallet-balances-card';
 import { WalletTransactionsTable } from '@/features/trading/components/wallet-transactions-table';
+import { WalletActions } from './wallet-actions';
 
 export { CheckoutContent } from '@/features/checkout/components/checkout-content';
 
 export function WalletPageContent() {
   return (
-    <div className="mx-auto max-w-4xl space-y-8 px-4 py-8">
-      <header>
-        <h1 className="text-2xl font-bold">کیف پول</h1>
-        <p className="mt-2 text-sm text-muted">موجودی ریال و طلا</p>
-      </header>
+    <div className="space-y-6">
       <WalletBalancesCard />
-      <WalletTransactionsTable />
+      <WalletActions />
+      <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
+        <div className="border-b border-[var(--border-subtle)] px-6 py-4">
+          <h2 className="text-sm font-semibold text-foreground">تاریخچه تراکنش‌ها</h2>
+        </div>
+        <WalletTransactionsTable />
+      </Card>
     </div>
   );
 }

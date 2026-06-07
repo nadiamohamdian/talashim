@@ -16,6 +16,13 @@ const typeLabels: Record<string, string> = {
   ADJUSTMENT: 'تعدیل',
 };
 
+const statusLabels: Record<string, string> = {
+  PENDING: 'در انتظار تأیید',
+  POSTED: 'تأیید شده',
+  FAILED: 'ناموفق',
+  REVERSED: 'برگشت‌خورده',
+};
+
 export function WalletTransactionsTable() {
   const { data, isLoading, isError, refetch } = useWalletTransactions();
 
@@ -73,7 +80,9 @@ export function WalletTransactionsTable() {
                 <td className="max-w-xs truncate px-4 py-3 text-stone-700 dark:text-zinc-300">
                   {tx.description ?? tx.reference}
                 </td>
-                <td className="px-4 py-3 text-xs">{tx.status}</td>
+                <td className="px-4 py-3 text-xs">
+                  {statusLabels[tx.status] ?? tx.status}
+                </td>
                 <td className="px-4 py-3 text-xs text-stone-500">
                   {formatPersianDateTime(tx.createdAt)}
                 </td>

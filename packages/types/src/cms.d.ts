@@ -60,6 +60,14 @@ export interface CmsHomepageDto {
     sections: CmsHomepageSections;
     updatedAt: string;
 }
+export interface PublicCmsSeo {
+    siteTitle: string;
+    siteDescription: string;
+    defaultOgImageUrl: string | null;
+    robotsIndex: boolean;
+    googleAnalyticsId: string | null;
+    extraMeta: Record<string, string> | null;
+}
 export interface CmsStaticPageDto {
     id: string;
     slug: string;

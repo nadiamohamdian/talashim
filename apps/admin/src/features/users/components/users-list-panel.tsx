@@ -29,16 +29,15 @@ import { KYC_STATUS_FA, selectFieldClass, USER_ROLE_OPTIONS } from '../lib/label
 export function UsersListPanel() {
   const [search, setSearch] = useState('');
   const [role, setRole] = useState('');
-  const [customersOnly, setCustomersOnly] = useState(true);
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: adminQueryKeys.users(page, search, customersOnly && !role ? 'CUSTOMER' : role),
+    queryKey: adminQueryKeys.users(page, search, role),
     queryFn: () =>
       fetchUsers({
         page,
         search: search || undefined,
-        role: role || (customersOnly ? 'CUSTOMER' : undefined),
+        role: role || undefined,
         staffOnly: false,
       }),
   });
@@ -74,21 +73,6 @@ export function UsersListPanel() {
               </option>
             ))}
           </select>
-        </div>
-        <div className="flex items-end pb-1">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-[var(--muted-foreground)]">
-            <input
-              type="checkbox"
-              className="rounded border-border"
-              checked={customersOnly}
-              disabled={Boolean(role)}
-              onChange={(e) => {
-                setCustomersOnly(e.target.checked);
-                setPage(1);
-              }}
-            />
-            فقط مشتریان
-          </label>
         </div>
       </FilterBar>
 

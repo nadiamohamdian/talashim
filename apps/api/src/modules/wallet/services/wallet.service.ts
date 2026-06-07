@@ -8,14 +8,21 @@ import {
   WalletAssetType,
   WalletTransactionType,
 } from '@/generated/prisma';
+import type { UploadedImageFile } from '@/infrastructure/media/media-storage.service';
+import { MediaStorageService } from '@/infrastructure/media/media-storage.service';
 import { LedgerService } from '@/modules/ledger/services/ledger.service';
 import { LedgerRepository } from '@/modules/ledger/repositories/ledger.repository';
 import { userWalletAccountCode } from '@/modules/ledger/constants/system-accounts';
 import type { DepositGoldDto } from '../dto/deposit-gold.dto';
 import type { DepositRialDto } from '../dto/deposit-rial.dto';
+import type { RequestRialDepositDto } from '../dto/request-rial-deposit.dto';
+import type { RequestRialWithdrawalDto } from '../dto/request-rial-withdrawal.dto';
 import type { TransferWalletDto } from '../dto/transfer-wallet.dto';
 import type { WalletHistoryQueryDto } from '../dto/wallet-history-query.dto';
 import { WalletRepository } from '../repositories/wallet.repository';
+
+const MAX_RIAL_DEPOSIT_TOMAN = 500_000_000;
+const MAX_RIAL_WITHDRAWAL_TOMAN = 200_000_000;
 
 @Injectable()
 export class WalletService {
@@ -23,6 +30,7 @@ export class WalletService {
     private readonly walletRepository: WalletRepository,
     private readonly ledgerService: LedgerService,
     private readonly ledgerRepository: LedgerRepository,
+    private readonly mediaStorage: MediaStorageService,
   ) {}
 
   async getBalances(userId: string) {
@@ -156,6 +164,95 @@ export class WalletService {
       ],
       actorId: payload.userId,
     });
+  }
+
+  async requestRialDeposit(
+    userId: string,
+    payload: RequestRialDepositDto,
+    receiptFile: UploadedImageFile,
+  ) {
+    const amount = this.parsePositiveRialAmount(payload.amountToman, MAX_RIAL_DEPOSIT_TOMAN);
+    await this.walletRepository.ensureUserWallets(userId);
+
+    const existing = await this.ledgerRepository.findExistingTransaction(payload.idempotencyKey);
+    if (existing) {
+      return existing;
+    }
+
+    const saved = await this.mediaStorage.saveReceipt(receiptFile, 'wallet-deposits');
+
+    return this.ledgerRepository.createPendingTransaction({
+      reference: `rial-deposit-request-${payload.idempotencyKey}`,
+      idempotencyKey: payload.idempotencyKey,
+      type: WalletTransactionType.DEPOSIT,
+      userId,
+      description: 'درخواست واریز به کیف پول',
+      metadata: {
+        amountToman: amount.toFixed(0),
+        receiptUrl: saved.url,
+        provider: 'card_to_card',
+      },
+      actorId: userId,
+    });
+  }
+
+  async requestRialWithdrawal(userId: string, payload: RequestRialWithdrawalDto) {
+    const amount = this.parsePositiveRialAmount(payload.amountToman, MAX_RIAL_WITHDRAWAL_TOMAN);
+    const iban = payload.iban.toUpperCase();
+    await this.walletRepository.ensureUserWallets(userId);
+
+    const existing = await this.ledgerRepository.findExistingTransaction(payload.idempotencyKey);
+    if (existing) {
+      return existing;
+    }
+
+    const codes = this.walletRepository.getUserWalletCodes(userId);
+    const rialAccount = await this.ledgerRepository.findAccountByCode(codes.rial);
+    if (!rialAccount) {
+      throw new NotFoundException('Rial wallet not found');
+    }
+
+    const rialBalance = await this.ledgerRepository.calculateAccountBalance(rialAccount.id);
+    if (rialBalance < amount) {
+      throw new BadRequestException('موجودی کیف پول برای برداشت کافی نیست');
+    }
+
+    return this.ledgerRepository.createPendingTransaction({
+      reference: `rial-withdrawal-request-${payload.idempotencyKey}`,
+      idempotencyKey: payload.idempotencyKey,
+      type: WalletTransactionType.WITHDRAWAL,
+      userId,
+      description: 'درخواست برداشت از کیف پول',
+      metadata: {
+        amountToman: amount.toFixed(0),
+        iban,
+      },
+      actorId: userId,
+    });
+  }
+
+  private parsePositiveRialAmount(raw: string, max: number): number {
+    const amount = Number(raw);
+    if (!Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) {
+      throw new BadRequestException('مبلغ وارد شده معتبر نیست');
+    }
+    if (amount > max) {
+      throw new BadRequestException('مبلغ از سقف مجاز بیشتر است');
+    }
+    return amount;
+  }
+
+  async approveRialDepositRequest(transactionId: string, actorId: string) {
+    const pending = await this.ledgerRepository.findTransactionById(transactionId);
+    if (!pending?.userId) {
+      throw new NotFoundException('تراکنش یافت نشد');
+    }
+    await this.walletRepository.ensureUserWallets(pending.userId);
+    return this.ledgerRepository.completePendingRialDeposit(transactionId, actorId);
+  }
+
+  async rejectRialDepositRequest(transactionId: string, actorId: string, reason: string) {
+    return this.ledgerRepository.rejectPendingRialDeposit(transactionId, actorId, reason);
   }
 
   async getHistory(userId: string, query: WalletHistoryQueryDto) {

@@ -15,6 +15,7 @@ import type {
   ProductSummary,
   PublicCmsCollection,
   PublicCmsHomepage,
+  PublicCmsSeo,
 } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import {
@@ -47,6 +48,7 @@ import {
   revalidateStorefrontBanners,
   revalidateStorefrontFaq,
   revalidateStorefrontHomepage,
+  revalidateStorefrontSeo,
   revalidateStorefrontStaticPages,
 } from '@/infrastructure/storefront/storefront-cache.util';
 
@@ -488,7 +490,14 @@ export class AdminCmsService {
       extraMeta: dto.extraMeta as Prisma.InputJsonValue | undefined,
     });
 
+    void revalidateStorefrontSeo();
+
     return this.mapSeo(row);
+  }
+
+  async getPublicSeo(): Promise<PublicCmsSeo> {
+    const row = await this.cmsRepository.getOrCreateSeo();
+    return this.mapPublicSeo(row);
   }
 
   async listMedia(query: AdminMediaQueryDto, actor: AuthenticatedUser) {
@@ -749,6 +758,17 @@ export class AdminCmsService {
       googleAnalyticsId: row.googleAnalyticsId,
       extraMeta: (row.extraMeta as Record<string, string> | null) ?? null,
       updatedAt: row.updatedAt.toISOString(),
+    };
+  }
+
+  private mapPublicSeo(row: Prisma.CmsSeoSettingsGetPayload<object>): PublicCmsSeo {
+    return {
+      siteTitle: row.siteTitle,
+      siteDescription: row.siteDescription,
+      defaultOgImageUrl: row.defaultOgImageUrl,
+      robotsIndex: row.robotsIndex,
+      googleAnalyticsId: row.googleAnalyticsId,
+      extraMeta: (row.extraMeta as Record<string, string> | null) ?? null,
     };
   }
 

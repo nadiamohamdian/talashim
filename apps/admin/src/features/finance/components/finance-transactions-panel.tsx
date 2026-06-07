@@ -21,9 +21,10 @@ import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { FinancePageShell } from './finance-page-shell';
 import { PaymentReceiptsPanel } from './payment-receipts-panel';
+import { WalletDepositReceiptsPanel } from './wallet-deposit-receipts-panel';
 import { selectFieldClass, WALLET_TX_STATUS_FA, WALLET_TX_TYPE_FA } from '../lib/labels';
 
-type TransactionsTab = 'wallet' | 'receipts';
+type TransactionsTab = 'wallet' | 'wallet-receipts' | 'receipts';
 
 export function FinanceTransactionsPanel() {
   const [tab, setTab] = useState<TransactionsTab>('wallet');
@@ -49,15 +50,25 @@ export function FinanceTransactionsPanel() {
         </button>
         <button
           type="button"
+          onClick={() => setTab('wallet-receipts')}
+          data-active={tab === 'wallet-receipts'}
+          className="admin-tab-pill"
+        >
+          فیش‌های واریز کیف پول
+        </button>
+        <button
+          type="button"
           onClick={() => setTab('receipts')}
           data-active={tab === 'receipts'}
           className="admin-tab-pill"
         >
-          فیش‌های پرداخت
+          فیش‌های پرداخت سفارش
         </button>
       </div>
 
-      {tab === 'receipts' ? (
+      {tab === 'wallet-receipts' ? (
+        <WalletDepositReceiptsPanel />
+      ) : tab === 'receipts' ? (
         <PaymentReceiptsPanel />
       ) : (
         <>

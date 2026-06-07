@@ -39,6 +39,12 @@ export interface AdminKycItem {
         fullName: string;
     };
 }
+export interface AdminWalletDepositRequest {
+    receiptUrl: string;
+    amountToman: string | null;
+    provider: string | null;
+    rejectionReason: string | null;
+}
 export interface AdminWalletTransaction {
     id: string;
     reference: string;
@@ -52,6 +58,7 @@ export interface AdminWalletTransaction {
         fullName: string;
     } | null;
     createdAt: string;
+    depositRequest?: AdminWalletDepositRequest | null;
     entries?: Array<{
         accountCode: string;
         side: string;

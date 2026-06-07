@@ -236,3 +236,45 @@ export async function revalidateStorefrontProducts(
     }
   }
 }
+
+export async function revalidateStorefrontSeo(): Promise<void> {
+  const env = getApiEnv();
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) {
+    return;
+  }
+
+  const url = `${env.WEB_URL.replace(/\/$/, '')}/api/revalidate`;
+
+  try {
+    const pathResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': secret,
+      },
+      body: JSON.stringify({ path: '/' }),
+    });
+
+    if (!pathResponse.ok) {
+      logger.warn(`Storefront SEO path revalidation failed (${pathResponse.status})`);
+    }
+
+    const tagResponse = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': secret,
+      },
+      body: JSON.stringify({ tag: 'content:seo' }),
+    });
+
+    if (!tagResponse.ok) {
+      logger.warn(`Storefront SEO tag revalidation failed (${tagResponse.status})`);
+    }
+  } catch (error) {
+    logger.warn(
+      `Storefront SEO revalidation error: ${error instanceof Error ? error.message : 'unknown'}`,
+    );
+  }
+}

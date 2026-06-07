@@ -73,5 +73,41 @@ export function useExecuteTrade() {
   });
 }
 
+function buildWalletIdempotencyKey(action: 'deposit' | 'withdraw'): string {
+  return `web-wallet-${action}-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+export function useWalletDepositRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { amountToman: string; file: File }) =>
+      marketApi.requestRialDeposit({
+        amountToman: input.amountToman,
+        file: input.file,
+        idempotencyKey: buildWalletIdempotencyKey('deposit'),
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.wallet.all });
+    },
+  });
+}
+
+export function useWalletWithdrawalRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { amountToman: string; iban: string }) =>
+      marketApi.requestRialWithdrawal({
+        amountToman: input.amountToman,
+        iban: input.iban,
+        idempotencyKey: buildWalletIdempotencyKey('withdraw'),
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.wallet.all });
+    },
+  });
+}
+
 /** @deprecated Use useExecuteTrade */
 export const useExecuteTradeMutation = useExecuteTrade;

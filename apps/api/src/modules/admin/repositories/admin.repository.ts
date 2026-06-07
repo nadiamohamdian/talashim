@@ -4,6 +4,7 @@ import {
   PaymentStatus,
   Prisma,
   Role,
+  WalletTransactionStatus,
   WalletTransactionType,
 } from '@/generated/prisma';
 import { Injectable } from '@nestjs/common';
@@ -172,8 +173,16 @@ export class AdminRepository {
     take: number,
     type?: WalletTransactionType,
     userId?: string,
+    status?: WalletTransactionStatus,
+    hasReceipt?: boolean,
   ) {
-    const where: Prisma.WalletTransactionWhereInput = { type, userId };
+    const where: Prisma.WalletTransactionWhereInput = { type, userId, status };
+    if (hasReceipt) {
+      where.metadata = {
+        path: ['receiptUrl'],
+        not: Prisma.AnyNull,
+      };
+    }
     return Promise.all([
       this.prisma.walletTransaction.findMany({
         where,

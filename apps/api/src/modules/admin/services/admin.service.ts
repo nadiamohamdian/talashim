@@ -31,14 +31,57 @@ import type {
 import type { CreateStaffUserDto } from '../dto/create-staff-user.dto';
 import type { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
 import type { UpdateRolePermissionsBatchDto } from '../dto/update-role-permissions.dto';
+import { WalletService } from '@/modules/wallet/services/wallet.service';
+import type { RejectWalletDepositDto } from '../dto/reject-wallet-deposit.dto';
 import { AdminRepository } from '../repositories/admin.repository';
 import { AdminRbacService } from './admin-rbac.service';
+
+function parseWalletDepositMetadata(metadata: unknown) {
+  if (!metadata || typeof metadata !== 'object') {
+    return null;
+  }
+  const record = metadata as Record<string, unknown>;
+  if (typeof record.receiptUrl !== 'string') {
+    return null;
+  }
+  return {
+    receiptUrl: record.receiptUrl,
+    amountToman: typeof record.amountToman === 'string' ? record.amountToman : null,
+    provider: typeof record.provider === 'string' ? record.provider : null,
+    rejectionReason:
+      typeof record.rejectionReason === 'string' ? record.rejectionReason : null,
+  };
+}
+
+function mapAdminWalletTransaction(
+  tx: Awaited<ReturnType<AdminRepository['listWalletTransactions']>>[0][number],
+) {
+  return {
+    id: tx.id,
+    reference: tx.reference,
+    type: tx.type,
+    status: tx.status,
+    description: tx.description,
+    userId: tx.userId,
+    user: tx.user,
+    createdAt:
+      tx.createdAt instanceof Date ? tx.createdAt.toISOString() : String(tx.createdAt),
+    depositRequest: parseWalletDepositMetadata(tx.metadata),
+    entries: tx.entries.map((e) => ({
+      accountCode: e.account.code,
+      side: e.side,
+      assetType: e.assetType,
+      amount: e.amount.toString(),
+    })),
+  };
+}
 
 @Injectable()
 export class AdminService {
   constructor(
     private readonly adminRepository: AdminRepository,
     private readonly adminRbacService: AdminRbacService,
+    private readonly walletService: WalletService,
   ) {}
 
   async getAnalytics(actor: AuthenticatedUser) {
@@ -348,28 +391,38 @@ export class AdminService {
       limit,
       query.type,
       query.userId,
+      query.status,
+      query.hasReceipt === 'true' || query.hasReceipt === '1',
     );
     return {
       page,
       limit,
       total,
-      items: items.map((tx) => ({
-        id: tx.id,
-        reference: tx.reference,
-        type: tx.type,
-        status: tx.status,
-        description: tx.description,
-        userId: tx.userId,
-        user: tx.user,
-        createdAt: tx.createdAt,
-        entries: tx.entries.map((e) => ({
-          accountCode: e.account.code,
-          side: e.side,
-          assetType: e.assetType,
-          amount: e.amount.toString(),
-        })),
-      })),
+      items: items.map((tx) => mapAdminWalletTransaction(tx)),
     };
+  }
+
+  async approveWalletDeposit(transactionId: string, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.transactions);
+    const transaction = await this.walletService.approveRialDepositRequest(
+      transactionId,
+      actor.id,
+    );
+    return mapAdminWalletTransaction(transaction);
+  }
+
+  async rejectWalletDeposit(
+    transactionId: string,
+    dto: RejectWalletDepositDto,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.transactions);
+    const transaction = await this.walletService.rejectRialDepositRequest(
+      transactionId,
+      actor.id,
+      dto.reason,
+    );
+    return mapAdminWalletTransaction(transaction);
   }
 
   async listTradeOrders(query: AdminTradeQueryDto, actor: AuthenticatedUser) {

@@ -8,7 +8,7 @@ import type {
   WalletHistoryResponse,
 } from '@sadafgold/types';
 import { buildFallbackGoldTicker, type GoldTickerPayload } from '@sadafgold/shared';
-import { apiGet, apiPost } from '@/lib/api/client';
+import { apiClient, apiGet, apiPost } from '@/lib/api/client';
 
 export interface MarketTradePayload {
   userId: string;
@@ -115,6 +115,30 @@ export const marketApi = {
       signal,
       abortKey: `trading:orders:${userId}:${JSON.stringify(params ?? {})}`,
     });
+  },
+
+  requestRialDeposit(payload: {
+    amountToman: string;
+    idempotencyKey: string;
+    file: File;
+  }): Promise<{ id: string }> {
+    const formData = new FormData();
+    formData.append('amountToman', payload.amountToman);
+    formData.append('idempotencyKey', payload.idempotencyKey);
+    formData.append('file', payload.file);
+    return apiClient
+      .post<{ id: string }>('/wallet/me/deposit/rial', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(({ data }) => data);
+  },
+
+  requestRialWithdrawal(payload: {
+    amountToman: string;
+    iban: string;
+    idempotencyKey: string;
+  }): Promise<{ id: string }> {
+    return apiPost<{ id: string }>('/wallet/me/withdraw/rial', payload);
   },
 };
 

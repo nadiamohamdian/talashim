@@ -225,6 +225,26 @@ export class PublicCmsHomepageResponseDto {
   sections!: Record<string, unknown>;
 }
 
+export class PublicCmsSeoResponseDto {
+  @ApiProperty()
+  siteTitle!: string;
+
+  @ApiProperty()
+  siteDescription!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  defaultOgImageUrl!: string | null;
+
+  @ApiProperty()
+  robotsIndex!: boolean;
+
+  @ApiPropertyOptional({ nullable: true })
+  googleAnalyticsId!: string | null;
+
+  @ApiPropertyOptional({ type: Object, nullable: true })
+  extraMeta!: Record<string, string> | null;
+}
+
 export class AdminBannersQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ enum: CmsBannerStatus })
   @IsOptional()

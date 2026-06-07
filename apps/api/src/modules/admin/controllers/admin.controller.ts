@@ -24,6 +24,7 @@ import {
   AdminLoginHistoryQueryDto,
   AdminSessionsQueryDto,
 } from '../dto/admin-security-query.dto';
+import { RejectWalletDepositDto } from '../dto/reject-wallet-deposit.dto';
 import { AdminReportsService } from '../services/admin-reports.service';
 import { AdminService } from '../services/admin.service';
 import {
@@ -132,6 +133,25 @@ export class AdminController {
     @CurrentUser() actor: AuthenticatedUser,
   ) {
     return this.adminService.listWalletTransactions(query, actor);
+  }
+
+  @Post('transactions/wallet/:transactionId/approve-deposit')
+  @ApiOperation({ summary: 'Approve wallet deposit receipt and credit user balance' })
+  approveWalletDeposit(
+    @Param('transactionId') transactionId: string,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.approveWalletDeposit(transactionId, actor);
+  }
+
+  @Post('transactions/wallet/:transactionId/reject-deposit')
+  @ApiOperation({ summary: 'Reject wallet deposit receipt' })
+  rejectWalletDeposit(
+    @Param('transactionId') transactionId: string,
+    @Body() dto: RejectWalletDepositDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.rejectWalletDeposit(transactionId, dto, actor);
   }
 
   @Get('transactions/trades')

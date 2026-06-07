@@ -10,6 +10,7 @@ import { IconUser } from '@/shared/ui/icons';
 
 const BASE_MENU_ITEMS = [
   { href: '/dashboard', label: 'پیشخوان' },
+  { href: '/wallet', label: 'کیف پول' },
   { href: '/orders', label: 'سفارش‌ها' },
   { href: '/invoices', label: 'دانلودها' },
   { href: '/addresses', label: 'آدرس' },

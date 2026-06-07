@@ -38,7 +38,7 @@ export function WalletBalancesCard() {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between gap-2">
-        <Badge>کیف پول</Badge>
+        <Badge className="w-[45px]">کیف پول</Badge>
         {isFetching ? <span className="text-xs text-stone-500">...</span> : null}
       </div>
       <div className="mt-5 space-y-4">

@@ -5,6 +5,7 @@ import { MarketModule } from '@/modules/market/market.module';
 import { PricingModule } from '@/modules/pricing/pricing.module';
 import { TradingModule } from '@/modules/trading/trading.module';
 import { OrdersModule } from '@/modules/orders/orders.module';
+import { WalletModule } from '@/modules/wallet/wallet.module';
 import { AdminCmsController, AdminMediaController } from './controllers/admin-cms.controller';
 import { AdminFinanceController } from './controllers/admin-finance.controller';
 import { AdminPricingController } from './controllers/admin-pricing.controller';
@@ -40,7 +41,15 @@ import { AdminSettingsService } from './services/admin-settings.service';
 import { AdminService } from './services/admin.service';
 
 @Module({
-  imports: [MediaModule, CatalogModule, PricingModule, MarketModule, TradingModule, OrdersModule],
+  imports: [
+    MediaModule,
+    CatalogModule,
+    PricingModule,
+    MarketModule,
+    TradingModule,
+    OrdersModule,
+    WalletModule,
+  ],
   controllers: [
     AdminController,
     AdminSettingsController,

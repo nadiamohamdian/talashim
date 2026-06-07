@@ -8,6 +8,7 @@ import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider'
 
 const BASE_NAV_ITEMS = [
   { href: '/dashboard', label: 'پیشخوان' },
+  { href: '/wallet', label: 'کیف پول' },
   { href: '/orders', label: 'سفارش‌ها' },
   { href: '/invoices', label: 'دانلودها' },
   { href: '/addresses', label: 'آدرس' },

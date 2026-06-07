@@ -1,4 +1,9 @@
 import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
   LedgerAccountCategory,
   LedgerSide,
   Prisma,
@@ -6,7 +11,6 @@ import {
   WalletTransactionStatus,
   WalletTransactionType,
 } from '@/generated/prisma';
-import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 import {
   SYSTEM_LEDGER_ACCOUNTS,
@@ -157,5 +161,187 @@ export class LedgerRepository {
 
   countTransactions(userId: string) {
     return this.prisma.walletTransaction.count({ where: { userId } });
+  }
+
+  createPendingTransaction(payload: {
+    reference: string;
+    idempotencyKey: string;
+    type: WalletTransactionType;
+    userId: string;
+    description?: string;
+    metadata?: Prisma.InputJsonValue;
+    actorId?: string;
+  }) {
+    return this.prisma.$transaction(async (tx) => {
+      const transaction = await tx.walletTransaction.create({
+        data: {
+          reference: payload.reference,
+          idempotencyKey: payload.idempotencyKey,
+          type: payload.type,
+          status: WalletTransactionStatus.PENDING,
+          description: payload.description,
+          userId: payload.userId,
+          metadata: payload.metadata,
+        },
+      });
+
+      await tx.walletAuditLog.create({
+        data: {
+          transactionId: transaction.id,
+          actorId: payload.actorId ?? payload.userId,
+          action: 'wallet.request.pending',
+          context: {
+            reference: payload.reference,
+            type: payload.type,
+          },
+        },
+      });
+
+      return transaction;
+    });
+  }
+
+  findTransactionById(transactionId: string) {
+    return this.prisma.walletTransaction.findUnique({
+      where: { id: transactionId },
+      include: {
+        user: { select: { id: true, email: true, fullName: true } },
+        entries: { include: { account: true } },
+      },
+    });
+  }
+
+  completePendingRialDeposit(transactionId: string, actorId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const pending = await tx.walletTransaction.findUnique({
+        where: { id: transactionId },
+      });
+
+      if (!pending) {
+        throw new NotFoundException('تراکنش یافت نشد');
+      }
+      if (pending.status !== WalletTransactionStatus.PENDING) {
+        throw new BadRequestException('این درخواست در وضعیت بررسی نیست');
+      }
+      if (pending.type !== WalletTransactionType.DEPOSIT || !pending.userId) {
+        throw new BadRequestException('درخواست واریز معتبر نیست');
+      }
+
+      const metadata = pending.metadata as Record<string, unknown> | null;
+      const receiptUrl = metadata?.receiptUrl;
+      const amountToman = metadata?.amountToman;
+      if (typeof receiptUrl !== 'string' || typeof amountToman !== 'string') {
+        throw new BadRequestException('اطلاعات فیش واریز ناقص است');
+      }
+
+      const amount = Number(amountToman);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        throw new BadRequestException('مبلغ واریز معتبر نیست');
+      }
+
+      const userAccountCode = userWalletAccountCode(pending.userId, WalletAssetType.RIAL);
+      const [platformAccount, userAccount] = await Promise.all([
+        tx.ledgerAccount.findUniqueOrThrow({ where: { code: 'PLATFORM_CASH_RIAL' } }),
+        tx.ledgerAccount.findUniqueOrThrow({ where: { code: userAccountCode } }),
+      ]);
+
+      const transaction = await tx.walletTransaction.update({
+        where: { id: transactionId },
+        data: {
+          status: WalletTransactionStatus.POSTED,
+          postedAt: new Date(),
+          metadata: {
+            ...metadata,
+            approvedAt: new Date().toISOString(),
+            approvedById: actorId,
+          },
+          entries: {
+            create: [
+              {
+                accountId: platformAccount.id,
+                side: LedgerSide.DEBIT,
+                assetType: WalletAssetType.RIAL,
+                amount: new Prisma.Decimal(amountToman),
+              },
+              {
+                accountId: userAccount.id,
+                side: LedgerSide.CREDIT,
+                assetType: WalletAssetType.RIAL,
+                amount: new Prisma.Decimal(amountToman),
+              },
+            ],
+          },
+        },
+        include: {
+          user: { select: { id: true, email: true, fullName: true } },
+          entries: { include: { account: true } },
+        },
+      });
+
+      await tx.walletAuditLog.create({
+        data: {
+          transactionId: transaction.id,
+          actorId,
+          action: 'wallet.deposit.approved',
+          context: {
+            amountToman,
+            receiptUrl,
+          },
+        },
+      });
+
+      return transaction;
+    });
+  }
+
+  rejectPendingRialDeposit(transactionId: string, actorId: string, reason: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const pending = await tx.walletTransaction.findUnique({
+        where: { id: transactionId },
+      });
+
+      if (!pending) {
+        throw new NotFoundException('تراکنش یافت نشد');
+      }
+      if (pending.status !== WalletTransactionStatus.PENDING) {
+        throw new BadRequestException('این درخواست در وضعیت بررسی نیست');
+      }
+      if (pending.type !== WalletTransactionType.DEPOSIT) {
+        throw new BadRequestException('درخواست واریز معتبر نیست');
+      }
+
+      const metadata = (pending.metadata as Record<string, unknown> | null) ?? {};
+      if (typeof metadata.receiptUrl !== 'string') {
+        throw new BadRequestException('فیش واریز برای این درخواست یافت نشد');
+      }
+
+      const transaction = await tx.walletTransaction.update({
+        where: { id: transactionId },
+        data: {
+          status: WalletTransactionStatus.FAILED,
+          metadata: {
+            ...metadata,
+            rejectionReason: reason,
+            rejectedAt: new Date().toISOString(),
+            rejectedById: actorId,
+          },
+        },
+        include: {
+          user: { select: { id: true, email: true, fullName: true } },
+          entries: { include: { account: true } },
+        },
+      });
+
+      await tx.walletAuditLog.create({
+        data: {
+          transactionId: transaction.id,
+          actorId,
+          action: 'wallet.deposit.rejected',
+          context: { reason },
+        },
+      });
+
+      return transaction;
+    });
   }
 }

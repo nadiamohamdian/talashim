@@ -54,9 +54,34 @@ export function reviewKyc(
   return axiosClient.patch<AdminKycItem>(`/admin/kyc/${id}/review`, payload).then((r) => r.data);
 }
 
-export function fetchWalletTransactions(params: { page?: number; type?: string; userId?: string }) {
+export function fetchWalletTransactions(params: {
+  page?: number;
+  type?: string;
+  status?: string;
+  hasReceipt?: boolean;
+  userId?: string;
+}) {
   return axiosClient
-    .get<AdminPaginated<AdminWalletTransaction>>('/admin/transactions/wallet', { params })
+    .get<AdminPaginated<AdminWalletTransaction>>('/admin/transactions/wallet', {
+      params: {
+        ...params,
+        hasReceipt: params.hasReceipt ? 'true' : undefined,
+      },
+    })
+    .then((r) => r.data);
+}
+
+export function approveAdminWalletDeposit(transactionId: string) {
+  return axiosClient
+    .post<AdminWalletTransaction>(`/admin/transactions/wallet/${transactionId}/approve-deposit`)
+    .then((r) => r.data);
+}
+
+export function rejectAdminWalletDeposit(transactionId: string, reason: string) {
+  return axiosClient
+    .post<AdminWalletTransaction>(`/admin/transactions/wallet/${transactionId}/reject-deposit`, {
+      reason,
+    })
     .then((r) => r.data);
 }
 

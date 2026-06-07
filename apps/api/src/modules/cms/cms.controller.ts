@@ -9,6 +9,7 @@ import {
   PublicCmsBannerResponseDto,
   PublicCmsCollectionResponseDto,
   PublicCmsHomepageResponseDto,
+  PublicCmsSeoResponseDto,
   PublicCmsStaticPageResponseDto,
   PublicCmsStaticPageSummaryResponseDto,
 } from '@/modules/admin/dto/admin-cms.dto';
@@ -60,5 +61,13 @@ export class CmsPublicController {
   @ApiOkResponse({ type: PublicCmsHomepageResponseDto })
   getHomepage() {
     return this.adminCmsService.getPublicHomepage();
+  }
+
+  @Get('seo')
+  @HttpCache({ ttlSeconds: 120 })
+  @ApiOperation({ summary: 'Get storefront global SEO settings' })
+  @ApiOkResponse({ type: PublicCmsSeoResponseDto })
+  getSeo() {
+    return this.adminCmsService.getPublicSeo();
   }
 }

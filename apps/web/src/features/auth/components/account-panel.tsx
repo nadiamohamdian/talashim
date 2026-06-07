@@ -12,7 +12,7 @@ export function AccountPanel() {
 
   return (
     <div className="card-luxury w-full p-6 sm:p-8">
-      <Badge>حساب کاربری</Badge>
+      <Badge className="w-[70px]">حساب کاربری</Badge>
       <h1 className="mt-4 text-2xl font-bold text-stone-950">سلام، {user.fullName}</h1>
       <dl className="mt-6 space-y-4 text-sm">
         <div className="flex justify-between gap-4 border-b border-stone-100 pb-3">

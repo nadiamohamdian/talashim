@@ -3,9 +3,11 @@ import type {
   PublicCmsBanner,
   PublicCmsCollection,
   PublicCmsHomepage,
+  PublicCmsSeo,
   PublicCmsStaticPage,
   PublicCmsStaticPageSummary,
 } from '@sadafgold/types';
+import { platformConfig } from '@sadafgold/shared';
 import {
   ApiClientError,
   isApiUnreachableError,
@@ -93,6 +95,32 @@ export async function getPublishedStaticPage(slug: string): Promise<PublicCmsSta
     }
     if (process.env.NODE_ENV === 'development' && isApiUnreachableError(error)) {
       return null;
+    }
+    throw error;
+  }
+}
+
+function defaultPublicSeo(): PublicCmsSeo {
+  return {
+    siteTitle: `${platformConfig.storeName} | ${platformConfig.nameEn}`,
+    siteDescription: 'فروش طلا، جواهرات و زیورآلات با قیمت روز و خرید آنلاین امن.',
+    defaultOgImageUrl: null,
+    robotsIndex: true,
+    googleAnalyticsId: null,
+    extraMeta: null,
+  };
+}
+
+export async function getPublicSeo(): Promise<PublicCmsSeo> {
+  try {
+    const result = await serverFetchCatalogDetail<PublicCmsSeo>('/cms/seo', {
+      revalidate: 120,
+      tags: ['content:seo'],
+    });
+    return result ?? defaultPublicSeo();
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development' && isApiUnreachableError(error)) {
+      return defaultPublicSeo();
     }
     throw error;
   }
