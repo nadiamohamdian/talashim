@@ -29,6 +29,7 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
   const clearSession = useAdminAuthStore((s) => s.clearSession);
   const user = useAdminAuthStore((s) => s.user);
+  const permissions = useAdminAuthStore((s) => s.permissions);
   const hasPermission = useAdminAuthStore((s) => s.hasPermission);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -40,7 +41,7 @@ export function AdminSidebar({ onNavigate }: AdminSidebarProps) {
           hasPermission(item.permission as AdminPermissionKey),
         ),
       })).filter((section) => section.items.length > 0),
-    [hasPermission],
+    [hasPermission, permissions],
   );
 
   return (

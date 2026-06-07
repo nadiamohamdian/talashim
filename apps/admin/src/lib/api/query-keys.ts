@@ -90,8 +90,8 @@ export const adminQueryKeys = {
       ['admin', 'cms', 'blog', page, search, published] as const,
     faq: (page: number, search: string) => ['admin', 'cms', 'faq', page, search] as const,
     homepage: ['admin', 'cms', 'homepage'] as const,
-    banners: (page: number, status: string) =>
-      ['admin', 'cms', 'banners', page, status] as const,
+    banners: (page: number, status: string, placement = '') =>
+      ['admin', 'cms', 'banners', page, status, placement] as const,
     pages: (page: number, search: string) => ['admin', 'cms', 'pages', page, search] as const,
     seo: ['admin', 'cms', 'seo'] as const,
     media: (page: number, search: string, folder: string) =>

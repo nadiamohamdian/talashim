@@ -14,6 +14,7 @@ import {
   DEV_STAFF_ACCOUNTS,
 } from '../src/modules/auth/constants/dev-test-accounts';
 import { getApiEnv } from '../src/config/env';
+import { ensureSeedMediaAssets } from './seed-media';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -24,6 +25,7 @@ const pool = new Pool({ connectionString });
 const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 
 async function main() {
+  const seedMedia = await ensureSeedMediaAssets(prisma);
   const staffPasswordHash = await argon2.hash(DEV_PASSWORD_STAFF);
   const customerPasswordHash = await argon2.hash(DEV_PASSWORD_CUSTOMER);
 
@@ -127,8 +129,7 @@ async function main() {
       weightGram: '4.12',
       makingFeePercent: 19,
       priceToman: 0,
-      imageUrl:
-        'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=80',
+      imageUrl: seedMedia.product,
       description:
         'انگشتر طلا ۱۸ عیار با الهام از طرح کلاسیک ونکلیف الحمرا؛ قیمت نهایی بر اساس وزن، اجرت و نرخ لحظه‌ای طلا محاسبه می‌شود.',
       seoDescription:
@@ -145,8 +146,7 @@ async function main() {
       weightGram: '4.80',
       makingFeePercent: 9,
       priceToman: 0,
-      imageUrl:
-        'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=900&q=80',
+      imageUrl: seedMedia.product,
       description:
         'انگشتر 18 عیار با طراحی کلاسیک و مناسب فروش آنلاین با نمایش قیمت شفاف.',
       seoDescription:
@@ -163,8 +163,7 @@ async function main() {
       weightGram: '11.20',
       makingFeePercent: 11,
       priceToman: 0,
-      imageUrl:
-        'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=80',
+      imageUrl: seedMedia.product,
       description:
         'گردنبند مینیمال برای فروشگاه طلا با توضیح دقیق محصول و تصویر استاندارد.',
       seoDescription: 'گردنبند طلای تلاشیم با کیفیت ساخت بالا و قیمت روز.',
@@ -246,8 +245,7 @@ async function main() {
     where: { slug: 'van-cleef-alhambra-ring' },
   });
 
-  const fakeReceiptUrl =
-    'https://images.unsplash.com/photo-1563013547-824ae1b704d4?auto=format&fit=crop&w=800&q=80';
+  const fakeReceiptUrl = seedMedia.receipt;
 
   const seedOrders = [
     {
@@ -358,8 +356,7 @@ async function main() {
         'وزن، عیار، اجرت و سیاست مرجوعی از مهم‌ترین چیزهایی هستند که باید قبل از خرید بررسی شوند.',
       content:
         'قبل از خرید طلا، وزن دقیق، عیار، اجرت ساخت و قیمت لحظه‌ای را از فروشنده درخواست کنید. فاکتور رسمی و امکان استعلام اصالت از الزامات خرید امن است.',
-      coverImageUrl:
-        'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1200&q=80',
+      coverImageUrl: seedMedia.blog,
       publishedAt: new Date('2026-05-01'),
     },
   });
@@ -405,8 +402,7 @@ async function main() {
         title: post.title,
         excerpt: post.excerpt,
         content: post.content,
-        coverImageUrl:
-          'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
+        coverImageUrl: seedMedia.blog,
         publishedAt: new Date(),
       },
     });
@@ -487,8 +483,7 @@ async function main() {
       id: 'seed-home-mid-1',
       title: 'کالکشن بهاره',
       subtitle: 'تا ۱۵٪ اجرت ساخت روی گوشواره‌های منتخب',
-      imageUrl:
-        'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
+      imageUrl: seedMedia.banner,
       linkUrl: '/products',
       placement: 'HOME_MID',
       sortOrder: 0,

@@ -131,6 +131,36 @@ export class UpsertBlogPostDto {
   sortOrder?: number;
 }
 
+export class PublicBannersQueryDto {
+  @ApiPropertyOptional({ enum: CmsBannerPlacement })
+  @IsOptional()
+  @IsEnum(CmsBannerPlacement)
+  placement?: CmsBannerPlacement;
+}
+
+export class PublicCmsBannerResponseDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  title!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  subtitle!: string | null;
+
+  @ApiProperty()
+  imageUrl!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  linkUrl!: string | null;
+
+  @ApiProperty({ enum: CmsBannerPlacement })
+  placement!: CmsBannerPlacement;
+
+  @ApiProperty()
+  sortOrder!: number;
+}
+
 export class AdminBannersQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({ enum: CmsBannerStatus })
   @IsOptional()
@@ -293,6 +323,14 @@ export class AdminMediaQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   mimeType?: string;
+}
+
+export class UpdateMediaAssetDto {
+  @ApiPropertyOptional({ description: 'Alt text for accessibility and SEO' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  alt?: string;
 }
 
 export class RegisterMediaAssetDto {

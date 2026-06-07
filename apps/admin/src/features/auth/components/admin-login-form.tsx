@@ -6,6 +6,7 @@ import { Alert, Button, Input, Label } from '@talashim/ui';
 import { passwordLoginSchema, type PasswordLoginValues } from '@talashim/shared/validation/auth';
 import { isAdminDevLoginEnabled } from '@/shared/config/env';
 import { getApiErrorMessage } from '@/shared/api/axios-client';
+import { syncAdminPermissionsFromApi } from '@/features/auth/lib/sync-admin-permissions';
 import { adminLogin } from '../api/auth-api';
 import { useAdminAuthStore } from '../model/admin-auth-store';
 
@@ -26,6 +27,7 @@ export function AdminLoginForm() {
     try {
       const session = await adminLogin(values);
       setSession(session);
+      await syncAdminPermissionsFromApi();
       window.location.assign('/');
     } catch (error) {
       setError('root', {

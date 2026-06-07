@@ -10,6 +10,7 @@ import { fetchHomepageCms, updateHomepageCms } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { CmsPageShell } from './cms-page-shell';
 import { ImageUrlField } from './image-url-field';
+import { validateLibraryImageUrl } from '../lib/validate-library-image';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 
 export function HomepagePanel() {
@@ -21,6 +22,7 @@ export function HomepagePanel() {
 
   const [hero, setHero] = useState<CmsHeroConfig | null>(null);
   const [sections, setSections] = useState<CmsHomepageSections | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -84,6 +86,7 @@ export function HomepagePanel() {
           <div className="md:col-span-2">
             <RichTextEditor
               label="توضیح"
+              mediaFolder="banners"
               value={hero.description}
               onChange={(description) => setHero({ ...hero, description })}
               minHeight={120}
@@ -205,9 +208,23 @@ export function HomepagePanel() {
         </div>
       </Card>
 
+      {saveError ? (
+        <p className="text-sm text-[var(--error)]">{saveError}</p>
+      ) : null}
+
       <Button
         disabled={save.isPending}
-        onClick={() => save.mutate({ hero, sections })}
+        onClick={() => {
+          const imageError = hero.imageUrl
+            ? validateLibraryImageUrl(hero.imageUrl, 'تصویر هیرو')
+            : null;
+          if (imageError) {
+            setSaveError(imageError);
+            return;
+          }
+          setSaveError(null);
+          save.mutate({ hero, sections });
+        }}
       >
         {save.isPending ? 'در حال ذخیره…' : 'ذخیره صفحه اصلی'}
       </Button>

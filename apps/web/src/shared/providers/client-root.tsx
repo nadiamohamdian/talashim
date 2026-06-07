@@ -4,6 +4,8 @@ import { CartPanel } from '@/features/cart/components/cart-panel';
 import { ThemeProvider } from '@/shared/providers/theme-provider';
 import { StorefrontSettingsProvider } from '@/shared/providers/storefront-settings-provider';
 import type { StorefrontSettings } from '@/shared/model/storefront-settings';
+import type { PublicCmsBanner } from '@sadafgold/types';
+import { GlobalBannerBar } from '@/widgets/cms/global-banner-bar';
 import { SiteFooter } from '@/widgets/footer/site-footer';
 import { GoldPriceTicker } from '@/widgets/header/gold-price-ticker';
 import { SiteHeader } from '@/widgets/header/site-header';
@@ -13,15 +15,17 @@ import type { PropsWithChildren } from 'react';
 
 type ClientRootProps = PropsWithChildren<{
   settings: StorefrontSettings;
+  globalBanners?: PublicCmsBanner[];
 }>;
 
-export function ClientRoot({ children, settings }: ClientRootProps) {
+export function ClientRoot({ children, settings, globalBanners = [] }: ClientRootProps) {
   return (
     <QueryProvider>
       <SessionBootstrap>
         <StorefrontSettingsProvider value={settings}>
           <ThemeProvider>
             <div className="flex min-h-full flex-1 flex-col">
+              <GlobalBannerBar banners={globalBanners} />
               {settings.gold.showGoldTickerInHeader ? <GoldPriceTicker /> : null}
               <SiteHeader />
               <main className="container-store flex-1 py-6 md:py-10">{children}</main>

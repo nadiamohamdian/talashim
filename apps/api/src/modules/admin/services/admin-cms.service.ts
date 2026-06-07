@@ -14,6 +14,10 @@ import type {
   MediaAssetDto,
 } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
+import {
+  optionalLibraryImageUrl,
+  requireLibraryImageUrl,
+} from '@/common/media/require-library-image-url';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type { Prisma } from '@/generated/prisma';
 import type {
@@ -24,6 +28,7 @@ import type {
   RegisterMediaAssetDto,
   UpdateCmsHomepageDto,
   UpdateCmsSeoDto,
+  UpdateMediaAssetDto,
   UpsertBlogPostDto,
   UpsertCmsBannerDto,
   UpsertCmsStaticPageDto,
@@ -34,12 +39,12 @@ import {
   MediaStorageService,
   type UploadedImageFile,
 } from '@/infrastructure/media/media-storage.service';
-import { revalidateStorefrontFaq } from '@/infrastructure/storefront/storefront-cache.util';
+import {
+  revalidateStorefrontBanners,
+  revalidateStorefrontFaq,
+} from '@/infrastructure/storefront/storefront-cache.util';
 
 type BlogPostWithCategory = Prisma.BlogPostGetPayload<{ include: { category: true } }>;
-
-const DEFAULT_FAQ_COVER =
-  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80';
 
 @Injectable()
 export class AdminCmsService {
@@ -94,7 +99,7 @@ export class AdminCmsService {
       slug: dto.slug,
       excerpt: dto.excerpt,
       content: dto.content,
-      coverImageUrl: dto.coverImageUrl,
+      coverImageUrl: requireLibraryImageUrl(dto.coverImageUrl, 'تصویر کاور'),
       publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : new Date(),
       isPublished: dto.isPublished ?? true,
       sortOrder: dto.sortOrder ?? 0,
@@ -121,7 +126,7 @@ export class AdminCmsService {
       slug: dto.slug,
       excerpt: dto.excerpt,
       content: dto.content,
-      coverImageUrl: dto.coverImageUrl,
+      coverImageUrl: requireLibraryImageUrl(dto.coverImageUrl, 'تصویر کاور'),
       publishedAt: dto.publishedAt ? new Date(dto.publishedAt) : undefined,
       isPublished: dto.isPublished,
       sortOrder: dto.sortOrder,
@@ -178,6 +183,11 @@ export class AdminCmsService {
     return post;
   }
 
+  async listPublicBanners(placement?: string) {
+    const items = await this.cmsRepository.findPublishedBanners(placement);
+    return items.map((banner) => this.mapPublicBanner(banner));
+  }
+
   async listBanners(query: AdminBannersQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.read);
 
@@ -206,15 +216,16 @@ export class AdminCmsService {
     const banner = await this.cmsRepository.createBanner({
       title: dto.title,
       subtitle: dto.subtitle,
-      imageUrl: dto.imageUrl,
+      imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر بنر'),
       linkUrl: dto.linkUrl,
       placement: dto.placement,
       sortOrder: dto.sortOrder ?? 0,
-      status: dto.status,
+      status: dto.status ?? 'PUBLISHED',
       startsAt: dto.startsAt ? new Date(dto.startsAt) : undefined,
       endsAt: dto.endsAt ? new Date(dto.endsAt) : undefined,
     });
 
+    void revalidateStorefrontBanners();
     return this.mapBanner(banner);
   }
 
@@ -229,7 +240,7 @@ export class AdminCmsService {
     const banner = await this.cmsRepository.updateBanner(id, {
       title: dto.title,
       subtitle: dto.subtitle,
-      imageUrl: dto.imageUrl,
+      imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر بنر'),
       linkUrl: dto.linkUrl,
       placement: dto.placement,
       sortOrder: dto.sortOrder,
@@ -238,6 +249,7 @@ export class AdminCmsService {
       endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
     });
 
+    void revalidateStorefrontBanners();
     return this.mapBanner(banner);
   }
 
@@ -248,6 +260,7 @@ export class AdminCmsService {
       throw new NotFoundException('Banner not found');
     }
     await this.cmsRepository.deleteBanner(id);
+    void revalidateStorefrontBanners();
     return { ok: true };
   }
 
@@ -260,8 +273,13 @@ export class AdminCmsService {
   async updateHomepage(dto: UpdateCmsHomepageDto, actor: AuthenticatedUser): Promise<CmsHomepageDto> {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
+    const hero = { ...dto.hero };
+    if (hero.imageUrl !== undefined) {
+      hero.imageUrl = optionalLibraryImageUrl(hero.imageUrl, 'تصویر هیرو') ?? '';
+    }
+
     const row = await this.cmsRepository.updateHomepage(
-      dto.hero as Prisma.InputJsonValue,
+      hero as Prisma.InputJsonValue,
       dto.sections as Prisma.InputJsonValue,
     );
 
@@ -352,7 +370,10 @@ export class AdminCmsService {
     const row = await this.cmsRepository.updateSeo({
       siteTitle: dto.siteTitle,
       siteDescription: dto.siteDescription,
-      defaultOgImageUrl: dto.defaultOgImageUrl,
+      defaultOgImageUrl:
+        dto.defaultOgImageUrl === undefined
+          ? undefined
+          : optionalLibraryImageUrl(dto.defaultOgImageUrl, 'تصویر OG پیش‌فرض'),
       robotsIndex: dto.robotsIndex,
       googleAnalyticsId: dto.googleAnalyticsId,
       extraMeta: dto.extraMeta as Prisma.InputJsonValue | undefined,
@@ -389,7 +410,7 @@ export class AdminCmsService {
 
     const asset = await this.cmsRepository.createMedia({
       filename: dto.filename,
-      url: dto.url,
+      url: requireLibraryImageUrl(dto.url, 'آدرس فایل'),
       mimeType: dto.mimeType,
       sizeBytes: dto.sizeBytes,
       alt: dto.alt,
@@ -420,12 +441,27 @@ export class AdminCmsService {
     return this.mapMedia(asset);
   }
 
+  async updateMedia(id: string, dto: UpdateMediaAssetDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.media.write);
+    const existing = await this.cmsRepository.findMediaById(id);
+    if (!existing) {
+      throw new NotFoundException('Media asset not found');
+    }
+
+    const asset = await this.cmsRepository.updateMedia(id, {
+      alt: dto.alt?.trim() || null,
+    });
+
+    return this.mapMedia(asset);
+  }
+
   async deleteMedia(id: string, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.media.write);
     const existing = await this.cmsRepository.findMediaById(id);
     if (!existing) {
       throw new NotFoundException('Media asset not found');
     }
+    await this.mediaStorage.deleteByPublicUrl(existing.url);
     await this.cmsRepository.deleteMedia(id);
     return { ok: true };
   }
@@ -459,7 +495,7 @@ export class AdminCmsService {
       slug: dto.slug.trim(),
       content: dto.content,
       excerpt: dto.excerpt?.trim() || plain.slice(0, 400),
-      coverImageUrl: dto.coverImageUrl ?? DEFAULT_FAQ_COVER,
+      coverImageUrl: requireLibraryImageUrl(dto.coverImageUrl, 'تصویر سوال'),
       publishedAt: dto.publishedAt,
       isPublished: dto.isPublished ?? true,
       sortOrder: dto.sortOrder ?? 0,
@@ -482,6 +518,18 @@ export class AdminCmsService {
       categoryTitle: post.category?.title ?? null,
       createdAt: post.createdAt.toISOString(),
       updatedAt: post.updatedAt.toISOString(),
+    };
+  }
+
+  private mapPublicBanner(banner: Prisma.CmsBannerGetPayload<object>) {
+    return {
+      id: banner.id,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      imageUrl: banner.imageUrl,
+      linkUrl: banner.linkUrl,
+      placement: banner.placement,
+      sortOrder: banner.sortOrder,
     };
   }
 

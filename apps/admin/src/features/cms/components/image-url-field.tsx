@@ -77,13 +77,14 @@ export function ImageUrlField({
         </div>
       ) : (
         <p className="mt-2 text-xs text-muted">
-          تصویر را از کتابخانه رسانه انتخاب کنید —{' '}
+          تمام تصاویر سایت فقط از{' '}
           <a
             href={`/media?picker=1&folder=${encodeURIComponent(folder)}`}
             className="font-semibold text-[var(--warning)] hover:underline"
           >
-            باز کردن کتابخانه (/media)
-          </a>
+            کتابخانه رسانه
+          </a>{' '}
+          انتخاب می‌شوند — لینک خارجی یا Unsplash مجاز نیست.
         </p>
       )}
 

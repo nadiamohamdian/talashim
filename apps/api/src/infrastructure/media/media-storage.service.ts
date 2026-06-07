@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { getApiEnv } from '@/config/env';
@@ -71,5 +71,22 @@ export class MediaStorageService {
     const dot = name.lastIndexOf('.');
     if (dot === -1) return '.jpg';
     return name.slice(dot).toLowerCase();
+  }
+
+  async deleteByPublicUrl(url: string): Promise<void> {
+    const match = url.match(/\/media-files\/([^/]+)\/([^/?#]+)/);
+    if (!match) {
+      return;
+    }
+
+    const [, folder, filename] = match;
+    const absolutePath = join(this.uploadRoot, folder, filename);
+
+    try {
+      await unlink(absolutePath);
+      this.logger.debug(`Deleted media file ${absolutePath}`);
+    } catch {
+      // File may already be missing — ignore.
+    }
   }
 }

@@ -2,8 +2,7 @@
 
 import { useEffect, type PropsWithChildren } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchMyPermissions } from '@/features/admin/api/admin-api';
-import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
+import { syncAdminPermissionsFromApi } from '@/features/auth/lib/sync-admin-permissions';
 import { useAdminAuthHydrated } from '../hooks/use-admin-auth-hydrated';
 import {
   syncAdminAuthCookieFromStore,
@@ -16,8 +15,6 @@ export function AdminGuard({ children }: PropsWithChildren) {
   const router = useRouter();
   const hydrated = useAdminAuthHydrated();
   const isAdmin = useAdminAuthStore((s) => s.isAdmin());
-  const setPermissions = useAdminAuthStore((s) => s.setPermissions);
-
   useEffect(() => {
     if (hydrated) {
       syncAdminAuthCookieFromStore();
@@ -31,20 +28,25 @@ export function AdminGuard({ children }: PropsWithChildren) {
 
     let cancelled = false;
 
-    fetchMyPermissions()
-      .then((result) => {
-        if (!cancelled) {
-          setPermissions(result.permissions as AdminPermissionKey[]);
-        }
-      })
-      .catch(() => {
-        // Keep persisted/static permissions when sync fails (offline API).
-      });
+    const syncPermissions = () => {
+      void syncAdminPermissionsFromApi();
+    };
+
+    syncPermissions();
+
+    const onFocus = () => {
+      if (!cancelled) {
+        syncPermissions();
+      }
+    };
+
+    window.addEventListener('focus', onFocus);
 
     return () => {
       cancelled = true;
+      window.removeEventListener('focus', onFocus);
     };
-  }, [hydrated, isAdmin, setPermissions]);
+  }, [hydrated, isAdmin]);
 
   useEffect(() => {
     if (!hydrated || isAdmin) {

@@ -145,7 +145,8 @@ export function StaticPagesPanel() {
             <div className="md:col-span-2">
               <RichTextEditor
                 label="محتوا"
-                hint="متن کامل صفحه — HTML و قالب‌بندی."
+                mediaFolder="general"
+                hint="متن کامل صفحه — تصاویر را از کتابخانه درج کنید."
                 value={form.content}
                 onChange={(content) => setForm((f) => ({ ...f, content }))}
                 minHeight={240}

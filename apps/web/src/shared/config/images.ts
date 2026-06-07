@@ -1,18 +1,14 @@
-/** Reliable fallback when remote product images fail after retries. */
-export const DEFAULT_PRODUCT_IMAGE =
-  'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=900&q=80';
+/** Local placeholder when no library image is available (not a CMS asset). */
+export const PLACEHOLDER_MEDIA_IMAGE = '/images/placeholder-media.svg';
+
+export const DEFAULT_PRODUCT_IMAGE = PLACEHOLDER_MEDIA_IMAGE;
 
 export const CATEGORY_FALLBACK_IMAGES = {
-  rings:
-    'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80',
-  earrings:
-    'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80',
-  bracelets:
-    'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80',
-  necklaces:
-    'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80',
-  gifts:
-    'https://images.unsplash.com/photo-1603561596117-0a71b1f9226a?auto=format&fit=crop&w=600&q=80',
+  rings: PLACEHOLDER_MEDIA_IMAGE,
+  earrings: PLACEHOLDER_MEDIA_IMAGE,
+  bracelets: PLACEHOLDER_MEDIA_IMAGE,
+  necklaces: PLACEHOLDER_MEDIA_IMAGE,
+  gifts: PLACEHOLDER_MEDIA_IMAGE,
 } as const;
 
 export const IMAGE_MAX_RETRIES = 3;

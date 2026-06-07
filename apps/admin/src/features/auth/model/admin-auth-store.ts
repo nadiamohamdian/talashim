@@ -7,7 +7,7 @@ import {
   clearAccessTokenCookie,
   setAccessTokenCookie,
 } from '@talashim/shared/constants/auth';
-import { isStaffRoleSlug, resolvePermissionsForRole } from '@talashim/shared/admin-rbac';
+import { isStaffRoleSlug } from '@talashim/shared/admin-rbac';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
 import { hasPermission as checkPermission } from '../lib/permission-resolver';
 import type { AuthSession, StaffRoleSlug } from '@talashim/types';
@@ -35,11 +35,10 @@ export const useAdminAuthStore = create<AdminAuthState>()(
         if (!isStaffRoleSlug(session.user.role)) {
           throw new Error('دسترسی به پنل مدیریت مجاز نیست');
         }
-        const permissions = resolvePermissionsForRole(session.user.role);
         set({
           user: session.user,
           accessToken: session.tokens.accessToken,
-          permissions,
+          permissions: [],
         });
         setAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE, session.tokens.accessToken);
       },
@@ -69,9 +68,6 @@ export const useAdminAuthStore = create<AdminAuthState>()(
           state.permissions = [];
           clearAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE);
           return;
-        }
-        if (state?.user && isStaffRoleSlug(state.user.role)) {
-          state.permissions = resolvePermissionsForRole(state.user.role);
         }
         if (state?.accessToken) {
           setAccessTokenCookie(ADMIN_ACCESS_TOKEN_COOKIE, state.accessToken);

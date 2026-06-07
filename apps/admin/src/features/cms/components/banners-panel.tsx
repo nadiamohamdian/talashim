@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  Alert,
   Button,
   Card,
   Input,
@@ -16,6 +17,7 @@ import {
   TableRow,
 } from '@talashim/ui';
 import type { CmsBannerDto } from '@talashim/types';
+import { getApiErrorMessage } from '@/shared/api/axios-client';
 import {
   createBanner,
   deleteBanner,
@@ -29,6 +31,7 @@ import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
 import { BANNER_PLACEMENT_FA, BANNER_STATUS_FA, selectFieldClass } from '../lib/labels';
+import { validateLibraryImageUrl } from '../lib/validate-library-image';
 
 const emptyBanner = (): UpsertBannerPayload => ({
   title: '',
@@ -36,23 +39,60 @@ const emptyBanner = (): UpsertBannerPayload => ({
   imageUrl: '',
   linkUrl: '/products',
   placement: 'HOME_MID',
-  status: 'DRAFT',
+  status: 'PUBLISHED',
   sortOrder: 0,
 });
+
+function validateBannerForm(form: UpsertBannerPayload): string | null {
+  if (form.title.trim().length < 2) {
+    return 'عنوان باید حداقل ۲ کاراکتر باشد.';
+  }
+  const imageError = validateLibraryImageUrl(form.imageUrl, 'تصویر بنر');
+  if (imageError) {
+    return imageError;
+  }
+  if (form.startsAt && form.endsAt && form.startsAt > form.endsAt) {
+    return 'تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.';
+  }
+  return null;
+}
+
+function toApiPayload(form: UpsertBannerPayload): UpsertBannerPayload {
+  return {
+    title: form.title.trim(),
+    subtitle: form.subtitle?.trim() || undefined,
+    imageUrl: form.imageUrl.trim(),
+    linkUrl: form.linkUrl?.trim() || undefined,
+    placement: form.placement,
+    status: form.status,
+    sortOrder: form.sortOrder ?? 0,
+    startsAt: form.startsAt || undefined,
+    endsAt: form.endsAt || undefined,
+  };
+}
 
 export function BannersPanel() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('');
+  const [placement, setPlacement] = useState('');
   const [editing, setEditing] = useState<CmsBannerDto | null | 'new'>(null);
   const [form, setForm] = useState<UpsertBannerPayload>(emptyBanner());
+  const [formError, setFormError] = useState<string | null>(null);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
+  const queryKey = useMemo(
+    () => adminQueryKeys.cms.banners(page, status, placement),
+    [page, status, placement],
+  );
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: adminQueryKeys.cms.banners(page, status),
+    queryKey,
     queryFn: () =>
       fetchBanners({
         page,
         status: status || undefined,
+        placement: placement || undefined,
       }),
   });
 
@@ -69,8 +109,10 @@ export function BannersPanel() {
         startsAt: editing.startsAt?.slice(0, 10),
         endsAt: editing.endsAt?.slice(0, 10),
       });
+      setFormError(null);
     } else if (editing === 'new') {
       setForm(emptyBanner());
+      setFormError(null);
     }
   }, [editing]);
 
@@ -87,14 +129,64 @@ export function BannersPanel() {
     },
     onSuccess: () => {
       setEditing(null);
+      setFormError(null);
+      setSaveMessage('بنر با موفقیت ذخیره شد و در فروشگاه (در صورت انتشار) نمایش داده می‌شود.');
       invalidate();
+    },
+    onError: (error) => {
+      setSaveMessage(null);
+      setFormError(getApiErrorMessage(error, 'ذخیره بنر ناموفق بود.'));
+    },
+  });
+
+  const quickStatusMutation = useMutation({
+    mutationFn: ({
+      banner,
+      nextStatus,
+    }: {
+      banner: CmsBannerDto;
+      nextStatus: CmsBannerDto['status'];
+    }) =>
+      updateBanner(banner.id, {
+        title: banner.title,
+        subtitle: banner.subtitle ?? undefined,
+        imageUrl: banner.imageUrl,
+        linkUrl: banner.linkUrl ?? undefined,
+        placement: banner.placement,
+        status: nextStatus,
+        sortOrder: banner.sortOrder,
+        startsAt: banner.startsAt?.slice(0, 10),
+        endsAt: banner.endsAt?.slice(0, 10),
+      }),
+    onSuccess: () => {
+      setSaveMessage('وضعیت بنر به‌روز شد.');
+      invalidate();
+    },
+    onError: (error) => {
+      setFormError(getApiErrorMessage(error, 'تغییر وضعیت ناموفق بود.'));
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteBanner,
-    onSuccess: invalidate,
+    onSuccess: () => {
+      setSaveMessage('بنر حذف شد.');
+      invalidate();
+    },
+    onError: (error) => {
+      setFormError(getApiErrorMessage(error, 'حذف بنر ناموفق بود.'));
+    },
   });
+
+  const handleSave = () => {
+    const validationError = validateBannerForm(form);
+    if (validationError) {
+      setFormError(validationError);
+      setSaveMessage(null);
+      return;
+    }
+    saveMutation.mutate(toApiPayload(form));
+  };
 
   return (
     <CmsPageShell
@@ -105,11 +197,35 @@ export function BannersPanel() {
         </Button>
       }
     >
+      {saveMessage ? <Alert variant="success">{saveMessage}</Alert> : null}
+      {formError && !editing ? <Alert variant="destructive">{formError}</Alert> : null}
+
       {editing ? (
         <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="font-semibold text-foreground">
+                {editing === 'new' ? 'بنر جدید' : 'ویرایش بنر'}
+              </h2>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                برای نمایش در سایت، وضعیت را «منتشرشده» بگذارید و تصویر را از کتابخانه انتخاب کنید.
+              </p>
+            </div>
+            {form.imageUrl ? (
+              <div className="overflow-hidden rounded-xl border border-border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={form.imageUrl}
+                  alt="پیش‌نمایش"
+                  className="h-24 w-40 object-cover"
+                />
+              </div>
+            ) : null}
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label>عنوان</Label>
+              <Label>عنوان *</Label>
               <Input
                 className="mt-1"
                 value={form.title}
@@ -125,7 +241,7 @@ export function BannersPanel() {
               />
             </div>
             <div>
-              <Label>جایگاه</Label>
+              <Label>جایگاه نمایش</Label>
               <select
                 className={selectFieldClass}
                 value={form.placement}
@@ -162,27 +278,63 @@ export function BannersPanel() {
                 ))}
               </select>
             </div>
-            <div className="md:col-span-2">
-              <ImageUrlField
-                label="تصویر بنر"
-                value={form.imageUrl}
-                onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
-                folder="banners"
+            <div>
+              <Label>ترتیب نمایش</Label>
+              <Input
+                className="mt-1"
+                type="number"
+                min={0}
+                value={form.sortOrder ?? 0}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, sortOrder: Number(e.target.value) || 0 }))
+                }
               />
             </div>
-            <div className="md:col-span-2">
-              <Label>لینک</Label>
+            <div>
+              <Label>لینک مقصد</Label>
               <Input
                 className="mt-1 font-mono text-sm"
                 dir="ltr"
+                placeholder="/products"
                 value={form.linkUrl ?? ''}
                 onChange={(e) => setForm((f) => ({ ...f, linkUrl: e.target.value }))}
               />
             </div>
+            <div>
+              <Label>شروع نمایش (اختیاری)</Label>
+              <Input
+                className="mt-1"
+                type="date"
+                value={form.startsAt ?? ''}
+                onChange={(e) => setForm((f) => ({ ...f, startsAt: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Label>پایان نمایش (اختیاری)</Label>
+              <Input
+                className="mt-1"
+                type="date"
+                value={form.endsAt ?? ''}
+                onChange={(e) => setForm((f) => ({ ...f, endsAt: e.target.value }))}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <ImageUrlField
+                label="تصویر بنر"
+                hint="تصویر را از کتابخانه رسانه انتخاب کنید. بدون تصویر، بنر ذخیره نمی‌شود."
+                value={form.imageUrl}
+                onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                folder="banners"
+                required
+              />
+            </div>
           </div>
+
+          {formError ? <Alert variant="destructive">{formError}</Alert> : null}
+
           <div className="flex gap-2">
-            <Button disabled={saveMutation.isPending} onClick={() => saveMutation.mutate(form)}>
-              ذخیره
+            <Button disabled={saveMutation.isPending} onClick={handleSave}>
+              {saveMutation.isPending ? 'در حال ذخیره…' : 'ذخیره بنر'}
             </Button>
             <Button variant="outline" onClick={() => setEditing(null)}>
               انصراف
@@ -208,6 +360,24 @@ export function BannersPanel() {
             <option value="ARCHIVED">بایگانی</option>
           </select>
         </div>
+        <div>
+          <Label>جایگاه</Label>
+          <select
+            className={selectFieldClass}
+            value={placement}
+            onChange={(e) => {
+              setPlacement(e.target.value);
+              setPage(1);
+            }}
+          >
+            <option value="">همه</option>
+            {Object.entries(BANNER_PLACEMENT_FA).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
       </FilterBar>
 
       <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
@@ -215,28 +385,49 @@ export function BannersPanel() {
           <Skeleton className="m-6 h-48" />
         ) : isError ? (
           <p className="p-6 text-[var(--error)]">بارگذاری بنرها ناموفق بود.</p>
+        ) : data?.items.length === 0 ? (
+          <p className="p-6 text-sm text-[var(--muted-foreground)]">
+            بنری ثبت نشده. «بنر جدید» را بزنید — برای نمایش در سایت وضعیت «منتشرشده» و تصویر الزامی
+            است.
+          </p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>تصویر</TableHead>
                 <TableHead>عنوان</TableHead>
                 <TableHead>جایگاه</TableHead>
+                <TableHead>ترتیب</TableHead>
                 <TableHead>وضعیت</TableHead>
-                <TableHead className="w-32" />
+                <TableHead className="w-44" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {data?.items.map((banner) => (
                 <TableRow key={banner.id}>
-                  <TableCell>{banner.title}</TableCell>
+                  <TableCell>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={banner.imageUrl}
+                      alt={banner.title}
+                      className="h-12 w-20 rounded-lg object-cover"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <p className="font-medium">{banner.title}</p>
+                    {banner.subtitle ? (
+                      <p className="mt-0.5 text-xs text-muted">{banner.subtitle}</p>
+                    ) : null}
+                  </TableCell>
                   <TableCell>{BANNER_PLACEMENT_FA[banner.placement]}</TableCell>
+                  <TableCell>{banner.sortOrder}</TableCell>
                   <TableCell>
                     <span className="inline-flex rounded-full bg-[var(--surface)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]">
                       {BANNER_STATUS_FA[banner.status]}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
+                    <div className="flex flex-wrap gap-1">
                       <Button
                         className="h-8 px-3 text-xs"
                         variant="outline"
@@ -244,6 +435,29 @@ export function BannersPanel() {
                       >
                         ویرایش
                       </Button>
+                      {banner.status !== 'PUBLISHED' ? (
+                        <Button
+                          className="h-8 px-3 text-xs"
+                          variant="outline"
+                          disabled={quickStatusMutation.isPending}
+                          onClick={() =>
+                            quickStatusMutation.mutate({ banner, nextStatus: 'PUBLISHED' })
+                          }
+                        >
+                          انتشار
+                        </Button>
+                      ) : (
+                        <Button
+                          className="h-8 px-3 text-xs"
+                          variant="outline"
+                          disabled={quickStatusMutation.isPending}
+                          onClick={() =>
+                            quickStatusMutation.mutate({ banner, nextStatus: 'DRAFT' })
+                          }
+                        >
+                          پیش‌نویس
+                        </Button>
+                      )}
                       <Button
                         className="h-8 px-3 text-xs text-[var(--error)]"
                         variant="ghost"

@@ -6,7 +6,10 @@ import {
   daysInJalaaliMonth,
   formatPersianDate,
   fromJalaali,
+  gregorianDateStringToDate,
   JALAALI_MONTHS_FA,
+  tehranDayBoundaryIso,
+  toGregorianDateStringInTehran,
   toJalaali,
 } from '@/shared/lib/jalaali';
 import { selectFieldClass } from '@/features/commerce/lib/labels';
@@ -25,9 +28,9 @@ function parseValue(value: string): Date | null {
   if (!value.trim()) {
     return null;
   }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const date = new Date(`${value}T12:00:00`);
-    return Number.isNaN(date.getTime()) ? null : date;
+  const dateOnly = gregorianDateStringToDate(value);
+  if (dateOnly) {
+    return dateOnly;
   }
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -35,18 +38,9 @@ function parseValue(value: string): Date | null {
 
 function emitValue(date: Date, valueFormat: 'date' | 'iso', endOfDay: boolean): string {
   if (valueFormat === 'date') {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+    return toGregorianDateStringInTehran(date);
   }
-  const copy = new Date(date);
-  if (endOfDay) {
-    copy.setHours(23, 59, 59, 999);
-  } else {
-    copy.setHours(0, 0, 0, 0);
-  }
-  return copy.toISOString();
+  return tehranDayBoundaryIso(date, endOfDay);
 }
 
 function formatPlainFa(value: number, options?: Intl.NumberFormatOptions): string {

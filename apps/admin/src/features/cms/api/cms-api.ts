@@ -14,12 +14,10 @@ export type UpsertFaqPayload = {
   question: string;
   answer: string;
   slug: string;
+  coverImageUrl?: string;
   isPublished?: boolean;
   sortOrder?: number;
 };
-
-const DEFAULT_FAQ_COVER =
-  'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80';
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -32,7 +30,7 @@ function faqPayloadToApiBody(payload: UpsertFaqPayload) {
     slug: payload.slug.trim(),
     content: payload.answer,
     excerpt: plain.slice(0, 400),
-    coverImageUrl: DEFAULT_FAQ_COVER,
+    coverImageUrl: payload.coverImageUrl!,
     isPublished: payload.isPublished ?? true,
     sortOrder: payload.sortOrder ?? 0,
     publishedAt: new Date().toISOString(),
@@ -207,6 +205,10 @@ export function fetchMediaAssets(params?: {
 
 export function registerMediaAsset(payload: RegisterMediaPayload) {
   return axiosClient.post<MediaAssetDto>('/admin/media', payload).then((r) => r.data);
+}
+
+export function updateMediaAsset(id: string, payload: { alt?: string }) {
+  return axiosClient.patch<MediaAssetDto>(`/admin/media/${id}`, payload).then((r) => r.data);
 }
 
 export function deleteMediaAsset(id: string) {

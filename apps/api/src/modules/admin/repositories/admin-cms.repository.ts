@@ -135,6 +135,26 @@ export class AdminCmsRepository implements OnModuleInit {
     return this.prisma.cmsBanner.findUnique({ where: { id } });
   }
 
+  findPublishedBanners(placement?: string) {
+    const now = new Date();
+    const where: Prisma.CmsBannerWhereInput = {
+      status: 'PUBLISHED',
+      AND: [
+        { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+        { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
+      ],
+    };
+
+    if (placement) {
+      where.placement = placement as Prisma.EnumCmsBannerPlacementFilter['equals'];
+    }
+
+    return this.prisma.cmsBanner.findMany({
+      where,
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+    });
+  }
+
   createBanner(data: Prisma.CmsBannerCreateInput) {
     return this.prisma.cmsBanner.create({ data });
   }
@@ -282,6 +302,10 @@ export class AdminCmsRepository implements OnModuleInit {
 
   createMedia(data: Prisma.MediaAssetCreateInput) {
     return this.prisma.mediaAsset.create({ data });
+  }
+
+  updateMedia(id: string, data: Prisma.MediaAssetUpdateInput) {
+    return this.prisma.mediaAsset.update({ where: { id }, data });
   }
 
   deleteMedia(id: string) {

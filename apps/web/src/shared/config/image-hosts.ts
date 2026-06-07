@@ -1,8 +1,5 @@
 /** Hostnames allowed for next/image optimization (also used by StoreImage). */
-export const DEFAULT_IMAGE_REMOTE_HOSTS = [
-  'images.unsplash.com',
-  'zivazz.com',
-] as const;
+export const DEFAULT_IMAGE_REMOTE_HOSTS = ['zivazz.com'] as const;
 
 export function getImageRemoteHosts(): string[] {
   const fromEnv =

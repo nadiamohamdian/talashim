@@ -14,6 +14,7 @@ import type {
   AdminProductVideoDto,
 } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
+import { optionalLibraryImageUrl, requireLibraryImageUrl } from '@/common/media/require-library-image-url';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
@@ -126,7 +127,7 @@ export class AdminProductsService {
         seoDescription: dto.seoDescription ?? dto.description.slice(0, 160),
         seoTitle: dto.seoTitle ?? null,
         seoKeywords: dto.seoKeywords ?? null,
-        ogImageUrl: dto.ogImageUrl ?? null,
+        ogImageUrl: optionalLibraryImageUrl(dto.ogImageUrl, 'تصویر OG') ?? null,
         seoCanonicalPath: dto.seoCanonicalPath ?? null,
         seoNoIndex: dto.seoNoIndex ?? false,
         category: dto.category,
@@ -134,7 +135,7 @@ export class AdminProductsService {
         weightGram: dto.weightGram,
         makingFeePercent: dto.makingFeePercent,
         priceToman: dto.priceToman,
-        imageUrl: dto.imageUrl,
+        imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر اصلی محصول'),
         featured: dto.featured ?? false,
         discountPercent: dto.discountPercent ?? null,
         discountStartsAt: dto.discountStartsAt ? new Date(dto.discountStartsAt) : null,
@@ -143,9 +144,9 @@ export class AdminProductsService {
       dto.initialQuantity ?? 0,
       actor.id,
       this.extractRelations({
-        galleryImages: dto.galleryImages ?? [],
-        variants: dto.variants ?? [],
-        videos: dto.videos ?? [],
+        galleryImages: this.validateGalleryImages(dto.galleryImages ?? []),
+        variants: this.validateVariants(dto.variants ?? []),
+        videos: this.validateVideos(dto.videos ?? []),
       }),
     );
 
@@ -172,7 +173,10 @@ export class AdminProductsService {
         seoDescription: dto.seoDescription,
         seoTitle: dto.seoTitle,
         seoKeywords: dto.seoKeywords,
-        ogImageUrl: dto.ogImageUrl,
+        ogImageUrl:
+          dto.ogImageUrl !== undefined
+            ? optionalLibraryImageUrl(dto.ogImageUrl, 'تصویر OG')
+            : undefined,
         seoCanonicalPath: dto.seoCanonicalPath,
         seoNoIndex: dto.seoNoIndex,
         category: dto.category,
@@ -180,7 +184,10 @@ export class AdminProductsService {
         weightGram: dto.weightGram,
         makingFeePercent: dto.makingFeePercent,
         priceToman: dto.priceToman,
-        imageUrl: dto.imageUrl,
+        imageUrl:
+          dto.imageUrl !== undefined
+            ? requireLibraryImageUrl(dto.imageUrl, 'تصویر اصلی محصول')
+            : undefined,
         featured: dto.featured,
         discountPercent: dto.discountPercent,
         discountStartsAt: dto.discountStartsAt ? new Date(dto.discountStartsAt) : undefined,
@@ -338,15 +345,15 @@ export class AdminProductsService {
     return relations;
   }
 
-  private mapGalleryInputs(images: NonNullable<CreateAdminProductDto['galleryImages']>) {
+  private validateGalleryImages(images: NonNullable<CreateAdminProductDto['galleryImages']>) {
     return images.map((image, index) => ({
-      url: image.url,
+      url: requireLibraryImageUrl(image.url, `تصویر گالری ${index + 1}`),
       alt: image.alt,
       sortOrder: image.sortOrder ?? index,
     }));
   }
 
-  private mapVariantInputs(variants: NonNullable<CreateAdminProductDto['variants']>) {
+  private validateVariants(variants: NonNullable<CreateAdminProductDto['variants']>) {
     return variants.map((variant, index) => ({
       sku: variant.sku,
       color: variant.color,
@@ -354,20 +361,36 @@ export class AdminProductsService {
       priceToman: variant.priceToman,
       weightGram: variant.weightGram,
       makingFeePercent: variant.makingFeePercent,
-      imageUrl: variant.imageUrl,
+      imageUrl: variant.imageUrl
+        ? requireLibraryImageUrl(variant.imageUrl, `تصویر variant ${index + 1}`)
+        : undefined,
       quantity: variant.quantity ?? 0,
       sortOrder: variant.sortOrder ?? index,
       isDefault: variant.isDefault ?? false,
     }));
   }
 
-  private mapVideoInputs(videos: NonNullable<CreateAdminProductDto['videos']>) {
+  private validateVideos(videos: NonNullable<CreateAdminProductDto['videos']>) {
     return videos.map((video, index) => ({
       title: video.title,
       videoUrl: video.videoUrl,
-      thumbnailUrl: video.thumbnailUrl,
+      thumbnailUrl: video.thumbnailUrl
+        ? requireLibraryImageUrl(video.thumbnailUrl, `تصویر بندانگشتی ویدیو ${index + 1}`)
+        : undefined,
       sortOrder: video.sortOrder ?? index,
     }));
+  }
+
+  private mapGalleryInputs(images: NonNullable<CreateAdminProductDto['galleryImages']>) {
+    return this.validateGalleryImages(images);
+  }
+
+  private mapVariantInputs(variants: NonNullable<CreateAdminProductDto['variants']>) {
+    return this.validateVariants(variants);
+  }
+
+  private mapVideoInputs(videos: NonNullable<CreateAdminProductDto['videos']>) {
+    return this.validateVideos(videos);
   }
 
   private async assertVariantSkusAvailable(

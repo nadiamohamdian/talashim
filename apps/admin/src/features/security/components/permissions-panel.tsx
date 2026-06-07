@@ -89,7 +89,9 @@ export function usePermissionsEditor(): PermissionsEditorState {
       setBaseline(matrix);
       setDraft(matrix);
       setSaveError(null);
-      setSaveMessage('تغییرات دسترسی با موفقیت ذخیره شد.');
+      setSaveMessage(
+        'تغییرات دسترسی با موفقیت ذخیره شد. کاربران همان نقش پس از رفرش صفحه یا ورود مجدد، منوی به‌روز را می‌بینند.',
+      );
       queryClient.setQueryData(adminQueryKeys.permissions, registry);
 
       if (currentRoleSlug) {

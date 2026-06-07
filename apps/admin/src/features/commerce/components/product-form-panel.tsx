@@ -260,9 +260,10 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           </div>
           <div className="md:col-span-2">
             <RichTextEditor
+              mediaFolder="products"
               label="توضیحات"
               required
-              hint="متن کامل محصول — فونت، رنگ، لیست و قالب‌بندی."
+              hint="متن کامل محصول — تصاویر را با دکمه «تصویر» از کتابخانه درج کنید."
               value={form.description}
               onChange={(description) => setForm({ ...form, description })}
               minHeight={200}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, type PropsWithChildren } from 'react';
+import type { PublicCmsBanner } from '@sadafgold/types';
 import type { StorefrontSettings } from '@/shared/model/storefront-settings';
 import { ClientRoot } from '@/shared/providers/client-root';
 import { MaintenancePage } from './maintenance-page';
@@ -9,9 +10,14 @@ const POLL_MS = 10_000;
 
 type MaintenanceShellProps = PropsWithChildren<{
   initialSettings: StorefrontSettings;
+  globalBanners?: PublicCmsBanner[];
 }>;
 
-export function MaintenanceShell({ initialSettings, children }: MaintenanceShellProps) {
+export function MaintenanceShell({
+  initialSettings,
+  globalBanners = [],
+  children,
+}: MaintenanceShellProps) {
   const [settings, setSettings] = useState(initialSettings);
 
   const refreshStatus = useCallback(async () => {
@@ -88,5 +94,9 @@ export function MaintenanceShell({ initialSettings, children }: MaintenanceShell
     );
   }
 
-  return <ClientRoot settings={settings}>{children}</ClientRoot>;
+  return (
+    <ClientRoot settings={settings} globalBanners={globalBanners}>
+      {children}
+    </ClientRoot>
+  );
 }

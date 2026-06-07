@@ -1,142 +1,98 @@
-/** Minimal Jalaali ↔ Gregorian conversion (no external deps). */
+/** Persian (Jalali) calendar — Iran astronomical calendar via ICU Intl API. */
 
-const breaks = [
-  -61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262,
-  2324, 2394, 2456, 3178,
-];
+const TEHRAN_TZ = 'Asia/Tehran';
+const TEHRAN_OFFSET = '+03:30';
 
-function jalCal(jy: number) {
-  const bl = breaks.length;
-  const gy = jy + 621;
-  let leapJ = -14;
-  let jp = breaks[0]!;
-  let jm: number;
-  let jump = 0;
-  let leap: number;
-  let n: number;
-  let i: number;
-
-  if (jy < jp || jy >= breaks[bl - 1]!) {
-    throw new Error(`Invalid Jalaali year ${jy}`);
-  }
-
-  for (i = 1; i < bl; i += 1) {
-    jm = breaks[i]!;
-    jump = jm - jp;
-    if (jy < jm) {
-      break;
-    }
-    leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
-    jp = jm;
-  }
-  n = jy - jp;
-  leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
-  if (mod(jump, 33) === 4 && jump - n === 4) {
-    leapJ += 1;
-  }
-  leap = mod(div(n + 1, 33) - 1, 4);
-  if (leap === -1) {
-    leap = 4;
-  }
-  return { leap, gy };
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
 }
 
-function div(a: number, b: number) {
-  return ~~(a / b);
+function readIntlParts(date: Date, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormatPart[] {
+  return new Intl.DateTimeFormat('en-US', options).formatToParts(date);
 }
 
-function mod(a: number, b: number) {
-  return a - ~~(a / b) * b;
+function partNumber(parts: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes): number {
+  return Number(parts.find((part) => part.type === type)?.value ?? '0');
 }
 
-function g2d(gy: number, gm: number, gd: number) {
-  let d =
-    div((gy + div(gm - 8, 6) + 100100) * 1461, 4) +
-    div(153 * mod(gm + 9, 12) + 2, 5) +
-    gd -
-    34840408;
-  d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
-  return d;
+function normalizeHour(hour: number): number {
+  return hour === 24 ? 0 : hour;
 }
 
-function d2g(jdn: number) {
-  let j = 4 * jdn + 139361631;
-  j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
-  const i = div(mod(j, 1461), 4) * 5 + 308;
-  const gd = div(mod(i, 153), 5) + 1;
-  const gm = mod(div(i, 153), 12) + 1;
-  const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
-  return { gy, gm, gd };
-}
-
-function j2d(jy: number, jm: number, jd: number) {
-  const r = jalCal(jy);
-  return g2d(r.gy, 3, jm <= 6 ? (jm - 1) * 31 + jd : (jm - 7) * 30 + jd + 186) + (r.leap === 0 && jm > 6 ? 1 : 0);
-}
-
-function d2j(jdn: number) {
-  const g = d2g(jdn);
-  let jy = g.gy - 621;
-  const r = jalCal(jy);
-  const jdn1f = g2d(r.gy, 3, r.leap);
-  let jd: number;
-  let jm: number;
-  let k = jdn - jdn1f;
-  if (k >= 0) {
-    if (k <= 185) {
-      jm = 1 + div(k, 31);
-      jd = mod(k, 31) + 1;
-      return { jy, jm, jd };
-    }
-    k -= 186;
-  } else {
-    jy -= 1;
-    k += 179;
-    if (r.leap === 1) {
-      k += 1;
-    }
-  }
-  jm = 7 + div(k, 30);
-  jd = mod(k, 30) + 1;
-  return { jy, jm, jd };
-}
-
-function getIranWallClock(date: Date): {
+export function getGregorianWallClockInTehran(date: Date): {
   gy: number;
   gm: number;
   gd: number;
   hour: number;
   minute: number;
 } {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Asia/Tehran',
+  const parts = readIntlParts(date, {
+    timeZone: TEHRAN_TZ,
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
     hour: 'numeric',
     minute: 'numeric',
     hour12: false,
-  }).formatToParts(date);
-
-  const read = (type: Intl.DateTimeFormatPartTypes) =>
-    Number(parts.find((part) => part.type === type)?.value ?? '0');
+  });
 
   return {
-    gy: read('year'),
-    gm: read('month'),
-    gd: read('day'),
-    hour: read('hour'),
-    minute: read('minute'),
+    gy: partNumber(parts, 'year'),
+    gm: partNumber(parts, 'month'),
+    gd: partNumber(parts, 'day'),
+    hour: normalizeHour(partNumber(parts, 'hour')),
+    minute: partNumber(parts, 'minute'),
   };
 }
 
+function getPersianWallClockInTehran(date: Date): {
+  jy: number;
+  jm: number;
+  jd: number;
+  hour: number;
+  minute: number;
+} {
+  const parts = readIntlParts(date, {
+    timeZone: TEHRAN_TZ,
+    calendar: 'persian',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  });
+
+  return {
+    jy: partNumber(parts, 'year'),
+    jm: partNumber(parts, 'month'),
+    jd: partNumber(parts, 'day'),
+    hour: normalizeHour(partNumber(parts, 'hour')),
+    minute: partNumber(parts, 'minute'),
+  };
+}
+
+export function tehranGregorianToDate(
+  gy: number,
+  gm: number,
+  gd: number,
+  hour: number,
+  minute: number,
+): Date {
+  return new Date(
+    `${gy}-${pad2(gm)}-${pad2(gd)}T${pad2(hour)}:${pad2(minute)}:00${TEHRAN_OFFSET}`,
+  );
+}
+
 export function jalaaliToGregorianParts(jy: number, jm: number, jd: number) {
-  return d2g(j2d(jy, jm, jd));
+  const date = fromJalaali(jy, jm, jd, 12, 0);
+  const { gy, gm, gd } = getGregorianWallClockInTehran(date);
+  return { gy, gm, gd };
 }
 
 export function jalaaliToGregorianDateString(jy: number, jm: number, jd: number): string {
   const { gy, gm, gd } = jalaaliToGregorianParts(jy, jm, jd);
-  return `${gy}-${String(gm).padStart(2, '0')}-${String(gd).padStart(2, '0')}`;
+  return `${gy}-${pad2(gm)}-${pad2(gd)}`;
 }
 
 export function gregorianDateStringToDate(value: string): Date | null {
@@ -147,14 +103,25 @@ export function gregorianDateStringToDate(value: string): Date | null {
   const gy = Number(match[1]);
   const gm = Number(match[2]);
   const gd = Number(match[3]);
-  const date = new Date(gy, gm - 1, gd, 12, 0, 0, 0);
+  const date = tehranGregorianToDate(gy, gm, gd, 12, 0);
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+export function toGregorianDateStringInTehran(date: Date): string {
+  const { gy, gm, gd } = getGregorianWallClockInTehran(date);
+  return `${gy}-${pad2(gm)}-${pad2(gd)}`;
+}
+
+export function tehranDayBoundaryIso(date: Date, endOfDay: boolean): string {
+  const { gy, gm, gd } = getGregorianWallClockInTehran(date);
+  if (endOfDay) {
+    return new Date(`${gy}-${pad2(gm)}-${pad2(gd)}T23:59:59.999${TEHRAN_OFFSET}`).toISOString();
+  }
+  return tehranGregorianToDate(gy, gm, gd, 0, 0).toISOString();
+}
+
 export function toJalaali(date: Date): { jy: number; jm: number; jd: number; hour: number; minute: number } {
-  const { gy, gm, gd, hour, minute } = getIranWallClock(date);
-  const { jy, jm, jd } = d2j(g2d(gy, gm, gd));
-  return { jy, jm, jd, hour, minute };
+  return getPersianWallClockInTehran(date);
 }
 
 export function fromJalaali(
@@ -164,8 +131,22 @@ export function fromJalaali(
   hour: number,
   minute: number,
 ): Date {
-  const { gy, gm, gd } = d2g(j2d(jy, jm, jd));
-  return new Date(gy, gm - 1, gd, hour, minute, 0, 0);
+  const approxGy = jy + 621;
+
+  for (let gy = approxGy - 1; gy <= approxGy + 1; gy += 1) {
+    for (let gm = 1; gm <= 12; gm += 1) {
+      const daysInGregorianMonth = gm === 2 ? 29 : [4, 6, 9, 11].includes(gm) ? 30 : 31;
+      for (let gd = 1; gd <= daysInGregorianMonth; gd += 1) {
+        const probe = tehranGregorianToDate(gy, gm, gd, 12, 0);
+        const persian = getPersianWallClockInTehran(probe);
+        if (persian.jy === jy && persian.jm === jm && persian.jd === jd) {
+          return tehranGregorianToDate(gy, gm, gd, hour, minute);
+        }
+      }
+    }
+  }
+
+  throw new Error(`Invalid Jalaali date ${jy}/${jm}/${jd}`);
 }
 
 export const JALAALI_MONTHS_FA = [
@@ -181,17 +162,14 @@ export const JALAALI_MONTHS_FA = [
   'دی',
   'بهمن',
   'اسفند',
-];
+] as const;
 
 export function daysInJalaaliMonth(jy: number, jm: number): number {
-  if (jm <= 6) {
-    return 31;
-  }
-  if (jm <= 11) {
-    return 30;
-  }
-  const r = jalCal(jy);
-  return r.leap === 0 ? 30 : 29;
+  const nextJm = jm === 12 ? 1 : jm + 1;
+  const nextJy = jm === 12 ? jy + 1 : jy;
+  const start = fromJalaali(jy, jm, 1, 12, 0);
+  const end = fromJalaali(nextJy, nextJm, 1, 12, 0);
+  return Math.round((end.getTime() - start.getTime()) / 86_400_000);
 }
 
 function formatPlainFa(value: number, options?: Intl.NumberFormatOptions): string {
@@ -205,8 +183,15 @@ export function formatJalaaliDateTime(date: Date): string {
 }
 
 export function parseDateInput(value: Date | string): Date | null {
-  const date = typeof value === 'string' ? new Date(value) : value;
-  return Number.isNaN(date.getTime()) ? null : date;
+  if (typeof value === 'string') {
+    const dateOnly = gregorianDateStringToDate(value);
+    if (dateOnly) {
+      return dateOnly;
+    }
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+  return Number.isNaN(value.getTime()) ? null : value;
 }
 
 /** تاریخ شمسی — فقط روز (بدون ساعت) */

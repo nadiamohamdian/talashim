@@ -1,6 +1,16 @@
 export type CmsBannerPlacement = 'HOME_HERO' | 'HOME_MID' | 'CATEGORY_TOP' | 'GLOBAL';
 export type CmsBannerStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
+export interface PublicCmsBanner {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  imageUrl: string;
+  linkUrl: string | null;
+  placement: CmsBannerPlacement;
+  sortOrder: number;
+}
+
 export interface CmsBannerDto {
   id: string;
   title: string;

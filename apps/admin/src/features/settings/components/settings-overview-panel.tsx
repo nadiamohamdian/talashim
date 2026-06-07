@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { formatPersianDateTime } from '@/shared/lib/format-date';
 
 import Link from 'next/link';
@@ -18,11 +19,16 @@ const OVERVIEW_HINTS: Record<string, string> = {
 };
 
 export function SettingsOverviewPanel() {
+  const permissions = useAdminAuthStore((s) => s.permissions);
   const hasPermission = useAdminAuthStore((s) => s.hasPermission);
   const { general, commerce, gold, featureFlags, updatedAt } = usePlatformSettingsStore();
 
-  const links = CHILD_ROUTES.filter((route) =>
-    hasPermission(route.permission as AdminPermissionKey),
+  const links = useMemo(
+    () =>
+      CHILD_ROUTES.filter((route) =>
+        hasPermission(route.permission as AdminPermissionKey),
+      ),
+    [hasPermission, permissions],
   );
 
   return (

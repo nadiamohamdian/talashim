@@ -24,6 +24,7 @@ import {
   AdminMediaQueryDto,
   AdminStaticPagesQueryDto,
   RegisterMediaAssetDto,
+  UpdateMediaAssetDto,
   UpdateCmsHomepageDto,
   UpdateCmsSeoDto,
   UpsertBlogPostDto,
@@ -232,6 +233,16 @@ export class AdminMediaController {
       folder,
       actor,
     );
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update media asset metadata (alt text)' })
+  updateMedia(
+    @Param('id') id: string,
+    @Body() dto: UpdateMediaAssetDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminCmsService.updateMedia(id, dto, actor);
   }
 
   @Delete(':id')

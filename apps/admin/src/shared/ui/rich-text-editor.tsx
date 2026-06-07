@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { Label } from '@sadafgold/ui';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Label } from '@talashim/ui';
+import { MediaPickerDialog } from '@/features/cms/components/media-picker-dialog';
 
 interface RichTextEditorProps {
   label: string;
@@ -10,6 +11,7 @@ interface RichTextEditorProps {
   required?: boolean;
   minHeight?: number;
   hint?: string;
+  mediaFolder?: string;
 }
 
 const FONT_OPTIONS = [
@@ -62,9 +64,11 @@ export function RichTextEditor({
   required,
   minHeight = 160,
   hint,
+  mediaFolder = 'general',
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const lastHtmlRef = useRef(value);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const exec = useCallback((command: string, commandValue?: string) => {
     document.execCommand(command, false, commandValue);
@@ -75,6 +79,10 @@ export function RichTextEditor({
       onChange(html);
     }
   }, [onChange]);
+
+  const insertImageFromLibrary = useCallback((url: string) => {
+    exec('insertImage', url);
+  }, [exec]);
 
   useEffect(() => {
     const el = editorRef.current;
@@ -106,6 +114,10 @@ export function RichTextEditor({
           </ToolbarButton>
           <ToolbarButton title="خط‌خورده" onClick={() => exec('strikeThrough')}>
             S
+          </ToolbarButton>
+          <span className="mx-1 h-5 w-px bg-border" />
+          <ToolbarButton title="درج تصویر از کتابخانه" onClick={() => setPickerOpen(true)}>
+            🖼 تصویر
           </ToolbarButton>
           <span className="mx-1 h-5 w-px bg-border" />
           <select
@@ -178,6 +190,14 @@ export function RichTextEditor({
           }}
         />
       </div>
+
+      <MediaPickerDialog
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={insertImageFromLibrary}
+        folder={mediaFolder}
+        title="درج تصویر از کتابخانه"
+      />
     </div>
   );
 }

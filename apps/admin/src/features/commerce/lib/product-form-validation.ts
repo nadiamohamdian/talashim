@@ -1,3 +1,4 @@
+import { validateLibraryImageUrl } from '@/features/cms/lib/validate-library-image';
 import { stripHtml } from '@/shared/ui/rich-text-editor';
 import { parseIntegerDigitsToNumber } from '@/shared/lib/format-input';
 import { STANDARD_PRODUCT_KARAT_VALUES } from '../lib/labels';
@@ -102,9 +103,9 @@ export function validateProductForm(
     errors.push('توضیحات باید حداقل ۱۰ کاراکتر باشد.');
   }
 
-  const imageUrl = normalizeMediaUrl(form.imageUrl);
-  if (!imageUrl || !isValidUrl(imageUrl)) {
-    errors.push('تصویر شاخص الزامی است — URL معتبر وارد کنید یا فایل آپلود کنید.');
+  const coverImageError = validateLibraryImageUrl(form.imageUrl, 'تصویر شاخص محصول');
+  if (coverImageError) {
+    errors.push(coverImageError);
   }
 
   const weight = Number(form.weightGram);
@@ -171,9 +172,12 @@ export function validateProductForm(
     }
     const variantImage = variant.imageUrl.trim();
     if (variantImage) {
-      const normalized = normalizeMediaUrl(variantImage);
-      if (!isValidUrl(normalized)) {
-        errors.push(`واریانت ${index + 1}: URL تصویر معتبر نیست.`);
+      const variantImageError = validateLibraryImageUrl(
+        variantImage,
+        `تصویر واریانت ${index + 1}`,
+      );
+      if (variantImageError) {
+        errors.push(variantImageError);
       }
     }
   }

@@ -8,8 +8,7 @@ import { fetchMediaAssets, uploadMediaImage } from '../api/cms-api';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { selectFieldClass } from '../lib/labels';
-
-const IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif';
+import { IMAGE_ACCEPT, MEDIA_FOLDERS } from '../lib/media-folders';
 
 interface MediaPickerDialogProps {
   open: boolean;
@@ -121,11 +120,11 @@ export function MediaPickerDialog({
                   setPage(1);
                 }}
               >
-                <option value="">همه</option>
-                <option value="general">عمومی</option>
-                <option value="products">محصولات</option>
-                <option value="blog">وبلاگ</option>
-                <option value="banners">بنرها</option>
+                {MEDIA_FOLDERS.map((item) => (
+                  <option key={item.value || 'all'} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

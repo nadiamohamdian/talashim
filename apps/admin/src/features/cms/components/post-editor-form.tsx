@@ -8,13 +8,14 @@ import { ImageUrlField } from './image-url-field';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 import { PersianDateTimePicker } from '@/shared/ui/persian-datetime-picker';
 import { selectFieldClass } from '../lib/labels';
+import { validateLibraryImageUrl } from '../lib/validate-library-image';
 
 const emptyPayload = (): UpsertBlogPostPayload => ({
   title: '',
   slug: '',
   excerpt: '',
   content: '',
-  coverImageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1200&q=80',
+  coverImageUrl: '',
   isPublished: true,
   sortOrder: 0,
   publishedAt: new Date().toISOString(),
@@ -38,6 +39,7 @@ export function PostEditorForm({
   saving,
 }: PostEditorFormProps) {
   const [form, setForm] = useState<UpsertBlogPostPayload>(emptyPayload());
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initial) {
@@ -144,23 +146,40 @@ export function PostEditorForm({
         <div className="md:col-span-2">
           <ImageUrlField
             label="تصویر کاور"
+            hint="فقط از کتابخانه رسانه — بدون لینک خارجی."
             value={form.coverImageUrl}
             onChange={(url) => setForm((f) => ({ ...f, coverImageUrl: url }))}
             folder="blog"
+            required
           />
         </div>
         <div className="md:col-span-2">
           <RichTextEditor
             label="متن کامل"
-            hint="محتوای مقاله یا سوال — با قالب‌بندی کامل."
+            hint="محتوای مقاله — تصاویر داخل متن را از دکمه «درج تصویر» در کتابخانه انتخاب کنید."
             value={form.content}
             onChange={(content) => setForm((f) => ({ ...f, content }))}
             minHeight={220}
+            mediaFolder="blog"
           />
         </div>
       </div>
+      {validationError ? (
+        <p className="text-sm text-[var(--error)]">{validationError}</p>
+      ) : null}
       <div className="flex gap-2">
-        <Button disabled={saving} onClick={() => void onSave(form)}>
+        <Button
+          disabled={saving}
+          onClick={() => {
+            const imageError = validateLibraryImageUrl(form.coverImageUrl, 'تصویر کاور');
+            if (imageError) {
+              setValidationError(imageError);
+              return;
+            }
+            setValidationError(null);
+            void onSave(form);
+          }}
+        >
           {saving ? 'در حال ذخیره…' : 'ذخیره'}
         </Button>
         <Button variant="outline" type="button" onClick={onCancel}>

@@ -39,6 +39,7 @@ import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { MediaModule } from './infrastructure/media/media.module';
 import { SiteModule } from './modules/site/site.module';
+import { CmsModule } from './modules/cms/cms.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { SiteModule } from './modules/site/site.module';
     ContactModule,
     MediaModule,
     SiteModule,
+    CmsModule,
   ],
   controllers: [AppController],
   providers: [

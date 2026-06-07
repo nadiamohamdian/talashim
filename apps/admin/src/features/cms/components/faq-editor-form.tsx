@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Input, Label } from '@talashim/ui';
 import type { AdminBlogPostDto } from '@talashim/types';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor';
+import { ImageUrlField } from './image-url-field';
 import type { UpsertFaqPayload } from '../api/cms-api';
+import { validateLibraryImageUrl } from '../lib/validate-library-image';
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -30,6 +32,7 @@ function emptyForm(): UpsertFaqPayload {
     slug: '',
     isPublished: true,
     sortOrder: 0,
+    coverImageUrl: '',
   };
 }
 
@@ -59,6 +62,7 @@ export function FaqEditorForm({
         slug: initial.slug,
         isPublished: initial.isPublished,
         sortOrder: initial.sortOrder,
+        coverImageUrl: initial.coverImageUrl,
       });
     } else {
       setForm(emptyForm());
@@ -76,6 +80,12 @@ export function FaqEditorForm({
     }
     if (answerPlain.length < 2) {
       setValidationError('پاسخ باید حداقل ۲ کاراکتر باشد.');
+      return;
+    }
+
+    const imageError = validateLibraryImageUrl(form.coverImageUrl ?? '', 'تصویر سوال');
+    if (imageError) {
+      setValidationError(imageError);
       return;
     }
 
@@ -114,12 +124,24 @@ export function FaqEditorForm({
       </div>
 
       <div className="field-group">
+        <ImageUrlField
+          label="تصویر همراه سوال"
+          hint="از کتابخانه رسانه انتخاب کنید."
+          value={form.coverImageUrl ?? ''}
+          onChange={(url) => setForm((f) => ({ ...f, coverImageUrl: url }))}
+          folder="blog"
+          required
+        />
+      </div>
+
+      <div className="field-group">
         <RichTextEditor
           label="پاسخ"
-          hint="متن کامل پاسخ — در صفحه /faq نمایش داده می‌شود."
+          hint="متن کامل پاسخ — تصاویر را از کتابخانه درج کنید."
           value={form.answer}
           onChange={(answer) => setForm((f) => ({ ...f, answer }))}
           minHeight={200}
+          mediaFolder="blog"
         />
       </div>
 

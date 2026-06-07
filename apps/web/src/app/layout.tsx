@@ -6,6 +6,7 @@ import { platformConfig } from "@sadafgold/shared";
 import "./globals.css";
 
 import { MaintenanceShell } from "@/features/site/components/maintenance-shell";
+import { getPublishedBanners } from "@/lib/api/cms.api";
 import { fetchSiteConfig } from "@/lib/api/site.api";
 
 
@@ -50,7 +51,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 
 }>) {
-  const settings = await fetchSiteConfig();
+  const [settings, globalBanners] = await Promise.all([
+    fetchSiteConfig(),
+    getPublishedBanners('GLOBAL').catch(() => []),
+  ]);
 
   return (
 
@@ -68,7 +72,9 @@ export default async function RootLayout({
 
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
 
-        <MaintenanceShell initialSettings={settings}>{children}</MaintenanceShell>
+        <MaintenanceShell initialSettings={settings} globalBanners={globalBanners}>
+          {children}
+        </MaintenanceShell>
 
       </body>
 

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import { getPublishedBanners } from '@/lib/api/cms.api';
 import { getProducts } from '@/shared/api/catalog-api';
+import { CategoryBanner } from '@/widgets/cms/category-banner';
 import { ProductCard } from '@/widgets/catalog/product-card';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
@@ -26,7 +28,10 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
   const category = CATEGORY_MAP[slug.toLowerCase()];
-  const products = category ? await getProducts(24, category) : [];
+  const [products, categoryBanners] = await Promise.all([
+    category ? getProducts(24, category) : Promise.resolve([]),
+    getPublishedBanners('CATEGORY_TOP').catch(() => []),
+  ]);
 
   return (
     <PublicPageShell
@@ -34,6 +39,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       title={`محصولات ${slug}`}
       description="لیست محصولات این دسته — دسترسی عمومی."
     >
+      <CategoryBanner banners={categoryBanners} />
       {!category ? (
         <p className="text-sm text-muted">دسته‌بندی یافت نشد.</p>
       ) : !products.length ? (

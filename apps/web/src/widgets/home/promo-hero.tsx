@@ -1,8 +1,22 @@
 import Link from 'next/link';
-import { CATEGORY_FALLBACK_IMAGES } from '@/shared/config/images';
+import type { PublicCmsBanner } from '@sadafgold/types';
 import { StoreImage } from '@/shared/ui/store-image';
 
-export function PromoHero() {
+interface PromoHeroProps {
+  banner?: PublicCmsBanner | null;
+}
+
+export function PromoHero({ banner }: PromoHeroProps) {
+  const badge = banner ? 'پیشنهاد ویژه' : 'کالکشن جدید';
+  const title = banner?.title?.trim() || 'زیبایی ماندگار';
+  const titleAccent = banner ? '' : 'در هر قطعه طلا';
+  const description = banner?.subtitle?.trim()
+    ? banner.subtitle
+    : 'گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.';
+  const heroImage = banner?.imageUrl?.trim() || '';
+  const primaryHref = banner?.linkUrl || '/products';
+  const imageCaption = banner?.title || 'گوشواره زنانه';
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-nude-50 via-background to-nude-100/50">
       <div
@@ -16,40 +30,45 @@ export function PromoHero() {
 
       <div className="container-store relative grid min-h-[360px] items-center gap-8 py-12 lg:grid-cols-2 lg:py-16">
         <div className="space-y-5">
-          <span className="badge-gold">کالکشن جدید</span>
+          <span className="badge-gold">{badge}</span>
           <h1 className="text-3xl font-bold leading-[1.45] text-foreground md:text-[2.5rem]">
-            زیبایی ماندگار
-            <span className="mt-1 block text-gold-dark">در هر قطعه طلا</span>
+            {title}
+            {titleAccent ? (
+              <span className="mt-1 block text-gold-dark">{titleAccent}</span>
+            ) : null}
           </h1>
-          <p className="max-w-md text-sm leading-8 text-muted md:text-base">
-            گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین
-            امن.
-          </p>
+          <p className="max-w-md text-sm leading-8 text-muted md:text-base">{description}</p>
           <div className="flex flex-wrap gap-3 pt-1">
-            <Link href="/products" className="btn-gold px-7 py-3">
-              مشاهده فروشگاه
+            <Link href={primaryHref} className="btn-gold px-7 py-3">
+              {banner?.linkUrl ? 'مشاهده پیشنهاد' : 'مشاهده فروشگاه'}
             </Link>
-            <Link href="/categories/rings" className="btn-nude px-7 py-3">
-              انگشترهای زنانه
-            </Link>
+            {!banner ? (
+              <Link href="/categories/rings" className="btn-nude px-7 py-3">
+                انگشترهای زنانه
+              </Link>
+            ) : null}
           </div>
         </div>
 
         <div className="relative mx-auto aspect-[4/3] w-full max-w-lg">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-gold-light/40 to-transparent" />
           <div className="card-luxury relative h-full overflow-hidden rounded-2xl border-gold-light/40">
-            <StoreImage
-              src={CATEGORY_FALLBACK_IMAGES.earrings}
-              alt="گوشواره طلا"
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
+            {heroImage ? (
+              <StoreImage
+                src={heroImage}
+                alt={imageCaption}
+                fill
+                className="object-cover"
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-nude-100 via-gold-light/30 to-nude-200" />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 via-transparent to-transparent" />
             <div className="absolute bottom-0 inset-x-0 p-6">
               <p className="text-xs font-medium tracking-widest text-gold-light">NEW</p>
-              <p className="mt-1 text-xl font-semibold text-white">گوشواره زنانه</p>
+              <p className="mt-1 text-xl font-semibold text-white">{imageCaption}</p>
             </div>
           </div>
         </div>
