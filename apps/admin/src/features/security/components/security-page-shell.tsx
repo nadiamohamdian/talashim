@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { ADMIN_ROUTE_BY_ID } from '@/shared/config/admin-routes';
 import { RoutePermissionGuard } from '@/features/auth/components/route-permission-guard';
+import { getSectionIcon } from '@/shared/lib/admin-nav-icons';
+import { getSectionTheme } from '@/shared/lib/admin-section-theme';
 import { PageHeader } from '@/widgets/admin/page-header';
 
 interface SecurityPageShellProps {
@@ -27,14 +29,19 @@ export function SecurityPageShell({ routeId, children, actions }: SecurityPageSh
     notFound();
   }
 
+  const SectionIcon = getSectionIcon(route.sectionId);
+  const theme = getSectionTheme(route.sectionId);
+
   return (
     <RoutePermissionGuard permission={route.permission}>
-      <div className="space-y-6">
+      <div className="admin-page-stack">
         <PageHeader
           title={route.label}
           description={DESCRIPTIONS[routeId]}
           availability={route.availability}
           actions={actions}
+          icon={SectionIcon}
+          iconTheme={theme}
         />
         {children}
       </div>

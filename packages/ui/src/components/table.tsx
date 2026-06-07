@@ -32,8 +32,9 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
   return (
     <tr
       className={cn(
-        'border-b border-[var(--divider,#e3e3e3)] transition-colors duration-100',
-        'hover:bg-[var(--table-row-hover,rgba(203,166,112,0.05))]',
+        'border-b border-[var(--divider)] transition-colors duration-150',
+        'even:bg-[var(--table-row-zebra,rgba(86,71,57,0.025))]',
+        'hover:bg-[var(--table-row-hover,rgba(203,166,112,0.06))]',
         className,
       )}
       {...props}
@@ -45,7 +46,7 @@ export function TableHead({ className, ...props }: ThHTMLAttributes<HTMLTableCel
   return (
     <th
       className={cn(
-        'h-10 px-4 text-right align-middle text-[0.6875rem] font-semibold uppercase tracking-wide text-[var(--muted-foreground,#6b635c)]',
+        'h-11 px-4 text-right align-middle text-[0.6875rem] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]',
         className,
       )}
       {...props}
@@ -57,7 +58,7 @@ export function TableCell({ className, ...props }: TdHTMLAttributes<HTMLTableCel
   return (
     <td
       className={cn(
-        'px-4 py-3 align-middle text-[var(--text-body-lg,0.9375rem)] text-[var(--foreground,#564739)]',
+        'px-4 py-3.5 align-middle text-[var(--text-body-lg,0.9375rem)] text-[var(--foreground)]',
         className,
       )}
       {...props}

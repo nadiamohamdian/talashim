@@ -9,8 +9,8 @@ export function Card({
   return (
     <div
       className={cn(
-        'rounded-[var(--radius-xl,0.75rem)] border border-[var(--border-subtle,var(--border,#d9d0c8))] bg-[var(--card,#fff)]',
-        'shadow-[var(--shadow-card,0_0_0_1px_rgba(0,0,0,0.04))]',
+        'rounded-[var(--radius-xl,0.875rem)] border border-[var(--border-subtle)] bg-[var(--card)]',
+        'shadow-[var(--shadow-card)]',
         className,
       )}
       {...props}
@@ -28,7 +28,7 @@ export function CardHeader({
   return (
     <div
       className={cn(
-        'flex flex-col gap-1 border-b border-[var(--divider,#e3e3e3)] px-5 py-4',
+        'flex flex-col gap-1 px-6 py-5',
         className,
       )}
       {...props}
@@ -74,7 +74,7 @@ export function CardContent({
   ...props
 }: PropsWithChildren<HTMLAttributes<HTMLDivElement>>) {
   return (
-    <div className={cn('px-5 py-4', className)} {...props}>
+    <div className={cn('px-6 py-5', className)} {...props}>
       {children}
     </div>
   );

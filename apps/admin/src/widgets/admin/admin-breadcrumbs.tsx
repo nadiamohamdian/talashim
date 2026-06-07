@@ -20,7 +20,7 @@ export function AdminBreadcrumbs() {
   const crumbs = buildBreadcrumbs(resolved);
 
   return (
-    <nav aria-label="مسیر" className="flex flex-wrap items-center gap-1 text-sm">
+    <nav aria-label="مسیر" className="flex flex-wrap items-center gap-1.5 text-sm">
       {crumbs.map((crumb, index) => {
         const isLast = index === crumbs.length - 1;
         return (
@@ -37,7 +37,7 @@ export function AdminBreadcrumbs() {
               </Link>
             ) : (
               <span
-                className={isLast ? 'font-medium text-foreground' : 'text-muted'}
+                className={isLast ? 'font-semibold text-foreground' : 'text-muted'}
                 aria-current={isLast ? 'page' : undefined}
               >
                 {crumb.label}

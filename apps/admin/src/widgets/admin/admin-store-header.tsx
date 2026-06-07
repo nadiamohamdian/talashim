@@ -1,35 +1,28 @@
 import Link from 'next/link';
 import { ExternalLink } from '@/shared/ui/icons';
 import { adminEnv } from '@/shared/config/env';
+import { AdminThemeToggle } from '@/widgets/admin/admin-theme-toggle';
 
 export function AdminStoreHeader() {
   return (
-    <header className="header-glass sticky top-0 z-30">
-      <div
-        className="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8"
-        style={{ height: 'var(--header-height)' }}
-      >
-        <Link href="/" className="group flex items-center gap-2.5">
-          <span
-            className="flex size-8 items-center justify-center rounded-[var(--radius-md)] bg-[var(--secondary)] text-xs font-bold text-[var(--secondary-foreground)] transition group-hover:bg-[var(--secondary-hover)]"
-            aria-hidden
-          >
+    <header className="admin-chrome-header sticky top-0 z-30">
+      <div className="admin-chrome-header-inner">
+        <Link href="/" className="admin-brand group">
+          <span className="admin-brand-mark" aria-hidden>
             ط
           </span>
-          <span className="flex flex-col leading-none">
-            <span className="text-overline text-[var(--primary)]">Talashim</span>
-            <span className="mt-1 text-sm font-semibold text-foreground">
-              {adminEnv.NEXT_PUBLIC_ADMIN_APP_NAME}
-            </span>
+          <span className="admin-brand-text">
+            <span className="admin-brand-en">Talashim</span>
+            <span className="admin-brand-fa">{adminEnv.NEXT_PUBLIC_ADMIN_APP_NAME}</span>
           </span>
         </Link>
-        <Link
-          href="http://localhost:3000"
-          className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--card)] px-2.5 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition hover:border-[var(--primary)]/30 hover:text-foreground"
-        >
-          فروشگاه
-          <ExternalLink className="size-3" strokeWidth={1.75} aria-hidden />
-        </Link>
+        <div className="flex items-center gap-2">
+          <AdminThemeToggle />
+          <Link href="http://localhost:3000" className="admin-icon-btn gap-1.5 px-3 w-auto text-xs font-medium">
+            فروشگاه
+            <ExternalLink className="size-3.5" strokeWidth={1.5} aria-hidden />
+          </Link>
+        </div>
       </div>
     </header>
   );

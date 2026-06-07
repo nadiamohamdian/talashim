@@ -5,7 +5,6 @@ import { formatPersianDateTime } from '@/shared/lib/format-date';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Badge,
   Button,
   Skeleton,
   Table,
@@ -30,11 +29,7 @@ import { SOURCE_LABELS, selectFieldClass } from '../lib/labels';
 type AuditTab = 'operations' | 'auth';
 
 const tabClass = (active: boolean) =>
-  `rounded-[var(--radius-xl)] px-4 py-2 text-sm font-medium transition ${
-    active
-      ? 'bg-[var(--secondary)] text-white shadow-sm'
-      : 'bg-white text-[var(--muted-foreground)] ring-1 ring-border hover:bg-[var(--surface)]'
-  }`;
+  `admin-tab-pill ${active ? 'admin-tab-pill-active' : ''}`;
 
 function downloadAuditCsv(items: AdminAuditLog[]) {
   const header = ['منبع', 'عملیات', 'کاربر', 'جزئیات', 'زمان'];
@@ -100,7 +95,7 @@ function AuditOperationsContent() {
         ) : null}
       </FilterBar>
 
-      <div className="card-luxury overflow-hidden p-0">
+      <div className="card-luxury admin-table-wrap overflow-hidden p-0">
         {isLoading ? (
           <Skeleton className="m-6 h-64" />
         ) : isError ? (
@@ -127,11 +122,11 @@ function AuditOperationsContent() {
                 data?.items.map((log) => (
                   <TableRow key={`${log.source}-${log.id}`}>
                     <TableCell>
-                      <Badge className="border border-border bg-[var(--surface)] text-[var(--muted-foreground)]">
+                      <span className="badge-status badge-status-neutral">
                         {SOURCE_LABELS[log.source] ?? log.source}
-                      </Badge>
+                      </span>
                     </TableCell>
-                    <TableCell className="font-mono text-xs">{log.action}</TableCell>
+                    <TableCell className="font-mono text-xs tracking-tight">{log.action}</TableCell>
                     <TableCell>{log.actor?.email ?? '—'}</TableCell>
                     <TableCell className="max-w-[200px] truncate text-xs text-muted">
                       {log.context ? JSON.stringify(log.context) : '—'}
@@ -164,7 +159,7 @@ export function AuditLogPanel() {
 
   return (
     <SecurityPageShell routeId="security.audit">
-      <div className="flex flex-wrap gap-2">
+      <div className="admin-tab-pills">
         <button
           type="button"
           className={tabClass(tab === 'operations')}

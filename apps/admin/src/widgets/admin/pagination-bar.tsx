@@ -18,7 +18,7 @@ export function PaginationBar({ page, total, limit, onPageChange }: PaginationBa
   }
 
   return (
-    <div className="flex items-center justify-between gap-4 border-t border-[var(--divider)] pt-4">
+    <div className="flex items-center justify-between gap-3 border-t border-[var(--divider)] pt-3">
       <p className="text-caption tabular-nums">
         صفحه {page.toLocaleString('fa-IR', { useGrouping: false })} از{' '}
         {totalPages.toLocaleString('fa-IR', { useGrouping: false })}

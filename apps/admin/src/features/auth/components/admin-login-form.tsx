@@ -37,7 +37,7 @@ export function AdminLoginForm() {
   });
 
   return (
-    <div className="card-luxury w-full max-w-md p-6 sm:p-8">
+    <div className="card-luxury w-full max-w-md p-6 sm:p-7">
       <p className="text-caption font-semibold uppercase tracking-wider text-[var(--primary)]">
         پنل مدیریت
       </p>

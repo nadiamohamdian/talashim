@@ -1,29 +1,76 @@
 import type { IconComponent } from '@/shared/ui/icons';
 import type { ReactNode } from 'react';
+import {
+  LEGACY_STAT_ACCENT_MAP,
+  STAT_ACCENT_STYLES,
+  type StatAccent,
+} from '@/shared/lib/admin-section-theme';
+import { AnimatedNumber } from '@/widgets/admin/animated-number';
 
 interface StatCardProps {
   label: string;
   value: ReactNode;
   hint?: string;
   icon?: IconComponent;
-  trend?: 'up' | 'down' | 'neutral';
+  accent?: StatAccent | keyof typeof LEGACY_STAT_ACCENT_MAP;
+  variant?: 'default' | 'featured';
+  className?: string;
+  animateValue?: number;
+  formatValue?: (value: number) => string;
 }
 
-export function StatCard({ label, value, hint, icon: Icon }: StatCardProps) {
+function resolveAccent(accent: StatCardProps['accent']): StatAccent {
+  if (!accent) return 'gold';
+  if (accent in STAT_ACCENT_STYLES) return accent as StatAccent;
+  return LEGACY_STAT_ACCENT_MAP[accent] ?? 'gold';
+}
+
+export function StatCard({
+  label,
+  value,
+  hint,
+  icon: Icon,
+  accent = 'gold',
+  variant = 'default',
+  className = '',
+  animateValue,
+  formatValue,
+}: StatCardProps) {
+  const tone = STAT_ACCENT_STYLES[resolveAccent(accent)];
+  const isFeatured = variant === 'featured';
+
+  const renderedValue =
+    animateValue !== undefined ? (
+      <AnimatedNumber
+        value={animateValue}
+        format={formatValue ?? ((n) => n.toLocaleString('fa-IR'))}
+      />
+    ) : (
+      value
+    );
+
   return (
-    <div className="stat-card-nude p-4 sm:p-5">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-overline text-[var(--muted-foreground)]">{label}</p>
-        {Icon ? (
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--surface)] text-[var(--primary)]">
-            <Icon className="size-3.5" strokeWidth={1.75} aria-hidden />
-          </span>
-        ) : null}
+    <div
+      className={`kpi-card ${isFeatured ? 'kpi-card--featured' : ''} ${className}`.trim()}
+    >
+      {Icon ? (
+        <div
+          className="kpi-icon-wrap"
+          style={{
+            background: tone.bg,
+            color: tone.color,
+            boxShadow: `inset 0 0 0 1px ${tone.ring}`,
+          }}
+        >
+          <Icon className="size-4" strokeWidth={1.75} aria-hidden />
+        </div>
+      ) : null}
+
+      <div className="kpi-card-content">
+        <p className={`kpi-value ${isFeatured ? 'kpi-value--featured' : ''}`}>{renderedValue}</p>
+        <p className="kpi-label">{label}</p>
+        {hint ? <p className="kpi-hint">{hint}</p> : null}
       </div>
-      <p className="mt-2.5 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        {value}
-      </p>
-      {hint ? <p className="mt-1 text-caption">{hint}</p> : null}
     </div>
   );
 }

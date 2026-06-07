@@ -32,6 +32,18 @@ export const ChevronDown = createIcon(<path d="m6 9 6 6 6-6" />);
 export const ChevronLeft = createIcon(<path d="m15 18-6-6 6-6" />);
 export const ChevronRight = createIcon(<path d="m9 18 6-6-6-6" />);
 export const Menu = createIcon(<path d="M4 6h16M4 12h16M4 18h16" />);
+export const Search = createIcon(
+  <>
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.3-4.3" />
+  </>,
+);
+export const Bell = createIcon(
+  <>
+    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+  </>,
+);
 export const ExternalLink = createIcon(
   <>
     <path d="M15 3h6v6" />
@@ -150,6 +162,91 @@ export const ShieldX = createIcon(
     <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
     <path d="m9 9 6 6" />
     <path d="m15 9-6 6" />
+  </>,
+);
+
+export const ClipboardList = createIcon(
+  <>
+    <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+    <path d="M12 11h4" />
+    <path d="M12 16h4" />
+    <path d="M8 11h.01" />
+    <path d="M8 16h.01" />
+  </>,
+);
+
+export const Monitor = createIcon(
+  <>
+    <rect width="20" height="14" x="2" y="3" rx="2" />
+    <line x1="8" x2="16" y1="21" y2="21" />
+    <line x1="12" x2="12" y1="17" y2="21" />
+  </>,
+);
+
+export const Moon = createIcon(
+  <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
+);
+
+export const Sun = createIcon(
+  <>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" />
+    <path d="m19.07 4.93-1.41 1.41" />
+  </>,
+);
+
+export const Pin = createIcon(
+  <>
+    <path d="M12 17v5" />
+    <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1z" />
+  </>,
+);
+
+export const PanelLeft = createIcon(
+  <>
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <path d="M9 3v18" />
+  </>,
+);
+
+export const PanelLeftClose = createIcon(
+  <>
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <path d="M9 3v18" />
+    <path d="m16 15-3-3 3-3" />
+  </>,
+);
+
+export const History = createIcon(
+  <>
+    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M12 7v5l4 2" />
+  </>,
+);
+
+export const UserCog = createIcon(
+  <>
+    <circle cx="18" cy="15" r="3" />
+    <path d="m16.5 17.5 1 1" />
+    <path d="m19.5 17.5-1 1" />
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+  </>,
+);
+
+export const KeyRound = createIcon(
+  <>
+    <path d="M2 18v3c0 .6.4 1 1 1h3" />
+    <path d="M16 6a4 4 0 0 0-8 0v2h8V6Z" />
+    <path d="M16 8h4l-2 4 2 4h-4" />
   </>,
 );
 

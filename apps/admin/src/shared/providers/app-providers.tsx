@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, type PropsWithChildren } from 'react';
+import { AdminThemeProvider } from '@/shared/providers/admin-theme-provider';
 
 export function AppProviders({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -17,5 +18,9 @@ export function AppProviders({ children }: PropsWithChildren) {
       }),
   );
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AdminThemeProvider>{children}</AdminThemeProvider>
+    </QueryClientProvider>
+  );
 }
