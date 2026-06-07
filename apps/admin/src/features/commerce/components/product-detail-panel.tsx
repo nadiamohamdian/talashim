@@ -69,6 +69,22 @@ export function ProductDetailPanel({ slug }: ProductDetailPanelProps) {
                   </dd>
                 </div>
               ) : null}
+              {data.discountPercent ? (
+                <>
+                  <div>
+                    <dt className="text-muted">تخفیف</dt>
+                    <dd>{data.discountPercent}%</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">شروع تخفیف</dt>
+                    <dd>{data.discountStartsAt ? new Date(data.discountStartsAt).toLocaleString('fa-IR') : '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted">پایان تخفیف</dt>
+                    <dd>{data.discountEndsAt ? new Date(data.discountEndsAt).toLocaleString('fa-IR') : '—'}</dd>
+                  </div>
+                </>
+              ) : null}
             </dl>
 
             {data.galleryImages.length > 0 ? (

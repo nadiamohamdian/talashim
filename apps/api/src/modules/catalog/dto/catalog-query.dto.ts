@@ -27,7 +27,15 @@ export class CatalogQueryDto {
 
   @ApiPropertyOptional({ description: 'When true, only products with an active discount' })
   @IsOptional()
-  @Transform(({ value }) => value === '1' || value === 'true' || value === true)
+  @Transform(({ value }) => {
+    if (value === true || value === 1 || value === '1' || value === 'true') {
+      return true;
+    }
+    if (value === false || value === 0 || value === '0' || value === 'false') {
+      return false;
+    }
+    return undefined;
+  })
   @IsBoolean()
   sale?: boolean;
 }

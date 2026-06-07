@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
 import {
   createAdminProduct,
@@ -62,6 +62,7 @@ const emptyForm = {
 
 export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const routeId = mode === 'create' ? 'products.new' : 'products.edit';
   const [form, setForm] = useState(emptyForm);
   const [galleryImages, setGalleryImages] = useState<GalleryImageField[]>([]);
@@ -69,6 +70,8 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const [variants, setVariants] = useState<ProductVariantField[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const hydratedSlugRef = useRef<string | null>(null);
+  const originalImageUrlRef = useRef('');
 
   const detailQuery = useQuery({
     queryKey: ['admin', 'commerce', 'product-slug', slug],
@@ -77,9 +80,26 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   });
 
   useEffect(() => {
-    if (detailQuery.data) {
-      const p = detailQuery.data;
-      setForm({
+    if (mode !== 'edit' || !slug) {
+      hydratedSlugRef.current = null;
+      originalImageUrlRef.current = '';
+      return;
+    }
+    if (hydratedSlugRef.current !== slug) {
+      hydratedSlugRef.current = null;
+      originalImageUrlRef.current = '';
+    }
+  }, [mode, slug]);
+
+  useEffect(() => {
+    if (mode !== 'edit' || !detailQuery.data || hydratedSlugRef.current === slug) {
+      return;
+    }
+
+    const p = detailQuery.data;
+    originalImageUrlRef.current = p.imageUrl;
+    hydratedSlugRef.current = slug ?? null;
+    setForm({
         sku: p.sku,
         slug: p.slug,
         title: p.title,
@@ -132,8 +152,38 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             }))
           : [],
       );
+  }, [detailQuery.data, mode, slug]);
+
+  useEffect(() => {
+    const raw = form.discountPercent.trim();
+    const percent = raw ? Number(raw) : 0;
+    if (percent <= 0 || percent > 100) {
+      return;
     }
-  }, [detailQuery.data]);
+    if (form.discountStartsAt && form.discountEndsAt) {
+      return;
+    }
+
+    const start = form.discountStartsAt || new Date().toISOString();
+    const end =
+      form.discountEndsAt ||
+      (() => {
+        const date = new Date();
+        date.setDate(date.getDate() + 30);
+        return date.toISOString();
+      })();
+
+    setForm((current) => {
+      if (current.discountStartsAt && current.discountEndsAt) {
+        return current;
+      }
+      return {
+        ...current,
+        discountStartsAt: current.discountStartsAt || start,
+        discountEndsAt: current.discountEndsAt || end,
+      };
+    });
+  }, [form.discountPercent, form.discountStartsAt, form.discountEndsAt]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -159,10 +209,13 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         seoNoIndex: form.seoNoIndex,
       };
 
-      const errors = validateProductForm(formValues, variants, seoValues);
+      const errors = validateProductForm(formValues, variants, seoValues, {
+        mode,
+        originalImageUrl: originalImageUrlRef.current,
+      });
       if (errors.length > 0) {
         setValidationErrors(errors);
-        setSubmitError(null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         throw new ProductFormValidationError(errors[0]);
       }
       setValidationErrors([]);
@@ -194,10 +247,15 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
       return updateAdminProduct(detailQuery.data!.id, body);
     },
     onSuccess: (product) => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'products'] });
+      void queryClient.invalidateQueries({
+        queryKey: ['admin', 'commerce', 'product-slug', product.slug],
+      });
       router.push(`/products/${product.slug}`);
     },
     onError: (error) => {
       if (error instanceof ProductFormValidationError) {
+        setSubmitError('ذخیره انجام نشد. موارد مشخص‌شده در بالای فرم را بررسی کنید.');
         return;
       }
       setSubmitError(getApiErrorMessage(error, 'ذخیره محصول ناموفق بود.'));

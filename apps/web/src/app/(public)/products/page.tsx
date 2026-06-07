@@ -1,11 +1,23 @@
 import type { Metadata } from 'next';
-import { getProducts } from '@/shared/api/catalog-api';
+import { unstable_noStore as noStore } from 'next/cache';
+import { getProducts, getSaleProducts } from '@/shared/api/catalog-api';
 import { ProductCard } from '@/widgets/catalog/product-card';
 
-export const metadata: Metadata = {
-  title: 'فروشگاه',
-  description: 'فهرست محصولات طلا و جواهر',
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ sale?: string }>;
+}): Promise<Metadata> {
+  const { sale } = await searchParams;
+  const onSale = sale === '1';
+
+  return {
+    title: onSale ? 'تخفیف‌های روز' : 'فروشگاه',
+    description: onSale
+      ? 'محصولات طلا و جواهر با تخفیف فعال'
+      : 'فهرست محصولات طلا و جواهر',
+  };
+}
 
 interface ProductsPageProps {
   searchParams: Promise<{ sale?: string }>;
@@ -14,9 +26,12 @@ interface ProductsPageProps {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const { sale } = await searchParams;
   const onSale = sale === '1';
+  if (onSale) {
+    noStore();
+  }
   let products: Awaited<ReturnType<typeof getProducts>> = [];
   try {
-    products = await getProducts(24, undefined, onSale);
+    products = onSale ? await getSaleProducts(48) : await getProducts(24, undefined, false);
   } catch {
     products = [];
   }

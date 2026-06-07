@@ -109,7 +109,18 @@ export const productApi = {
     if (sale) params.set('sale', '1');
     const path = `/catalog?${params}`;
     const products = await serverFetchCatalogList<ProductSummary[]>(path, {
-      revalidate: 60,
+      revalidate: sale ? 30 : 60,
+      tags: sale ? ['catalog:sale'] : ['catalog:products'],
+    });
+    return withLivePricingList(products);
+  },
+
+  async getSaleProducts(limit = 48): Promise<ProductSummary[]> {
+    const params = new URLSearchParams({ limit: String(limit), sale: '1' });
+    const path = `/catalog?${params}`;
+    const products = await serverFetchCatalogList<ProductSummary[]>(path, {
+      cache: 'no-store',
+      tags: ['catalog:sale'],
     });
     return withLivePricingList(products);
   },
@@ -135,6 +146,7 @@ export const productApi = {
   async getProductBySlug(slug: string): Promise<ProductDetails | null> {
     const product = await serverFetchCatalogDetail<ProductDetails>(`/catalog/${slug}`, {
       revalidate: 60,
+      tags: [`catalog:product:${slug}`, 'catalog:products'],
     });
     if (!product) {
       return null;
@@ -166,6 +178,7 @@ export const {
   getBestsellerProducts,
   getCatalogCategories,
   getProducts,
+  getSaleProducts,
   searchProducts,
   getProductBySlug,
   getBlogPosts,

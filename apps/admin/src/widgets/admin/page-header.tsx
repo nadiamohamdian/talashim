@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Badge } from '@sadafgold/ui';
 import type { IconComponent } from '@/shared/ui/icons';
 import type { ApiAvailability } from '@/shared/config/admin-navigation';
 import type { SectionTheme } from '@/shared/lib/admin-section-theme';
@@ -19,19 +18,17 @@ const availabilityLabel: Record<ApiAvailability, string> = {
   pending: 'در انتظار API',
 };
 
-const availabilityVariant: Record<ApiAvailability, 'success' | 'gold' | 'outline'> = {
-  live: 'success',
-  partial: 'gold',
-  pending: 'outline',
+const availabilityPipClass: Record<ApiAvailability, string> = {
+  live: 'page-header-status-pip page-header-status-pip-live',
+  partial: 'page-header-status-pip page-header-status-pip-partial',
+  pending: 'page-header-status-pip page-header-status-pip-pending',
 };
 
 export function PageHeader({
   title,
-  description,
   availability,
   actions,
   icon: Icon,
-  iconTheme,
 }: PageHeaderProps) {
   return (
     <header className="page-header flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -41,18 +38,17 @@ export function PageHeader({
             <Icon size={18} strokeWidth={1.75} aria-hidden />
           </span>
         ) : null}
-        <div className="min-w-0 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-display">{title}</h1>
+        <div className="min-w-0">
+          <h1 className="text-display inline-flex items-center gap-2">
+            {title}
             {availability ? (
-              <Badge variant={availabilityVariant[availability]}>
-                {availabilityLabel[availability]}
-              </Badge>
+              <span
+                className={availabilityPipClass[availability]}
+                aria-label={availabilityLabel[availability]}
+                title={availabilityLabel[availability]}
+              />
             ) : null}
-          </div>
-          {description ? (
-            <p className="page-header-desc max-w-3xl">{description}</p>
-          ) : null}
+          </h1>
         </div>
       </div>
       {actions ? (

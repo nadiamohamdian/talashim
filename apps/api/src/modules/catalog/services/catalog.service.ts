@@ -68,10 +68,29 @@ export class CatalogService {
     const search = query.search?.trim() || undefined;
     const onSale = query.sale === true;
 
-    if (query.page !== undefined || query.search) {
+    if (onSale) {
+      const products = await this.catalogRepository.findAll(200, category, search, 0, true);
+      const summaries = await Promise.all(
+        products.map((product) => this.toProductSummary(product)),
+      );
+      const activeSaleItems = summaries.filter((item) => isProductDiscountActive(item));
+
+      if (query.page !== undefined || search) {
+        return {
+          page,
+          limit,
+          total: activeSaleItems.length,
+          items: activeSaleItems.slice(skip, skip + limit),
+        };
+      }
+
+      return activeSaleItems.slice(0, limit);
+    }
+
+    if (query.page !== undefined || search) {
       const [products, total] = await Promise.all([
-        this.catalogRepository.findAll(limit, category, search, skip, onSale),
-        this.catalogRepository.countAll(category, search, onSale),
+        this.catalogRepository.findAll(limit, category, search, skip, false),
+        this.catalogRepository.countAll(category, search, false),
       ]);
       const items = await Promise.all(
         products.map((product) => this.toProductSummary(product)),
@@ -79,7 +98,7 @@ export class CatalogService {
       return { page, limit, total, items };
     }
 
-    const products = await this.catalogRepository.findAll(limit, category, search, 0, onSale);
+    const products = await this.catalogRepository.findAll(limit, category, search, 0, false);
     return Promise.all(products.map((product) => this.toProductSummary(product)));
   }
 

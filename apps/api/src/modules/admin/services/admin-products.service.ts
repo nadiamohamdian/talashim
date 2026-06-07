@@ -26,6 +26,7 @@ import type {
   UpsertAdminProductVideoDto,
 } from '../dto/admin-commerce.dto';
 import { AdminProductsRepository } from '../repositories/admin-products.repository';
+import { revalidateStorefrontProducts } from '../../../infrastructure/storefront/storefront-cache.util';
 
 type ProductRow = NonNullable<
   Awaited<ReturnType<AdminProductsRepository['findProductById']>>
@@ -137,9 +138,7 @@ export class AdminProductsService {
         priceToman: dto.priceToman,
         imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر اصلی محصول'),
         featured: dto.featured ?? false,
-        discountPercent: dto.discountPercent ?? null,
-        discountStartsAt: dto.discountStartsAt ? new Date(dto.discountStartsAt) : null,
-        discountEndsAt: dto.discountEndsAt ? new Date(dto.discountEndsAt) : null,
+        ...this.resolveDiscountFields(dto.discountPercent, dto.discountStartsAt, dto.discountEndsAt),
       },
       dto.initialQuantity ?? 0,
       actor.id,
@@ -149,6 +148,8 @@ export class AdminProductsService {
         videos: this.validateVideos(dto.videos ?? []),
       }),
     );
+
+    await revalidateStorefrontProducts(slug);
 
     return this.mapProductDetail(product);
   }
@@ -175,7 +176,11 @@ export class AdminProductsService {
         seoKeywords: dto.seoKeywords,
         ogImageUrl:
           dto.ogImageUrl !== undefined
-            ? optionalLibraryImageUrl(dto.ogImageUrl, 'تصویر OG')
+            ? this.resolveOptionalLibraryImageUpdate(
+                dto.ogImageUrl,
+                existing.ogImageUrl,
+                'تصویر OG',
+              )
             : undefined,
         seoCanonicalPath: dto.seoCanonicalPath,
         seoNoIndex: dto.seoNoIndex,
@@ -186,23 +191,35 @@ export class AdminProductsService {
         priceToman: dto.priceToman,
         imageUrl:
           dto.imageUrl !== undefined
-            ? requireLibraryImageUrl(dto.imageUrl, 'تصویر اصلی محصول')
+            ? this.resolveProductImageUrl(
+                dto.imageUrl,
+                existing.imageUrl,
+                'تصویر اصلی محصول',
+              )
             : undefined,
         featured: dto.featured,
-        discountPercent: dto.discountPercent,
-        discountStartsAt: dto.discountStartsAt ? new Date(dto.discountStartsAt) : undefined,
-        discountEndsAt: dto.discountEndsAt ? new Date(dto.discountEndsAt) : undefined,
+        ...(dto.discountPercent !== undefined ||
+        dto.discountStartsAt !== undefined ||
+        dto.discountEndsAt !== undefined
+          ? this.resolveDiscountFields(
+              dto.discountPercent,
+              dto.discountStartsAt,
+              dto.discountEndsAt,
+            )
+          : {}),
       },
       dto.galleryImages !== undefined ||
         dto.variants !== undefined ||
         dto.videos !== undefined
-        ? this.extractRelations(dto)
+        ? this.extractRelations(dto, existing)
         : undefined,
     );
 
     if (!product) {
       throw new NotFoundException('Product not found');
     }
+
+    await revalidateStorefrontProducts(existing.slug, product.slug);
 
     return this.mapProductDetail(product);
   }
@@ -216,6 +233,7 @@ export class AdminProductsService {
     }
 
     await this.productsRepository.deleteProduct(id);
+    await revalidateStorefrontProducts(existing.slug);
     return { ok: true };
   }
 
@@ -305,11 +323,14 @@ export class AdminProductsService {
       .slice(0, 120);
   }
 
-  private extractRelations(dto: {
-    galleryImages?: CreateAdminProductDto['galleryImages'];
-    variants?: CreateAdminProductDto['variants'];
-    videos?: CreateAdminProductDto['videos'];
-  }) {
+  private extractRelations(
+    dto: {
+      galleryImages?: CreateAdminProductDto['galleryImages'];
+      variants?: CreateAdminProductDto['variants'];
+      videos?: CreateAdminProductDto['videos'];
+    },
+    existing?: ProductRow,
+  ) {
     const relations: {
       galleryImages?: { url: string; alt?: string; sortOrder?: number }[];
       variants?: {
@@ -333,10 +354,21 @@ export class AdminProductsService {
     } = {};
 
     if (dto.galleryImages !== undefined) {
-      relations.galleryImages = this.mapGalleryInputs(dto.galleryImages);
+      relations.galleryImages = this.validateGalleryImages(
+        dto.galleryImages,
+        new Set(existing?.images.map((image) => image.url.trim()) ?? []),
+      );
     }
     if (dto.variants !== undefined) {
-      relations.variants = this.mapVariantInputs(dto.variants);
+      relations.variants = this.validateVariants(
+        dto.variants,
+        new Map(
+          existing?.variants.map((variant) => [
+            variant.sku.trim().toLowerCase(),
+            variant.imageUrl?.trim() ?? '',
+          ]) ?? [],
+        ),
+      );
     }
     if (dto.videos !== undefined) {
       relations.videos = this.mapVideoInputs(dto.videos);
@@ -345,29 +377,47 @@ export class AdminProductsService {
     return relations;
   }
 
-  private validateGalleryImages(images: NonNullable<CreateAdminProductDto['galleryImages']>) {
-    return images.map((image, index) => ({
-      url: requireLibraryImageUrl(image.url, `تصویر گالری ${index + 1}`),
-      alt: image.alt,
-      sortOrder: image.sortOrder ?? index,
-    }));
+  private validateGalleryImages(
+    images: NonNullable<CreateAdminProductDto['galleryImages']>,
+    existingUrls: Set<string> = new Set(),
+  ) {
+    return images.map((image, index) => {
+      const trimmed = image.url.trim();
+      return {
+        url: existingUrls.has(trimmed)
+          ? trimmed
+          : requireLibraryImageUrl(trimmed, `تصویر گالری ${index + 1}`),
+        alt: image.alt,
+        sortOrder: image.sortOrder ?? index,
+      };
+    });
   }
 
-  private validateVariants(variants: NonNullable<CreateAdminProductDto['variants']>) {
-    return variants.map((variant, index) => ({
-      sku: variant.sku,
-      color: variant.color,
-      size: variant.size,
-      priceToman: variant.priceToman,
-      weightGram: variant.weightGram,
-      makingFeePercent: variant.makingFeePercent,
-      imageUrl: variant.imageUrl
-        ? requireLibraryImageUrl(variant.imageUrl, `تصویر variant ${index + 1}`)
-        : undefined,
-      quantity: variant.quantity ?? 0,
-      sortOrder: variant.sortOrder ?? index,
-      isDefault: variant.isDefault ?? false,
-    }));
+  private validateVariants(
+    variants: NonNullable<CreateAdminProductDto['variants']>,
+    existingVariantImages: Map<string, string> = new Map(),
+  ) {
+    return variants.map((variant, index) => {
+      const existingImageUrl = existingVariantImages.get(variant.sku.trim().toLowerCase()) ?? '';
+      const nextImageUrl = variant.imageUrl?.trim() ?? '';
+
+      return {
+        sku: variant.sku,
+        color: variant.color,
+        size: variant.size,
+        priceToman: variant.priceToman,
+        weightGram: variant.weightGram,
+        makingFeePercent: variant.makingFeePercent,
+        imageUrl: nextImageUrl
+          ? nextImageUrl === existingImageUrl
+            ? existingImageUrl
+            : requireLibraryImageUrl(nextImageUrl, `تصویر variant ${index + 1}`)
+          : undefined,
+        quantity: variant.quantity ?? 0,
+        sortOrder: variant.sortOrder ?? index,
+        isDefault: variant.isDefault ?? false,
+      };
+    });
   }
 
   private validateVideos(videos: NonNullable<CreateAdminProductDto['videos']>) {
@@ -381,16 +431,38 @@ export class AdminProductsService {
     }));
   }
 
-  private mapGalleryInputs(images: NonNullable<CreateAdminProductDto['galleryImages']>) {
-    return this.validateGalleryImages(images);
-  }
-
-  private mapVariantInputs(variants: NonNullable<CreateAdminProductDto['variants']>) {
-    return this.validateVariants(variants);
-  }
-
   private mapVideoInputs(videos: NonNullable<CreateAdminProductDto['videos']>) {
     return this.validateVideos(videos);
+  }
+
+  private resolveProductImageUrl(
+    nextUrl: string,
+    existingUrl: string | null | undefined,
+    fieldLabel: string,
+  ): string {
+    const trimmed = nextUrl.trim();
+    if (existingUrl && trimmed === existingUrl.trim()) {
+      return existingUrl;
+    }
+    return requireLibraryImageUrl(trimmed, fieldLabel);
+  }
+
+  private resolveOptionalLibraryImageUpdate(
+    nextUrl: string | null | undefined,
+    existingUrl: string | null | undefined,
+    fieldLabel: string,
+  ): string | null | undefined {
+    if (nextUrl === undefined) {
+      return undefined;
+    }
+    if (nextUrl === null || !nextUrl.trim()) {
+      return null;
+    }
+    const trimmed = nextUrl.trim();
+    if (existingUrl && trimmed === existingUrl.trim()) {
+      return existingUrl;
+    }
+    return optionalLibraryImageUrl(trimmed, fieldLabel) ?? null;
   }
 
   private async assertVariantSkusAvailable(
@@ -513,6 +585,48 @@ export class AdminProductsService {
       sortOrder: video.sortOrder,
       createdAt: video.createdAt.toISOString(),
       updatedAt: video.updatedAt.toISOString(),
+    };
+  }
+
+  private resolveDiscountFields(
+    discountPercent?: number,
+    discountStartsAt?: string,
+    discountEndsAt?: string,
+  ): {
+    discountPercent: number | null;
+    discountStartsAt: Date | null;
+    discountEndsAt: Date | null;
+  } {
+    const percent = discountPercent ?? 0;
+    if (percent <= 0) {
+      return {
+        discountPercent: null,
+        discountStartsAt: null,
+        discountEndsAt: null,
+      };
+    }
+
+    const now = new Date();
+    let startsAt = discountStartsAt ? new Date(discountStartsAt) : now;
+    if (Number.isNaN(startsAt.getTime())) {
+      startsAt = now;
+    }
+
+    let endsAt = discountEndsAt ? new Date(discountEndsAt) : new Date(now);
+    if (!discountEndsAt || Number.isNaN(endsAt.getTime())) {
+      endsAt = new Date(now);
+      endsAt.setDate(endsAt.getDate() + 30);
+    }
+
+    if (endsAt <= startsAt) {
+      endsAt = new Date(startsAt);
+      endsAt.setDate(endsAt.getDate() + 30);
+    }
+
+    return {
+      discountPercent: percent,
+      discountStartsAt: startsAt,
+      discountEndsAt: endsAt,
     };
   }
 }

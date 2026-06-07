@@ -171,3 +171,68 @@ export async function revalidateStorefrontStaticPages(
     );
   }
 }
+
+export async function revalidateStorefrontProducts(
+  ...slugs: Array<string | undefined>
+): Promise<void> {
+  const env = getApiEnv();
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) {
+    return;
+  }
+
+  const uniqueSlugs = [...new Set(slugs.filter((slug): slug is string => Boolean(slug?.trim())))];
+  const url = `${env.WEB_URL.replace(/\/$/, '')}/api/revalidate`;
+
+  const paths = ['/products', '/products?sale=1'];
+  for (const slug of uniqueSlugs) {
+    paths.push(`/products/${slug.trim()}`);
+  }
+
+  const tags = ['catalog:products', 'catalog:sale'];
+  for (const slug of uniqueSlugs) {
+    tags.push(`catalog:product:${slug.trim()}`);
+  }
+
+  for (const path of paths) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-revalidate-secret': secret,
+        },
+        body: JSON.stringify({ path }),
+      });
+
+      if (!response.ok) {
+        logger.warn(`Storefront product path revalidation failed for ${path} (${response.status})`);
+      }
+    } catch (error) {
+      logger.warn(
+        `Storefront product path revalidation error for ${path}: ${error instanceof Error ? error.message : 'unknown'}`,
+      );
+    }
+  }
+
+  for (const tag of tags) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-revalidate-secret': secret,
+        },
+        body: JSON.stringify({ tag }),
+      });
+
+      if (!response.ok) {
+        logger.warn(`Storefront product tag revalidation failed for ${tag} (${response.status})`);
+      }
+    } catch (error) {
+      logger.warn(
+        `Storefront product tag revalidation error for ${tag}: ${error instanceof Error ? error.message : 'unknown'}`,
+      );
+    }
+  }
+}

@@ -6,7 +6,8 @@ import {
   parseSeoKeywords,
   validateProductSeo,
   type ProductSeoFormValues,
-} from '../components/product-seo-fields';import type { ProductVariantField } from '../components/product-variant-fields';
+} from '../components/product-seo-fields';
+import type { ProductVariantField } from '../components/product-variant-fields';
 
 export class ProductFormValidationError extends Error {
   constructor(message: string) {
@@ -64,6 +65,21 @@ export function datetimeLocalToIso(value: string): string | undefined {
   return parsed.toISOString();
 }
 
+function isMeaningfulVariant(variant: ProductVariantField): boolean {
+  return (
+    variant.sku.trim().length > 0 ||
+    variant.color.trim().length > 0 ||
+    variant.size.trim().length > 0 ||
+    variant.imageUrl.trim().length > 0 ||
+    variant.weightGram.trim().length > 0 ||
+    variant.makingFeePercent.trim().length > 0
+  );
+}
+
+function filledVariants(variants: ProductVariantField[]): ProductVariantField[] {
+  return variants.filter(isMeaningfulVariant);
+}
+
 export function normalizeMediaUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed) {
@@ -72,7 +88,33 @@ export function normalizeMediaUrl(url: string): string {
   if (/^https?:\/\//i.test(trimmed)) {
     return trimmed;
   }
+  if (trimmed.startsWith('/')) {
+    return trimmed;
+  }
   return `https://${trimmed}`;
+}
+
+function resolveDiscountFields(form: {
+  discountPercent?: string;
+  discountStartsAt?: string;
+  discountEndsAt?: string;
+}) {
+  const discountRaw = form.discountPercent?.trim() ?? '';
+  const discountPercent = discountRaw ? Number(discountRaw) : 0;
+  let discountStartsAt = normalizeDateTimeInput(form.discountStartsAt ?? '');
+  let discountEndsAt = normalizeDateTimeInput(form.discountEndsAt ?? '');
+
+  if (discountPercent > 0 && !discountEndsAt) {
+    const end = new Date();
+    end.setDate(end.getDate() + 30);
+    discountEndsAt = end.toISOString();
+  }
+
+  if (discountPercent > 0 && !discountStartsAt) {
+    discountStartsAt = new Date().toISOString();
+  }
+
+  return { discountPercent, discountStartsAt, discountEndsAt };
 }
 
 function isValidUrl(url: string): boolean {
@@ -90,8 +132,16 @@ export function validateProductForm(
   form: ProductFormValues,
   variants: ProductVariantField[],
   seo?: ProductSeoFormValues,
+  options?: {
+    mode?: 'create' | 'edit';
+    originalImageUrl?: string;
+  },
 ): string[] {
   const errors: string[] = [];
+  const mode = options?.mode ?? 'create';
+  const originalImageUrl = options?.originalImageUrl?.trim() ?? '';
+  const coverImageChanged =
+    mode === 'edit' && originalImageUrl.length > 0 && form.imageUrl.trim() === originalImageUrl;
 
   if (form.sku.trim().length < 2) {
     errors.push('SKU محصول را وارد کنید (حداقل ۲ کاراکتر).');
@@ -103,9 +153,11 @@ export function validateProductForm(
     errors.push('توضیحات باید حداقل ۱۰ کاراکتر باشد.');
   }
 
-  const coverImageError = validateLibraryImageUrl(form.imageUrl, 'تصویر شاخص محصول');
-  if (coverImageError) {
-    errors.push(coverImageError);
+  if (!coverImageChanged) {
+    const coverImageError = validateLibraryImageUrl(form.imageUrl, 'تصویر شاخص محصول');
+    if (coverImageError) {
+      errors.push(coverImageError);
+    }
   }
 
   const weight = Number(form.weightGram);
@@ -128,26 +180,22 @@ export function validateProductForm(
   }
 
   const discountRaw = form.discountPercent?.trim() ?? '';
-  if (discountRaw) {
+  if (discountRaw && Number(discountRaw) > 0) {
     const percent = Number(discountRaw);
     if (!Number.isInteger(percent) || percent < 1 || percent > 100) {
       errors.push('درصد تخفیف باید عدد صحیح بین ۱ تا ۱۰۰ باشد.');
     }
-    const endsIso = normalizeDateTimeInput(form.discountEndsAt ?? '');
-    if (!endsIso) {
+    const { discountEndsAt, discountStartsAt } = resolveDiscountFields(form);
+    if (!discountEndsAt) {
       errors.push('تاریخ پایان تخفیف الزامی است.');
-    } else {
-      const startsIso =
-        normalizeDateTimeInput(form.discountStartsAt ?? '') ?? new Date().toISOString();
-      if (new Date(endsIso) <= new Date(startsIso)) {
-        errors.push('تاریخ پایان تخفیف باید بعد از شروع باشد.');
-      }
+    } else if (discountStartsAt && new Date(discountEndsAt) <= new Date(discountStartsAt)) {
+      errors.push('تاریخ پایان تخفیف باید بعد از شروع باشد.');
     }
   }
 
   const parentSku = form.sku.trim().toLowerCase();
 
-  for (const [index, variant] of variants.entries()) {
+  for (const [index, variant] of filledVariants(variants).entries()) {
     const sku = variant.sku.trim();
     if (sku.length < 2) {
       errors.push(`واریانت ${index + 1}: SKU واریانت را وارد کنید.`);
@@ -208,10 +256,7 @@ export function buildProductCreateBody(
   variants: ProductVariantField[],
   mode: 'create' | 'edit',
 ) {
-  const discountRaw = form.discountPercent?.trim() ?? '';
-  const discountPercent = discountRaw ? Number(discountRaw) : 0;
-  const discountStartsAt = normalizeDateTimeInput(form.discountStartsAt ?? '');
-  const discountEndsAt = normalizeDateTimeInput(form.discountEndsAt ?? '');
+  const { discountPercent, discountStartsAt, discountEndsAt } = resolveDiscountFields(form);
 
   const shared = {
     title: form.title.trim(),
@@ -249,7 +294,7 @@ export function buildProductCreateBody(
           : undefined,
         sortOrder: index,
       })),
-    variants: variants
+    variants: filledVariants(variants)
       .filter((v) => v.sku.trim().length > 0)
       .map((variant, index) => {
         const weightRaw = variant.weightGram.trim();

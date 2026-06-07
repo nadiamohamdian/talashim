@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { isProductDiscountActive } from '@sadafgold/shared';
 import type { ProductSummary } from '@sadafgold/types';
 import { useDynamicProductPrice } from '@/features/catalog/hooks/use-dynamic-product-price';
 import { formatPrice } from '@/shared/lib/format-price';
@@ -12,6 +13,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const priced = useDynamicProductPrice(product);
+  const hasActiveDiscount = isProductDiscountActive(priced);
 
   return (
     <article className="card-luxury group">
@@ -46,7 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {formatPrice(priced.priceToman)}{' '}
             <span className="text-xs font-normal text-muted">تومان</span>
           </p>
-          {product.discountPercent ? (
+          {hasActiveDiscount && product.discountPercent ? (
             <span className="badge-gold inline-flex text-[11px]">
               {product.discountPercent}٪ تخفیف
             </span>
