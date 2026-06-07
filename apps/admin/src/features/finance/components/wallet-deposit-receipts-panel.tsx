@@ -45,8 +45,39 @@ export function WalletDepositReceiptsPanel() {
   const [selected, setSelected] = useState<AdminWalletTransaction | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
+
+  const invalidateReceiptQueries = () => {
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-deposit-receipts'] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-tx'] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'wallets'] });
+  };
+
+  const handleApprove = (item: AdminWalletTransaction) => {
+    const amountLabel = item.depositRequest?.amountToman
+      ? `${formatToman(item.depositRequest.amountToman)} تومان`
+      : 'مبلغ درخواستی';
+    const userLabel = item.user?.fullName ?? 'کاربر';
+    const confirmed = window.confirm(
+      `فیش تأیید شود و ${amountLabel} به کیف پول «${userLabel}» واریز گردد؟`,
+    );
+    if (!confirmed) {
+      return;
+    }
+    setErrorMessage(null);
+    approveMutation.mutate(item.id);
+  };
+
+  const handleReject = (item: AdminWalletTransaction) => {
+    const reason = window.prompt('دلیل رد فیش:');
+    if (!reason?.trim()) {
+      return;
+    }
+    setErrorMessage(null);
+    rejectMutation.mutate({ transactionId: item.id, reason: reason.trim() });
+  };
 
   const receiptsQuery = useQuery({
     queryKey: adminQueryKeys.walletDepositReceipts(page, status),
@@ -64,9 +95,10 @@ export function WalletDepositReceiptsPanel() {
     onSuccess: () => {
       setActionMessage('فیش تأیید شد و مبلغ به کیف پول کاربر واریز شد.');
       setSelected(null);
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-deposit-receipts'] });
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-tx'] });
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'wallets'] });
+      invalidateReceiptQueries();
+    },
+    onError: () => {
+      setErrorMessage('تأیید فیش ناموفق بود. دوباره تلاش کنید.');
     },
   });
 
@@ -77,8 +109,10 @@ export function WalletDepositReceiptsPanel() {
       setActionMessage('فیش رد شد.');
       setSelected(null);
       setRejectReason('');
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-deposit-receipts'] });
-      void queryClient.invalidateQueries({ queryKey: ['admin', 'wallet-tx'] });
+      invalidateReceiptQueries();
+    },
+    onError: () => {
+      setErrorMessage('رد فیش ناموفق بود. دوباره تلاش کنید.');
     },
   });
 
@@ -92,6 +126,11 @@ export function WalletDepositReceiptsPanel() {
       {actionMessage ? (
         <p className="rounded-[var(--radius-xl)] border border-[var(--success-border)] bg-[var(--success-bg)] px-4 py-3 text-sm text-[var(--success)]">
           {actionMessage}
+        </p>
+      ) : null}
+      {errorMessage ? (
+        <p className="rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
+          {errorMessage}
         </p>
       ) : null}
 
@@ -130,7 +169,8 @@ export function WalletDepositReceiptsPanel() {
                 <TableHead>مبلغ</TableHead>
                 <TableHead>وضعیت</TableHead>
                 <TableHead>زمان ثبت</TableHead>
-                <TableHead>عملیات</TableHead>
+                <TableHead>فیش</TableHead>
+                <TableHead>تأیید</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -182,6 +222,41 @@ export function WalletDepositReceiptsPanel() {
                       '—'
                     )}
                   </TableCell>
+                  <TableCell>
+                    {item.status === 'PENDING' && item.depositRequest?.receiptUrl ? (
+                      <div className="flex min-w-[220px] flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={
+                            approveMutation.isPending && approveMutation.variables === item.id
+                          }
+                          onClick={() => handleApprove(item)}
+                        >
+                          {approveMutation.isPending && approveMutation.variables === item.id
+                            ? 'در حال تأیید…'
+                            : 'تأیید و واریز'}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          disabled={
+                            rejectMutation.isPending &&
+                            rejectMutation.variables?.transactionId === item.id
+                          }
+                          onClick={() => handleReject(item)}
+                        >
+                          {rejectMutation.isPending &&
+                          rejectMutation.variables?.transactionId === item.id
+                            ? 'در حال رد…'
+                            : 'رد فیش'}
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted">—</span>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -216,13 +291,18 @@ export function WalletDepositReceiptsPanel() {
               ),
             )
           }
-          onApprove={() => approveMutation.mutate(selected.id)}
-          onReject={() =>
+          onApprove={() => handleApprove(selected)}
+          onReject={() => {
+            if (!rejectReason.trim()) {
+              setErrorMessage('برای رد فیش، دلیل را وارد کنید.');
+              return;
+            }
+            setErrorMessage(null);
             rejectMutation.mutate({
               transactionId: selected.id,
-              reason: rejectReason.trim() || 'فیش نامعتبر است',
-            })
-          }
+              reason: rejectReason.trim(),
+            });
+          }}
           isApproving={approveMutation.isPending}
           isRejecting={rejectMutation.isPending}
         />
