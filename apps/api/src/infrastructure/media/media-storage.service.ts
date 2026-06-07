@@ -80,6 +80,10 @@ export class MediaStorageService {
     }
 
     const [, folder, filename] = match;
+    if (!folder || !filename) {
+      return;
+    }
+
     const absolutePath = join(this.uploadRoot, folder, filename);
 
     try {

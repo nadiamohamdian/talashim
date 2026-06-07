@@ -11,6 +11,20 @@ export interface PublicCmsBanner {
   sortOrder: number;
 }
 
+export interface PublicCmsStaticPageSummary {
+  slug: string;
+  title: string;
+}
+
+export interface PublicCmsStaticPage {
+  slug: string;
+  title: string;
+  content: string;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  updatedAt: string;
+}
+
 export interface CmsBannerDto {
   id: string;
   title: string;

@@ -42,6 +42,7 @@ import {
 import {
   revalidateStorefrontBanners,
   revalidateStorefrontFaq,
+  revalidateStorefrontStaticPages,
 } from '@/infrastructure/storefront/storefront-cache.util';
 
 type BlogPostWithCategory = Prisma.BlogPostGetPayload<{ include: { category: true } }>;
@@ -188,6 +189,19 @@ export class AdminCmsService {
     return items.map((banner) => this.mapPublicBanner(banner));
   }
 
+  async listPublicStaticPages() {
+    const items = await this.cmsRepository.listPublishedStaticPages();
+    return items.map((page) => this.mapPublicStaticPageSummary(page));
+  }
+
+  async getPublicStaticPageBySlug(slug: string) {
+    const page = await this.cmsRepository.findPublishedStaticPageBySlug(slug);
+    if (!page) {
+      throw new NotFoundException('Static page not found');
+    }
+    return this.mapPublicStaticPage(page);
+  }
+
   async listBanners(query: AdminBannersQueryDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.read);
 
@@ -275,7 +289,11 @@ export class AdminCmsService {
 
     const hero = { ...dto.hero };
     if (hero.imageUrl !== undefined) {
-      hero.imageUrl = optionalLibraryImageUrl(hero.imageUrl, 'تصویر هیرو') ?? '';
+      hero.imageUrl =
+        optionalLibraryImageUrl(
+          typeof hero.imageUrl === 'string' ? hero.imageUrl : undefined,
+          'تصویر هیرو',
+        ) ?? '';
     }
 
     const row = await this.cmsRepository.updateHomepage(
@@ -321,6 +339,7 @@ export class AdminCmsService {
       isPublished: dto.isPublished ?? false,
     });
 
+    void revalidateStorefrontStaticPages(page.slug);
     return this.mapStaticPage(page);
   }
 
@@ -345,6 +364,7 @@ export class AdminCmsService {
       isPublished: dto.isPublished,
     });
 
+    void revalidateStorefrontStaticPages(page.slug, existing.slug);
     return this.mapStaticPage(page);
   }
 
@@ -355,6 +375,7 @@ export class AdminCmsService {
       throw new NotFoundException('Static page not found');
     }
     await this.cmsRepository.deleteStaticPage(id);
+    void revalidateStorefrontStaticPages(existing.slug);
     return { ok: true };
   }
 
@@ -555,6 +576,24 @@ export class AdminCmsService {
       hero: row.hero as unknown as CmsHomepageDto['hero'],
       sections: row.sections as unknown as CmsHomepageDto['sections'],
       updatedAt: row.updatedAt.toISOString(),
+    };
+  }
+
+  private mapPublicStaticPageSummary(page: { slug: string; title: string }) {
+    return {
+      slug: page.slug,
+      title: page.title,
+    };
+  }
+
+  private mapPublicStaticPage(page: Prisma.CmsStaticPageGetPayload<object>) {
+    return {
+      slug: page.slug,
+      title: page.title,
+      content: page.content,
+      metaTitle: page.metaTitle,
+      metaDescription: page.metaDescription,
+      updatedAt: page.updatedAt.toISOString(),
     };
   }
 

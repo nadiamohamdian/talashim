@@ -138,6 +138,34 @@ export class PublicBannersQueryDto {
   placement?: CmsBannerPlacement;
 }
 
+export class PublicCmsStaticPageSummaryResponseDto {
+  @ApiProperty()
+  slug!: string;
+
+  @ApiProperty()
+  title!: string;
+}
+
+export class PublicCmsStaticPageResponseDto {
+  @ApiProperty()
+  slug!: string;
+
+  @ApiProperty()
+  title!: string;
+
+  @ApiProperty()
+  content!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  metaTitle!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  metaDescription!: string | null;
+
+  @ApiProperty()
+  updatedAt!: string;
+}
+
 export class PublicCmsBannerResponseDto {
   @ApiProperty()
   id!: string;

@@ -35,6 +35,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/contact',
   '/terms',
   '/policies',
+  '/pages',
   ...MEMBER_ROUTE_PREFIXES,
 ] as const;
 

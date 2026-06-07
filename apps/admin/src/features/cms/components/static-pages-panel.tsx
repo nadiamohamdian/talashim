@@ -114,6 +114,9 @@ export function StaticPagesPanel() {
                 value={form.slug}
                 onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
               />
+              <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                about، terms و policies در مسیر /about و مشابه؛ سایر slugها در /pages/slug
+              </p>
             </div>
             <div>
               <Label>meta title</Label>

@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HttpCache } from '@/common/decorators/http-cache.decorator';
@@ -7,6 +7,8 @@ import { ApiPublicErrors } from '@/swagger/decorators/api-protected.decorator';
 import {
   PublicBannersQueryDto,
   PublicCmsBannerResponseDto,
+  PublicCmsStaticPageResponseDto,
+  PublicCmsStaticPageSummaryResponseDto,
 } from '@/modules/admin/dto/admin-cms.dto';
 import { AdminCmsService } from '@/modules/admin/services/admin-cms.service';
 
@@ -24,5 +26,21 @@ export class CmsPublicController {
   @ApiOkResponse({ type: PublicCmsBannerResponseDto, isArray: true })
   listBanners(@Query() query: PublicBannersQueryDto) {
     return this.adminCmsService.listPublicBanners(query.placement);
+  }
+
+  @Get('pages')
+  @HttpCache({ ttlSeconds: 120 })
+  @ApiOperation({ summary: 'List published static CMS pages' })
+  @ApiOkResponse({ type: PublicCmsStaticPageSummaryResponseDto, isArray: true })
+  listStaticPages() {
+    return this.adminCmsService.listPublicStaticPages();
+  }
+
+  @Get('pages/:slug')
+  @HttpCache({ ttlSeconds: 120 })
+  @ApiOperation({ summary: 'Get published static page by slug' })
+  @ApiOkResponse({ type: PublicCmsStaticPageResponseDto })
+  getStaticPage(@Param('slug') slug: string) {
+    return this.adminCmsService.getPublicStaticPageBySlug(slug);
   }
 }

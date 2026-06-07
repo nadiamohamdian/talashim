@@ -1,16 +1,13 @@
 import type { Metadata } from 'next';
-import { PublicPageShell } from '@/widgets/content/public-page-shell';
+import {
+  CmsStaticPageLoader,
+  generateCmsStaticPageMetadata,
+} from '@/features/content/components/cms-static-page-loader';
 
-export const metadata: Metadata = {
-  title: 'حریم خصوصی',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return generateCmsStaticPageMetadata('policies');
+}
 
 export default function PoliciesPage() {
-  return (
-    <PublicPageShell
-      eyebrow="حقوقی"
-      title="حریم خصوصی و سیاست‌ها"
-      description="نحوه پردازش داده‌های شخصی و امنیت مالی."
-    />
-  );
+  return <CmsStaticPageLoader slug="policies" />;
 }

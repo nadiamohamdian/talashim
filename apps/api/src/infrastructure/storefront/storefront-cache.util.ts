@@ -60,3 +60,72 @@ export async function revalidateStorefrontFaq(): Promise<void> {
     );
   }
 }
+
+const ROOT_STATIC_PAGE_SLUGS = new Set(['about', 'terms', 'policies']);
+
+function resolveStaticPagePath(slug: string): string {
+  if (ROOT_STATIC_PAGE_SLUGS.has(slug)) {
+    return `/${slug}`;
+  }
+  return `/pages/${slug}`;
+}
+
+export async function revalidateStorefrontStaticPages(
+  ...slugs: Array<string | undefined>
+): Promise<void> {
+  const env = getApiEnv();
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) {
+    return;
+  }
+
+  const uniqueSlugs = [...new Set(slugs.filter((slug): slug is string => Boolean(slug?.trim())))];
+  if (uniqueSlugs.length === 0) {
+    return;
+  }
+
+  const url = `${env.WEB_URL.replace(/\/$/, '')}/api/revalidate`;
+
+  for (const slug of uniqueSlugs) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-revalidate-secret': secret,
+        },
+        body: JSON.stringify({
+          path: resolveStaticPagePath(slug),
+          tag: `content:static-page:${slug}`,
+        }),
+      });
+
+      if (!response.ok) {
+        logger.warn(`Storefront static page revalidation failed for ${slug} (${response.status})`);
+      }
+    } catch (error) {
+      logger.warn(
+        `Storefront static page revalidation error for ${slug}: ${error instanceof Error ? error.message : 'unknown'}`,
+      );
+    }
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': secret,
+      },
+      body: JSON.stringify({ tag: 'content:static-pages' }),
+    });
+
+    if (!response.ok) {
+      logger.warn(`Storefront static pages list revalidation failed (${response.status})`);
+    }
+  } catch (error) {
+    logger.warn(
+      `Storefront static pages list revalidation error: ${error instanceof Error ? error.message : 'unknown'}`,
+    );
+  }
+}

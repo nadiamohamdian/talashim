@@ -4,7 +4,7 @@ import { CartPanel } from '@/features/cart/components/cart-panel';
 import { ThemeProvider } from '@/shared/providers/theme-provider';
 import { StorefrontSettingsProvider } from '@/shared/providers/storefront-settings-provider';
 import type { StorefrontSettings } from '@/shared/model/storefront-settings';
-import type { PublicCmsBanner } from '@sadafgold/types';
+import type { PublicCmsBanner, PublicCmsStaticPageSummary } from '@sadafgold/types';
 import { GlobalBannerBar } from '@/widgets/cms/global-banner-bar';
 import { SiteFooter } from '@/widgets/footer/site-footer';
 import { GoldPriceTicker } from '@/widgets/header/gold-price-ticker';
@@ -16,9 +16,15 @@ import type { PropsWithChildren } from 'react';
 type ClientRootProps = PropsWithChildren<{
   settings: StorefrontSettings;
   globalBanners?: PublicCmsBanner[];
+  staticPages?: PublicCmsStaticPageSummary[];
 }>;
 
-export function ClientRoot({ children, settings, globalBanners = [] }: ClientRootProps) {
+export function ClientRoot({
+  children,
+  settings,
+  globalBanners = [],
+  staticPages = [],
+}: ClientRootProps) {
   return (
     <QueryProvider>
       <SessionBootstrap>
@@ -29,7 +35,7 @@ export function ClientRoot({ children, settings, globalBanners = [] }: ClientRoo
               {settings.gold.showGoldTickerInHeader ? <GoldPriceTicker /> : null}
               <SiteHeader />
               <main className="container-store flex-1 py-6 md:py-10">{children}</main>
-              <SiteFooter />
+              <SiteFooter staticPages={staticPages} />
               <CartPanel />
             </div>
           </ThemeProvider>

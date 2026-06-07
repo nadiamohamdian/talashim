@@ -92,6 +92,20 @@ export class AdminCmsRepository implements OnModuleInit {
     return this.prisma.cmsStaticPage.findUnique({ where: { slug } });
   }
 
+  findPublishedStaticPageBySlug(slug: string) {
+    return this.prisma.cmsStaticPage.findFirst({
+      where: { slug, isPublished: true },
+    });
+  }
+
+  listPublishedStaticPages() {
+    return this.prisma.cmsStaticPage.findMany({
+      where: { isPublished: true },
+      orderBy: [{ title: 'asc' }],
+      select: { slug: true, title: true },
+    });
+  }
+
   createBlogPost(data: Prisma.BlogPostCreateInput) {
     return this.prisma.blogPost.create({
       data,

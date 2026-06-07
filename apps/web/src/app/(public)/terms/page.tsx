@@ -1,16 +1,13 @@
 import type { Metadata } from 'next';
-import { PublicPageShell } from '@/widgets/content/public-page-shell';
+import {
+  CmsStaticPageLoader,
+  generateCmsStaticPageMetadata,
+} from '@/features/content/components/cms-static-page-loader';
 
-export const metadata: Metadata = {
-  title: 'قوانین و مقررات',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return generateCmsStaticPageMetadata('terms');
+}
 
 export default function TermsPage() {
-  return (
-    <PublicPageShell
-      eyebrow="حقوقی"
-      title="قوانین و مقررات"
-      description="شرایط استفاده از پلتفرم و معاملات."
-    />
-  );
+  return <CmsStaticPageLoader slug="terms" />;
 }

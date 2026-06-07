@@ -1,16 +1,13 @@
 import type { Metadata } from 'next';
-import { PublicPageShell } from '@/widgets/content/public-page-shell';
+import {
+  CmsStaticPageLoader,
+  generateCmsStaticPageMetadata,
+} from '@/features/content/components/cms-static-page-loader';
 
-export const metadata: Metadata = {
-  title: 'درباره ما',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return generateCmsStaticPageMetadata('about');
+}
 
 export default function AboutPage() {
-  return (
-    <PublicPageShell
-      eyebrow="برند"
-      title="درباره طلاشیم"
-      description="پلتفرم لوکس تجارت طلا و جواهر با تمرکز بر شفافیت قیمت و اعتماد."
-    />
-  );
+  return <CmsStaticPageLoader slug="about" />;
 }
