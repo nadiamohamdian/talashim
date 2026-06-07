@@ -54,7 +54,9 @@ export type UpsertBannerPayload = {
   title: string;
   subtitle?: string;
   imageUrl: string;
+  linkType?: CmsBannerDto['linkType'];
   linkUrl?: string;
+  productIds?: string[];
   placement?: CmsBannerDto['placement'];
   sortOrder?: number;
   status?: CmsBannerDto['status'];

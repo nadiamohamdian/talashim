@@ -18,9 +18,13 @@ export function AdminStoreHeader() {
         </Link>
         <div className="flex items-center gap-2">
           <AdminThemeToggle />
-          <Link href="http://localhost:3000" className="admin-icon-btn gap-1.5 px-3 w-auto text-xs font-medium">
-            فروشگاه
-            <ExternalLink className="size-3.5" strokeWidth={1.5} aria-hidden />
+          <Link
+            href="http://localhost:3000"
+            className="admin-icon-btn admin-icon-btn--labeled"
+            aria-label="فروشگاه"
+          >
+            <span className="admin-icon-btn-label">فروشگاه</span>
+            <ExternalLink className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden />
           </Link>
         </div>
       </div>

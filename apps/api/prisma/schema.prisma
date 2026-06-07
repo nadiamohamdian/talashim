@@ -130,6 +130,7 @@ model Product {
   images            ProductImage[]
   variants          ProductVariant[]
   inventoryMoves    InventoryMovement[]
+  bannerLinks       CmsBannerProduct[]
 
   @@index([discountPercent, discountEndsAt])
 }
@@ -379,11 +380,17 @@ enum CmsBannerStatus {
   ARCHIVED
 }
 
+enum CmsBannerLinkType {
+  URL
+  COLLECTION
+}
+
 model CmsBanner {
   id        String             @id @default(cuid())
   title     String
   subtitle  String?
   imageUrl  String
+  linkType  CmsBannerLinkType  @default(URL)
   linkUrl   String?
   placement CmsBannerPlacement @default(HOME_MID)
   sortOrder Int                @default(0)
@@ -392,8 +399,21 @@ model CmsBanner {
   endsAt    DateTime?
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
+  products  CmsBannerProduct[]
 
   @@index([status, placement, sortOrder])
+}
+
+model CmsBannerProduct {
+  id        String    @id @default(cuid())
+  bannerId  String
+  productId String
+  sortOrder Int       @default(0)
+  banner    CmsBanner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([bannerId, productId])
+  @@index([bannerId, sortOrder])
 }
 
 model CmsHomepage {

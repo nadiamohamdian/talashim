@@ -26,18 +26,21 @@ import {
   type UpsertBannerPayload,
 } from '../api/cms-api';
 import { ImageUrlField } from './image-url-field';
+import { BannerProductPicker } from './banner-product-picker';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
-import { BANNER_PLACEMENT_FA, BANNER_STATUS_FA, selectFieldClass } from '../lib/labels';
+import { BANNER_LINK_TYPE_FA, BANNER_PLACEMENT_FA, BANNER_STATUS_FA, selectFieldClass } from '../lib/labels';
 import { validateLibraryImageUrl } from '../lib/validate-library-image';
 
 const emptyBanner = (): UpsertBannerPayload => ({
   title: '',
   subtitle: '',
   imageUrl: '',
+  linkType: 'URL',
   linkUrl: '/products',
+  productIds: [],
   placement: 'HOME_MID',
   status: 'PUBLISHED',
   sortOrder: 0,
@@ -51,6 +54,9 @@ function validateBannerForm(form: UpsertBannerPayload): string | null {
   if (imageError) {
     return imageError;
   }
+  if (form.linkType === 'COLLECTION' && (form.productIds?.length ?? 0) === 0) {
+    return 'برای مجموعه محصولات، حداقل یک محصول انتخاب کنید.';
+  }
   if (form.startsAt && form.endsAt && form.startsAt > form.endsAt) {
     return 'تاریخ پایان نمی‌تواند قبل از تاریخ شروع باشد.';
   }
@@ -58,11 +64,15 @@ function validateBannerForm(form: UpsertBannerPayload): string | null {
 }
 
 function toApiPayload(form: UpsertBannerPayload): UpsertBannerPayload {
+  const linkType = form.linkType ?? 'URL';
+
   return {
     title: form.title.trim(),
     subtitle: form.subtitle?.trim() || undefined,
     imageUrl: form.imageUrl.trim(),
-    linkUrl: form.linkUrl?.trim() || undefined,
+    linkType,
+    linkUrl: linkType === 'URL' ? form.linkUrl?.trim() || undefined : undefined,
+    productIds: linkType === 'COLLECTION' ? form.productIds ?? [] : undefined,
     placement: form.placement,
     status: form.status,
     sortOrder: form.sortOrder ?? 0,
@@ -102,7 +112,9 @@ export function BannersPanel() {
         title: editing.title,
         subtitle: editing.subtitle ?? '',
         imageUrl: editing.imageUrl,
+        linkType: editing.linkType ?? 'URL',
         linkUrl: editing.linkUrl ?? '',
+        productIds: editing.productIds ?? [],
         placement: editing.placement,
         status: editing.status,
         sortOrder: editing.sortOrder,
@@ -151,7 +163,9 @@ export function BannersPanel() {
         title: banner.title,
         subtitle: banner.subtitle ?? undefined,
         imageUrl: banner.imageUrl,
+        linkType: banner.linkType ?? 'URL',
         linkUrl: banner.linkUrl ?? undefined,
+        productIds: banner.productIds ?? [],
         placement: banner.placement,
         status: nextStatus,
         sortOrder: banner.sortOrder,
@@ -291,15 +305,36 @@ export function BannersPanel() {
               />
             </div>
             <div>
-              <Label>لینک مقصد</Label>
-              <Input
-                className="mt-1 font-mono text-sm"
-                dir="ltr"
-                placeholder="/products"
-                value={form.linkUrl ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, linkUrl: e.target.value }))}
-              />
+              <Label>نوع مقصد</Label>
+              <select
+                className={selectFieldClass}
+                value={form.linkType ?? 'URL'}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    linkType: e.target.value as UpsertBannerPayload['linkType'],
+                  }))
+                }
+              >
+                {Object.entries(BANNER_LINK_TYPE_FA).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </select>
             </div>
+            {form.linkType === 'URL' ? (
+              <div>
+                <Label>لینک مقصد</Label>
+                <Input
+                  className="mt-1 font-mono text-sm"
+                  dir="ltr"
+                  placeholder="/products"
+                  value={form.linkUrl ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, linkUrl: e.target.value }))}
+                />
+              </div>
+            ) : null}
             <div>
               <Label>شروع نمایش (اختیاری)</Label>
               <Input
@@ -328,6 +363,14 @@ export function BannersPanel() {
                 required
               />
             </div>
+            {form.linkType === 'COLLECTION' ? (
+              <div className="md:col-span-2">
+                <BannerProductPicker
+                  value={form.productIds ?? []}
+                  onChange={(productIds) => setForm((f) => ({ ...f, productIds }))}
+                />
+              </div>
+            ) : null}
           </div>
 
           {formError ? <Alert variant="destructive">{formError}</Alert> : null}
@@ -397,6 +440,7 @@ export function BannersPanel() {
                 <TableHead>تصویر</TableHead>
                 <TableHead>عنوان</TableHead>
                 <TableHead>جایگاه</TableHead>
+                <TableHead>مقصد</TableHead>
                 <TableHead>ترتیب</TableHead>
                 <TableHead>وضعیت</TableHead>
                 <TableHead className="w-44" />
@@ -420,6 +464,17 @@ export function BannersPanel() {
                     ) : null}
                   </TableCell>
                   <TableCell>{BANNER_PLACEMENT_FA[banner.placement]}</TableCell>
+                  <TableCell>
+                    {banner.linkType === 'COLLECTION' ? (
+                      <span className="text-xs text-[var(--muted-foreground)]">
+                        {banner.productIds.length} محصول
+                      </span>
+                    ) : (
+                      <span className="font-mono text-xs text-[var(--muted-foreground)]" dir="ltr">
+                        {banner.linkUrl ?? '—'}
+                      </span>
+                    )}
+                  </TableCell>
                   <TableCell>{banner.sortOrder}</TableCell>
                   <TableCell>
                     <span className="inline-flex rounded-full bg-[var(--surface)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]">

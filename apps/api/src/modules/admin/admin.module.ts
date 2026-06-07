@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MediaModule } from '@/infrastructure/media/media.module';
+import { CatalogModule } from '@/modules/catalog/catalog.module';
 import { MarketModule } from '@/modules/market/market.module';
 import { PricingModule } from '@/modules/pricing/pricing.module';
 import { TradingModule } from '@/modules/trading/trading.module';
@@ -39,7 +40,7 @@ import { AdminSettingsService } from './services/admin-settings.service';
 import { AdminService } from './services/admin.service';
 
 @Module({
-  imports: [MediaModule, PricingModule, MarketModule, TradingModule, OrdersModule],
+  imports: [MediaModule, CatalogModule, PricingModule, MarketModule, TradingModule, OrdersModule],
   controllers: [
     AdminController,
     AdminSettingsController,

@@ -30,7 +30,10 @@ export function AdminProfileMenu() {
 
   if (!user) return null;
 
-  const initial = (user.fullName ?? user.email).charAt(0).toUpperCase();
+  const displayName = user.fullName ?? user.email;
+  const roleLabel = getRoleLabelFa(user.role);
+  const initial = displayName.charAt(0).toUpperCase();
+  const showRole = roleLabel !== displayName;
 
   return (
     <div ref={rootRef} className="admin-profile-menu relative">
@@ -40,17 +43,18 @@ export function AdminProfileMenu() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label={`منوی حساب ${displayName}`}
       >
         <span className="admin-profile-avatar" aria-hidden>
           {initial}
         </span>
-        <span className="hidden min-w-0 xl:block">
-          <span className="admin-profile-name">{user.fullName ?? user.email}</span>
-          <span className="admin-profile-role">{getRoleLabelFa(user.role)}</span>
+        <span className="admin-profile-meta hidden xl:flex">
+          <span className="admin-profile-name">{displayName}</span>
+          {showRole ? <span className="admin-profile-role">{roleLabel}</span> : null}
         </span>
         <ChevronDown
-          className={`hidden size-3.5 text-muted transition-transform duration-200 xl:block ${open ? 'rotate-180' : ''}`}
-          strokeWidth={1.5}
+          className={`admin-profile-chevron hidden size-3.5 xl:block ${open ? 'is-open' : ''}`}
+          strokeWidth={1.75}
           aria-hidden
         />
       </button>

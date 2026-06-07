@@ -83,6 +83,27 @@ export class CatalogService {
     return Promise.all(products.map((product) => this.toProductSummary(product)));
   }
 
+  async findByIds(ids: string[]) {
+    const uniqueIds = [...new Set(ids.filter(Boolean))];
+    if (uniqueIds.length === 0) {
+      return [];
+    }
+
+    const products = await this.catalogRepository.findByIds(uniqueIds);
+    const byId = new Map(products.map((product) => [product.id, product]));
+    const summaries = [];
+
+    for (const id of uniqueIds) {
+      const product = byId.get(id);
+      if (!product) {
+        continue;
+      }
+      summaries.push(await this.toProductSummary(product as ProductWithInventory));
+    }
+
+    return summaries;
+  }
+
   async findBySlug(slug: string) {
     const product = await this.catalogRepository.findBySlug(slug);
 

@@ -1,6 +1,7 @@
 import type {
   CmsBannerPlacement,
   PublicCmsBanner,
+  PublicCmsCollection,
   PublicCmsHomepage,
   PublicCmsStaticPage,
   PublicCmsStaticPageSummary,
@@ -21,6 +22,26 @@ export async function getPublishedBanners(
     revalidate: 120,
     tags: ['content:banners'],
   });
+}
+
+export async function getPublicCollection(id: string): Promise<PublicCmsCollection | null> {
+  try {
+    return await serverFetchCatalogDetail<PublicCmsCollection>(
+      `/cms/collections/${encodeURIComponent(id)}`,
+      {
+        revalidate: 120,
+        tags: ['content:banners', `content:collection:${id}`],
+      },
+    );
+  } catch (error) {
+    if (error instanceof ApiClientError && error.status === 404) {
+      return null;
+    }
+    if (process.env.NODE_ENV === 'development' && isApiUnreachableError(error)) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function getPublicHomepage(): Promise<PublicCmsHomepage> {

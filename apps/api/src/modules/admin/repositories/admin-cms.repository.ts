@@ -7,6 +7,17 @@ import {
   DEFAULT_CMS_SEO,
 } from '../cms/cms-defaults';
 
+export const CMS_BANNER_PRODUCTS_INCLUDE = {
+  products: {
+    orderBy: { sortOrder: 'asc' as const },
+    select: { productId: true },
+  },
+} satisfies Prisma.CmsBannerInclude;
+
+export type CmsBannerWithProducts = Prisma.CmsBannerGetPayload<{
+  include: typeof CMS_BANNER_PRODUCTS_INCLUDE;
+}>;
+
 @Injectable()
 export class AdminCmsRepository implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
@@ -140,13 +151,53 @@ export class AdminCmsRepository implements OnModuleInit {
         skip,
         take,
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+        include: CMS_BANNER_PRODUCTS_INCLUDE,
       }),
       this.prisma.cmsBanner.count({ where }),
     ]);
   }
 
+  findPublishedBannerById(id: string) {
+    const now = new Date();
+
+    return this.prisma.cmsBanner.findFirst({
+      where: {
+        id,
+        status: 'PUBLISHED',
+        linkType: 'COLLECTION',
+        AND: [
+          { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+          { OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
+        ],
+      },
+      include: CMS_BANNER_PRODUCTS_INCLUDE,
+    });
+  }
+
   findBannerById(id: string) {
-    return this.prisma.cmsBanner.findUnique({ where: { id } });
+    return this.prisma.cmsBanner.findUnique({
+      where: { id },
+      include: CMS_BANNER_PRODUCTS_INCLUDE,
+    });
+  }
+
+  countProductsByIds(productIds: string[]) {
+    return this.prisma.product.count({ where: { id: { in: productIds } } });
+  }
+
+  setBannerProducts(bannerId: string, productIds: string[]) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.cmsBannerProduct.deleteMany({ where: { bannerId } });
+      if (productIds.length > 0) {
+        await tx.cmsBannerProduct.createMany({
+          data: productIds.map((productId, sortOrder) => ({
+            bannerId,
+            productId,
+            sortOrder,
+          })),
+        });
+      }
+    });
   }
 
   findPublishedBanners(placement?: string) {
@@ -166,6 +217,7 @@ export class AdminCmsRepository implements OnModuleInit {
     return this.prisma.cmsBanner.findMany({
       where,
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      include: CMS_BANNER_PRODUCTS_INCLUDE,
     });
   }
 

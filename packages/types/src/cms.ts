@@ -1,14 +1,26 @@
 export type CmsBannerPlacement = 'HOME_HERO' | 'HOME_MID' | 'CATEGORY_TOP' | 'GLOBAL';
 export type CmsBannerStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type CmsBannerLinkType = 'URL' | 'COLLECTION';
+
+import type { ProductSummary } from './catalog';
 
 export interface PublicCmsBanner {
   id: string;
   title: string;
   subtitle: string | null;
   imageUrl: string;
+  linkType: CmsBannerLinkType;
   linkUrl: string | null;
   placement: CmsBannerPlacement;
   sortOrder: number;
+}
+
+export interface PublicCmsCollection {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  imageUrl: string;
+  products: ProductSummary[];
 }
 
 export interface PublicCmsStaticPageSummary {
@@ -30,7 +42,9 @@ export interface CmsBannerDto {
   title: string;
   subtitle: string | null;
   imageUrl: string;
+  linkType: CmsBannerLinkType;
   linkUrl: string | null;
+  productIds: string[];
   placement: CmsBannerPlacement;
   sortOrder: number;
   status: CmsBannerStatus;

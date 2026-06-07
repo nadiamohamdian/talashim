@@ -73,10 +73,11 @@ export function AdminChromeHeader({ onOpenSidebar }: AdminChromeHeaderProps) {
           </Link>
           <Link
             href="http://localhost:3000"
-            className="admin-icon-btn hidden sm:inline-flex"
+            className="admin-icon-btn admin-icon-btn--labeled hidden sm:inline-flex"
             aria-label="فروشگاه"
           >
-            <ExternalLink className="size-4" strokeWidth={1.5} />
+            <span className="admin-icon-btn-label">فروشگاه</span>
+            <ExternalLink className="size-3.5 shrink-0" strokeWidth={1.5} aria-hidden />
           </Link>
           <AdminThemeToggle />
           <button

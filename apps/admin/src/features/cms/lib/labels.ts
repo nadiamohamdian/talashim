@@ -16,6 +16,11 @@ export const BANNER_STATUS_FA: Record<CmsBannerDto['status'], string> = {
   ARCHIVED: 'بایگانی',
 };
 
+export const BANNER_LINK_TYPE_FA: Record<CmsBannerDto['linkType'], string> = {
+  URL: 'لینک دلخواه',
+  COLLECTION: 'مجموعه محصولات',
+};
+
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) {
     return `${bytes} B`;

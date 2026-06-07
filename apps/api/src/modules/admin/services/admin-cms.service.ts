@@ -12,6 +12,8 @@ import type {
   CmsSeoSettingsDto,
   CmsStaticPageDto,
   MediaAssetDto,
+  ProductSummary,
+  PublicCmsCollection,
   PublicCmsHomepage,
 } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
@@ -20,7 +22,7 @@ import {
   requireLibraryImageUrl,
 } from '@/common/media/require-library-image-url';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
-import type { Prisma } from '@/generated/prisma';
+import { CmsBannerLinkType, type Prisma } from '@/generated/prisma';
 import type {
   AdminBannersQueryDto,
   AdminBlogQueryDto,
@@ -35,7 +37,8 @@ import type {
   UpsertCmsStaticPageDto,
   UpsertFaqPostDto,
 } from '../dto/admin-cms.dto';
-import { AdminCmsRepository } from '../repositories/admin-cms.repository';
+import { AdminCmsRepository, type CmsBannerWithProducts } from '../repositories/admin-cms.repository';
+import { CatalogService } from '@/modules/catalog/services/catalog.service';
 import {
   MediaStorageService,
   type UploadedImageFile,
@@ -54,6 +57,7 @@ export class AdminCmsService {
   constructor(
     private readonly cmsRepository: AdminCmsRepository,
     private readonly mediaStorage: MediaStorageService,
+    private readonly catalogService: CatalogService,
   ) {}
 
   listBlogCategories(actor: AuthenticatedUser) {
@@ -220,6 +224,24 @@ export class AdminCmsService {
     return items.map((banner) => this.mapPublicBanner(banner));
   }
 
+  async getPublicCollection(id: string): Promise<PublicCmsCollection> {
+    const banner = await this.cmsRepository.findPublishedBannerById(id);
+    if (!banner) {
+      throw new NotFoundException('Collection not found');
+    }
+
+    const productIds = banner.products.map((item) => item.productId);
+    const products = await this.catalogService.findByIds(productIds);
+
+    return {
+      id: banner.id,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      imageUrl: banner.imageUrl,
+      products: products as ProductSummary[],
+    };
+  }
+
   async listPublicStaticPages() {
     const items = await this.cmsRepository.listPublishedStaticPages();
     return items.map((page) => this.mapPublicStaticPageSummary(page));
@@ -267,11 +289,14 @@ export class AdminCmsService {
   async createBanner(dto: UpsertCmsBannerDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
+    const link = await this.normalizeBannerLink(dto);
+
     const banner = await this.cmsRepository.createBanner({
       title: dto.title,
       subtitle: dto.subtitle,
       imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر بنر'),
-      linkUrl: dto.linkUrl,
+      linkType: link.linkType,
+      linkUrl: link.linkType === CmsBannerLinkType.URL ? link.linkUrl : null,
       placement: dto.placement,
       sortOrder: dto.sortOrder ?? 0,
       status: dto.status ?? 'PUBLISHED',
@@ -279,8 +304,16 @@ export class AdminCmsService {
       endsAt: dto.endsAt ? new Date(dto.endsAt) : undefined,
     });
 
+    if (link.linkType === CmsBannerLinkType.COLLECTION) {
+      await this.cmsRepository.setBannerProducts(banner.id, link.productIds);
+      await this.cmsRepository.updateBanner(banner.id, {
+        linkUrl: `/collections/${banner.id}`,
+      });
+    }
+
     void revalidateStorefrontBanners();
-    return this.mapBanner(banner);
+    const saved = await this.cmsRepository.findBannerById(banner.id);
+    return this.mapBanner(saved!);
   }
 
   async updateBanner(id: string, dto: UpsertCmsBannerDto, actor: AuthenticatedUser) {
@@ -291,11 +324,17 @@ export class AdminCmsService {
       throw new NotFoundException('Banner not found');
     }
 
-    const banner = await this.cmsRepository.updateBanner(id, {
+    const link = await this.normalizeBannerLink(dto);
+
+    await this.cmsRepository.updateBanner(id, {
       title: dto.title,
       subtitle: dto.subtitle,
       imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر بنر'),
-      linkUrl: dto.linkUrl,
+      linkType: link.linkType,
+      linkUrl:
+        link.linkType === CmsBannerLinkType.COLLECTION
+          ? `/collections/${id}`
+          : link.linkUrl,
       placement: dto.placement,
       sortOrder: dto.sortOrder,
       status: dto.status,
@@ -303,8 +342,15 @@ export class AdminCmsService {
       endsAt: dto.endsAt ? new Date(dto.endsAt) : null,
     });
 
+    if (link.linkType === CmsBannerLinkType.COLLECTION) {
+      await this.cmsRepository.setBannerProducts(id, link.productIds);
+    } else {
+      await this.cmsRepository.setBannerProducts(id, []);
+    }
+
     void revalidateStorefrontBanners();
-    return this.mapBanner(banner);
+    const saved = await this.cmsRepository.findBannerById(id);
+    return this.mapBanner(saved!);
   }
 
   async deleteBanner(id: string, actor: AuthenticatedUser) {
@@ -586,25 +632,28 @@ export class AdminCmsService {
     };
   }
 
-  private mapPublicBanner(banner: Prisma.CmsBannerGetPayload<object>) {
+  private mapPublicBanner(banner: CmsBannerWithProducts) {
     return {
       id: banner.id,
       title: banner.title,
       subtitle: banner.subtitle,
       imageUrl: banner.imageUrl,
-      linkUrl: banner.linkUrl,
+      linkType: banner.linkType,
+      linkUrl: this.resolveBannerLinkUrl(banner),
       placement: banner.placement,
       sortOrder: banner.sortOrder,
     };
   }
 
-  private mapBanner(banner: Prisma.CmsBannerGetPayload<object>): CmsBannerDto {
+  private mapBanner(banner: CmsBannerWithProducts): CmsBannerDto {
     return {
       id: banner.id,
       title: banner.title,
       subtitle: banner.subtitle,
       imageUrl: banner.imageUrl,
-      linkUrl: banner.linkUrl,
+      linkType: banner.linkType,
+      linkUrl: this.resolveBannerLinkUrl(banner),
+      productIds: banner.products.map((item) => item.productId),
       placement: banner.placement,
       sortOrder: banner.sortOrder,
       status: banner.status,
@@ -612,6 +661,42 @@ export class AdminCmsService {
       endsAt: banner.endsAt?.toISOString() ?? null,
       createdAt: banner.createdAt.toISOString(),
       updatedAt: banner.updatedAt.toISOString(),
+    };
+  }
+
+  private resolveBannerLinkUrl(banner: Pick<CmsBannerWithProducts, 'id' | 'linkType' | 'linkUrl'>) {
+    if (banner.linkType === CmsBannerLinkType.COLLECTION) {
+      return `/collections/${banner.id}`;
+    }
+    return banner.linkUrl;
+  }
+
+  private async normalizeBannerLink(dto: UpsertCmsBannerDto): Promise<{
+    linkType: CmsBannerLinkType;
+    linkUrl: string | null;
+    productIds: string[];
+  }> {
+    const linkType = dto.linkType ?? CmsBannerLinkType.URL;
+
+    if (linkType === CmsBannerLinkType.COLLECTION) {
+      const productIds = [...new Set((dto.productIds ?? []).filter(Boolean))];
+      if (productIds.length === 0) {
+        throw new BadRequestException('برای کالکشن حداقل یک محصول انتخاب کنید');
+      }
+      if (productIds.length > 48) {
+        throw new BadRequestException('حداکثر ۴۸ محصول در هر کالکشن مجاز است');
+      }
+      const found = await this.cmsRepository.countProductsByIds(productIds);
+      if (found !== productIds.length) {
+        throw new BadRequestException('برخی محصولات انتخاب‌شده یافت نشد');
+      }
+      return { linkType, linkUrl: null, productIds };
+    }
+
+    return {
+      linkType,
+      linkUrl: dto.linkUrl?.trim() || null,
+      productIds: [],
     };
   }
 

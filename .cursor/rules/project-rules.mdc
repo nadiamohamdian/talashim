@@ -339,3 +339,5 @@ Agent Workflow Rules:
 * Instead, tell the user to run those commands locally when verification is needed.
 * Git hooks are disabled — commits on any branch (including main) are not blocked by lint-staged, commitlint, or typecheck.
 * Use simple, fast git commands for status/diff/commit only when the user explicitly asks.
+
+Before completing any task, perform an internal security review and report discovered vulnerabilities. If a safer implementation exists, prefer it even if it requires more code. Never knowingly introduce security debt.

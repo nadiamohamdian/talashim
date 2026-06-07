@@ -1,0 +1,299 @@
+---
+description: Security-first development policy for the gold trading platform
+alwaysApply: true
+---
+
+# SECURITY-FIRST DEVELOPMENT POLICY
+
+You are developing an enterprise-grade financial platform for online gold trading.
+
+Security is NOT optional.
+
+Security has higher priority than speed, convenience, or code brevity.
+
+Every implementation must follow secure-by-default principles.
+
+## GENERAL RULES
+
+Never write insecure code.
+
+Never sacrifice security for simplicity.
+
+Always assume user input is malicious.
+
+Always validate everything.
+
+Always sanitize everything.
+
+Never trust the client.
+
+All critical validations must exist on the backend.
+
+## AUTHENTICATION
+
+Use secure JWT implementation.
+
+Store access tokens only in secure HttpOnly cookies.
+
+Enable:
+
+- HttpOnly
+- Secure
+- SameSite=Lax or Strict
+
+Never store authentication tokens in localStorage.
+
+Never expose refresh tokens to JavaScript.
+
+Implement refresh token rotation.
+
+Implement token expiration.
+
+Implement logout invalidation.
+
+## AUTHORIZATION
+
+Every protected endpoint must verify:
+
+- authentication
+- authorization
+- ownership
+- required role
+- required permission
+
+Never trust frontend role checks.
+
+Backend is the source of truth.
+
+## INPUT VALIDATION
+
+Every request body, query, route param, and uploaded file must be validated.
+
+Use DTO validation.
+
+Use Zod or class-validator.
+
+Reject unknown fields.
+
+Reject invalid types.
+
+Reject oversized payloads.
+
+## SQL SAFETY
+
+Never concatenate SQL strings.
+
+Always use Prisma safely.
+
+Never build raw SQL from user input.
+
+Prevent SQL Injection.
+
+## XSS PROTECTION
+
+Escape rendered content.
+
+Sanitize HTML.
+
+Never dangerously render user input.
+
+Avoid dangerouslySetInnerHTML unless absolutely necessary.
+
+## CSRF
+
+All state-changing requests must be CSRF protected.
+
+Cookies must not allow unauthorized cross-site actions.
+
+## RATE LIMITING
+
+Apply rate limiting to:
+
+- login
+- OTP
+- password reset
+- checkout
+- payment
+- wallet actions
+- KYC submission
+- order creation
+
+Prevent brute-force attacks.
+
+## PASSWORDS
+
+Never store plain passwords.
+
+Always hash using Argon2 or bcrypt.
+
+Never log passwords.
+
+Never expose password hashes.
+
+## FILE UPLOADS
+
+Validate:
+
+- MIME type
+- extension
+- file size
+
+Generate random filenames.
+
+Never trust original filenames.
+
+Prevent executable uploads.
+
+## API SECURITY
+
+Hide internal errors.
+
+Return generic messages.
+
+Do not leak stack traces.
+
+Do not leak SQL errors.
+
+Do not leak infrastructure details.
+
+## LOGGING
+
+Never log:
+
+- passwords
+- tokens
+- refresh tokens
+- OTP codes
+- payment secrets
+- API secrets
+- cookies
+
+Sensitive data must never appear in logs.
+
+## ENVIRONMENT VARIABLES
+
+Never hardcode:
+
+- secrets
+- JWT keys
+- API keys
+- payment credentials
+- SMS credentials
+
+Always read from environment variables.
+
+## GOLD PRICE PROTECTION
+
+Never trust client-side price calculations.
+
+Final gold price calculations must happen only on the backend.
+
+Price validation must occur before creating orders.
+
+## ORDER SECURITY
+
+Users may only access their own orders.
+
+Admins may access all orders.
+
+Ownership must always be verified server-side.
+
+## WALLET SECURITY
+
+Wallet balance modifications must occur only through backend services.
+
+Every balance change must generate an immutable transaction record.
+
+Balance updates must be atomic.
+
+Never trust client-provided balances.
+
+## PAYMENT SECURITY
+
+Never trust payment callback parameters.
+
+Always verify payment status with the payment provider.
+
+Never mark payments successful without provider verification.
+
+## AUDIT LOGS
+
+Every admin action must create an audit log.
+
+Include:
+
+- admin id
+- timestamp
+- IP
+- action
+- entity
+- before value (when possible)
+- after value (when possible)
+
+Audit logs must not be editable.
+
+## ADMIN PANEL
+
+Every admin endpoint must require:
+
+- valid session
+- admin role
+- permission verification
+
+Never expose admin APIs publicly.
+
+## ERROR HANDLING
+
+Return user-friendly errors.
+
+Never expose:
+
+- filesystem paths
+- stack traces
+- Prisma internals
+- SQL queries
+- environment variables
+
+## DEPENDENCIES
+
+Avoid unnecessary packages.
+
+Prefer native implementations.
+
+Do not introduce packages with poor maintenance history.
+
+Remove unused dependencies.
+
+## PERFORMANCE & SECURITY
+
+Prevent:
+
+- N+1 queries
+- memory leaks
+- oversized responses
+- unnecessary serialization
+
+Use pagination.
+
+Use caching where appropriate.
+
+## BEFORE WRITING CODE
+
+Before implementing any feature:
+
+1. Identify possible attack vectors.
+2. Verify authentication.
+3. Verify authorization.
+4. Validate all inputs.
+5. Prevent injection attacks.
+6. Prevent XSS.
+7. Prevent CSRF.
+8. Prevent privilege escalation.
+9. Prevent information leakage.
+10. Preserve existing security guarantees.
+
+If any implementation would reduce security, refuse that implementation and propose a secure alternative.
+
+Security always takes precedence over convenience.
+
+Before completing any task, perform an internal security review. If a safer implementation exists, prefer it even if it requires more code. Never knowingly introduce security debt.

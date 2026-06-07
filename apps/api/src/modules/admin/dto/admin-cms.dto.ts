@@ -1,7 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CmsBannerPlacement, CmsBannerStatus } from '@/generated/prisma';
+import { CmsBannerLinkType, CmsBannerPlacement, CmsBannerStatus } from '@/generated/prisma';
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsBoolean,
   IsDateString,
   IsEnum,
@@ -185,6 +187,9 @@ export class PublicCmsBannerResponseDto {
   @ApiProperty()
   imageUrl!: string;
 
+  @ApiProperty({ enum: CmsBannerLinkType })
+  linkType!: CmsBannerLinkType;
+
   @ApiPropertyOptional({ nullable: true })
   linkUrl!: string | null;
 
@@ -193,6 +198,23 @@ export class PublicCmsBannerResponseDto {
 
   @ApiProperty()
   sortOrder!: number;
+}
+
+export class PublicCmsCollectionResponseDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  title!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  subtitle!: string | null;
+
+  @ApiProperty()
+  imageUrl!: string;
+
+  @ApiProperty({ type: Object, isArray: true })
+  products!: Record<string, unknown>[];
 }
 
 export class PublicCmsHomepageResponseDto {
@@ -235,6 +257,18 @@ export class UpsertCmsBannerDto {
   @IsOptional()
   @IsString()
   linkUrl?: string;
+
+  @ApiPropertyOptional({ enum: CmsBannerLinkType, default: CmsBannerLinkType.URL })
+  @IsOptional()
+  @IsEnum(CmsBannerLinkType)
+  linkType?: CmsBannerLinkType;
+
+  @ApiPropertyOptional({ type: [String], maxItems: 48 })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(48)
+  @IsString({ each: true })
+  productIds?: string[];
 
   @ApiPropertyOptional({ enum: CmsBannerPlacement })
   @IsOptional()

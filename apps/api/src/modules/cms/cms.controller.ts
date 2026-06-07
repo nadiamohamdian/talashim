@@ -7,6 +7,7 @@ import { ApiPublicErrors } from '@/swagger/decorators/api-protected.decorator';
 import {
   PublicBannersQueryDto,
   PublicCmsBannerResponseDto,
+  PublicCmsCollectionResponseDto,
   PublicCmsHomepageResponseDto,
   PublicCmsStaticPageResponseDto,
   PublicCmsStaticPageSummaryResponseDto,
@@ -27,6 +28,14 @@ export class CmsPublicController {
   @ApiOkResponse({ type: PublicCmsBannerResponseDto, isArray: true })
   listBanners(@Query() query: PublicBannersQueryDto) {
     return this.adminCmsService.listPublicBanners(query.placement);
+  }
+
+  @Get('collections/:id')
+  @HttpCache({ ttlSeconds: 120 })
+  @ApiOperation({ summary: 'Get published banner product collection by banner id' })
+  @ApiOkResponse({ type: PublicCmsCollectionResponseDto })
+  getCollection(@Param('id') id: string) {
+    return this.adminCmsService.getPublicCollection(id);
   }
 
   @Get('pages')

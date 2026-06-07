@@ -74,6 +74,17 @@ export class CatalogRepository {
     });
   }
 
+  findByIds(ids: string[]) {
+    if (ids.length === 0) {
+      return Promise.resolve([]);
+    }
+
+    return this.prisma.product.findMany({
+      where: { id: { in: ids } },
+      include: { inventoryItem: true },
+    });
+  }
+
   findBySlug(slug: string) {
     return this.prisma.product.findUnique({
       where: { slug },
