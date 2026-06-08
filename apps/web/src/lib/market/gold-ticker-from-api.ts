@@ -1,8 +1,15 @@
 import {
   buildFallbackGoldTicker,
+  liveGoldPriceToTickerPayload,
   type GoldTickerItem,
   type GoldTickerPayload,
 } from '@sadafgold/shared';
+
+type PricingLiveResponse = {
+  karat: number;
+  pricePerGram: string;
+  recordedAt: string;
+};
 
 type MarketPricesApiResponse = {
   gold_18k: number | null;
@@ -60,7 +67,34 @@ function mapTickerItems(data: MarketPricesApiResponse): GoldTickerItem[] {
   return items;
 }
 
-/** Prefer Nest cached market prices (Redis) over direct BrsApi from the web tier. */
+/** Pricing engine is the canonical gold price (respects manual overrides). */
+export async function fetchGoldTickerFromPricingEngine(
+  apiBaseUrl: string,
+): Promise<GoldTickerPayload | null> {
+  try {
+    const base = apiBaseUrl.replace(/\/$/, '');
+    const response = await fetch(`${base}/pricing/live?symbol=XAU-IRR&karat=18`, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(6_000),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as PricingLiveResponse;
+    const price = Number(data.pricePerGram);
+    if (!Number.isFinite(price) || price <= 0) {
+      return null;
+    }
+
+    return liveGoldPriceToTickerPayload(data);
+  } catch {
+    return null;
+  }
+}
+
+/** Legacy market snapshot (BrsApi cache) — used only when pricing engine is unavailable. */
 export async function fetchGoldTickerFromPlatformApi(
   apiBaseUrl: string,
 ): Promise<GoldTickerPayload | null> {
@@ -105,7 +139,13 @@ export function resolvePlatformApiBaseUrl(): string {
 }
 
 export async function resolveGoldTickerPayload(): Promise<GoldTickerPayload> {
-  const platformPayload = await fetchGoldTickerFromPlatformApi(resolvePlatformApiBaseUrl());
+  const apiBase = resolvePlatformApiBaseUrl();
+  const pricingPayload = await fetchGoldTickerFromPricingEngine(apiBase);
+  if (pricingPayload) {
+    return pricingPayload;
+  }
+
+  const platformPayload = await fetchGoldTickerFromPlatformApi(apiBase);
   if (platformPayload) {
     return platformPayload;
   }

@@ -213,7 +213,7 @@ export class AdminCmsService {
       content: normalized.content,
       coverImageUrl: normalized.coverImageUrl,
       publishedAt: normalized.publishedAt ? new Date(normalized.publishedAt) : undefined,
-      isPublished: normalized.isPublished,
+      isPublished: dto.isPublished ?? existing.isPublished,
       sortOrder: normalized.sortOrder,
     });
 

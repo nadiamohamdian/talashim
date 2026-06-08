@@ -18,8 +18,8 @@ export function useAddWishlistMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (productId: string) => userApi.addToWishlist(productId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.user.wishlist() });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.user.wishlist() });
     },
   });
 }

@@ -1,21 +1,18 @@
 'use client';
 
-import type { GoldTickerPayload } from '@sadafgold/shared';
-import { formatPrice } from '@/shared/lib/format-price';
-import { useGoldTicker } from '@/lib/api/hooks/use-market-prices';
+import {
+  formatGoldPricePerGramToman,
+  GOLD_PRICE_PER_GRAM_UNIT_FA,
+} from '@sadafgold/shared';
+import { useMarketPrices } from '@/lib/api/hooks/use-market-prices';
 
-function findPrimaryGold18(items: GoldTickerPayload['items']) {
-  return (
-    items.find((item) => item.symbol === 'IR_GOLD_18K' || item.symbol === 'IR_GOLD_18') ??
-    items.find((item) => item.name.includes('18')) ??
-    items[0]
-  );
-}
+const GOLD_18_LIVE = { symbol: 'XAU-IRR' as const, karat: 18 };
 
 export function GoldPriceTicker() {
-  const { data, isPending } = useGoldTicker();
-  const primary = data?.items ? findPrimaryGold18(data.items) : undefined;
-  const loading = isPending && !primary;
+  const { data, isPending } = useMarketPrices(GOLD_18_LIVE);
+  const spot = data ? Number(data.pricePerGram) : null;
+  const hasPrice = spot != null && Number.isFinite(spot) && spot > 0;
+  const loading = isPending && !hasPrice;
 
   return (
     <div
@@ -27,11 +24,11 @@ export function GoldPriceTicker() {
         <span className="badge-gold hidden sm:inline-flex">قیمت روز</span>
         {loading ? (
           <span className="text-muted">در حال دریافت قیمت طلا...</span>
-        ) : primary ? (
+        ) : hasPrice ? (
           <span>
-            <span className="text-muted">{primary.name}:</span>{' '}
+            <span className="text-muted">طلای ۱۸:</span>{' '}
             <span className="font-bold text-gold-dark">
-              {formatPrice(primary.price)} {primary.unit}
+              {formatGoldPricePerGramToman(spot)} {GOLD_PRICE_PER_GRAM_UNIT_FA}
             </span>
           </span>
         ) : (

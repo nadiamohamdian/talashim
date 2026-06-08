@@ -5,7 +5,7 @@ import { formatPersianDateTime } from '@/shared/lib/persian-date';
 import type { ProductDetails, ProductVariant } from '@sadafgold/types';
 import { useDynamicProductPrice } from '@/features/catalog/hooks/use-dynamic-product-price';
 import { formatPricingBreakdown } from '@/shared/lib/live-gold-pricing';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getApiErrorMessage } from '@/lib/api/client';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import { formatPrice } from '@/shared/lib/format-price';
@@ -42,6 +42,15 @@ export function ProductPurchaseBox({
   const { data: wishlist } = useWishlist();
   const addWishlist = useAddWishlistMutation();
   const isWishlisted = wishlist?.some((item) => item.productId === product.id) ?? false;
+  const [pendingWishlist, setPendingWishlist] = useState(false);
+
+  useEffect(() => {
+    if (isWishlisted) {
+      setPendingWishlist(false);
+    }
+  }, [isWishlisted]);
+
+  const isHeartActive = isWishlisted || pendingWishlist;
   const priced = useDynamicProductPrice(active);
   const pricing = priced.pricing;
   const breakdown = pricing ? formatPricingBreakdown(pricing, active.weightGram) : null;
@@ -146,12 +155,18 @@ export function ProductPurchaseBox({
             isAuthenticated ? (
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 hover:text-gold-dark disabled:opacity-50"
+                className={`inline-flex items-center gap-1.5 transition-colors disabled:opacity-50 ${
+                  isHeartActive
+                    ? 'text-rose-500'
+                    : 'hover:text-gold-dark'
+                }`}
                 disabled={addWishlist.isPending || isWishlisted}
                 onClick={() => {
                   setWishlistError(null);
+                  setPendingWishlist(true);
                   addWishlist.mutate(product.id, {
                     onError: (error) => {
+                      setPendingWishlist(false);
                       setWishlistError(
                         getApiErrorMessage(error, 'افزودن به علاقه‌مندی‌ها ناموفق بود'),
                       );
@@ -159,8 +174,12 @@ export function ProductPurchaseBox({
                   });
                 }}
               >
-                <IconHeart className="h-4 w-4" />
-                {isWishlisted ? 'در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی'}
+                <IconHeart
+                  className={`h-4 w-4 transition-colors ${
+                    isHeartActive ? 'fill-rose-500 text-rose-500' : ''
+                  }`}
+                />
+                {isHeartActive ? 'در علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی'}
               </button>
             ) : (
               <Link

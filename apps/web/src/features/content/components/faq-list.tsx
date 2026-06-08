@@ -1,6 +1,7 @@
 'use client';
 
 import type { BlogPostSummary } from '@sadafgold/types';
+import { filterPublishedBlogPosts } from '@/shared/lib/published-blog-posts';
 import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
@@ -9,13 +10,15 @@ interface FaqListProps {
 }
 
 export function FaqList({ posts }: FaqListProps) {
-  if (!posts.length) {
+  const visiblePosts = filterPublishedBlogPosts(posts);
+
+  if (!visiblePosts.length) {
     return <p className="text-sm text-muted">سوالی ثبت نشده است.</p>;
   }
 
   return (
     <div className="mx-auto max-w-2xl space-y-3">
-      {posts.map((post) => (
+      {visiblePosts.map((post) => (
         <details key={post.id} className="card-luxury group p-5">
           <summary className="cursor-pointer list-none text-base font-semibold text-foreground marker:content-none">
             <span className="flex items-start justify-between gap-3">

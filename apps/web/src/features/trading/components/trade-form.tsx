@@ -10,9 +10,21 @@ import { useStorefrontSettings } from '@/shared/providers/storefront-settings-pr
 import { useExecuteTrade } from '../hooks/use-execute-trade';
 import { useLiveGoldPrice } from '../hooks/use-live-gold-price';
 import { useWalletBalances } from '../hooks/use-wallet-balances';
+import {
+  formatGramQuantityLabel,
+  formatQuantityForUnit,
+  formatSotQuantityLabel,
+  gramToSot,
+  parseQuantityToGram,
+  quantityGramToApiString,
+  type TradeQuantityUnit,
+} from '../lib/gold-weight-units';
 import { estimateTradeQuote } from '../lib/trade-quote';
-import { tradeFormSchema, type TradeFormValues } from '../model/schemas';
+import { createTradeFormSchema, type TradeFormValues } from '../model/schemas';
 import { useTradingStore } from '../model/trading-store';
+
+const GRAM_PRESETS = ['0.01', '0.1', '0.5', '1'] as const;
+const SOT_PRESETS = ['10', '50', '100', '500', '1000'] as const;
 
 export function TradeForm() {
   const { gold } = useStorefrontSettings();
@@ -20,6 +32,11 @@ export function TradeForm() {
   const { data: livePrice } = useLiveGoldPrice();
   const { data: balances } = useWalletBalances();
   const tradeMutation = useExecuteTrade();
+
+  const tradeFormSchema = useMemo(
+    () => createTradeFormSchema(gold.minTradeGram),
+    [gold.minTradeGram],
+  );
 
   const {
     register,
@@ -30,60 +47,81 @@ export function TradeForm() {
     reset,
   } = useForm<TradeFormValues>({
     resolver: zodResolver(tradeFormSchema),
-    defaultValues: { quantityGram: '1' },
+    defaultValues: { quantity: '0.1', unit: 'gram' },
   });
 
-  const quantityGram = watch('quantityGram');
+  const quantity = watch('quantity');
+  const unit = watch('unit');
 
   useEffect(() => {
     tradeMutation.reset();
   }, [side]); // eslint-disable-line react-hooks/exhaustive-deps -- reset alerts when switching buy/sell
 
-  const gramPresets = ['0.5', '1', '5', '10'].filter(
-    (preset) => Number(preset) >= gold.minTradeGram,
+  const quantityGram = useMemo(
+    () => parseQuantityToGram(quantity, unit) ?? 0,
+    [quantity, unit],
   );
 
+  const gramPresets = GRAM_PRESETS.filter((preset) => Number(preset) >= gold.minTradeGram);
+  const sotPresets = SOT_PRESETS.filter((preset) => Number(preset) >= gramToSot(gold.minTradeGram));
+  const activePresets = unit === 'sot' ? sotPresets : gramPresets;
+
   const quote = useMemo(() => {
-    const qty = Number(quantityGram);
-    if (!livePrice || !Number.isFinite(qty) || qty <= 0) return null;
+    if (!livePrice || quantityGram <= 0) return null;
 
     const unitPrice =
       side === 'BUY' ? Number(livePrice.sellPrice) : Number(livePrice.buyPrice);
 
     return estimateTradeQuote({
       side,
-      quantityGram: qty,
+      quantityGram,
       unitPriceToman: unitPrice,
       commissionPercent: gold.tradeCommissionPercent,
     });
   }, [quantityGram, livePrice, side, gold.tradeCommissionPercent]);
 
-  const belowMinTrade =
-    Number.isFinite(Number(quantityGram)) && Number(quantityGram) < gold.minTradeGram;
+  const equivalentLabel = useMemo(() => {
+    if (quantityGram <= 0) return null;
+    return unit === 'gram'
+      ? `معادل ${formatSotQuantityLabel(gramToSot(quantityGram))}`
+      : `معادل ${formatGramQuantityLabel(quantityGram)}`;
+  }, [quantityGram, unit]);
+
+  const handleUnitChange = (nextUnit: TradeQuantityUnit) => {
+    if (nextUnit === unit) return;
+    const gram = parseQuantityToGram(quantity, unit);
+    if (gram) {
+      setValue('quantity', formatQuantityForUnit(gram, nextUnit), { shouldValidate: true });
+    }
+    setValue('unit', nextUnit, { shouldValidate: true });
+  };
 
   const onSubmit = handleSubmit(async (values) => {
+    const gram = parseQuantityToGram(values.quantity, values.unit);
+    if (!gram) return;
+
     await tradeMutation.mutateAsync({
       side,
-      quantityGram: values.quantityGram,
+      quantityGram: quantityGramToApiString(gram),
       karat,
       symbol,
     });
-    reset({ quantityGram: values.quantityGram });
+    reset({ quantity: values.quantity, unit: values.unit });
   });
 
   const insufficientBalance = useMemo(() => {
-    if (!quote || !balances) return false;
+    if (!quote || !balances || quantityGram <= 0) return false;
     if (side === 'BUY') {
       return Number(balances.rialBalance) < quote.netRial;
     }
-    return Number(balances.goldBalanceGram) < Number(quantityGram);
+    return Number(balances.goldBalanceGram) < quantityGram;
   }, [quote, balances, side, quantityGram]);
 
   return (
     <Card className="p-6">
       <h2 className="text-lg font-bold text-stone-950 dark:text-zinc-50">معامله بازار</h2>
       <p className="mt-1 text-sm text-stone-500 dark:text-zinc-400">
-        خرید و فروش آنی طلا با قیمت لحظه‌ای
+        خرید و فروش آنی طلا با قیمت لحظه‌ای — واحد گرم یا سوت (۱ سوت = ۰.۰۰۱ گرم)
       </p>
 
       <Tabs
@@ -99,30 +137,64 @@ export function TradeForm() {
         <TabsContent value={side}>
           <form className="mt-4 space-y-4" onSubmit={onSubmit}>
             <div>
-              <Label htmlFor="quantityGram">مقدار (گرم)</Label>
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="quantity">
+                  مقدار ({unit === 'sot' ? 'سوت' : 'گرم'})
+                </Label>
+                <div
+                  className="inline-flex rounded-xl border border-stone-200 p-0.5 dark:border-zinc-700"
+                  role="group"
+                  aria-label="واحد معامله"
+                >
+                  <button
+                    type="button"
+                    className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                      unit === 'gram'
+                        ? 'bg-amber-500/15 text-amber-800 dark:text-amber-200'
+                        : 'text-stone-500 hover:text-stone-700 dark:text-zinc-400'
+                    }`}
+                    onClick={() => handleUnitChange('gram')}
+                  >
+                    گرم
+                  </button>
+                  <button
+                    type="button"
+                    className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                      unit === 'sot'
+                        ? 'bg-amber-500/15 text-amber-800 dark:text-amber-200'
+                        : 'text-stone-500 hover:text-stone-700 dark:text-zinc-400'
+                    }`}
+                    onClick={() => handleUnitChange('sot')}
+                  >
+                    سوت
+                  </button>
+                </div>
+              </div>
               <Input
-                id="quantityGram"
+                id="quantity"
                 inputMode="decimal"
                 className="mt-2"
-                {...register('quantityGram')}
+                step={unit === 'sot' ? '1' : '0.001'}
+                placeholder={unit === 'sot' ? 'مثلاً ۱۰۰' : 'مثلاً ۰.۱'}
+                {...register('quantity')}
               />
-              {errors.quantityGram ? (
-                <p className="mt-1 text-xs text-rose-600">{errors.quantityGram.message}</p>
+              {errors.quantity ? (
+                <p className="mt-1 text-xs text-rose-600">{errors.quantity.message}</p>
               ) : null}
-              {belowMinTrade ? (
-                <p className="mt-1 text-xs text-rose-600">
-                  حداقل مقدار معامله {gold.minTradeGram} گرم است.
-                </p>
+              {equivalentLabel ? (
+                <p className="mt-1 text-xs text-stone-500 dark:text-zinc-400">{equivalentLabel}</p>
               ) : null}
               <div className="mt-2 flex flex-wrap gap-2">
-                {gramPresets.map((preset) => (
+                {activePresets.map((preset) => (
                   <button
                     key={preset}
                     type="button"
                     className="rounded-xl border border-stone-200 px-3 py-1 text-xs font-medium text-stone-600 transition hover:border-amber-400 hover:text-amber-700 dark:border-zinc-700 dark:text-zinc-400 dark:hover:border-amber-500 dark:hover:text-amber-300"
-                    onClick={() => setValue('quantityGram', preset, { shouldValidate: true })}
+                    onClick={() => setValue('quantity', preset, { shouldValidate: true })}
                   >
-                    {preset} گرم
+                    {unit === 'sot'
+                      ? `${new Intl.NumberFormat('fa-IR').format(Number(preset))} سوت`
+                      : `${preset} گرم`}
                   </button>
                 ))}
               </div>
@@ -130,6 +202,10 @@ export function TradeForm() {
 
             {quote ? (
               <div className="rounded-2xl border border-stone-100 bg-stone-50 p-4 text-sm dark:border-zinc-800 dark:bg-zinc-900/40">
+                <div className="flex justify-between py-1 text-xs text-stone-500 dark:text-zinc-400">
+                  <span>وزن معامله</span>
+                  <span>{formatGramQuantityLabel(quantityGram)}</span>
+                </div>
                 <div className="flex justify-between py-1">
                   <span className="text-stone-500">مبلغ پایه</span>
                   <span>{formatPrice(quote.grossRial)} تومان</span>
@@ -170,7 +246,7 @@ export function TradeForm() {
                 insufficientBalance ||
                 !livePrice ||
                 !quote ||
-                belowMinTrade
+                quantityGram < gold.minTradeGram
               }
             >
               {tradeMutation.isPending

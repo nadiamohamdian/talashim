@@ -393,8 +393,10 @@ async function main() {
     await prisma.blogPost.upsert({
       where: { slug: post.slug },
       update: {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
         publishedAt: new Date(),
-        isPublished: true,
       },
       create: {
         categoryId: faqCategory.id,

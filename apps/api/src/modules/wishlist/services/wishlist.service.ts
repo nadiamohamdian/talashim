@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { assertFeatureEnabled } from '@/common/platform-settings/platform-settings-helpers';
 import { CatalogRepository } from '@/modules/catalog/repositories/catalog.repository';
+import { CatalogService } from '@/modules/catalog/services/catalog.service';
 import { WishlistRepository } from '../repositories/wishlist.repository';
 
 @Injectable()
@@ -8,31 +9,34 @@ export class WishlistService {
   constructor(
     private readonly wishlistRepository: WishlistRepository,
     private readonly catalogRepository: CatalogRepository,
+    private readonly catalogService: CatalogService,
   ) {}
 
   async list(userId: string) {
     assertFeatureEnabled('enableWishlist', 'لیست علاقه‌مندی غیرفعال است');
     const items = await this.wishlistRepository.findByUserId(userId);
-    return items.map((item) => ({
-      id: item.id,
-      productId: item.productId,
-      createdAt: item.createdAt.toISOString(),
-      product: {
-        id: item.product.id,
-        sku: item.product.sku,
-        slug: item.product.slug,
-        title: item.product.title,
-        category: item.product.category.toLowerCase(),
-        karat: item.product.karat,
-        weightGram: Number(item.product.weightGram),
-        makingFeePercent: item.product.makingFeePercent,
-        priceToman: item.product.priceToman,
-        imageUrl: item.product.imageUrl,
-        inventory:
-          (item.product.inventoryItem?.quantity ?? 0) -
-          (item.product.inventoryItem?.reserved ?? 0),
-      },
-    }));
+    if (items.length === 0) {
+      return [];
+    }
+
+    const products = await this.catalogService.findByIds(items.map((item) => item.productId));
+    const productById = new Map(products.map((product) => [product.id, product]));
+
+    return items
+      .map((item) => {
+        const product = productById.get(item.productId);
+        if (!product) {
+          return null;
+        }
+
+        return {
+          id: item.id,
+          productId: item.productId,
+          createdAt: item.createdAt.toISOString(),
+          product,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
   }
 
   async add(userId: string, productId: string) {

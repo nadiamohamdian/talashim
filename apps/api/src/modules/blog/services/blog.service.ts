@@ -11,7 +11,9 @@ export class BlogService {
     const posts = await this.blogRepository.findLatest(limit, query.category);
     const includeContent = query.category === 'faq';
 
-    return posts.map((post) => ({
+    return posts
+      .filter((post) => post.isPublished && post.publishedAt <= new Date())
+      .map((post) => ({
       id: post.id,
       slug: post.slug,
       title: post.title,

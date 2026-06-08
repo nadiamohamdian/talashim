@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { Button, Skeleton } from '@sadafgold/ui';
 import { StoreImage } from '@/shared/ui/store-image';
 import { formatPrice } from '@/shared/lib/format-price';
+import { getApiErrorMessage } from '@/lib/api/client';
 import { useWishlist, useRemoveWishlistMutation } from '@/lib/api/hooks/use-wishlist';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
 
 export function WishlistContent() {
   const { isAuthenticated } = useAuth();
-  const { data, isLoading, isError } = useWishlist();
+  const { data, isLoading, isError, error, refetch, isFetching } = useWishlist();
   const removeMutation = useRemoveWishlistMutation();
 
   if (!isAuthenticated) {
@@ -29,7 +30,16 @@ export function WishlistContent() {
   }
 
   if (isError) {
-    return <p className="text-sm text-rose-600">بارگذاری علاقه‌مندی‌ها ناموفق بود.</p>;
+    return (
+      <div className="card-luxury space-y-3 p-6 text-center">
+        <p className="text-sm text-rose-600">
+          {getApiErrorMessage(error, 'بارگذاری علاقه‌مندی‌ها ناموفق بود.')}
+        </p>
+        <Button variant="outline" size="sm" disabled={isFetching} onClick={() => void refetch()}>
+          تلاش مجدد
+        </Button>
+      </div>
+    );
   }
 
   if (!data?.length) {

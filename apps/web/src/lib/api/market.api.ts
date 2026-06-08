@@ -7,7 +7,11 @@ import type {
   WalletBalances,
   WalletHistoryResponse,
 } from '@sadafgold/types';
-import { buildFallbackGoldTicker, type GoldTickerPayload } from '@sadafgold/shared';
+import {
+  buildFallbackGoldTicker,
+  liveGoldPriceToTickerPayload,
+  type GoldTickerPayload,
+} from '@sadafgold/shared';
 import { apiClient, apiGet, apiPost } from '@/lib/api/client';
 
 export interface MarketTradePayload {
@@ -59,6 +63,16 @@ export const marketApi = {
   },
 
   async getGoldTicker(signal?: AbortSignal): Promise<GoldTickerPayload> {
+    try {
+      const live = await this.getLivePrice(18, 'XAU-IRR', signal);
+      const price = Number(live.pricePerGram);
+      if (Number.isFinite(price) && price > 0) {
+        return liveGoldPriceToTickerPayload(live);
+      }
+    } catch {
+      // Fall through to legacy route / static fallback below.
+    }
+
     try {
       const response = await fetch('/api/market/gold-ticker', {
         cache: 'no-store',

@@ -60,6 +60,46 @@ export type GoldTickerPayload = {
   fetchedAt: string;
 };
 
+/** Canonical Persian unit label for platform live gold price (per gram). */
+export const GOLD_PRICE_PER_GRAM_UNIT_FA = 'ت/گرم';
+
+export function formatGoldPricePerGramToman(price: number | string): string {
+  const value = typeof price === 'string' ? Number(price) : price;
+  if (!Number.isFinite(value) || value <= 0) {
+    return '—';
+  }
+  return new Intl.NumberFormat('fa-IR').format(Math.round(value));
+}
+
+export function liveGoldPriceToTickerItem(live: {
+  karat: number;
+  pricePerGram: string;
+  recordedAt: string;
+}): GoldTickerItem {
+  const is24k = live.karat >= 24;
+  return {
+    symbol: is24k ? 'IR_GOLD_24K' : 'IR_GOLD_18K',
+    name: is24k ? 'طلای ۲۴ عیار' : 'طلای ۱۸ عیار',
+    price: Math.round(Number(live.pricePerGram)),
+    changePercent: null,
+    unit: GOLD_PRICE_PER_GRAM_UNIT_FA,
+    updatedAt: live.recordedAt,
+  };
+}
+
+/** Map pricing-engine live quote to header ticker payload (single source of truth). */
+export function liveGoldPriceToTickerPayload(live: {
+  karat: number;
+  pricePerGram: string;
+  recordedAt: string;
+}): GoldTickerPayload {
+  return {
+    source: 'brsapi',
+    fetchedAt: live.recordedAt,
+    items: [liveGoldPriceToTickerItem(live)],
+  };
+}
+
 const GOLD_SYMBOL_PREFIXES = ['IR_GOLD', 'GOLD'] as const;
 const COIN_SYMBOL_PREFIXES = ['IR_COIN'] as const;
 
