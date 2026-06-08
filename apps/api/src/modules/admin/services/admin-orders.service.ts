@@ -98,7 +98,10 @@ export class AdminOrdersService {
       await this.ordersService.syncSubmittedPaymentsOnOrderConfirm(id, actor.id);
     }
 
-    const updated = await this.ordersRepository.updateOrderStatus(id, dto.status);
+    const updated = await this.ordersRepository.updateOrderStatus(id, dto.status, actor.id);
+    if (!updated) {
+      throw new NotFoundException('Order not found');
+    }
     return this.mapDetail(updated);
   }
 

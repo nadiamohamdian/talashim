@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CartStatus, OrderStatus, PaymentStatus, Prisma } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
+import {
+  applyInventoryOnCheckout,
+  fulfillInventoryOnPayment,
+} from '@/modules/inventory/operations/order-inventory.operations';
 
 @Injectable()
 export class OrdersRepository {
@@ -76,6 +80,16 @@ export class OrdersRepository {
         },
       });
 
+      await applyInventoryOnCheckout(
+        tx,
+        order.id,
+        order.orderNumber,
+        order.items.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+      );
+
       await tx.cart.update({
         where: { id: payload.cartId },
         data: { status: CartStatus.CHECKED_OUT },
@@ -118,10 +132,19 @@ export class OrdersRepository {
         },
       });
 
-      await tx.order.update({
+      const order = await tx.order.update({
         where: { id: payment.orderId },
         data: { status: OrderStatus.CONFIRMED },
+        include: { items: { select: { productId: true, quantity: true } } },
       });
+
+      await fulfillInventoryOnPayment(
+        tx,
+        order.id,
+        order.orderNumber,
+        order.items,
+        reviewedById,
+      );
 
       return payment;
     });
@@ -162,16 +185,39 @@ export class OrdersRepository {
   }
 
   syncSubmittedPaymentsOnConfirm(orderId: string, reviewedById: string) {
-    return this.prisma.payment.updateMany({
-      where: {
-        orderId,
-        status: PaymentStatus.RECEIPT_SUBMITTED,
-      },
-      data: {
-        status: PaymentStatus.PAID,
-        reviewedAt: new Date(),
-        reviewedById,
-      },
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.payment.updateMany({
+        where: {
+          orderId,
+          status: PaymentStatus.RECEIPT_SUBMITTED,
+        },
+        data: {
+          status: PaymentStatus.PAID,
+          reviewedAt: new Date(),
+          reviewedById,
+        },
+      });
+
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        select: {
+          id: true,
+          orderNumber: true,
+          items: { select: { productId: true, quantity: true } },
+        },
+      });
+
+      if (order) {
+        await fulfillInventoryOnPayment(
+          tx,
+          order.id,
+          order.orderNumber,
+          order.items,
+          reviewedById,
+        );
+      }
+
+      return updated;
     });
   }
 

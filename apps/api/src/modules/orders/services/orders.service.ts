@@ -37,6 +37,11 @@ import {
   tomanBigIntToNumber,
   tomanNumberToBigInt,
 } from '@/common/finance/toman-amount';
+import type { OrderDetail, PaymentStatus as ApiPaymentStatus } from '@talashim/types';
+
+function toApiPaymentStatus(status: PaymentStatus): ApiPaymentStatus {
+  return status.toLowerCase() as ApiPaymentStatus;
+}
 
 function resolveInitialPaymentStatus(provider: CheckoutPaymentProvider): PaymentStatus {
   if (provider === 'card_to_card') {
@@ -269,7 +274,7 @@ export class OrdersService {
 
   mapOrderRecordToDetail(
     order: NonNullable<Awaited<ReturnType<OrdersRepository['findByIdForUser']>>>,
-  ) {
+  ): OrderDetail {
     return this.toDetail(order);
   }
 
@@ -388,16 +393,7 @@ export class OrdersService {
       id: order.id,
       orderNumber: order.orderNumber,
       status: order.status.toLowerCase() as 'pending' | 'confirmed' | 'paid' | 'cancelled',
-      paymentStatus: paymentStatus
-        ? (paymentStatus.toLowerCase() as
-            | 'pending'
-            | 'awaiting_receipt'
-            | 'receipt_submitted'
-            | 'authorized'
-            | 'paid'
-            | 'failed'
-            | 'rejected')
-        : null,
+      paymentStatus: paymentStatus ? toApiPaymentStatus(paymentStatus) : null,
       subtotalToman: tomanBigIntToNumber(order.subtotalToman),
       taxToman: tomanBigIntToNumber(order.taxToman),
       isInsured: order.isInsured,
@@ -553,7 +549,7 @@ export class OrdersService {
       reviewedAt?: Date | null;
       createdAt: Date;
     }>;
-  }) {
+  }): OrderDetail {
     const paidPayment = order.payments.find((payment) => payment.status === PaymentStatus.PAID);
     const taxPercent = order.taxPercent ?? getPlatformSettings().commerce.defaultTaxPercent;
     const mappedItems = order.items.map((item) =>
@@ -603,7 +599,7 @@ export class OrdersService {
       invoicePaidAt: paidPayment?.reviewedAt?.toISOString() ?? paidPayment?.createdAt.toISOString() ?? null,
       payments: order.payments.map((payment) => ({
         id: payment.id,
-        status: payment.status.toLowerCase(),
+        status: toApiPaymentStatus(payment.status),
         provider: payment.provider,
         amountToman: tomanBigIntToNumber(payment.amountToman),
         receiptUrl: payment.receiptUrl ?? null,

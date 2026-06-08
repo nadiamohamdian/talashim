@@ -47,7 +47,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (token && isLogin) {
+  // In dev, a stale cookie must not trap users on / (middleware bounce) away from /login.
+  if (token && isLogin && !DEV_AUTH_BYPASS) {
     const next = request.nextUrl.searchParams.get('next');
     const destination = next?.startsWith('/') ? next : '/';
     return NextResponse.redirect(new URL(destination, request.url));

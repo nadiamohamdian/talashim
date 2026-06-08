@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OrderStatus, Prisma } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
+import { restoreInventoryOnCancel } from '@/modules/inventory/operations/order-inventory.operations';
 
 @Injectable()
 export class AdminOrdersRepository {
@@ -99,11 +100,37 @@ export class AdminOrdersRepository {
     };
   }
 
-  updateOrderStatus(id: string, status: OrderStatus) {
-    return this.prisma.order.update({
-      where: { id },
-      data: { status },
-      include: this.orderDetailInclude(),
+  updateOrderStatus(id: string, status: OrderStatus, actorId?: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.order.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          orderNumber: true,
+          status: true,
+          items: { select: { productId: true, quantity: true } },
+        },
+      });
+
+      if (!current) {
+        return null;
+      }
+
+      if (status === OrderStatus.CANCELLED && current.status !== OrderStatus.CANCELLED) {
+        await restoreInventoryOnCancel(
+          tx,
+          current.id,
+          current.orderNumber,
+          current.items,
+          actorId ?? null,
+        );
+      }
+
+      return tx.order.update({
+        where: { id },
+        data: { status },
+        include: this.orderDetailInclude(),
+      });
     });
   }
 }

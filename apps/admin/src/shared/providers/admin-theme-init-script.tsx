@@ -4,10 +4,10 @@ export function AdminThemeInitScript() {
 (function () {
   try {
     var raw = localStorage.getItem('admin-ui-store');
-    var mode = 'system';
+    var mode = 'light';
     if (raw) {
       var parsed = JSON.parse(raw);
-      mode = (parsed.state && parsed.state.themeMode) || 'system';
+      mode = (parsed.state && parsed.state.themeMode) || 'light';
     }
     var dark =
       mode === 'dark' ||

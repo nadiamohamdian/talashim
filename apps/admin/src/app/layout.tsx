@@ -24,6 +24,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning className={persianSans.variable}>
       <head>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+html { background-color: #f7f3ee; color: #3d3229; }
+html.dark { background-color: #1e1c1a; color: #faf8f5; }
+body { min-height: 100%; background-color: inherit; color: inherit; }
+`,
+          }}
+        />
         <AdminThemeInitScript />
       </head>
       <body className="admin-canvas min-h-full bg-background font-sans text-foreground antialiased">
