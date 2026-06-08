@@ -8,6 +8,7 @@ import type {
   AdminProductDetailDto,
   AdminProductDto,
   AdminProductVideoDto,
+  OrderDetail,
   PaginatedResponse,
 } from '@sadafgold/types';
 
@@ -125,6 +126,10 @@ export function fetchAdminOrders(params?: {
 
 export function fetchAdminOrder(id: string) {
   return axiosClient.get<AdminOrderDetailDto>(`/admin/orders/${id}`).then((r) => r.data);
+}
+
+export function fetchAdminOrderInvoice(id: string) {
+  return axiosClient.get<OrderDetail>(`/admin/orders/${id}/invoice`).then((r) => r.data);
 }
 
 export function updateAdminOrderStatus(id: string, status: string) {

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
-import type { AdminOrderDetailDto, AdminOrderListItemDto } from '@talashim/types';
+import type { AdminOrderDetailDto, AdminOrderListItemDto, OrderDetail } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
@@ -69,6 +69,17 @@ export class AdminOrdersService {
     }
 
     return this.mapDetail(order);
+  }
+
+  async getOrderInvoice(id: string, actor: AuthenticatedUser): Promise<OrderDetail> {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.orders.read);
+
+    const order = await this.ordersRepository.findOrderById(id);
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return this.ordersService.mapOrderRecordToDetail(order);
   }
 
   async updateStatus(

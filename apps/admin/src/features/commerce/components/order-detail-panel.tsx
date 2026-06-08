@@ -31,6 +31,7 @@ import { PermissionGate } from '@/features/auth/components/permission-gate';
 import { ReceiptPreview, downloadReceipt, receiptFilenameFromUrl } from '@/shared/ui/receipt-preview';
 import { deriveShippingFeeToman } from '@sadafgold/shared';
 import { formatToman, ORDER_STATUS_FA, PAYMENT_STATUS_FA, selectFieldClass } from '../lib/labels';
+import { isAdminOrderInvoiceReady } from '../lib/order-invoice';
 
 interface OrderDetailPanelProps {
   orderId: string;
@@ -182,6 +183,23 @@ export function OrderDetailPanel({ orderId }: OrderDetailPanelProps) {
               <p className="mt-2 text-sm text-[var(--error)]">تغییر وضعیت مجاز نیست یا ناموفق بود.</p>
             ) : null}
           </Card>
+
+          {isAdminOrderInvoiceReady(data) ? (
+            <Card className="flex flex-wrap items-center justify-between gap-4 border-[var(--border-subtle)] bg-[var(--card)] p-5">
+              <div>
+                <p className="font-semibold text-foreground">فاکتور نهایی</p>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                  مشاهده و چاپ فاکتور رسمی صادرشده برای مشتری.
+                </p>
+              </div>
+              <Link
+                href={`/orders/${orderId}/invoice`}
+                className="inline-flex h-10 items-center justify-center rounded-lg bg-[var(--warning)]/10 px-4 text-sm font-semibold text-[var(--warning)] transition hover:bg-[var(--warning)]/15"
+              >
+                مشاهده فاکتور
+              </Link>
+            </Card>
+          ) : null}
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">

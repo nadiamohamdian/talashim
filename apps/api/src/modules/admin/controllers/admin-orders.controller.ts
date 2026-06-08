@@ -21,6 +21,12 @@ export class AdminOrdersController {
     return this.adminOrdersService.listOrders(query, actor);
   }
 
+  @Get(':id/invoice')
+  @ApiOperation({ summary: 'Final order invoice (same as customer view)' })
+  getInvoice(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminOrdersService.getOrderInvoice(id, actor);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Order detail' })
   get(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {

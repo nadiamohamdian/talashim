@@ -1384,6 +1384,54 @@ html.dark body {
   border-color: var(--border);
 }
 
+/* ─── Invoice document (isolated light theme inside admin) ─────── */
+.invoice-document {
+  color-scheme: light;
+  --foreground: #27272a;
+  --muted-foreground: #71717a;
+  --card: #ffffff;
+  --border: #e4e4e7;
+  --border-subtle: #e4e4e7;
+  --muted: #71717a;
+  --surface: #fafafa;
+  --background: #ffffff;
+  --nude-50: #fafaf9;
+  --nude-100: #f5f5f4;
+  --nude-200: #e7e5e4;
+  --nude-300: #d6d3d1;
+  color: #27272a;
+}
+
+.invoice-document .invoice-sheet {
+  background: #ffffff;
+  color: #27272a;
+}
+
+.invoice-document .invoice-muted {
+  color: #71717a;
+}
+
+.invoice-document .invoice-text {
+  color: #27272a;
+}
+
+.invoice-document .invoice-accent {
+  color: #92400e;
+}
+
+.invoice-document .invoice-table th {
+  color: #52525b;
+  background: #fafaf9;
+}
+
+.invoice-document .invoice-table td {
+  color: #27272a;
+}
+
+.invoice-document .invoice-table tr:hover td {
+  background: #fafaf9;
+}
+
 .badge-status {
   display: inline-flex;
   align-items: center;

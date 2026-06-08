@@ -267,6 +267,12 @@ export class OrdersService {
     return this.toDetail(order);
   }
 
+  mapOrderRecordToDetail(
+    order: NonNullable<Awaited<ReturnType<OrdersRepository['findByIdForUser']>>>,
+  ) {
+    return this.toDetail(order);
+  }
+
   async setInvoiceRecipient(userId: string, orderId: string, payload: SetInvoiceRecipientDto) {
     const order = await this.ordersRepository.findByIdForUser(orderId, userId);
     if (!order) {

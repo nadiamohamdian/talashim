@@ -61,47 +61,49 @@ export class AdminOrdersRepository {
   findOrderById(id: string) {
     return this.prisma.order.findUnique({
       where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            fullName: true,
-            kycVerification: { select: { phone: true, nationalId: true } },
-          },
-        },
-        shippingAddress: true,
-        items: {
-          include: {
-            product: { select: { id: true, title: true, slug: true, sku: true } },
-          },
-        },
-        payments: true,
-      },
+      include: this.orderDetailInclude(),
     });
+  }
+
+  private orderDetailInclude() {
+    return {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          nationalId: true,
+          kycVerification: { select: { phone: true, nationalId: true } },
+        },
+      },
+      shippingAddress: true,
+      items: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              sku: true,
+              weightGram: true,
+              karat: true,
+              makingFeePercent: true,
+            },
+          },
+        },
+      },
+      payments: { orderBy: { createdAt: 'desc' as const } },
+    };
   }
 
   updateOrderStatus(id: string, status: OrderStatus) {
     return this.prisma.order.update({
       where: { id },
       data: { status },
-      include: {
-        user: {
-          select: {
-            id: true,
-            email: true,
-            fullName: true,
-            kycVerification: { select: { phone: true, nationalId: true } },
-          },
-        },
-        shippingAddress: true,
-        items: {
-          include: {
-            product: { select: { id: true, title: true, slug: true, sku: true } },
-          },
-        },
-        payments: true,
-      },
+      include: this.orderDetailInclude(),
     });
   }
 }
