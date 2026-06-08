@@ -201,6 +201,18 @@ export class OrdersRepository {
     });
   }
 
+  updateInvoiceRecipient(
+    orderId: string,
+    userId: string,
+    invoiceFirstName: string,
+    invoiceLastName: string,
+  ) {
+    return this.prisma.order.updateMany({
+      where: { id: orderId, userId },
+      data: { invoiceFirstName, invoiceLastName },
+    });
+  }
+
   findByIdForUser(orderId: string, userId: string) {
     return this.prisma.order.findFirst({
       where: { id: orderId, userId },

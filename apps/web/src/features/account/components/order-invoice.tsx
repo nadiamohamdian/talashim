@@ -11,7 +11,11 @@ import type { OrderDetail } from '@sadafgold/types';
 import { Badge, Button } from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
 import { formatPersianDate, formatPersianDateTime } from '@/shared/lib/persian-date';
-import { getOrderInvoiceCustomerName } from '../lib/order-invoice';
+import {
+  getOrderInvoiceCustomerName,
+  getOrderInvoiceFirstName,
+  getOrderInvoiceLastName,
+} from '../lib/order-invoice';
 import { ORDER_STATUS_LABELS } from '../lib/order-labels';
 
 interface OrderInvoiceProps {
@@ -29,6 +33,8 @@ export function OrderInvoice({ order, showActions = true }: OrderInvoiceProps) {
   const shippingFeeToman = deriveShippingFeeToman(order);
   const paidPayment = order.payments.find((payment) => payment.status === 'paid');
   const customerName = getOrderInvoiceCustomerName(order);
+  const invoiceFirstName = getOrderInvoiceFirstName(order);
+  const invoiceLastName = getOrderInvoiceLastName(order);
   const taxPercent = order.taxPercent ?? 0;
 
   return (
@@ -119,19 +125,19 @@ export function OrderInvoice({ order, showActions = true }: OrderInvoiceProps) {
           <div className="rounded-xl border border-nude-200 bg-nude-50/50 p-5">
             <h2 className="text-sm font-semibold text-gold-dark">خریدار</h2>
             <dl className="mt-4 space-y-2 text-sm">
-              {order.customer?.firstName ? (
+              {invoiceFirstName ? (
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted">نام</dt>
-                  <dd className="font-medium">{order.customer.firstName}</dd>
+                  <dd className="font-medium">{invoiceFirstName}</dd>
                 </div>
               ) : null}
-              {order.customer?.lastName ? (
+              {invoiceLastName ? (
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted">نام خانوادگی</dt>
-                  <dd className="font-medium">{order.customer.lastName}</dd>
+                  <dd className="font-medium">{invoiceLastName}</dd>
                 </div>
               ) : null}
-              {!order.customer?.firstName && !order.customer?.lastName ? (
+              {!invoiceFirstName && !invoiceLastName ? (
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted">نام و نام خانوادگی</dt>
                   <dd className="font-medium">{customerName}</dd>

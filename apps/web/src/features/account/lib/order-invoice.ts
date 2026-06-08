@@ -14,7 +14,19 @@ export function isOrderInvoiceReady(
   );
 }
 
+export function hasInvoiceRecipient(
+  order: Pick<OrderSummary, 'invoiceFirstName' | 'invoiceLastName'>,
+): boolean {
+  return Boolean(order.invoiceFirstName?.trim() && order.invoiceLastName?.trim());
+}
+
 export function getOrderInvoiceCustomerName(order: OrderDetail): string {
+  const invoiceFirstName = order.invoiceFirstName?.trim();
+  const invoiceLastName = order.invoiceLastName?.trim();
+  if (invoiceFirstName && invoiceLastName) {
+    return `${invoiceFirstName} ${invoiceLastName}`;
+  }
+
   const customer = order.customer;
   if (!customer) {
     return '—';
@@ -22,4 +34,12 @@ export function getOrderInvoiceCustomerName(order: OrderDetail): string {
 
   const fromParts = [customer.firstName, customer.lastName].filter(Boolean).join(' ').trim();
   return fromParts || customer.fullName;
+}
+
+export function getOrderInvoiceFirstName(order: OrderDetail): string | null {
+  return order.invoiceFirstName?.trim() ?? null;
+}
+
+export function getOrderInvoiceLastName(order: OrderDetail): string | null {
+  return order.invoiceLastName?.trim() ?? null;
 }

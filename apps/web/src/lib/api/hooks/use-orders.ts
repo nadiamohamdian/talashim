@@ -67,6 +67,25 @@ export function useUpsertCartItemMutation() {
   });
 }
 
+export function useSetInvoiceRecipientMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      orderId,
+      firstName,
+      lastName,
+    }: {
+      orderId: string;
+      firstName: string;
+      lastName: string;
+    }) => orderApi.setInvoiceRecipient(orderId, { firstName, lastName }),
+    onSuccess: (order) => {
+      queryClient.setQueryData(queryKeys.orders.detail(order.id), order);
+      queryClient.invalidateQueries({ queryKey: queryKeys.orders.all });
+    },
+  });
+}
+
 export function useUploadPaymentReceiptMutation() {
   const queryClient = useQueryClient();
   return useMutation({

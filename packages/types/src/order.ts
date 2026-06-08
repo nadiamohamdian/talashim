@@ -66,6 +66,8 @@ export interface OrderSummary {
   insuranceFeeToman: number;
   totalToman: number;
   itemCount: number;
+  invoiceFirstName?: string | null;
+  invoiceLastName?: string | null;
   createdAt: string;
 }
 
@@ -78,6 +80,8 @@ export interface OrderDetail extends OrderSummary {
   totalWageToman?: number;
   shippingAddress?: OrderShippingAddress | null;
   customer?: OrderCustomerInfo | null;
+  invoiceFirstName?: string | null;
+  invoiceLastName?: string | null;
   invoicePaidAt?: string | null;
   payments: Array<{
     id: string;

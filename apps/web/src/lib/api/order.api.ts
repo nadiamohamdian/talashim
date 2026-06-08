@@ -1,6 +1,6 @@
 import type { AccountSummary, OrderDetail, OrderSummary, PaginatedResponse } from '@sadafgold/types';
 import type { CheckoutPaymentProvider } from '@sadafgold/types';
-import { apiDelete, apiGet, apiPost, apiClient } from '@/lib/api/client';
+import { apiDelete, apiGet, apiPatch, apiPost, apiClient } from '@/lib/api/client';
 import type { OrdersListParams } from '@/lib/api/query-keys';
 
 export interface CartItemResponse {
@@ -52,6 +52,13 @@ export const orderApi = {
       signal,
       abortKey: `orders:detail:${orderId}`,
     });
+  },
+
+  setInvoiceRecipient(
+    orderId: string,
+    payload: { firstName: string; lastName: string },
+  ): Promise<OrderDetail> {
+    return apiPatch<OrderDetail>(`/orders/${orderId}/invoice-recipient`, payload);
   },
 
   checkout(payload: CheckoutPayload): Promise<OrderDetail> {

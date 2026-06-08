@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UploadedFile,
@@ -18,6 +19,7 @@ import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { CreateOrderResponseDto } from '../dto/order-response.dto';
 import { OrdersQueryDto } from '../dto/orders-query.dto';
+import { SetInvoiceRecipientDto } from '../dto/set-invoice-recipient.dto';
 import { OrdersService } from '../services/orders.service';
 
 @ApiTags('orders')
@@ -57,6 +59,16 @@ export class OrdersListController {
       size: file.size,
       originalname: file.originalname,
     });
+  }
+
+  @Patch(':id/invoice-recipient')
+  @ApiOperation({ summary: 'Set invoice recipient name before issuing invoice' })
+  setInvoiceRecipient(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Body() payload: SetInvoiceRecipientDto,
+  ) {
+    return this.ordersService.setInvoiceRecipient(user.id, id, payload);
   }
 
   @Get(':id')

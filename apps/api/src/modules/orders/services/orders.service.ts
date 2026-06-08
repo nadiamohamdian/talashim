@@ -32,6 +32,7 @@ import { UsersService } from '@/modules/users/services/users.service';
 import { OrdersRepository } from '../repositories/orders.repository';
 import type { CreateOrderDto } from '../dto/create-order.dto';
 import type { OrdersQueryDto } from '../dto/orders-query.dto';
+import type { SetInvoiceRecipientDto } from '../dto/set-invoice-recipient.dto';
 import {
   tomanBigIntToNumber,
   tomanNumberToBigInt,
@@ -266,6 +267,33 @@ export class OrdersService {
     return this.toDetail(order);
   }
 
+  async setInvoiceRecipient(userId: string, orderId: string, payload: SetInvoiceRecipientDto) {
+    const order = await this.ordersRepository.findByIdForUser(orderId, userId);
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    if (!this.isInvoiceReady(order)) {
+      throw new BadRequestException('فاکتور این سفارش هنوز آماده صدور نیست');
+    }
+
+    const firstName = payload.firstName.trim();
+    const lastName = payload.lastName.trim();
+
+    const updated = await this.ordersRepository.updateInvoiceRecipient(
+      orderId,
+      userId,
+      firstName,
+      lastName,
+    );
+
+    if (updated.count === 0) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return this.getForUser(userId, orderId);
+  }
+
   async getAccountSummary(userId: string) {
     const [activeOrders, totalOrders, balances, user] = await Promise.all([
       this.ordersRepository.countActiveByUserId(userId),
@@ -281,6 +309,22 @@ export class OrdersService {
       goldBalanceGram: String(balances.goldBalanceGram),
       kycStatus: user.kycStatus ?? 'none',
     };
+  }
+
+  private isInvoiceReady(order: {
+    status: OrderStatus;
+    payments: Array<{ status: PaymentStatus }>;
+  }): boolean {
+    if (order.status === OrderStatus.CANCELLED || order.status === OrderStatus.PENDING) {
+      return false;
+    }
+
+    const paymentStatus = this.resolvePaymentStatus(order.payments, order.status);
+    return (
+      order.status === OrderStatus.CONFIRMED ||
+      order.status === OrderStatus.PAID ||
+      paymentStatus === PaymentStatus.PAID
+    );
   }
 
   private resolvePaymentStatus(
@@ -327,6 +371,8 @@ export class OrdersService {
     isInsured: boolean;
     insuranceFeeToman: bigint | number;
     totalToman: bigint | number;
+    invoiceFirstName?: string | null;
+    invoiceLastName?: string | null;
     createdAt: Date;
     items: Array<{ quantity: number }>;
     payments?: Array<{ status: PaymentStatus }>;
@@ -352,6 +398,8 @@ export class OrdersService {
       insuranceFeeToman: tomanBigIntToNumber(order.insuranceFeeToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
       itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
+      invoiceFirstName: order.invoiceFirstName ?? null,
+      invoiceLastName: order.invoiceLastName ?? null,
       createdAt: order.createdAt.toISOString(),
     };
   }
@@ -448,6 +496,8 @@ export class OrdersService {
     isInsured: boolean;
     insuranceFeeToman: bigint | number;
     totalToman: bigint | number;
+    invoiceFirstName?: string | null;
+    invoiceLastName?: string | null;
     createdAt: Date;
     user?: {
       email: string;
@@ -542,6 +592,8 @@ export class OrdersService {
             nationalId: order.user.nationalId,
           }
         : null,
+      invoiceFirstName: order.invoiceFirstName ?? null,
+      invoiceLastName: order.invoiceLastName ?? null,
       invoicePaidAt: paidPayment?.reviewedAt?.toISOString() ?? paidPayment?.createdAt.toISOString() ?? null,
       payments: order.payments.map((payment) => ({
         id: payment.id,

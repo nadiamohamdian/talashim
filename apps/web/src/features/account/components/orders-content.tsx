@@ -8,6 +8,7 @@ import { formatPrice } from '@/shared/lib/format-price';
 import { useOrders } from '@/lib/api';
 import { useState } from 'react';
 import { isOrderInvoiceReady } from '../lib/order-invoice';
+import { InvoiceAccessLink } from './invoice-access-link';
 import {
   ORDER_STATUS_LABELS,
   getDisplayPaymentStatus,
@@ -88,12 +89,12 @@ export function OrdersContent() {
                       جزئیات
                     </Link>
                     {isOrderInvoiceReady(order) ? (
-                      <Link
-                        href={`/orders/${order.id}/invoice`}
+                      <InvoiceAccessLink
+                        order={order}
                         className="text-xs font-semibold text-emerald-700 hover:underline"
                       >
                         فاکتور
-                      </Link>
+                      </InvoiceAccessLink>
                     ) : null}
                   </div>
                 </TableCell>

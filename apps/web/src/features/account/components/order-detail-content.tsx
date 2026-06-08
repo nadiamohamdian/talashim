@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { Badge, Button, Skeleton } from '@sadafgold/ui';
 import { isOrderInvoiceReady } from '../lib/order-invoice';
+import { InvoiceAccessLink } from './invoice-access-link';
 import { deriveShippingFeeToman } from '@sadafgold/shared';
 import { formatPrice } from '@/shared/lib/format-price';
 import { getApiErrorMessage } from '@/lib/api';
@@ -76,12 +77,12 @@ export function OrderDetailContent({ orderId }: OrderDetailContentProps) {
             <p className="font-semibold text-foreground">فاکتور رسمی</p>
             <p className="mt-1 text-sm text-muted">پرداخت تأیید شده — فاکتور آماده مشاهده و چاپ است.</p>
           </div>
-          <Link
-            href={`/orders/${order.id}/invoice`}
+          <InvoiceAccessLink
+            order={order}
             className="inline-flex h-10 items-center justify-center rounded-lg bg-gold-dark/10 px-4 text-sm font-semibold text-gold-dark transition hover:bg-gold-dark/15"
           >
             مشاهده فاکتور
-          </Link>
+          </InvoiceAccessLink>
         </div>
       ) : null}
 

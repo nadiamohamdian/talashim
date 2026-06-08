@@ -6,6 +6,7 @@ import { formatPrice } from '@/shared/lib/format-price';
 import { formatPersianDate } from '@/shared/lib/persian-date';
 import { useOrders } from '@/lib/api';
 import { isOrderInvoiceReady } from '../lib/order-invoice';
+import { InvoiceAccessLink } from './invoice-access-link';
 import { ORDER_STATUS_LABELS } from '../lib/order-labels';
 
 export function InvoicesContent() {
@@ -53,12 +54,12 @@ export function InvoicesContent() {
               <TableCell>{formatPrice(order.totalToman)} تومان</TableCell>
               <TableCell>{formatPersianDate(order.createdAt)}</TableCell>
               <TableCell>
-                <Link
-                  href={`/orders/${order.id}/invoice`}
+                <InvoiceAccessLink
+                  order={order}
                   className="text-sm font-semibold text-gold-dark transition hover:underline"
                 >
                   مشاهده و چاپ
-                </Link>
+                </InvoiceAccessLink>
               </TableCell>
             </TableRow>
           ))}
