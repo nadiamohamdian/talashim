@@ -113,7 +113,7 @@ export function WalletWithdrawalRequestsPanel() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted">
-        درخواست‌های برداشت از کیف پول کاربران. پس از تأیید، مبلغ از موجودی ریالی کسر می‌شود و
+        درخواست‌های برداشت از کیف پول کاربران. پس از تأیید، مبلغ از موجودی تومانی کسر می‌شود و
         باید به شبای ثبت‌شده واریز گردد.
       </p>
 

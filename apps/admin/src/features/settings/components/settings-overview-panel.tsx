@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ADMIN_ROUTES } from '@/shared/config/admin-routes';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
+import { formatTomanAmount } from '@sadafgold/shared';
 import { usePlatformSettingsStore } from '../model/settings-store';
 
 const CHILD_ROUTES = ADMIN_ROUTES.filter((r) => r.parentId === 'settings.home');
@@ -43,7 +44,7 @@ export function SettingsOverviewPanel() {
           <div className="rounded-[var(--radius-xl)] bg-[var(--surface)] px-4 py-3">
             <dt className="text-xs text-muted">حداقل سفارش</dt>
             <dd className="mt-1 font-medium text-foreground">
-              {commerce.minOrderToman.toLocaleString('fa-IR')} {commerce.currencyLabel}
+              {formatTomanAmount(commerce.minOrderToman)} {commerce.currencyLabel}
             </dd>
           </div>
           <div className="rounded-[var(--radius-xl)] bg-[var(--surface)] px-4 py-3">

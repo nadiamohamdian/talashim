@@ -24,7 +24,12 @@ import { ReportBreakdownBars } from '@/features/reports/components/report-breakd
 import { ReportLineChart } from '@/features/reports/components/report-line-chart';
 import { defaultReportFrom, defaultReportTo } from '@/features/reports/lib/date-range';
 import { FinancePageShell } from './finance-page-shell';
-import { selectFieldClass, WALLET_TX_TYPE_FA, WALLET_TX_STATUS_FA } from '../lib/labels';
+import {
+  formatToman,
+  selectFieldClass,
+  WALLET_TX_TYPE_FA,
+  WALLET_TX_STATUS_FA,
+} from '../lib/labels';
 
 export function FinanceReportsPanel() {
   const [from, setFrom] = useState(defaultReportFrom);
@@ -100,7 +105,9 @@ export function FinanceReportsPanel() {
                   >
                     <span>{row.label}</span>
                     <span className="font-mono" dir="ltr">
-                      {row.balance} {row.assetType === 'GOLD' ? 'گرم' : 'ریال'}
+                      {row.assetType === 'GOLD'
+                        ? `${row.balance} گرم`
+                        : `${formatToman(row.balance)} تومان`}
                     </span>
                   </div>
                 ))}

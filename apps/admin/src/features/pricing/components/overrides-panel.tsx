@@ -123,12 +123,12 @@ export function OverridesPanel() {
         <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
           <div className="grid gap-4 md:grid-cols-2">
             <FormattedNumberInput
-              label="قیمت هر گرم (ریال)"
+              label="قیمت هر گرم (تومان)"
               value={form.pricePerGram > 0 ? String(form.pricePerGram) : ''}
               onChange={(raw) =>
                 setForm((f) => ({ ...f, pricePerGram: raw ? Number(raw) : 0 }))
               }
-              suffix="ریال"
+              suffix="تومان"
             />
             <div>
               <Label>عیار</Label>
@@ -148,7 +148,7 @@ export function OverridesPanel() {
                   buyPrice: raw ? Number(raw) : undefined,
                 }))
               }
-              suffix="ریال"
+              suffix="تومان"
             />
             <FormattedNumberInput
               label="قیمت فروش (اختیاری)"
@@ -159,7 +159,7 @@ export function OverridesPanel() {
                   sellPrice: raw ? Number(raw) : undefined,
                 }))
               }
-              suffix="ریال"
+              suffix="تومان"
             />
             <div className="md:col-span-2">
               <Label>دلیل</Label>

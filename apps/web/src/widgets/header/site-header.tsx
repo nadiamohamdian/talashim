@@ -7,10 +7,13 @@ import { HeaderActions } from '@/widgets/header/header-actions';
 import { StoreSearchBar } from '@/widgets/header/store-search-bar';
 
 export function SiteHeader() {
-  const { general } = useStorefrontSettings();
+  const { general, gold } = useStorefrontSettings();
+  const headerTopClass = gold.showGoldTickerInHeader ? 'top-10' : 'top-0';
 
   return (
-    <header className="header-glass sticky top-0 z-40 border-b border-nude-200/90 shadow-[var(--shadow-soft)]">
+    <header
+      className={`header-glass sticky z-40 border-b border-nude-200/90 shadow-[var(--shadow-soft)] ${headerTopClass}`}
+    >
       <div className="container-store flex items-center gap-5 py-4">
         <Link href="/" className="group shrink-0">
           <span className="block text-xs font-medium tracking-[0.2em] text-gold-dark/80">

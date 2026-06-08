@@ -12,6 +12,8 @@ export function useOrders(params: OrdersListParams = {}) {
   return useQuery({
     queryKey: queryKeys.orders.list({ ...params, page }),
     queryFn: ({ signal }) => orderApi.list({ ...params, page }, signal),
+    staleTime: 15_000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -20,6 +22,8 @@ export function useOrder(orderId: string) {
     queryKey: queryKeys.orders.detail(orderId),
     queryFn: ({ signal }) => orderApi.getById(orderId, signal),
     enabled: Boolean(orderId),
+    staleTime: 15_000,
+    refetchOnWindowFocus: true,
   });
 }
 

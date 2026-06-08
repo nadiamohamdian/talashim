@@ -7,10 +7,13 @@ import { Badge, Button, Skeleton, Table, TableBody, TableCell, TableHead, TableH
 import { formatPrice } from '@/shared/lib/format-price';
 import { useOrders } from '@/lib/api';
 import { useState } from 'react';
+import { isOrderInvoiceReady } from '../lib/order-invoice';
 import {
   ORDER_STATUS_LABELS,
-  PAYMENT_STATUS_LABELS,
+  getDisplayPaymentStatus,
+  getDisplayPaymentStatusLabel,
   orderStatusBadgeClass,
+  paymentStatusBadgeClass,
 } from '../lib/order-labels';
 
 export function OrdersContent() {
@@ -65,10 +68,10 @@ export function OrdersContent() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {order.paymentStatus ? (
-                    <span className="text-xs text-muted">
-                      {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
-                    </span>
+                  {getDisplayPaymentStatus(order) ? (
+                    <Badge className={paymentStatusBadgeClass(getDisplayPaymentStatus(order)!)}>
+                      {getDisplayPaymentStatusLabel(order)}
+                    </Badge>
                   ) : (
                     <span className="text-xs text-muted">—</span>
                   )}
@@ -77,12 +80,22 @@ export function OrdersContent() {
                 <TableCell>{formatPrice(order.totalToman)} تومان</TableCell>
                 <TableCell>{formatPersianDate(order.createdAt)}</TableCell>
                 <TableCell>
-                  <Link
-                    href={`/orders/${order.id}`}
-                    className="text-sm font-medium text-gold-dark hover:underline"
-                  >
-                    جزئیات
-                  </Link>
+                  <div className="flex flex-col gap-1">
+                    <Link
+                      href={`/orders/${order.id}`}
+                      className="text-sm font-medium text-gold-dark hover:underline"
+                    >
+                      جزئیات
+                    </Link>
+                    {isOrderInvoiceReady(order) ? (
+                      <Link
+                        href={`/orders/${order.id}/invoice`}
+                        className="text-xs font-semibold text-emerald-700 hover:underline"
+                      >
+                        فاکتور
+                      </Link>
+                    ) : null}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

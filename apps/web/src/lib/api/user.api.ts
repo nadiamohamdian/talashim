@@ -12,13 +12,20 @@ export interface UserProfile {
   id: string;
   email: string;
   fullName: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  nationalId?: string | null;
+  phone?: string | null;
   role: string;
   createdAt: string;
   kycStatus?: string;
 }
 
 export interface UpdateProfilePayload {
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  nationalId: string;
+  phone: string;
 }
 
 export type KycStatusResponse = KycVerification | { status: 'none' };

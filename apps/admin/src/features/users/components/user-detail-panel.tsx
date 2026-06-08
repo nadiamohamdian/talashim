@@ -82,8 +82,8 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
             </div>
             <dl className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
               <div>
-                <dt className="text-muted">موجودی ریال</dt>
-                <dd className="mt-1 font-medium">{formatToman(data.balances.rialBalance)} ت</dd>
+                <dt className="text-muted">موجودی تومان</dt>
+                <dd className="mt-1 font-medium">{formatToman(data.balances.rialBalance)} تومان</dd>
               </div>
               <div>
                 <dt className="text-muted">موجودی طلا</dt>

@@ -22,7 +22,12 @@ import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { FinancePageShell } from './finance-page-shell';
 import { PaymentReceiptsPanel } from './payment-receipts-panel';
 import { WalletWithdrawalRequestsPanel } from './wallet-withdrawal-requests-panel';
-import { selectFieldClass, WALLET_TX_STATUS_FA, WALLET_TX_TYPE_FA } from '../lib/labels';
+import {
+  formatToman,
+  selectFieldClass,
+  WALLET_TX_STATUS_FA,
+  WALLET_TX_TYPE_FA,
+} from '../lib/labels';
 
 type TransactionsTab = 'wallet' | 'wallet-withdrawals' | 'receipts';
 
@@ -73,7 +78,7 @@ export function FinanceTransactionsPanel() {
       ) : (
         <>
           <p className="text-sm text-muted">
-            تراکنش‌های کیف پول ریالی و طلای کاربران. معاملات آب‌شده در بخش «طلای آب‌شده» است.
+            تراکنش‌های کیف پول تومانی و طلای کاربران. معاملات آب‌شده در بخش «طلای آب‌شده» است.
           </p>
           <FilterBar>
             <div>
@@ -124,7 +129,10 @@ export function FinanceTransactionsPanel() {
                       <TableCell className="max-w-xs text-xs text-[var(--muted-foreground)]">
                         {tx.entries?.map((e) => (
                           <div key={`${e.accountCode}-${e.side}`} dir="ltr">
-                            {e.accountCode}: {e.side} {e.amount} {e.assetType}
+                            {e.accountCode}: {e.side}{' '}
+                            {e.assetType === 'GOLD'
+                              ? `${e.amount} گرم`
+                              : `${formatToman(e.amount)} تومان`}
                           </div>
                         )) ?? '—'}
                       </TableCell>

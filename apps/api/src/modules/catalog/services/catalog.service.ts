@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   applyDiscountToPrice,
   calculateJewelryPricing,
+  formatTomanAmountWithUnit,
   isProductDiscountActive,
 } from '@sadafgold/shared';
 import type { ProductPricing } from '@sadafgold/types';
@@ -168,13 +169,15 @@ export class CatalogService {
       رنگ: 'طلایی',
       عیار: `${product.karat} عیار`,
       'قیمت هر گرم (لحظه‌ای)': pricing
-        ? `${pricing.livePriceToman.toLocaleString('fa-IR')} تومان`
+        ? formatTomanAmountWithUnit(pricing.livePriceToman)
         : '—',
       'ارزش خام طلا': pricing
-        ? `${Math.round(Number(product.weightGram) * pricing.livePriceToman).toLocaleString('fa-IR')} تومان`
+        ? formatTomanAmountWithUnit(
+            Math.round(Number(product.weightGram) * pricing.livePriceToman),
+          )
         : '—',
       'مبلغ اجرت': pricing?.wageFixedToman
-        ? `${pricing.wageFixedToman.toLocaleString('fa-IR')} تومان`
+        ? formatTomanAmountWithUnit(pricing.wageFixedToman)
         : '—',
     };
   }

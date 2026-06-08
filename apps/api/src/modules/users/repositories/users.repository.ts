@@ -2,6 +2,45 @@ import { Injectable } from '@nestjs/common';
 import { Role } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 
+const profileSelect = {
+  id: true,
+  email: true,
+  fullName: true,
+  firstName: true,
+  lastName: true,
+  nationalId: true,
+  phone: true,
+  role: true,
+  createdAt: true,
+  kycVerification: { select: { status: true } },
+} as const;
+
+function mapProfile(user: {
+  id: string;
+  email: string;
+  fullName: string;
+  firstName: string | null;
+  lastName: string | null;
+  nationalId: string | null;
+  phone: string | null;
+  role: Role;
+  createdAt: Date;
+  kycVerification: { status: string } | null;
+}) {
+  return {
+    id: user.id,
+    email: user.email,
+    fullName: user.fullName,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    nationalId: user.nationalId,
+    phone: user.phone,
+    role: user.role.toLowerCase(),
+    createdAt: user.createdAt.toISOString(),
+    kycStatus: user.kycVerification?.status.toLowerCase() ?? 'none',
+  };
+}
+
 @Injectable()
 export class UsersRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -36,50 +75,30 @@ export class UsersRepository {
   }
 
   findProfileById(id: string) {
-    return this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        role: true,
-        createdAt: true,
-        kycVerification: { select: { status: true } },
-      },
-    }).then((user) => {
-      if (!user) return null;
-      return {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role.toLowerCase(),
-        createdAt: user.createdAt.toISOString(),
-        kycStatus: user.kycVerification?.status.toLowerCase() ?? 'none',
-      };
-    });
+    return this.prisma.user
+      .findUnique({
+        where: { id },
+        select: profileSelect,
+      })
+      .then((user) => (user ? mapProfile(user) : null));
   }
 
-  updateProfile(id: string, data: { fullName?: string }) {
+  updateProfile(
+    id: string,
+    data: {
+      fullName?: string;
+      firstName?: string;
+      lastName?: string;
+      nationalId?: string;
+      phone?: string;
+    },
+  ) {
     return this.prisma.user
       .update({
         where: { id },
         data,
-        select: {
-          id: true,
-          email: true,
-          fullName: true,
-          role: true,
-          createdAt: true,
-          kycVerification: { select: { status: true } },
-        },
+        select: profileSelect,
       })
-      .then((user) => ({
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role.toLowerCase(),
-        createdAt: user.createdAt.toISOString(),
-        kycStatus: user.kycVerification?.status.toLowerCase() ?? 'none',
-      }));
+      .then(mapProfile);
   }
 }

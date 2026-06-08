@@ -150,9 +150,9 @@ export function TradeOrdersPanel({
                 {!fixedSide ? <TableHead>سمت</TableHead> : null}
                 <TableHead>وضعیت</TableHead>
                 <TableHead>مقدار</TableHead>
-                <TableHead>قیمت واحد</TableHead>
-                <TableHead>خالص</TableHead>
-                <TableHead>کارمزد</TableHead>
+                <TableHead>قیمت واحد (تومان)</TableHead>
+                <TableHead>خالص (تومان)</TableHead>
+                <TableHead>کارمزد (تومان)</TableHead>
                 <TableHead>زمان</TableHead>
               </TableRow>
             </TableHeader>

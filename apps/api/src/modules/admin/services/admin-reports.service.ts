@@ -200,7 +200,7 @@ export class AdminReportsService {
           { key: 'total', label: 'کل معاملات', value: summary.total },
           { key: 'filled', label: 'تکمیل‌شده', value: summary.filled },
           { key: 'volume', label: 'حجم (گرم)', value: summary.volumeGram },
-          { key: 'commission', label: 'کارمزد (ریال)', value: summary.commissionTotal },
+          { key: 'commission', label: 'کارمزد (تومان)', value: summary.commissionTotal },
         ],
         bySide: summary.bySide,
         byStatus: summary.byStatus,

@@ -51,7 +51,7 @@ export function WalletsTable() {
               <TableRow>
                 <TableHead>کاربر</TableHead>
                 <TableHead>ایمیل</TableHead>
-                <TableHead>ریال</TableHead>
+                <TableHead>تومان</TableHead>
                 <TableHead>طلا (گرم)</TableHead>
               </TableRow>
             </TableHeader>

@@ -5,7 +5,7 @@ export default function WalletPage() {
   return (
     <AccountShell
       title="کیف پول"
-      description="مدیریت موجودی ریالی و طلا، واریز کارت‌به‌کارت و پیگیری تراکنش‌ها."
+      description="مدیریت موجودی تومانی و طلا، واریز کارت‌به‌کارت و پیگیری تراکنش‌ها."
       returnPath="/wallet"
     >
       <WalletPageContent />

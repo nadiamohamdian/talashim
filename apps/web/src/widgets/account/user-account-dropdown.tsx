@@ -12,9 +12,9 @@ const BASE_MENU_ITEMS = [
   { href: '/dashboard', label: 'پیشخوان' },
   { href: '/wallet', label: 'کیف پول' },
   { href: '/orders', label: 'سفارش‌ها' },
-  { href: '/invoices', label: 'دانلودها' },
+  { href: '/invoices', label: 'فاکتورها' },
   { href: '/addresses', label: 'آدرس' },
-  { href: '/profile', label: 'اطلاعات حساب کاربری' },
+  { href: '/profile', label: 'اطلاعات حساب' },
 ] as const;
 
 export function UserAccountDropdown() {
@@ -41,7 +41,7 @@ export function UserAccountDropdown() {
   if (!isAuthenticated) {
     return (
       <Link
-        href={buildLoginHref('/account')}
+        href={buildLoginHref('/profile')}
         className="inline-flex items-center gap-2.5 rounded-xl px-1.5 py-1 transition hover:bg-nude-50"
       >
         <span className="inline-flex rounded-lg bg-nude-50 p-2 text-gold-dark">

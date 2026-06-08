@@ -2,7 +2,11 @@
 
 import { useRef, useState } from 'react';
 import { Button, Input, Label } from '@sadafgold/ui';
-import { DEFAULT_CARD_TO_CARD_INFO } from '@sadafgold/shared';
+import {
+  DEFAULT_CARD_TO_CARD_INFO,
+  formatGroupedIntegerFa,
+  parseGroupedIntegerDigits,
+} from '@sadafgold/shared';
 import {
   useWalletDepositRequest,
   useWalletWithdrawalRequest,
@@ -71,7 +75,7 @@ export function WalletActions() {
 
   const handleDeposit = async () => {
     resetMessages();
-    const normalizedAmount = amount.replace(/[^\d]/g, '');
+    const normalizedAmount = parseGroupedIntegerDigits(amount);
     if (!normalizedAmount || Number(normalizedAmount) <= 0) {
       setErrorMessage('مبلغ واریز را وارد کنید.');
       return;
@@ -96,7 +100,7 @@ export function WalletActions() {
 
   const handleWithdraw = async () => {
     resetMessages();
-    const normalizedAmount = amount.replace(/[^\d]/g, '');
+    const normalizedAmount = parseGroupedIntegerDigits(amount);
     const normalizedIban = iban.replace(/\s/g, '').toUpperCase();
     if (!normalizedAmount || Number(normalizedAmount) <= 0) {
       setErrorMessage('مبلغ برداشت را وارد کنید.');
@@ -168,7 +172,7 @@ export function WalletActions() {
                 className="input-nude mt-2 h-12 rounded-xl px-4 text-base"
                 inputMode="numeric"
                 value={amount}
-                onChange={(event) => setAmount(event.target.value)}
+                onChange={(event) => setAmount(formatGroupedIntegerFa(event.target.value))}
                 placeholder="مثلاً ۱٬۰۰۰٬۰۰۰"
               />
             </div>
@@ -252,7 +256,7 @@ export function WalletActions() {
                 className="input-nude mt-2 h-12 rounded-xl px-4 text-base"
                 inputMode="numeric"
                 value={amount}
-                onChange={(event) => setAmount(event.target.value)}
+                onChange={(event) => setAmount(formatGroupedIntegerFa(event.target.value))}
                 placeholder="مثلاً ۵۰۰٬۰۰۰"
               />
             </div>

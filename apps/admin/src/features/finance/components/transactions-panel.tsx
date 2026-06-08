@@ -141,7 +141,7 @@ export function TransactionsPanel() {
                     <TableHead>کاربر</TableHead>
                     <TableHead>سمت</TableHead>
                     <TableHead>مقدار</TableHead>
-                    <TableHead>مبلغ</TableHead>
+                    <TableHead>مبلغ (تومان)</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -151,7 +151,7 @@ export function TransactionsPanel() {
                       <TableCell>{order.user.fullName}</TableCell>
                       <TableCell>{order.side}</TableCell>
                       <TableCell>{order.quantityGram} گرم</TableCell>
-                      <TableCell>{Number(order.netRial).toLocaleString('fa-IR')}</TableCell>
+                      <TableCell>{Number(order.netRial).toLocaleString('fa-IR')} تومان</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

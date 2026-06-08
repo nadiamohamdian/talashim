@@ -10,9 +10,8 @@ const BASE_NAV_ITEMS = [
   { href: '/dashboard', label: 'پیشخوان' },
   { href: '/wallet', label: 'کیف پول' },
   { href: '/orders', label: 'سفارش‌ها' },
-  { href: '/invoices', label: 'دانلودها' },
+  { href: '/invoices', label: 'فاکتورها' },
   { href: '/addresses', label: 'آدرس' },
-  { href: '/account', label: 'حساب کاربری' },
   { href: '/profile', label: 'اطلاعات حساب' },
 ] as const;
 

@@ -83,6 +83,10 @@ export class AdminOrdersService {
       throw new NotFoundException('Order not found');
     }
 
+    if (dto.status === 'CONFIRMED' || dto.status === 'PAID') {
+      await this.ordersService.syncSubmittedPaymentsOnOrderConfirm(id, actor.id);
+    }
+
     const updated = await this.ordersRepository.updateOrderStatus(id, dto.status);
     return this.mapDetail(updated);
   }

@@ -1,5 +1,10 @@
+import { formatTomanAmount } from '@sadafgold/shared';
+
+export { formatTomanAmount, formatTomanAmountWithUnit } from '@sadafgold/shared';
+
 export function formatToman(value: number | string): string {
-  return Number(value).toLocaleString('fa-IR');
+  const formatted = formatTomanAmount(value);
+  return formatted === '—' ? '0' : formatted;
 }
 
 export { formatPersianDate, formatPersianDateTime } from '@/shared/lib/format-date';

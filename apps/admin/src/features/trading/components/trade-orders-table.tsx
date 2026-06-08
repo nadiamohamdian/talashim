@@ -63,7 +63,7 @@ export function TradeOrdersTable({ title, description, defaultSide }: TradeOrder
                 <TableHead>سمت</TableHead>
                 <TableHead>وضعیت</TableHead>
                 <TableHead>مقدار (گرم)</TableHead>
-                <TableHead>مبلغ خالص</TableHead>
+                <TableHead>مبلغ خالص (تومان)</TableHead>
                 <TableHead>زمان</TableHead>
               </TableRow>
             </TableHeader>
@@ -75,7 +75,7 @@ export function TradeOrdersTable({ title, description, defaultSide }: TradeOrder
                   <TableCell>{order.side}</TableCell>
                   <TableCell>{order.status}</TableCell>
                   <TableCell>{order.quantityGram}</TableCell>
-                  <TableCell>{Number(order.netRial).toLocaleString('fa-IR')}</TableCell>
+                  <TableCell>{Number(order.netRial).toLocaleString('fa-IR')} تومان</TableCell>
                   <TableCell className="text-xs">
                     {formatPersianDateTime(order.createdAt)}
                   </TableCell>

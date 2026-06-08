@@ -59,7 +59,7 @@ export function WalletsPanel() {
                 <TableHead>کاربر</TableHead>
                 <TableHead>ایمیل</TableHead>
                 <TableHead>نقش</TableHead>
-                <TableHead>موجودی ریال</TableHead>
+                <TableHead>موجودی تومان</TableHead>
                 <TableHead>موجودی طلا (گرم)</TableHead>
               </TableRow>
             </TableHeader>

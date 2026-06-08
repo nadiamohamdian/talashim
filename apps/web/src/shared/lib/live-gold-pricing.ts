@@ -4,6 +4,7 @@ import {
   buildFallbackGoldTicker,
   calculateJewelryPricing,
   formatPricingBreakdown as sharedFormatPricingBreakdown,
+  formatTomanAmountWithUnit,
 } from '@sadafgold/shared';
 import type { ProductDetails, ProductPricing, ProductSummary } from '@sadafgold/types';
 import { isApiUnreachableError, serverFetch } from '@/lib/api/client';
@@ -93,11 +94,11 @@ export function buildSpecifications(
     رنگ: 'طلایی',
     عیار: `${product.karat} عیار`,
     'قیمت هر گرم (لحظه‌ای)': pricing
-      ? `${pricing.livePriceToman.toLocaleString('fa-IR')} تومان`
+      ? formatTomanAmountWithUnit(pricing.livePriceToman)
       : '—',
-    'ارزش خام طلا': metalValue ? `${metalValue.toLocaleString('fa-IR')} تومان` : '—',
+    'ارزش خام طلا': metalValue ? formatTomanAmountWithUnit(metalValue) : '—',
     'مبلغ اجرت': pricing?.wageFixedToman
-      ? `${pricing.wageFixedToman.toLocaleString('fa-IR')} تومان`
+      ? formatTomanAmountWithUnit(pricing.wageFixedToman)
       : '—',
   };
 }

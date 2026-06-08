@@ -5,14 +5,17 @@ import { formatPersianDateTime } from '@/shared/lib/persian-date';
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { Badge, Button, Skeleton } from '@sadafgold/ui';
+import { isOrderInvoiceReady } from '../lib/order-invoice';
 import { deriveShippingFeeToman } from '@sadafgold/shared';
 import { formatPrice } from '@/shared/lib/format-price';
 import { getApiErrorMessage } from '@/lib/api';
 import { useOrder, useUploadPaymentReceiptMutation } from '@/lib/api';
 import {
   ORDER_STATUS_LABELS,
-  PAYMENT_STATUS_LABELS,
+  getDisplayPaymentStatus,
+  getDisplayPaymentStatusLabel,
   orderStatusBadgeClass,
+  paymentStatusBadgeClass,
 } from '../lib/order-labels';
 
 interface OrderDetailContentProps {
@@ -43,6 +46,7 @@ export function OrderDetailContent({ orderId }: OrderDetailContentProps) {
   const pendingPayment = order.payments.find(
     (payment) => payment.status === 'awaiting_receipt' || payment.status === 'pending',
   );
+  const invoiceReady = isOrderInvoiceReady(order);
 
   return (
     <div className="space-y-6">
@@ -58,13 +62,28 @@ export function OrderDetailContent({ orderId }: OrderDetailContentProps) {
           <Badge className={orderStatusBadgeClass(order.status)}>
             {ORDER_STATUS_LABELS[order.status] ?? order.status}
           </Badge>
-          {order.paymentStatus ? (
-            <Badge variant="outline">
-              {PAYMENT_STATUS_LABELS[order.paymentStatus] ?? order.paymentStatus}
+          {getDisplayPaymentStatus(order) ? (
+            <Badge className={paymentStatusBadgeClass(getDisplayPaymentStatus(order)!)}>
+              {getDisplayPaymentStatusLabel(order)}
             </Badge>
           ) : null}
         </div>
       </div>
+
+      {invoiceReady ? (
+        <div className="card-luxury flex flex-wrap items-center justify-between gap-4 p-5">
+          <div>
+            <p className="font-semibold text-foreground">فاکتور رسمی</p>
+            <p className="mt-1 text-sm text-muted">پرداخت تأیید شده — فاکتور آماده مشاهده و چاپ است.</p>
+          </div>
+          <Link
+            href={`/orders/${order.id}/invoice`}
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-gold-dark/10 px-4 text-sm font-semibold text-gold-dark transition hover:bg-gold-dark/15"
+          >
+            مشاهده فاکتور
+          </Link>
+        </div>
+      ) : null}
 
       <div className="card-luxury overflow-hidden">
         <table className="w-full text-sm">

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { formatTomanAmount } from './format-toman';
 
 /** BrsApi free gold/currency quote — see https://brsapi.ir/free-api-gold-currency-webservice/ */
 export const brsGoldQuoteSchema = z.object({
@@ -68,7 +69,7 @@ export function formatGoldPricePerGramToman(price: number | string): string {
   if (!Number.isFinite(value) || value <= 0) {
     return '—';
   }
-  return new Intl.NumberFormat('fa-IR').format(Math.round(value));
+  return formatTomanAmount(Math.round(value));
 }
 
 export function liveGoldPriceToTickerItem(live: {

@@ -10,6 +10,18 @@ export class UserProfileDto {
   @ApiProperty()
   fullName!: string;
 
+  @ApiPropertyOptional({ nullable: true })
+  firstName?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  lastName?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  nationalId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  phone?: string | null;
+
   @ApiProperty()
   role!: string;
 

@@ -127,8 +127,8 @@ export function TradingReportsPanel() {
                   <TableHead>کاربر</TableHead>
                   <TableHead>سمت</TableHead>
                   <TableHead>گرم</TableHead>
-                  <TableHead>خالص (ریال)</TableHead>
-                  <TableHead>کارمزد</TableHead>
+                  <TableHead>خالص (تومان)</TableHead>
+                  <TableHead>کارمزد (تومان)</TableHead>
                   <TableHead>وضعیت</TableHead>
                   <TableHead>زمان</TableHead>
                 </TableRow>

@@ -222,7 +222,7 @@ export class AdminFinanceService {
         { key: 'txPosted', label: 'ثبت‌شده', value: txPosted },
         {
           key: 'tradeVolume',
-          label: 'حجم معاملات (ریال)',
+          label: 'حجم معاملات (تومان)',
           value: Number(tradeAgg._sum.netRial ?? 0).toLocaleString('fa-IR'),
         },
         {
@@ -232,7 +232,7 @@ export class AdminFinanceService {
         },
         {
           key: 'userRial',
-          label: 'موجودی ریالی کاربران',
+          label: 'موجودی تومانی کاربران',
           value: Math.round(userRialTotal).toLocaleString('fa-IR'),
         },
         {

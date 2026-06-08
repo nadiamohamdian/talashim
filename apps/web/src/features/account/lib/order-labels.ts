@@ -12,10 +12,31 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   awaiting_receipt: 'در انتظار فیش',
   receipt_submitted: 'فیش ارسال شد — در انتظار بررسی',
   authorized: 'پرداخت اعتباری',
-  paid: 'پرداخت شده',
+  paid: 'پرداخت تأیید شد',
   failed: 'ناموفق',
   rejected: 'فیش رد شده',
 };
+
+export function getDisplayPaymentStatus(
+  order: Pick<{ status: OrderStatus; paymentStatus: PaymentStatus | null }, 'status' | 'paymentStatus'>,
+): PaymentStatus | null {
+  if (order.status === 'confirmed' || order.status === 'paid') {
+    return 'paid';
+  }
+
+  return order.paymentStatus;
+}
+
+export function getDisplayPaymentStatusLabel(
+  order: Pick<{ status: OrderStatus; paymentStatus: PaymentStatus | null }, 'status' | 'paymentStatus'>,
+): string {
+  const status = getDisplayPaymentStatus(order);
+  if (!status) {
+    return '—';
+  }
+
+  return PAYMENT_STATUS_LABELS[status] ?? status;
+}
 
 export const ORDER_STATUS_HINTS: Record<OrderStatus, string> = {
   pending: 'سفارش ثبت شده و در انتظار تأیید پشتیبانی است.',

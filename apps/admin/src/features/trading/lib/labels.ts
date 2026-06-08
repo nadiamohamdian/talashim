@@ -1,3 +1,5 @@
+import { formatTomanAmountWithUnit } from '@sadafgold/shared';
+
 export const selectFieldClass =
   'mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm';
 
@@ -13,7 +15,8 @@ export const TRADE_STATUS_FA: Record<string, string> = {
 };
 
 export function formatToman(value: string | number) {
-  return `${Number(value).toLocaleString('fa-IR')} تومان`;
+  const formatted = formatTomanAmountWithUnit(value);
+  return formatted === '—' ? String(value) : formatted;
 }
 
 export function formatGram(value: string | number) {

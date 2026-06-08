@@ -3,7 +3,7 @@ import { InvoicesContent } from '@/features/account/components/invoices-content'
 
 export default function InvoicesPage() {
   return (
-    <AccountShell title="دانلودها" description="فاکتورها و فایل‌های قابل دانلود." returnPath="/invoices">
+    <AccountShell title="فاکتورها" description="فاکتورهای رسمی سفارش‌های تأییدشده." returnPath="/invoices">
       <InvoicesContent />
     </AccountShell>
   );

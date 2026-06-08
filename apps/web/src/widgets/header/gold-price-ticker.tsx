@@ -16,7 +16,7 @@ export function GoldPriceTicker() {
 
   return (
     <div
-      className="topbar-shimmer border-b border-nude-200/80"
+      className="topbar-shimmer sticky top-0 z-50 border-b border-nude-200/80 bg-[var(--topbar-bg)]"
       aria-live="polite"
       aria-label="قیمت لحظه‌ای طلا"
     >

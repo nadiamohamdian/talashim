@@ -8,7 +8,6 @@ import { CartStatus, OrderStatus, PaymentStatus } from '@/generated/prisma';
 import type { CheckoutPaymentProvider } from '@sadafgold/shared';
 import {
   assertFeatureEnabled,
-  getCheckoutTaxRate,
   getEnabledCheckoutProviders,
   getFreeShippingMinToman,
   getMinOrderToman,
@@ -16,9 +15,12 @@ import {
 } from '@/common/platform-settings/platform-settings-helpers';
 import { getPlatformSettings } from '@/common/platform-settings/platform-settings-runtime';
 import {
+  buildOrderLinePricingSnapshot,
   calculateInsuranceFeeToman,
   calculateShippingFeeToman,
+  reconstructOrderLinePricing,
 } from '@sadafgold/shared';
+import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
 import { CartRepository } from '@/modules/cart/repositories/cart.repository';
 import { AddressesRepository } from '@/modules/addresses/repositories/addresses.repository';
 import {
@@ -54,6 +56,7 @@ export class OrdersService {
     private readonly mediaStorage: MediaStorageService,
     private readonly walletService: WalletService,
     private readonly usersService: UsersService,
+    private readonly pricingEngine: PricingEngineService,
   ) {}
 
   async checkout(payload: CreateOrderDto) {
@@ -110,7 +113,10 @@ export class OrdersService {
       throw new BadRequestException(`حداقل مبلغ سفارش ${minOrder.toLocaleString('fa-IR')} تومان است`);
     }
 
-    const taxToman = Math.round(subtotalToman * getCheckoutTaxRate());
+    const taxPercent = getPlatformSettings().commerce.defaultTaxPercent;
+    const taxToman = Math.round(subtotalToman * (taxPercent / 100));
+    const liveGold18 = await this.pricingEngine.getLivePrice('XAU-IRR', 18);
+    const liveGoldPrice18PerGramToman = Number(liveGold18.pricePerGram);
     const shippingToman = calculateShippingFeeToman(subtotalToman, getFreeShippingMinToman());
     const isInsured = payload.isInsured === true;
     const insuranceFeeToman = calculateInsuranceFeeToman(
@@ -120,6 +126,32 @@ export class OrdersService {
     );
     const totalToman = subtotalToman + taxToman + shippingToman + insuranceFeeToman;
     const provider = payload.paymentProvider as CheckoutPaymentProvider;
+
+    const orderItems = await Promise.all(
+      cart.items.map(async (item) => {
+        const product = item.product;
+        const live = await this.pricingEngine.getLivePrice('XAU-IRR', product.karat);
+        const snapshot = buildOrderLinePricingSnapshot({
+          weightGram: Number(product.weightGram),
+          karat: product.karat,
+          makingFeePercent: product.makingFeePercent,
+          livePricePerGramToman: Number(live.pricePerGram),
+          taxPercent,
+        });
+
+        return {
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPriceToman: item.unitPriceToman,
+          weightGram: Number(product.weightGram),
+          karat: product.karat,
+          makingFeePercent: product.makingFeePercent,
+          liveGoldPricePerGramToman: tomanNumberToBigInt(snapshot.liveGoldPricePerGramToman),
+          metalValueToman: tomanNumberToBigInt(snapshot.metalValueToman),
+          wageToman: tomanNumberToBigInt(snapshot.wageToman),
+        };
+      }),
+    );
 
     const created = await this.ordersRepository.createFromCart({
       cartId: cart.id,
@@ -131,12 +163,10 @@ export class OrdersService {
       insuranceFeeToman: tomanNumberToBigInt(insuranceFeeToman),
       subtotalToman: tomanNumberToBigInt(subtotalToman),
       taxToman: tomanNumberToBigInt(taxToman),
+      taxPercent,
+      liveGoldPrice18PerGramToman: tomanNumberToBigInt(liveGoldPrice18PerGramToman),
       totalToman: tomanNumberToBigInt(totalToman),
-      items: cart.items.map((item) => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPriceToman: item.unitPriceToman,
-      })),
+      items: orderItems,
     });
 
     const order = await this.ordersRepository.findByIdForUser(created.id, userId);
@@ -186,6 +216,10 @@ export class OrdersService {
 
     await this.ordersRepository.approvePaymentReceipt(paymentId, reviewedById);
     return { approved: true, paymentId, orderId };
+  }
+
+  syncSubmittedPaymentsOnOrderConfirm(orderId: string, reviewedById: string) {
+    return this.ordersRepository.syncSubmittedPaymentsOnConfirm(orderId, reviewedById);
   }
 
   async rejectPaymentReceipt(
@@ -249,6 +283,41 @@ export class OrdersService {
     };
   }
 
+  private resolvePaymentStatus(
+    payments: Array<{ status: PaymentStatus }> | undefined,
+    orderStatus: OrderStatus,
+  ): PaymentStatus | null {
+    if (!payments?.length) {
+      if (orderStatus === OrderStatus.CONFIRMED || orderStatus === OrderStatus.PAID) {
+        return PaymentStatus.PAID;
+      }
+      return null;
+    }
+
+    const paidPayment = payments.find((payment) => payment.status === PaymentStatus.PAID);
+    if (paidPayment) {
+      return PaymentStatus.PAID;
+    }
+
+    if (orderStatus === OrderStatus.CONFIRMED || orderStatus === OrderStatus.PAID) {
+      return PaymentStatus.PAID;
+    }
+
+    const priority: Record<PaymentStatus, number> = {
+      [PaymentStatus.PAID]: 100,
+      [PaymentStatus.AUTHORIZED]: 90,
+      [PaymentStatus.RECEIPT_SUBMITTED]: 50,
+      [PaymentStatus.AWAITING_RECEIPT]: 40,
+      [PaymentStatus.PENDING]: 30,
+      [PaymentStatus.REJECTED]: 20,
+      [PaymentStatus.FAILED]: 10,
+    };
+
+    return payments.reduce((best, payment) =>
+      priority[payment.status] > priority[best.status] ? payment : best,
+    ).status;
+  }
+
   private toSummary(order: {
     id: string;
     orderNumber: string;
@@ -262,7 +331,7 @@ export class OrdersService {
     items: Array<{ quantity: number }>;
     payments?: Array<{ status: PaymentStatus }>;
   }) {
-    const paymentStatus = order.payments?.[0]?.status;
+    const paymentStatus = this.resolvePaymentStatus(order.payments, order.status);
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -287,22 +356,136 @@ export class OrdersService {
     };
   }
 
+  private mapOrderItemForInvoice(
+    item: {
+      id: string;
+      productId: string;
+      quantity: number;
+      unitPriceToman: bigint | number;
+      weightGram?: { toString(): string } | number | null;
+      karat?: number | null;
+      makingFeePercent?: number | null;
+      liveGoldPricePerGramToman?: bigint | number | null;
+      metalValueToman?: bigint | number | null;
+      wageToman?: bigint | number | null;
+      product: {
+        title: string;
+        slug: string;
+        sku?: string;
+        weightGram?: { toString(): string } | number;
+        karat?: number;
+        makingFeePercent?: number;
+      };
+    },
+    orderTaxPercent: number,
+  ) {
+    const unitPriceToman = tomanBigIntToNumber(item.unitPriceToman);
+    const weightGram =
+      item.weightGram != null
+        ? Number(item.weightGram)
+        : Number(item.product.weightGram ?? 0);
+    const karat = item.karat ?? item.product.karat ?? 18;
+    const makingFeePercent = item.makingFeePercent ?? item.product.makingFeePercent ?? 0;
+
+    const snapshot =
+      item.metalValueToman != null &&
+      item.wageToman != null &&
+      item.liveGoldPricePerGramToman != null
+        ? (() => {
+            const metalValueToman = tomanBigIntToNumber(item.metalValueToman);
+            const wageToman = tomanBigIntToNumber(item.wageToman);
+            const liveGoldPricePerGramToman = tomanBigIntToNumber(item.liveGoldPricePerGramToman);
+            const lineSubtotalToman = metalValueToman + wageToman;
+            const purityFactor = karat / 18;
+            return {
+              weightGram,
+              karat,
+              makingFeePercent,
+              liveGoldPricePerGramToman,
+              liveGoldPrice18PerGramToman:
+                purityFactor > 0
+                  ? Math.round(liveGoldPricePerGramToman / purityFactor)
+                  : 0,
+              metalValueToman,
+              wageToman,
+              lineSubtotalToman,
+              lineTaxToman: unitPriceToman - lineSubtotalToman,
+              unitPriceToman,
+            };
+          })()
+        : reconstructOrderLinePricing({
+            unitPriceToman,
+            weightGram,
+            karat,
+            makingFeePercent,
+            taxPercent: orderTaxPercent,
+          });
+
+    return {
+      id: item.id,
+      productId: item.productId,
+      productTitle: item.product.title,
+      productSlug: item.product.slug,
+      productSku: item.product.sku,
+      quantity: item.quantity,
+      ...snapshot,
+      lineTotalToman: unitPriceToman * item.quantity,
+      totalWeightGram: weightGram * item.quantity,
+      totalMetalValueToman: snapshot.metalValueToman * item.quantity,
+      totalWageToman: snapshot.wageToman * item.quantity,
+      totalLineTaxToman: snapshot.lineTaxToman * item.quantity,
+    };
+  }
+
   private toDetail(order: {
     id: string;
     orderNumber: string;
     status: OrderStatus;
     subtotalToman: bigint | number;
     taxToman: bigint | number;
+    taxPercent?: number | null;
+    liveGoldPrice18PerGramToman?: bigint | number | null;
     isInsured: boolean;
     insuranceFeeToman: bigint | number;
     totalToman: bigint | number;
     createdAt: Date;
+    user?: {
+      email: string;
+      fullName: string;
+      firstName: string | null;
+      lastName: string | null;
+      phone: string | null;
+      nationalId: string | null;
+    } | null;
+    shippingAddress?: {
+      id: string;
+      title: string;
+      recipient: string;
+      phone: string;
+      line1: string;
+      city: string;
+      state: string;
+      postalCode: string;
+    } | null;
     items: Array<{
       id: string;
       productId: string;
       quantity: number;
       unitPriceToman: bigint | number;
-      product: { title: string; slug: string };
+      weightGram?: { toString(): string } | number | null;
+      karat?: number | null;
+      makingFeePercent?: number | null;
+      liveGoldPricePerGramToman?: bigint | number | null;
+      metalValueToman?: bigint | number | null;
+      wageToman?: bigint | number | null;
+      product: {
+        title: string;
+        slug: string;
+        sku?: string;
+        weightGram?: { toString(): string } | number;
+        karat?: number;
+        makingFeePercent?: number;
+      };
     }>;
     payments: Array<{
       id: string;
@@ -311,19 +494,55 @@ export class OrdersService {
       amountToman: bigint | number;
       receiptUrl?: string | null;
       rejectionReason?: string | null;
+      reviewedAt?: Date | null;
       createdAt: Date;
     }>;
   }) {
+    const paidPayment = order.payments.find((payment) => payment.status === PaymentStatus.PAID);
+    const taxPercent = order.taxPercent ?? getPlatformSettings().commerce.defaultTaxPercent;
+    const mappedItems = order.items.map((item) =>
+      this.mapOrderItemForInvoice(item, taxPercent),
+    );
+
     return {
       ...this.toSummary(order),
-      items: order.items.map((item) => ({
-        id: item.id,
-        productId: item.productId,
-        productTitle: item.product.title,
-        productSlug: item.product.slug,
-        quantity: item.quantity,
-        unitPriceToman: tomanBigIntToNumber(item.unitPriceToman),
-      })),
+      taxPercent,
+      liveGoldPrice18PerGramToman: order.liveGoldPrice18PerGramToman
+        ? tomanBigIntToNumber(order.liveGoldPrice18PerGramToman)
+        : mappedItems[0]?.liveGoldPrice18PerGramToman ?? null,
+      totalGoldWeightGram: mappedItems.reduce(
+        (sum, item) => sum + (item.totalWeightGram ?? 0),
+        0,
+      ),
+      totalMetalValueToman: mappedItems.reduce(
+        (sum, item) => sum + (item.totalMetalValueToman ?? 0),
+        0,
+      ),
+      totalWageToman: mappedItems.reduce((sum, item) => sum + (item.totalWageToman ?? 0), 0),
+      items: mappedItems,
+      shippingAddress: order.shippingAddress
+        ? {
+            id: order.shippingAddress.id,
+            title: order.shippingAddress.title,
+            recipient: order.shippingAddress.recipient,
+            phone: order.shippingAddress.phone,
+            line1: order.shippingAddress.line1,
+            city: order.shippingAddress.city,
+            state: order.shippingAddress.state,
+            postalCode: order.shippingAddress.postalCode,
+          }
+        : null,
+      customer: order.user
+        ? {
+            email: order.user.email,
+            fullName: order.user.fullName,
+            firstName: order.user.firstName,
+            lastName: order.user.lastName,
+            phone: order.user.phone,
+            nationalId: order.user.nationalId,
+          }
+        : null,
+      invoicePaidAt: paidPayment?.reviewedAt?.toISOString() ?? paidPayment?.createdAt.toISOString() ?? null,
       payments: order.payments.map((payment) => ({
         id: payment.id,
         status: payment.status.toLowerCase(),
@@ -331,6 +550,7 @@ export class OrdersService {
         amountToman: tomanBigIntToNumber(payment.amountToman),
         receiptUrl: payment.receiptUrl ?? null,
         rejectionReason: payment.rejectionReason ?? null,
+        reviewedAt: payment.reviewedAt?.toISOString() ?? null,
         createdAt: payment.createdAt.toISOString(),
       })),
     };

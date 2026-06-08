@@ -4,8 +4,8 @@ import { ProfileContent } from '@/features/account/components/profile-content';
 export default function ProfilePage() {
   return (
     <AccountShell
-      title="اطلاعات حساب کاربری"
-      description="اطلاعات شخصی و تنظیمات حساب."
+      title="اطلاعات حساب"
+      description="مشخصات شخصی، تماس و تنظیمات حساب کاربری."
       returnPath="/profile"
     >
       <ProfileContent />

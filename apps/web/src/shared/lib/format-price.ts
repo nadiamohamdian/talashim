@@ -1,3 +1,5 @@
-export function formatPrice(priceToman: number) {
-  return new Intl.NumberFormat("fa-IR").format(priceToman);
+import { formatTomanAmount } from '@sadafgold/shared';
+
+export function formatPrice(priceToman: number | string) {
+  return formatTomanAmount(priceToman);
 }

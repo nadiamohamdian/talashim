@@ -16,11 +16,19 @@ export class OrdersRepository {
     insuranceFeeToman: bigint;
     subtotalToman: bigint;
     taxToman: bigint;
+    taxPercent?: number;
+    liveGoldPrice18PerGramToman?: bigint;
     totalToman: bigint;
     items: Array<{
       productId: string;
       quantity: number;
       unitPriceToman: bigint;
+      weightGram?: number;
+      karat?: number;
+      makingFeePercent?: number;
+      liveGoldPricePerGramToman?: bigint;
+      metalValueToman?: bigint;
+      wageToman?: bigint;
     }>;
   }) {
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -32,6 +40,8 @@ export class OrdersRepository {
           insuranceFeeToman: payload.insuranceFeeToman,
           subtotalToman: payload.subtotalToman,
           taxToman: payload.taxToman,
+          taxPercent: payload.taxPercent,
+          liveGoldPrice18PerGramToman: payload.liveGoldPrice18PerGramToman,
           totalToman: payload.totalToman,
           ...(payload.userId
             ? { user: { connect: { id: payload.userId } } }
@@ -40,7 +50,17 @@ export class OrdersRepository {
             ? { shippingAddress: { connect: { id: payload.shippingAddressId } } }
             : {}),
           items: {
-            create: payload.items,
+            create: payload.items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPriceToman: item.unitPriceToman,
+              weightGram: item.weightGram,
+              karat: item.karat,
+              makingFeePercent: item.makingFeePercent,
+              liveGoldPricePerGramToman: item.liveGoldPricePerGramToman,
+              metalValueToman: item.metalValueToman,
+              wageToman: item.wageToman,
+            })),
           },
           payments: {
             create: {
@@ -135,8 +155,22 @@ export class OrdersRepository {
             product: { select: { id: true, title: true, slug: true, sku: true } },
           },
         },
-        payments: true,
+        payments: { orderBy: { createdAt: 'desc' } },
         _count: { select: { items: true } },
+      },
+    });
+  }
+
+  syncSubmittedPaymentsOnConfirm(orderId: string, reviewedById: string) {
+    return this.prisma.payment.updateMany({
+      where: {
+        orderId,
+        status: PaymentStatus.RECEIPT_SUBMITTED,
+      },
+      data: {
+        status: PaymentStatus.PAID,
+        reviewedAt: new Date(),
+        reviewedById,
       },
     });
   }
@@ -171,8 +205,32 @@ export class OrdersRepository {
     return this.prisma.order.findFirst({
       where: { id: orderId, userId },
       include: {
-        items: { include: { product: { select: { title: true, slug: true } } } },
-        payments: true,
+        user: {
+          select: {
+            email: true,
+            fullName: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            nationalId: true,
+          },
+        },
+        shippingAddress: true,
+        items: {
+          include: {
+            product: {
+              select: {
+                title: true,
+                slug: true,
+                sku: true,
+                weightGram: true,
+                karat: true,
+                makingFeePercent: true,
+              },
+            },
+          },
+        },
+        payments: { orderBy: { createdAt: 'desc' } },
       },
     });
   }

@@ -21,7 +21,7 @@ import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { FinancePageShell } from './finance-page-shell';
-import { LEDGER_SIDE_FA, selectFieldClass } from '../lib/labels';
+import { formatToman, LEDGER_SIDE_FA, selectFieldClass } from '../lib/labels';
 
 export function LedgerPanel() {
   const [page, setPage] = useState(1);
@@ -66,7 +66,7 @@ export function LedgerPanel() {
             }}
           >
             <option value="">همه</option>
-            <option value="RIAL">ریال</option>
+            <option value="RIAL">تومان</option>
             <option value="GOLD">طلا</option>
           </select>
         </div>
@@ -118,7 +118,9 @@ export function LedgerPanel() {
                   </TableCell>
                   <TableCell>{LEDGER_SIDE_FA[row.side] ?? row.side}</TableCell>
                   <TableCell>
-                    {row.amount} {row.assetType === 'GOLD' ? 'گرم' : 'ریال'}
+                    {row.assetType === 'GOLD'
+                      ? `${row.amount} گرم`
+                      : `${formatToman(row.amount)} تومان`}
                   </TableCell>
                   <TableCell className="text-sm">{row.user?.fullName ?? '—'}</TableCell>
                   <TableCell className="text-xs">

@@ -24,6 +24,7 @@ import { getSectionTheme } from '@/shared/lib/admin-section-theme';
 import { ChartPanel } from '@/widgets/admin/chart-panel';
 import { StatCard } from '@/widgets/admin/stat-card';
 import { PageHeader } from '@/widgets/admin/page-header';
+import { formatTomanAmount } from '@sadafgold/shared';
 
 const CHART_PRIMARY = '#cba670';
 const CHART_SUCCESS = '#4a8a72';
@@ -40,7 +41,8 @@ const tooltipStyle = {
 };
 
 function formatToman(value: string | number) {
-  return Number(value).toLocaleString('fa-IR');
+  const formatted = formatTomanAmount(value);
+  return formatted === '—' ? '0' : formatted;
 }
 
 export function DashboardOverview() {
@@ -287,7 +289,7 @@ export function DashboardOverview() {
                           </p>
                         </div>
                         <span className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
-                          {Number(order.netRial).toLocaleString('fa-IR')} ریال
+                          {Number(order.netRial).toLocaleString('fa-IR')} تومان
                         </span>
                       </div>
                     ))

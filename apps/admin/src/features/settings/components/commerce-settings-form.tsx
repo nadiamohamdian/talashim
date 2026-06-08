@@ -154,7 +154,7 @@ export function CommerceSettingsForm() {
         <SettingsToggleRow
           id="enableWalletCheckout"
           label="پرداخت از کیف پول"
-          description="استفاده از موجودی ریالی/طلایی کاربر در تسویه."
+          description="استفاده از موجودی تومانی/طلایی کاربر در تسویه."
           checked={flags.wallet}
           disabled={!canWrite}
           onChange={(v) => setValue('enableWalletCheckout', v, { shouldDirty: true })}

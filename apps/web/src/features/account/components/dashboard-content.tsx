@@ -32,7 +32,7 @@ export function DashboardContent() {
     { label: 'سفارش‌های فعال', value: data.activeOrders.toLocaleString('fa-IR') },
     { label: 'کل سفارش‌ها', value: data.totalOrders.toLocaleString('fa-IR') },
     {
-      label: 'موجودی ریالی',
+      label: 'موجودی تومانی',
       value: `${formatPrice(Number(data.rialBalance))} تومان`,
     },
     {

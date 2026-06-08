@@ -57,8 +57,8 @@ export function WalletBalancesCard({ variant = 'default' }: WalletBalancesCardPr
             </Badge>
             <p className="text-sm text-muted">
               {isHero
-                ? 'موجودی لحظه‌ای ریال و طلای شما'
-                : 'موجودی ریالی و طلای حساب'}
+                ? 'موجودی لحظه‌ای تومان و طلای شما'
+                : 'موجودی تومانی و طلای حساب'}
             </p>
           </div>
           {isFetching ? (
@@ -70,7 +70,7 @@ export function WalletBalancesCard({ variant = 'default' }: WalletBalancesCardPr
           <div className="group relative overflow-hidden rounded-2xl border border-nude-200 bg-gradient-to-br from-card to-nude-50/80 p-5 transition hover:border-gold-light/60">
             <div className="absolute -left-6 -top-6 h-24 w-24 rounded-full bg-gold/5 transition group-hover:bg-gold/10" />
             <p className="relative text-xs font-medium uppercase tracking-wide text-muted">
-              موجودی ریالی
+              موجودی تومانی
             </p>
             <p
               className={`relative mt-2 font-bold tracking-tight text-foreground ${

@@ -32,10 +32,32 @@ export const LEDGER_SIDE_FA: Record<string, string> = {
   CREDIT: 'بستانکار',
 };
 
+import {
+  formatTomanAmount,
+  formatTomanAmountWithUnit,
+  TOMAN_UNIT_FA,
+} from '@sadafgold/shared';
+
+export const CURRENCY_UNIT_FA = TOMAN_UNIT_FA;
+
 export function formatToman(value: string | number): string {
-  const n = typeof value === 'string' ? Number(value) : value;
-  if (Number.isNaN(n)) {
+  const formatted = formatTomanAmount(value);
+  if (formatted === '—') {
     return String(value);
   }
-  return n.toLocaleString('fa-IR');
+  return formatted;
+}
+
+export function formatTomanWithUnit(value: string | number): string {
+  const formatted = formatTomanAmountWithUnit(value);
+  return formatted === '—' ? String(value) : formatted;
+}
+
+export function formatAssetAmount(
+  amount: string | number,
+  assetType: 'GOLD' | 'RIAL' | string,
+): string {
+  return assetType === 'GOLD'
+    ? `${amount} گرم`
+    : `${formatTomanWithUnit(amount)}`;
 }
