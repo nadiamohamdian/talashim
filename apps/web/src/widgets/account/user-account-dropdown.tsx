@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth, useLogoutMutation } from '@/features/auth/hooks/use-auth';
 import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
+import { IconMenuProfile } from '@/widgets/header/header-menu-icons';
 import { IconUser } from '@/shared/ui/icons';
 
 const BASE_MENU_ITEMS = [
@@ -17,7 +18,11 @@ const BASE_MENU_ITEMS = [
   { href: '/profile', label: 'اطلاعات حساب' },
 ] as const;
 
-export function UserAccountDropdown() {
+interface UserAccountDropdownProps {
+  variant?: 'default' | 'menu-icon';
+}
+
+export function UserAccountDropdown({ variant = 'default' }: UserAccountDropdownProps) {
   const { isAuthenticated, user } = useAuth();
   const wishlistEnabled = useFeatureFlag('enableWishlist');
   const logoutMutation = useLogoutMutation();
@@ -39,6 +44,14 @@ export function UserAccountDropdown() {
   }, []);
 
   if (!isAuthenticated) {
+    if (variant === 'menu-icon') {
+      return (
+        <Link href={buildLoginHref('/profile')} className="mobile-menu-bar-action" aria-label="حساب کاربری">
+          <IconMenuProfile className="mobile-menu-bar-icon mobile-menu-bar-icon-profile" />
+        </Link>
+      );
+    }
+
     return (
       <Link
         href={buildLoginHref('/profile')}
@@ -62,19 +75,30 @@ export function UserAccountDropdown() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex items-center gap-2.5 rounded-xl px-1.5 py-1 transition hover:bg-nude-50"
+        className={
+          variant === 'menu-icon'
+            ? 'mobile-menu-bar-action'
+            : 'inline-flex items-center gap-2.5 rounded-xl px-1.5 py-1 transition hover:bg-nude-50'
+        }
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-label="حساب کاربری"
       >
-        <span className="inline-flex rounded-lg bg-nude-50 p-2 text-gold-dark">
-          <IconUser className="h-5 w-5" />
-        </span>
-        <span className="hidden flex-col items-start leading-tight lg:flex">
-          <span className="text-[11px] text-muted">سلام،</span>
-          <span className="max-w-[140px] truncate text-sm font-semibold text-foreground">
-            {displayName}
-          </span>
-        </span>
+        {variant === 'menu-icon' ? (
+          <IconMenuProfile className="mobile-menu-bar-icon mobile-menu-bar-icon-profile" />
+        ) : (
+          <>
+            <span className="inline-flex rounded-lg bg-nude-50 p-2 text-gold-dark">
+              <IconUser className="h-5 w-5" />
+            </span>
+            <span className="hidden flex-col items-start leading-tight lg:flex">
+              <span className="text-[11px] text-muted">سلام،</span>
+              <span className="max-w-[140px] truncate text-sm font-semibold text-foreground">
+                {displayName}
+              </span>
+            </span>
+          </>
+        )}
       </button>
 
       {open ? (

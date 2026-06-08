@@ -1,97 +1,82 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import type { PublicCmsStaticPageSummary } from '@sadafgold/types';
-import {
-  isLegalStaticPageSlug,
-  resolveStaticPageHref,
-} from '@/features/content/lib/static-page-paths';
-import { FOOTER_NAV } from '@/shared/config/storefront-ia';
-import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
+import { FooterBrand } from '@/widgets/footer/footer-brand';
+import { FooterSocialIcons } from '@/widgets/footer/footer-social-icons';
 
-const FIXED_COMPANY_LINKS = [
-  { label: 'تماس', href: '/contact' },
+const SERVICE_LINKS = [
+  { label: 'پیگیری سفارش', href: '/orders' },
+  { label: 'ارسال و مرجوعی', href: '/policies' },
   { label: 'سوالات متداول', href: '/faq' },
+] as const;
+
+const SUPPORT_LINKS = [
+  { label: 'تماس با ما', href: '/contact' },
+  { label: 'آدرس شعب', href: '/contact' },
+  { label: 'اخد نمایندگی', href: '/contact' },
 ] as const;
 
 interface SiteFooterProps {
   staticPages?: PublicCmsStaticPageSummary[];
 }
 
-export function SiteFooter({ staticPages = [] }: SiteFooterProps) {
-  const { general, commerce } = useStorefrontSettings();
-  const companyLinks = general.supportPhone
-    ? FIXED_COMPANY_LINKS
-    : FIXED_COMPANY_LINKS.filter((item) => item.href !== '/contact');
-
-  const cmsCompanyLinks = staticPages
-    .filter((page) => !isLegalStaticPageSlug(page.slug))
-    .map((page) => ({
-      label: page.title,
-      href: resolveStaticPageHref(page.slug),
-    }));
-
-  const cmsLegalLinks = staticPages
-    .filter((page) => isLegalStaticPageSlug(page.slug))
-    .map((page) => ({
-      label: page.title,
-      href: resolveStaticPageHref(page.slug),
-    }));
-
+export function SiteFooter({ staticPages: _staticPages = [] }: SiteFooterProps) {
   return (
-    <footer className="mt-auto border-t border-nude-200 bg-gradient-to-b from-nude-50 to-nude-100/80">
-      <div className="container-store grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <p className="text-lg font-bold text-gold-dark">{general.storeName}</p>
-          <p className="mt-4 text-sm leading-8 text-muted">
-            {general.tagline ??
-              'فروشگاه آنلاین طلا و جواهر — قیمت روز، خرید امن و ارسال سریع به سراسر کشور.'}
-          </p>
-          <p className="mt-3 text-sm text-muted">
-            پشتیبانی: {general.supportPhone}
-            <br />
-            {general.supportEmail}
-          </p>
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-foreground">فروشگاه</h3>
-          <ul className="mt-4 space-y-2.5">
-            {FOOTER_NAV.shop.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="text-sm text-muted transition hover:text-gold-dark">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-foreground">درباره ما</h3>
-          <ul className="mt-4 space-y-2.5">
-            {[...cmsCompanyLinks, ...companyLinks].map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="text-sm text-muted transition hover:text-gold-dark">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-sm font-bold text-foreground">قوانین</h3>
-          <ul className="mt-4 space-y-2.5">
-            {cmsLegalLinks.map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="text-sm text-muted transition hover:text-gold-dark">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <footer className="site-footer mt-auto w-full">
+      <div className="container-store site-footer-body">
+        <FooterBrand />
+
+        <nav aria-label="پاورقی" className="site-footer-nav">
+          <div className="site-footer-col site-footer-col-services">
+            <h3 className="site-footer-heading">خدمات</h3>
+            <ul className="site-footer-links">
+              {SERVICE_LINKS.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="site-footer-link">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="site-footer-col site-footer-col-support">
+            <h3 className="site-footer-heading">پشتیبانی</h3>
+            <ul className="site-footer-links">
+              {SUPPORT_LINKS.map((item) => (
+                <li key={item.label}>
+                  <Link href={item.href} className="site-footer-link">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </nav>
+
+        <FooterSocialIcons />
       </div>
-      <div className="border-t border-nude-200/80 py-5 text-center text-xs text-muted">
-        تمام حقوق برای {general.storeName} محفوظ است. قیمت‌ها به {commerce.currencyLabel}.
+
+      <div className="container-store">
+        <div className="site-footer-divider" />
+      </div>
+
+      <div className="container-store site-footer-bottom">
+        <div className="site-footer-bottom-inner">
+          <p className="site-footer-copyright">
+            © کلیه حقوق این وب سایت متعلق به دیوید جونز است.
+          </p>
+
+          <Image
+            src="/images/footer/enamad.png"
+            alt="نماد اعتماد الکترونیکی"
+            width={36}
+            height={39}
+            className="site-footer-enamad"
+          />
+        </div>
       </div>
     </footer>
   );

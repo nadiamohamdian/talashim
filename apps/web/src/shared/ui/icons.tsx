@@ -81,3 +81,39 @@ export function IconTrash(props: IconProps) {
     </svg>
   );
 }
+
+export function IconInstagram(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function IconTelegram(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
+      <path
+        d="M4.5 11.5 18.5 6.5c.8-.3 1.5.2 1.2 1.2l-2.2 8.2c-.3 1-1.1 1.2-1.8.8l-4.2-3.1-2 1.9c-.2.2-.5.1-.6-.2l.2-3.6 7.8-7.1c.3-.3-.1-.5-.5-.2l-9.6 6.1c-.8.5-.8 1.2-.2 1.5z"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function IconWhatsapp(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
+      <path
+        d="M12 4a8 8 0 0 0-6.9 12.1L4 20l3.9-1.1A8 8 0 1 0 12 4z"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.2 9.5c.2-.4.4-.4.6-.4h.5c.2 0 .4 0 .5.4l.7 1.6c.1.2.1.4 0 .5l-.5.6c-.1.1-.1.3 0 .4.3.5.9 1.2 1.8 1.5.2.1.3.1.4 0l.7-.8c.1-.1.3-.1.5 0l1.3.8c.2.1.2.3.2.5-.1.6-.6 1.2-1.1 1.4-.5.2-1.1.3-1.9.1-.9-.3-2.1-1-3-2.1-1-1.1-1.5-2.4-1.6-3.1-.1-.6 0-1 .3-1.3z"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

@@ -20,6 +20,9 @@ RUN pnpm --filter @sadafgold/shared build \
   && pnpm --filter @sadafgold/types build \
   && pnpm --filter @sadafgold/api prisma:generate
 
+COPY docker/api/docker-entrypoint.dev.sh /usr/local/bin/docker-entrypoint.dev.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.dev.sh
+
 WORKDIR /app/apps/api
 EXPOSE 4000
-CMD ["sh", "-c", "pnpm prisma:generate && pnpm start:dev"]
+ENTRYPOINT ["docker-entrypoint.dev.sh"]

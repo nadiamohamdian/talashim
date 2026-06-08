@@ -99,6 +99,31 @@ export const PRIMARY_NAV: StorefrontNavItem[] = [
   { label: 'تماس با ما', href: '/contact' },
 ];
 
+/** Figma node 1752:5944 — homepage category showcase (3 columns) */
+export const HOME_CATEGORY_SHOWCASE = [
+  {
+    slug: 'rings',
+    label: 'انگشتر',
+    href: '/categories/rings',
+    imageFile: 'd428dd8d-6f43-4a64-bda1-47457426c536.png',
+    fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.rings,
+  },
+  {
+    slug: 'bracelets',
+    label: 'دستبند',
+    href: '/categories/bracelets',
+    imageFile: '8dc1f429-afdc-48c7-81a4-f8a5e972faf4.png',
+    fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.bracelets,
+  },
+  {
+    slug: 'earrings',
+    label: 'گوشواره',
+    href: '/categories/earrings',
+    imageFile: '4df3c2ed-250d-4700-aca7-d7b54e5422b8.png',
+    fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.earrings,
+  },
+] as const;
+
 export const HOME_CATEGORY_SHORTCUTS = [
   {
     slug: 'rings',

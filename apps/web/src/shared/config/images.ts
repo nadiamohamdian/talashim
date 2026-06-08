@@ -4,9 +4,9 @@ export const PLACEHOLDER_MEDIA_IMAGE = '/images/placeholder-media.svg';
 export const DEFAULT_PRODUCT_IMAGE = PLACEHOLDER_MEDIA_IMAGE;
 
 export const CATEGORY_FALLBACK_IMAGES = {
-  rings: PLACEHOLDER_MEDIA_IMAGE,
-  earrings: PLACEHOLDER_MEDIA_IMAGE,
-  bracelets: PLACEHOLDER_MEDIA_IMAGE,
+  rings: '/images/categories/rings.png',
+  earrings: '/images/categories/earrings.png',
+  bracelets: '/images/categories/bracelets.png',
   necklaces: PLACEHOLDER_MEDIA_IMAGE,
   gifts: PLACEHOLDER_MEDIA_IMAGE,
 } as const;

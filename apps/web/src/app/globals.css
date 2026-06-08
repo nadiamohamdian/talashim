@@ -217,3 +217,960 @@ a {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+
+/* Header menu — Figma node 1755:8410 (menu-mobile/talashim) */
+.site-header-menu {
+  --menu-fg: #fdfdfd;
+  --menu-font: 'Yekan Bakh', var(--font-sans);
+  --menu-bar-h: 48px;
+  --menu-brand-size: 20px;
+  --menu-icon-search: 14.8px;
+  --menu-icon-profile: 14px;
+  --menu-icon-bag: 12px;
+  --menu-icon-menu-w: 24px;
+  --menu-icon-menu-h: 13px;
+  --menu-action-gap: 18px;
+  background: #a8a4a0;
+  color: var(--menu-fg);
+}
+
+/* Mobile menu bar — 390×48 */
+.mobile-menu-bar {
+  display: flex;
+  height: var(--menu-bar-h);
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 19px;
+}
+
+.mobile-menu-bar-brand {
+  font-family: var(--menu-font);
+  font-size: var(--menu-brand-size);
+  font-weight: 300;
+  line-height: normal;
+  color: var(--menu-fg);
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-menu-bar-brand:hover {
+  opacity: 0.85;
+}
+
+.mobile-menu-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--menu-action-gap);
+}
+
+.mobile-menu-bar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--menu-fg);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-menu-bar-action:hover {
+  opacity: 0.75;
+}
+
+.mobile-menu-bar-icon {
+  display: block;
+  color: var(--menu-fg);
+}
+
+.mobile-menu-bar-icon-search {
+  width: var(--menu-icon-search);
+  height: var(--menu-icon-search);
+}
+
+.mobile-menu-bar-icon-profile {
+  width: var(--menu-icon-profile);
+  height: var(--menu-icon-profile);
+}
+
+.mobile-menu-bar-icon-bag {
+  width: var(--menu-icon-bag);
+  height: var(--menu-icon-bag);
+}
+
+.mobile-menu-bar-icon-menu {
+  width: var(--menu-icon-menu-w);
+  height: var(--menu-icon-menu-h);
+}
+
+.mobile-menu-bar-badge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  display: flex;
+  min-width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--gold-dark);
+  padding-inline: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Mobile nav drawer — Figma nodes 1755:8299 (menu) + 1755:8312 (submenu) */
+.mobile-nav-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  border: 0;
+  background: rgba(86, 71, 57, 0.35);
+}
+
+.mobile-nav-drawer {
+  --drawer-bg: #efe9e3;
+  --drawer-text: #564739;
+  --drawer-brand: #6d5945;
+  --drawer-font: 'Yekan Bakh', var(--font-sans);
+  --drawer-px: 19px;
+  --drawer-top-pt: 16px;
+  --drawer-item-h: 40px;
+  --drawer-item-size: 14px;
+  --drawer-subitem-h: 32px;
+  --drawer-subitem-size: 12px;
+  --drawer-subitem-indent: 16px;
+  --drawer-divider: rgba(86, 71, 57, 0.14);
+  --drawer-chevron-w: 8px;
+  --drawer-chevron-h: 5px;
+  --drawer-close-size: 14px;
+  position: fixed;
+  top: var(--menu-bar-h);
+  right: 0;
+  left: 0;
+  z-index: 51;
+  display: flex;
+  width: 100%;
+  max-width: 390px;
+  height: calc(100dvh - var(--menu-bar-h));
+  margin-inline: auto;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--drawer-bg);
+  color: var(--drawer-text);
+  font-family: var(--drawer-font);
+}
+
+.mobile-nav-drawer-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--drawer-top-pt) var(--drawer-px) 8px;
+}
+
+.mobile-nav-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--drawer-text);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-nav-drawer-close:hover {
+  opacity: 0.7;
+}
+
+.mobile-nav-drawer-close-icon {
+  width: var(--drawer-close-size);
+  height: var(--drawer-close-size);
+}
+
+.mobile-nav-drawer-nav {
+  flex: 1;
+  padding: 0 var(--drawer-px) 24px;
+}
+
+.mobile-nav-drawer-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mobile-nav-drawer-item {
+  border-bottom: 1px solid var(--drawer-divider);
+}
+
+.mobile-nav-drawer-item:last-child {
+  border-bottom: 0;
+}
+
+.mobile-nav-drawer-row {
+  display: flex;
+  width: 100%;
+  min-height: var(--drawer-item-h);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--drawer-font);
+  font-size: var(--drawer-item-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--drawer-text);
+  text-align: right;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-nav-drawer-row:hover {
+  opacity: 0.75;
+}
+
+.mobile-nav-drawer-row-label {
+  flex: 1;
+}
+
+.mobile-nav-drawer-chevron {
+  flex-shrink: 0;
+  width: var(--drawer-chevron-w);
+  height: var(--drawer-chevron-h);
+  color: var(--drawer-text);
+}
+
+/* Submenu panel — Figma 1755:8312 */
+.mobile-nav-drawer-submenu {
+  margin: 0;
+  padding-block: 2px 6px;
+  padding-inline: var(--drawer-subitem-indent) 0;
+  list-style: none;
+}
+
+.mobile-nav-drawer-subitem {
+  border-bottom: 0;
+}
+
+.mobile-nav-drawer-sublink {
+  display: flex;
+  min-height: var(--drawer-subitem-h);
+  align-items: center;
+  font-family: var(--drawer-font);
+  font-size: var(--drawer-subitem-size);
+  font-weight: 300;
+  line-height: normal;
+  color: var(--drawer-text);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-nav-drawer-sublink:hover {
+  opacity: 0.75;
+}
+
+.mobile-nav-drawer-link-accent {
+  font-weight: 400;
+  color: var(--drawer-brand);
+}
+
+/* Desktop menu bar — extrapolated from mobile */
+.desktop-menu-bar {
+  color: var(--menu-fg);
+}
+
+.desktop-menu-bar-top {
+  display: flex;
+  height: 56px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.desktop-menu-bar-brand {
+  flex-shrink: 0;
+  font-family: var(--menu-font);
+  font-size: 24px;
+  font-weight: 300;
+  line-height: normal;
+  color: var(--menu-fg);
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.desktop-menu-bar-brand:hover {
+  opacity: 0.85;
+}
+
+.desktop-menu-bar-nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.desktop-menu-bar-nav nav {
+  gap: 0.25rem;
+}
+
+.desktop-menu-bar-nav a {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  font-family: var(--menu-font);
+  font-size: 0.875rem;
+  font-weight: 300;
+  color: var(--menu-fg);
+  opacity: 0.9;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.desktop-menu-bar-nav a:hover {
+  opacity: 1;
+  background: rgba(253, 253, 253, 0.08);
+}
+
+.desktop-menu-bar-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 24px;
+}
+
+.desktop-menu-bar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--menu-fg);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.desktop-menu-bar-action:hover {
+  opacity: 0.75;
+}
+
+.desktop-menu-bar-icon {
+  display: block;
+  color: var(--menu-fg);
+}
+
+.desktop-menu-bar-icon-search {
+  width: 17px;
+  height: 17px;
+}
+
+.desktop-menu-bar-icon-profile {
+  width: 16px;
+  height: 16px;
+}
+
+.desktop-menu-bar-icon-bag {
+  width: 14px;
+  height: 14px;
+}
+
+.desktop-menu-bar-badge {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  display: flex;
+  min-width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--gold-dark);
+  padding-inline: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.desktop-menu-bar-search {
+  padding-bottom: 1rem;
+}
+
+.desktop-menu-bar-sub {
+  border-top: 1px solid rgba(253, 253, 253, 0.12);
+}
+
+.desktop-menu-bar-sub-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 0.625rem;
+}
+
+.desktop-menu-bar-sale {
+  margin-right: auto;
+  font-family: var(--menu-font);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--menu-fg);
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.desktop-menu-bar-sale:hover {
+  opacity: 1;
+}
+
+/* Tablet: widen mobile bar */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .mobile-menu-bar {
+    max-width: 100%;
+    padding-inline: 1.5rem;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1280px) {
+  .desktop-menu-bar-top {
+    height: 64px;
+  }
+
+  .desktop-menu-bar-brand {
+    font-size: 26px;
+  }
+
+  .desktop-menu-bar-nav a {
+    font-size: 0.9375rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* Yekan Bakh (یکان بخ) — footer typography per Figma */
+@font-face {
+  font-family: 'Yekan Bakh';
+  src: url('/fonts/yekan-bakh/YekanBakhFaNum-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Yekan Bakh';
+  src: url('/fonts/yekan-bakh/YekanBakhFaNum-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Category showcase — Figma node 1752:5944 */
+.category-showcase {
+  --cat-bg: #ffffff;
+  --cat-title-color: #6d5945;
+  --cat-label-color: #000000;
+  --cat-font: 'Yekan Bakh', var(--font-sans);
+  --cat-px: 19px;
+  --cat-py: 24px;
+  --cat-title-size: 14px;
+  --cat-title-mb: 16px;
+  --cat-label-size: 16px;
+  --cat-label-mt: 12px;
+  --cat-gap: 11px;
+  --cat-aspect: 2 / 3;
+  background: var(--cat-bg);
+  font-family: var(--cat-font);
+}
+
+.category-showcase-inner {
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+  padding: var(--cat-py) var(--cat-px);
+}
+
+.category-showcase-title {
+  margin: 0 0 var(--cat-title-mb);
+  font-family: var(--cat-font);
+  font-size: var(--cat-title-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--cat-title-color);
+  text-align: right;
+  letter-spacing: 0;
+}
+
+.category-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--cat-gap);
+}
+
+.category-showcase-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.category-showcase-card:hover {
+  opacity: 0.85;
+}
+
+.category-showcase-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--cat-aspect);
+  overflow: hidden;
+  background: #f5f3f0;
+}
+
+.category-showcase-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.category-showcase-label {
+  margin: var(--cat-label-mt) 0 0;
+  width: 100%;
+  font-family: var(--cat-font);
+  font-size: var(--cat-label-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--cat-label-color);
+  text-align: center;
+  letter-spacing: 0;
+}
+
+@media (min-width: 640px) {
+  .category-showcase-inner {
+    max-width: 1280px;
+    padding: 40px 1.5rem;
+  }
+
+  .category-showcase {
+    --cat-title-size: 16px;
+    --cat-title-mb: 24px;
+    --cat-label-size: 18px;
+    --cat-label-mt: 14px;
+    --cat-gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .category-showcase {
+    --cat-gap: 32px;
+    --cat-py: 48px;
+  }
+
+  .category-showcase-grid {
+    max-width: 720px;
+    margin-inline-start: auto;
+  }
+}
+
+/* Footer — Figma node 1755:8334 */
+.site-footer {
+  --footer-bg: #efe9e3;
+  --footer-brand: #6d5945;
+  --footer-text: #564739;
+  --footer-font: 'Yekan Bakh', var(--font-sans);
+  --footer-brand-size: 20px;
+  --footer-heading-size: 14px;
+  --footer-link-size: 12px;
+  --footer-copyright-size: 12px;
+  --footer-nav-gap: 104px;
+  --footer-necklace-w: 70px;
+  --footer-necklace-h: 69px;
+  --footer-line-left-w: 146px;
+  --footer-line-right-w: 113px;
+  --footer-body-pt: 32px;
+  --footer-nav-mt: 11px;
+  --footer-social-mt: 47px;
+  --footer-divider-mt: 27px;
+  --footer-link-gap: 21px;
+  --footer-heading-mb: 16px;
+  --footer-social-w: 60px;
+  --footer-social-h: 13px;
+  --footer-enamad-w: 36px;
+  font-family: var(--footer-font);
+  background: var(--footer-bg);
+}
+
+.site-footer-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+  padding-top: var(--footer-body-pt);
+}
+
+/* Brand */
+.footer-brand {
+  display: block;
+  width: 100%;
+  transition: opacity 0.2s ease;
+}
+
+.footer-brand:hover {
+  opacity: 0.9;
+}
+
+.footer-brand-inner {
+  position: relative;
+  height: 80px;
+  width: 100%;
+}
+
+.footer-brand-necklace {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  width: var(--footer-necklace-w);
+  height: var(--footer-necklace-h);
+  overflow: hidden;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.footer-brand-necklace-img {
+  position: absolute;
+  top: -63.77%;
+  left: -48.54%;
+  width: 198.68%;
+  height: 199.72%;
+  max-width: none;
+  object-fit: cover;
+}
+
+.footer-brand-lines {
+  position: absolute;
+  top: 56px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  pointer-events: none;
+}
+
+.footer-brand-line {
+  position: absolute;
+  top: 0;
+  height: 1px;
+}
+
+.footer-brand-line-left {
+  left: 40px;
+  width: var(--footer-line-left-w);
+}
+
+.footer-brand-line-right {
+  right: 40px;
+  width: var(--footer-line-right-w);
+}
+
+.footer-brand-word {
+  position: absolute;
+  top: 40px;
+  margin: 0;
+  font-family: var(--footer-font);
+  font-size: var(--footer-brand-size);
+  font-weight: 300;
+  line-height: normal;
+  color: var(--footer-brand);
+}
+
+.footer-brand-word-ta {
+  left: calc(50% - 29px);
+  white-space: pre;
+}
+
+.footer-brand-word-ashim {
+  left: calc(60% - 27px);
+  white-space: nowrap;
+}
+
+/* Navigation */
+.site-footer-nav {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: var(--footer-nav-mt);
+  padding-inline: 40px;
+}
+
+.site-footer-col {
+  text-align: right;
+}
+
+.site-footer-col-services {
+  width: 82px;
+}
+
+.site-footer-col-support {
+  width: 66px;
+}
+
+.site-footer-heading {
+  margin: 0 0 var(--footer-heading-mb);
+  font-family: var(--footer-font);
+  font-size: var(--footer-heading-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--footer-text);
+}
+
+.site-footer-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer-link {
+  display: block;
+  font-family: var(--footer-font);
+  font-size: var(--footer-link-size);
+  font-weight: 300;
+  line-height: normal;
+  color: var(--footer-text);
+  transition: opacity 0.2s ease;
+}
+
+.site-footer-links li + li {
+  margin-top: var(--footer-link-gap);
+}
+
+.site-footer-link:hover {
+  opacity: 0.75;
+}
+
+/* Social */
+.site-footer-socials {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--footer-social-mt);
+}
+
+.site-footer-social-strip-wrap {
+  position: relative;
+  width: var(--footer-social-w);
+  height: var(--footer-social-h);
+  direction: ltr;
+}
+
+.site-footer-social-strip {
+  display: block;
+  width: var(--footer-social-w);
+  height: var(--footer-social-h);
+}
+
+.site-footer-social-links {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.site-footer-social-hit {
+  flex: 1;
+  transition: opacity 0.2s ease;
+}
+
+.site-footer-social-hit:hover {
+  opacity: 0.7;
+}
+
+/* Divider */
+.site-footer-divider {
+  width: 100%;
+  height: 1px;
+  margin-top: var(--footer-divider-mt);
+  background-color: var(--footer-text);
+  opacity: 0.35;
+}
+
+/* Bottom bar */
+.site-footer-bottom {
+  padding-block: 12px 14px;
+}
+
+.site-footer-bottom-inner {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.site-footer-copyright {
+  margin: 0;
+  font-family: var(--footer-font);
+  font-size: var(--footer-copyright-size);
+  font-weight: 300;
+  line-height: normal;
+  color: var(--footer-text);
+  text-align: right;
+}
+
+.site-footer-enamad {
+  width: var(--footer-enamad-w);
+  height: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+/* Tablet — widen content area */
+@media (min-width: 640px) {
+  .site-footer-body {
+    max-width: 520px;
+  }
+
+  .site-footer-nav {
+    padding-inline: 0;
+    justify-content: center;
+    gap: var(--footer-nav-gap);
+  }
+
+  .site-footer-col-services,
+  .site-footer-col-support {
+    width: auto;
+    min-width: 82px;
+  }
+}
+
+/* Desktop — full container width, scaled typography */
+@media (min-width: 1024px) {
+  .site-footer {
+    --footer-brand-size: 24px;
+    --footer-heading-size: 16px;
+    --footer-link-size: 14px;
+    --footer-copyright-size: 13px;
+    --footer-nav-gap: 200px;
+    --footer-necklace-w: 84px;
+    --footer-necklace-h: 83px;
+    --footer-line-left-w: 220px;
+    --footer-line-right-w: 170px;
+    --footer-body-pt: 40px;
+    --footer-nav-mt: 20px;
+    --footer-social-mt: 52px;
+    --footer-divider-mt: 32px;
+    --footer-link-gap: 24px;
+    --footer-heading-mb: 18px;
+    --footer-social-w: 72px;
+    --footer-social-h: 16px;
+    --footer-enamad-w: 42px;
+  }
+
+  .site-footer-body {
+    max-width: 100%;
+    padding-top: var(--footer-body-pt);
+  }
+
+  .footer-brand-inner {
+    height: 96px;
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  .footer-brand-lines {
+    top: 64px;
+  }
+
+  .footer-brand-line-left {
+    left: 0;
+  }
+
+  .footer-brand-line-right {
+    right: 0;
+  }
+
+  .footer-brand-word {
+    top: 48px;
+  }
+
+  .footer-brand-word-ta {
+    left: calc(50% - 36px);
+  }
+
+  .footer-brand-word-ashim {
+    left: calc(50% + 28px);
+  }
+
+  .site-footer-nav {
+    max-width: 640px;
+    margin-inline: auto;
+    gap: var(--footer-nav-gap);
+  }
+
+  .site-footer-copyright {
+    max-width: none;
+    flex: 1;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1280px) {
+  .site-footer {
+    --footer-nav-gap: 280px;
+    --footer-line-left-w: 280px;
+    --footer-line-right-w: 220px;
+  }
+
+  .footer-brand-inner,
+  .site-footer-nav {
+    max-width: 760px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 429px) {
+  .site-footer-nav {
+    padding-inline: 24px;
+    gap: 3.5rem;
+    justify-content: center;
+  }
+
+  .site-footer-col-services,
+  .site-footer-col-support {
+    width: auto;
+    min-width: 72px;
+  }
+
+  .footer-brand-line-left {
+    left: 24px;
+    width: 110px;
+  }
+
+  .footer-brand-line-right {
+    right: 24px;
+    width: 88px;
+  }
+}
+
+@media (max-width: 359px) {
+  .site-footer-nav {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .site-footer-col {
+    text-align: center;
+  }
+
+  .site-footer-bottom-inner {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .site-footer-copyright {
+    text-align: center;
+  }
+}
