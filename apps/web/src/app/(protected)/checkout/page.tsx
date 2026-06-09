@@ -1,13 +1,5 @@
-import { ProtectedPageShell } from '@/widgets/content/protected-page-shell';
-import { CheckoutContent } from '@/features/checkout/components/checkout-content';
+import { CheckoutShippingView } from '@/widgets/checkout/checkout-shipping-view';
 
 export default function CheckoutPage() {
-  return (
-    <ProtectedPageShell
-      title="تسویه حساب"
-      description="تکمیل خرید — نیاز به احراز هویت."
-    >
-      <CheckoutContent />
-    </ProtectedPageShell>
-  );
+  return <CheckoutShippingView />;
 }

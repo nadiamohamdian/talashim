@@ -11,6 +11,8 @@ export interface CartLineItem {
   priceToman: number;
   imageUrl?: string;
   weightGram?: number;
+  variantLabel?: string;
+  variantSwatchColor?: string;
 }
 
 interface CartState {
@@ -42,7 +44,6 @@ export const useCartStore = create<CartState>()(
                   ? { ...line, quantity: line.quantity + (item.quantity ?? 1) }
                   : line,
               ),
-              isOpen: true,
             };
           }
           return {
@@ -55,10 +56,11 @@ export const useCartStore = create<CartState>()(
                 priceToman: item.priceToman,
                 imageUrl: item.imageUrl,
                 weightGram: item.weightGram,
+                variantLabel: item.variantLabel,
+                variantSwatchColor: item.variantSwatchColor,
                 quantity: item.quantity ?? 1,
               },
             ],
-            isOpen: true,
           };
         });
       },

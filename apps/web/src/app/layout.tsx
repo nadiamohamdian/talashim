@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 
-import { IBM_Plex_Sans_Arabic } from "next/font/google";
-
 import "./globals.css";
 
 import { GoogleAnalytics } from "@/features/site/components/google-analytics";
@@ -9,15 +7,6 @@ import { MaintenanceShell } from "@/features/site/components/maintenance-shell";
 import { getPublicSeo, getPublishedBanners, getPublishedStaticPages } from "@/lib/api/cms.api";
 import { fetchSiteConfig } from "@/lib/api/site.api";
 import { buildSiteMetadata } from "@/shared/lib/build-site-metadata";
-
-const persianSans = IBM_Plex_Sans_Arabic({
-  variable: "--font-sans-primary",
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-  preload: true,
-  adjustFontFallback: true,
-});
 
 /** Always read maintenance flag and SEO fresh — stale cache would trap wrong site state. */
 export const dynamic = 'force-dynamic';
@@ -44,7 +33,7 @@ export default async function RootLayout({
       lang="fa"
       dir="rtl"
       suppressHydrationWarning
-      className={`${persianSans.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         {seo?.googleAnalyticsId ? (

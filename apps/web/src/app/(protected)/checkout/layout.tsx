@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
-import { ProtectedShell } from '@/features/auth/components/protected-shell';
 
+/** Shipping step is public; payment/confirmation/track wrap themselves in ProtectedShell. */
 export default function CheckoutLayout({ children }: PropsWithChildren) {
-  return <ProtectedShell>{children}</ProtectedShell>;
+  return children;
 }

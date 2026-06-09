@@ -1,6 +1,7 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import type { PaginatedResponse, ProductSummary } from '@sadafgold/types';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { productApi } from '@/lib/api/product.api';
 import { queryKeys, type ProductListParams, type ProductSearchParams } from '@/lib/api/query-keys';
 
@@ -24,12 +25,22 @@ export function useFeaturedProducts() {
   });
 }
 
-export function useProductSearch(params: ProductSearchParams) {
+type ProductSearchQueryOptions = Pick<
+  UseQueryOptions<PaginatedResponse<ProductSummary>>,
+  'initialData' | 'placeholderData'
+>;
+
+export function useProductSearch(
+  params: ProductSearchParams,
+  options?: ProductSearchQueryOptions,
+) {
   return useQuery({
     queryKey: queryKeys.products.search(params),
     queryFn: ({ signal }) => productApi.search(params, signal),
-    enabled: params.query.length >= 2,
+    enabled: params.query.trim().length >= 2,
     staleTime: 30_000,
     refetchInterval: CATALOG_REFETCH_MS,
+    initialData: options?.initialData,
+    placeholderData: options?.placeholderData,
   });
 }

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useCartHydrated } from '@/features/cart/hooks/use-cart-hydrated';
 import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
-import { useCartStore } from '@/features/cart/model/cart-store';
 import { formatPrice } from '@/shared/lib/format-price';
 import { IconCart, IconHeart } from '@/shared/ui/icons';
 import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
@@ -70,7 +69,6 @@ export function HeaderActions() {
   const wishlistEnabled = useFeatureFlag('enableWishlist');
   const cartHydrated = useCartHydrated();
   const { count, total } = useDisplayCart();
-  const openCart = useCartStore((s) => s.openCart);
   const cartBadge = cartHydrated && count > 0 ? count : undefined;
   const cartSublabel =
     cartHydrated && count > 0 ? `${formatPrice(total)} تومان` : 'سبد خرید';
@@ -86,11 +84,11 @@ export function HeaderActions() {
         />
       ) : null}
       <HeaderActionLink
+        href="/cart"
         label="سبد خرید"
         sublabel={cartSublabel}
         badge={cartBadge}
         icon={<IconCart className="h-5 w-5" />}
-        onClick={openCart}
       />
     </div>
   );

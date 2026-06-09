@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useCartHydrated } from '@/features/cart/hooks/use-cart-hydrated';
 import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
-import { useCartStore } from '@/features/cart/model/cart-store';
 import { UserAccountDropdown } from '@/widgets/account/user-account-dropdown';
 import {
   IconMenuBag,
@@ -17,7 +16,6 @@ export function MobileMenuBar() {
   const [navOpen, setNavOpen] = useState(false);
   const cartHydrated = useCartHydrated();
   const { count } = useDisplayCart();
-  const openCart = useCartStore((s) => s.openCart);
   const cartBadge = cartHydrated && count > 0 ? count : undefined;
 
   return (
@@ -34,19 +32,14 @@ export function MobileMenuBar() {
 
           <UserAccountDropdown variant="menu-icon" />
 
-          <button
-            type="button"
-            className="mobile-menu-bar-action"
-            aria-label="سبد خرید"
-            onClick={openCart}
-          >
+          <Link href="/cart" className="mobile-menu-bar-action" aria-label="سبد خرید">
             <span className="relative inline-flex">
               <IconMenuBag className="mobile-menu-bar-icon mobile-menu-bar-icon-bag" />
               {cartBadge != null ? (
                 <span className="mobile-menu-bar-badge">{cartBadge}</span>
               ) : null}
             </span>
-          </button>
+          </Link>
 
           <button
             type="button"

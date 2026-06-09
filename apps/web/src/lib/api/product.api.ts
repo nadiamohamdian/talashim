@@ -48,9 +48,10 @@ export const productApi = {
         search: params.query,
         page: params.page ?? 1,
         limit: params.limit ?? 24,
+        category: params.category,
       },
       signal,
-      abortKey: `products:search:${params.query}:${params.page ?? 1}`,
+      abortKey: `products:search:${params.query}:${params.page ?? 1}:${params.category ?? ''}`,
     });
   },
 
@@ -129,12 +130,16 @@ export const productApi = {
     query: string,
     page = 1,
     limit = 24,
+    category?: string,
   ): Promise<PaginatedResponse<ProductSummary>> {
     const params = new URLSearchParams({
       search: query,
       page: String(page),
       limit: String(limit),
     });
+    if (category) {
+      params.set('category', category);
+    }
     const result = await serverFetchPaginatedCatalog<ProductSummary>(
       `/catalog?${params}`,
       { revalidate: 30 },

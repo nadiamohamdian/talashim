@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import type { ProductSummary } from '@sadafgold/types';
 import {
   PRODUCT_LISTING_CAROUSEL_SLIDES,
@@ -20,11 +20,19 @@ import { ProductListingToolbar } from '@/widgets/catalog/product-listing-toolbar
 interface ProductListingViewProps {
   products: ProductSummary[];
   meta?: ProductListingPageMeta;
+  hero?: ReactNode;
+  emptyMessage?: string;
+  isLoading?: boolean;
+  loadingMessage?: string;
 }
 
 export function ProductListingView({
   products,
   meta = PRODUCT_LISTING_PAGE,
+  hero,
+  emptyMessage = 'محصولی یافت نشد.',
+  isLoading = false,
+  loadingMessage = 'در حال بارگذاری...',
 }: ProductListingViewProps) {
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -71,15 +79,17 @@ export function ProductListingView({
           <p className="product-listing-subtitle">{meta.subtitle}</p>
         </header>
 
-        <ProductListingHeroCarousel slides={PRODUCT_LISTING_CAROUSEL_SLIDES} />
+        {hero ?? <ProductListingHeroCarousel slides={PRODUCT_LISTING_CAROUSEL_SLIDES} />}
 
         <ProductListingToolbar
           onSortOpen={() => setSortOpen(true)}
           onFilterOpen={() => setFilterOpen(true)}
         />
 
-        {products.length === 0 ? (
-          <p className="product-listing-empty">محصولی یافت نشد.</p>
+        {isLoading ? (
+          <p className="product-listing-empty">{loadingMessage}</p>
+        ) : products.length === 0 ? (
+          <p className="product-listing-empty">{emptyMessage}</p>
         ) : (
           <div className="product-listing-grid">
             {products.map((product) => (

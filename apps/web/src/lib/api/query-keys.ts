@@ -10,6 +10,7 @@ export interface ProductSearchParams {
   query: string;
   page?: number;
   limit?: number;
+  category?: string;
 }
 
 export interface MarketPriceParams {

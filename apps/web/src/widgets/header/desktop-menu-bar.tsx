@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useCartHydrated } from '@/features/cart/hooks/use-cart-hydrated';
 import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
-import { useCartStore } from '@/features/cart/model/cart-store';
 import { UserAccountDropdown } from '@/widgets/account/user-account-dropdown';
 import { CategoryNavMenu, MainNavLinks } from '@/widgets/header/main-nav';
 import {
@@ -16,7 +15,6 @@ import { StoreSearchBar } from '@/widgets/header/store-search-bar';
 export function DesktopMenuBar() {
   const cartHydrated = useCartHydrated();
   const { count } = useDisplayCart();
-  const openCart = useCartStore((s) => s.openCart);
   const cartBadge = cartHydrated && count > 0 ? count : undefined;
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -44,19 +42,14 @@ export function DesktopMenuBar() {
 
           <UserAccountDropdown variant="menu-icon" />
 
-          <button
-            type="button"
-            className="desktop-menu-bar-action"
-            aria-label="سبد خرید"
-            onClick={openCart}
-          >
+          <Link href="/cart" className="desktop-menu-bar-action" aria-label="سبد خرید">
             <span className="relative inline-flex">
               <IconMenuBag className="desktop-menu-bar-icon desktop-menu-bar-icon-bag" />
               {cartBadge != null ? (
                 <span className="desktop-menu-bar-badge">{cartBadge}</span>
               ) : null}
             </span>
-          </button>
+          </Link>
         </div>
       </div>
 
