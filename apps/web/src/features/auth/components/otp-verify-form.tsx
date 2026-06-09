@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Label } from '@sadafgold/ui';
 import { getApiErrorMessage } from '@/lib/api';
 import { useOtpVerifyMutation } from '@/features/auth/hooks/use-auth';
 import { otpVerifySchema, type OtpVerifyValues } from '@/features/auth/model/schemas';
@@ -32,32 +31,33 @@ export function OtpVerifyForm() {
 
   return (
     <form
-      className="space-y-4"
+      className="auth-form"
       onSubmit={form.handleSubmit((values) => verifyMutation.mutate(values))}
     >
-      <div className="space-y-2">
-        <Label htmlFor="identifier">موبایل یا ایمیل</Label>
-        <Input id="identifier" readOnly {...form.register('identifier')} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="code">کد ۶ رقمی</Label>
-        <Input
+      <label className="auth-field" htmlFor="identifier">
+        <span className="auth-field-label">موبایل یا ایمیل</span>
+        <input id="identifier" className="auth-input auth-input--readonly" readOnly {...form.register('identifier')} />
+      </label>
+      <label className="auth-field" htmlFor="code">
+        <span className="auth-field-label">کد ۶ رقمی</span>
+        <input
           id="code"
+          className="auth-input auth-input--code"
           inputMode="numeric"
           maxLength={6}
           placeholder="123456"
-          className="tracking-[0.4em] text-center"
+          autoComplete="one-time-code"
           {...form.register('code')}
         />
         {form.formState.errors.code ? (
-          <p className="text-sm text-red-600">{form.formState.errors.code.message}</p>
+          <span className="auth-field-error">{form.formState.errors.code.message}</span>
         ) : null}
-      </div>
-      <Button type="submit" className="w-full" disabled={verifyMutation.isPending}>
+      </label>
+      <button type="submit" className="auth-submit" disabled={verifyMutation.isPending}>
         {verifyMutation.isPending ? 'در حال تأیید...' : 'تأیید و ورود'}
-      </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Link href="/login" className="block text-center text-sm text-stone-600 hover:text-stone-950">
+      </button>
+      {error ? <p className="auth-form-error">{error}</p> : null}
+      <Link href="/login" className="auth-back-link">
         بازگشت به ورود
       </Link>
     </form>

@@ -80,10 +80,12 @@ export function SearchResultsView({
     <ProductListingView
       products={showLoading ? [] : products}
       meta={meta}
-      hero={<ProductListingSearchField defaultQuery={query} />}
+      showDefaultHero={false}
       emptyMessage={emptyMessage}
       isLoading={showLoading || (isFetching && products.length === 0 && query.length >= 2)}
       loadingMessage="در حال جستجو..."
-    />
+    >
+      <ProductListingSearchField defaultQuery={query} />
+    </ProductListingView>
   );
 }

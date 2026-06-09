@@ -52,6 +52,7 @@ export class CatalogService {
       RING: 'انگشتر',
       NECKLACE: 'گردنبند',
       BRACELET: 'دستبند',
+      EARRING: 'گوشواره',
       COIN: 'سکه',
     };
     return rows.map((row) => ({
@@ -62,30 +63,41 @@ export class CatalogService {
   }
 
   async findAll(query: CatalogQueryDto) {
-    const category = query.category?.toUpperCase() as ProductCategory | undefined;
+    const category = this.resolveCategory(query.category);
     const limit = query.limit ?? 12;
     const page = query.page ?? 1;
     const skip = (page - 1) * limit;
     const search = query.search?.trim() || undefined;
     const onSale = query.sale === true;
+    const hasPriceFilter = query.minPrice != null || query.maxPrice != null;
+    const wantsPaginated = query.page !== undefined || Boolean(search);
 
-    if (onSale) {
-      const products = await this.catalogRepository.findAll(200, category, search, 0, true);
-      const summaries = await Promise.all(
+    if (onSale || hasPriceFilter) {
+      const products = await this.catalogRepository.findAll(200, category, search, 0, onSale);
+      let summaries = await Promise.all(
         products.map((product) => this.toProductSummary(product)),
       );
-      const activeSaleItems = summaries.filter((item) => isProductDiscountActive(item));
 
-      if (query.page !== undefined || search) {
+      if (onSale) {
+        summaries = summaries.filter((item) => isProductDiscountActive(item));
+      }
+
+      if (hasPriceFilter) {
+        summaries = summaries.filter((item) =>
+          this.matchesPriceFilter(item.priceToman, query.minPrice, query.maxPrice),
+        );
+      }
+
+      if (wantsPaginated) {
         return {
           page,
           limit,
-          total: activeSaleItems.length,
-          items: activeSaleItems.slice(skip, skip + limit),
+          total: summaries.length,
+          items: summaries.slice(skip, skip + limit),
         };
       }
 
-      return activeSaleItems.slice(0, limit);
+      return summaries.slice(0, limit);
     }
 
     if (query.page !== undefined || search) {
@@ -101,6 +113,42 @@ export class CatalogService {
 
     const products = await this.catalogRepository.findAll(limit, category, search, 0, false);
     return Promise.all(products.map((product) => this.toProductSummary(product)));
+  }
+
+  private resolveCategory(raw?: string): ProductCategory | undefined {
+    if (!raw?.trim()) {
+      return undefined;
+    }
+
+    const slug = raw.trim().toLowerCase();
+    const map: Record<string, ProductCategory> = {
+      ring: ProductCategory.RING,
+      rings: ProductCategory.RING,
+      necklace: ProductCategory.NECKLACE,
+      necklaces: ProductCategory.NECKLACE,
+      bracelet: ProductCategory.BRACELET,
+      bracelets: ProductCategory.BRACELET,
+      earring: ProductCategory.EARRING,
+      earrings: ProductCategory.EARRING,
+      coin: ProductCategory.COIN,
+      coins: ProductCategory.COIN,
+    };
+
+    return map[slug];
+  }
+
+  private matchesPriceFilter(
+    priceToman: number,
+    minPrice?: number,
+    maxPrice?: number,
+  ): boolean {
+    if (minPrice != null && priceToman < minPrice) {
+      return false;
+    }
+    if (maxPrice != null && priceToman > maxPrice) {
+      return false;
+    }
+    return true;
   }
 
   async findByIds(ids: string[]) {

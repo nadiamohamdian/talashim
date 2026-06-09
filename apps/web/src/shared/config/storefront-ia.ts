@@ -104,21 +104,21 @@ export const HOME_CATEGORY_SHOWCASE = [
   {
     slug: 'rings',
     label: 'انگشتر',
-    href: '/categories/rings',
+    href: '/products?category=rings',
     imageFile: 'd428dd8d-6f43-4a64-bda1-47457426c536.png',
     fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.rings,
   },
   {
     slug: 'bracelets',
     label: 'دستبند',
-    href: '/categories/bracelets',
+    href: '/products?category=bracelets',
     imageFile: '8dc1f429-afdc-48c7-81a4-f8a5e972faf4.png',
     fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.bracelets,
   },
   {
     slug: 'earrings',
     label: 'گوشواره',
-    href: '/categories/earrings',
+    href: '/products?category=earrings',
     imageFile: '4df3c2ed-250d-4700-aca7-d7b54e5422b8.png',
     fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.earrings,
   },
@@ -127,24 +127,24 @@ export const HOME_CATEGORY_SHOWCASE = [
 /** Figma node 1752:5924 — homepage budget picker (mobile) */
 export const HOME_BUDGET_RANGES = [
   {
-    id: '1-3m',
-    label: '۱-۳ میلیون تومان',
-    href: '/products?minPrice=1000000&maxPrice=3000000',
+    id: '90-110m',
+    label: '۹۰-۱۱۰ میلیون تومان',
+    href: '/products?minPrice=90000000&maxPrice=110000000',
   },
   {
-    id: '4-8m',
-    label: '۴-۸ میلیون تومان',
-    href: '/products?minPrice=4000000&maxPrice=8000000',
+    id: '110-130m',
+    label: '۱۱۰-۱۳۰ میلیون تومان',
+    href: '/products?minPrice=110000000&maxPrice=130000000',
   },
   {
-    id: '9-15m',
-    label: '۹-۱۵ میلیون تومان',
-    href: '/products?minPrice=9000000&maxPrice=15000000',
+    id: '130-150m',
+    label: '۱۳۰-۱۵۰ میلیون تومان',
+    href: '/products?minPrice=130000000&maxPrice=150000000',
   },
   {
-    id: '16m-plus',
-    label: '+۱۶ میلیون تومان',
-    href: '/products?minPrice=16000000',
+    id: '150m-plus',
+    label: '+۱۵۰ میلیون تومان',
+    href: '/products?minPrice=150000000',
   },
 ] as const;
 

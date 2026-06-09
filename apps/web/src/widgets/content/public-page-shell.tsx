@@ -13,7 +13,7 @@ export function PublicPageShell({
   children,
 }: PublicPageShellProps) {
   return (
-    <div className="space-y-8">
+    <div className="store-chrome-light space-y-8">
       <div className="max-w-2xl">
         <p className="text-sm font-medium text-amber-700">{eyebrow}</p>
         <h1 className="mt-3 text-3xl font-bold text-stone-950 dark:text-zinc-50">{title}</h1>

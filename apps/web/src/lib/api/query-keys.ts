@@ -4,6 +4,8 @@ export interface ProductListParams {
   limit?: number;
   category?: string;
   sale?: boolean;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ProductSearchParams {

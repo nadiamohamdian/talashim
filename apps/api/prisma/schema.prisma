@@ -20,6 +20,7 @@ enum ProductCategory {
   RING
   NECKLACE
   BRACELET
+  EARRING
   COIN
 }
 

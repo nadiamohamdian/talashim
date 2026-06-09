@@ -48,7 +48,7 @@ export function ProtectedShell({ children }: PropsWithChildren) {
   }, [isAuthenticated, hydrated, restoring, pathname, router]);
 
   if (!hydrated || restoring || !isAuthenticated) {
-    return <AuthBootScreen />;
+    return <AuthBootScreen fullPage />;
   }
 
   return <>{children}</>;

@@ -15,8 +15,8 @@ import { CatalogService } from '../services/catalog.service';
 export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
 
+  /** No HTTP cache — live pricing and filter query params must stay fresh. */
   @Get()
-  @HttpCache({ ttlSeconds: 60 })
   findAll(@Query() query: CatalogQueryDto) {
     return this.catalogService.findAll(query);
   }

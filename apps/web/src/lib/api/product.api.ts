@@ -5,6 +5,7 @@ import type {
   ProductDetails,
   ProductSummary,
 } from '@sadafgold/types';
+import { normalizeCatalogListResponse } from '@/shared/lib/catalog-list-response';
 import { enrichProductDetails, withLivePricingList } from '@/shared/lib/live-gold-pricing';
 import {
   getBlogPostBySlug as getBlogPostBySlugFromBlogApi,
@@ -33,6 +34,8 @@ export const productApi = {
         limit: params.limit ?? 24,
         category: params.category,
         sale: params.sale ? '1' : undefined,
+        minPrice: params.minPrice,
+        maxPrice: params.maxPrice,
       },
       signal,
       abortKey: `products:list:${JSON.stringify(params)}`,
@@ -104,15 +107,26 @@ export const productApi = {
     });
   },
 
-  async getProducts(limit = 24, category?: string, sale = false): Promise<ProductSummary[]> {
+  async getProducts(
+    limit = 24,
+    category?: string,
+    sale = false,
+    priceFilter: { minPrice?: number; maxPrice?: number } = {},
+  ): Promise<ProductSummary[]> {
     const params = new URLSearchParams({ limit: String(limit) });
     if (category) params.set('category', category);
     if (sale) params.set('sale', '1');
+    if (priceFilter.minPrice != null) params.set('minPrice', String(priceFilter.minPrice));
+    if (priceFilter.maxPrice != null) params.set('maxPrice', String(priceFilter.maxPrice));
     const path = `/catalog?${params}`;
-    const products = await serverFetchCatalogList<ProductSummary[]>(path, {
-      revalidate: sale ? 30 : 60,
+    const hasPriceFilter = priceFilter.minPrice != null || priceFilter.maxPrice != null;
+    const hasCategory = Boolean(category);
+    const raw = await serverFetchCatalogList<unknown>(path, {
+      cache: sale || hasPriceFilter || hasCategory ? 'no-store' : undefined,
+      revalidate: sale || hasPriceFilter || hasCategory ? undefined : 60,
       tags: sale ? ['catalog:sale'] : ['catalog:products'],
     });
+    const products = normalizeCatalogListResponse(raw);
     return withLivePricingList(products);
   },
 

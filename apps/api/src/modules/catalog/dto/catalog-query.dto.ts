@@ -38,4 +38,18 @@ export class CatalogQueryDto {
   })
   @IsBoolean()
   sale?: boolean;
+
+  @ApiPropertyOptional({ description: 'Minimum final price in Toman (inclusive)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  minPrice?: number;
+
+  @ApiPropertyOptional({ description: 'Maximum final price in Toman (inclusive)' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  maxPrice?: number;
 }

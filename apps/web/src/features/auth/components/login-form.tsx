@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Label } from '@sadafgold/ui';
 import { getApiErrorMessage } from '@/lib/api';
 import {
   useOtpRequestMutation,
@@ -43,23 +42,23 @@ export function LoginForm({ next }: LoginFormProps) {
     loginMutation.error && getApiErrorMessage(loginMutation.error, 'ورود ناموفق بود');
 
   return (
-    <div className="space-y-6">
+    <div className="auth-form-wrap">
       {otpEnabled ? (
-        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-stone-100 p-1">
+        <div className="auth-mode-toggle" role="tablist" aria-label="روش ورود">
           <button
             type="button"
-            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
-              mode === 'otp' ? 'bg-white text-stone-950 shadow-sm' : 'text-stone-600'
-            }`}
+            role="tab"
+            aria-selected={mode === 'otp'}
+            className={`auth-mode-toggle-btn${mode === 'otp' ? ' auth-mode-toggle-btn--active' : ''}`}
             onClick={() => setMode('otp')}
           >
             ورود با OTP
           </button>
           <button
             type="button"
-            className={`rounded-xl px-3 py-2 text-sm font-medium transition ${
-              mode === 'password' ? 'bg-white text-stone-950 shadow-sm' : 'text-stone-600'
-            }`}
+            role="tab"
+            aria-selected={mode === 'password'}
+            className={`auth-mode-toggle-btn${mode === 'password' ? ' auth-mode-toggle-btn--active' : ''}`}
             onClick={() => setMode('password')}
           >
             ورود با رمز
@@ -69,49 +68,64 @@ export function LoginForm({ next }: LoginFormProps) {
 
       {otpEnabled && mode === 'otp' ? (
         <form
-          className="space-y-4"
+          className="auth-form"
           onSubmit={otpForm.handleSubmit((values) => otpMutation.mutate(values))}
         >
-          <div className="space-y-2">
-            <Label htmlFor="identifier">موبایل یا ایمیل</Label>
-            <Input
+          <label className="auth-field" htmlFor="identifier">
+            <span className="auth-field-label">موبایل یا ایمیل</span>
+            <input
               id="identifier"
+              className="auth-input"
               inputMode="email"
               placeholder="0912xxxxxxx یا you@example.com"
               {...otpForm.register('identifier')}
             />
             {otpForm.formState.errors.identifier ? (
-              <p className="text-sm text-red-600">{otpForm.formState.errors.identifier.message}</p>
+              <span className="auth-field-error">{otpForm.formState.errors.identifier.message}</span>
             ) : null}
-          </div>
-          <Button type="submit" className="w-full" disabled={otpMutation.isPending}>
+          </label>
+          <button type="submit" className="auth-submit" disabled={otpMutation.isPending}>
             {otpMutation.isPending ? 'در حال ارسال...' : 'دریافت کد تأیید'}
-          </Button>
-          {otpError ? <p className="text-sm text-red-600">{otpError}</p> : null}
+          </button>
+          {otpError ? <p className="auth-form-error">{otpError}</p> : null}
         </form>
       ) : (
         <form
-          className="space-y-4"
+          className="auth-form"
           onSubmit={passwordForm.handleSubmit((values) => loginMutation.mutate(values))}
         >
-          <div className="space-y-2">
-            <Label htmlFor="email">ایمیل</Label>
-            <Input id="email" type="email" placeholder="you@example.com" {...passwordForm.register('email')} />
+          <label className="auth-field" htmlFor="email">
+            <span className="auth-field-label">ایمیل</span>
+            <input
+              id="email"
+              type="email"
+              className="auth-input"
+              placeholder="you@example.com"
+              autoComplete="email"
+              {...passwordForm.register('email')}
+            />
             {passwordForm.formState.errors.email ? (
-              <p className="text-sm text-red-600">{passwordForm.formState.errors.email.message}</p>
+              <span className="auth-field-error">{passwordForm.formState.errors.email.message}</span>
             ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">رمز عبور</Label>
-            <Input id="password" type="password" placeholder="••••••••" {...passwordForm.register('password')} />
+          </label>
+          <label className="auth-field" htmlFor="password">
+            <span className="auth-field-label">رمز عبور</span>
+            <input
+              id="password"
+              type="password"
+              className="auth-input"
+              placeholder="••••••••"
+              autoComplete="current-password"
+              {...passwordForm.register('password')}
+            />
             {passwordForm.formState.errors.password ? (
-              <p className="text-sm text-red-600">{passwordForm.formState.errors.password.message}</p>
+              <span className="auth-field-error">{passwordForm.formState.errors.password.message}</span>
             ) : null}
-          </div>
-          <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+          </label>
+          <button type="submit" className="auth-submit" disabled={loginMutation.isPending}>
             {loginMutation.isPending ? 'در حال ورود...' : 'ورود به حساب'}
-          </Button>
-          {passwordError ? <p className="text-sm text-red-600">{passwordError}</p> : null}
+          </button>
+          {passwordError ? <p className="auth-form-error">{passwordError}</p> : null}
         </form>
       )}
     </div>

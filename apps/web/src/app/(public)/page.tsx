@@ -11,7 +11,7 @@ export default async function HomePage() {
   const homepage = await getPublicHomepage();
 
   return (
-    <div className="home-page -mx-4 overflow-x-clip sm:-mx-6">
+    <div className="home-page store-chrome-dark -mx-4 overflow-x-clip sm:-mx-6">
       <PromoHero hero={homepage.hero} />
       <div className="mx-4 hidden h-px bg-gradient-to-r from-transparent via-nude-200 to-transparent sm:mx-6 lg:block" />
       {homepage.sections.showCategoryShowcase ? <CategoryShowcase /> : null}

@@ -1,7 +1,21 @@
-export function AuthBootScreen({ message = 'در حال بررسی احراز هویت...' }: { message?: string }) {
+export function AuthBootScreen({
+  message = 'در حال بررسی احراز هویت...',
+  fullPage = false,
+}: {
+  message?: string;
+  fullPage?: boolean;
+}) {
+  const content = <p className="auth-loading">{message}</p>;
+
+  if (!fullPage) {
+    return content;
+  }
+
   return (
-    <div className="rounded-3xl border border-stone-200 bg-white p-8 text-center text-sm text-stone-600 dark:border-zinc-800 dark:bg-zinc-900">
-      {message}
+    <div className="auth-page store-minimal-header">
+      <div className="auth-page-inner">
+        <div className="auth-card auth-card--loading">{content}</div>
+      </div>
     </div>
   );
 }

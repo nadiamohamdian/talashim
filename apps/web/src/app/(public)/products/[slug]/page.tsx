@@ -68,7 +68,7 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
   const mobileProps = enrichProductDetailProps(product, demo);
 
   return (
-    <div className="product-detail-page">
+    <div className="product-detail-page store-chrome-dark">
       <div className="product-detail-mobile-shell lg:hidden">
         <ProductDetailMobile {...mobileProps} />
       </div>

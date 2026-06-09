@@ -7,16 +7,16 @@ const stroke = 'currentColor';
 /** Figma node 1755:8414 — search-icon */
 export function IconMenuSearch(props: IconProps) {
   return (
-    <svg viewBox="0 0 14.8 14.8" fill="none" aria-hidden {...props}>
+    <svg viewBox="0 0 14 14" fill="none" aria-hidden {...props}>
       <path
-        d="M0.4 14.4L3.776 11.024"
+        d="M0.4 13.6L3.6 10.4"
         stroke={stroke}
         strokeWidth="0.8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
-        d="M8.178 12.844C4.741 12.844 1.956 10.059 1.956 6.622C1.956 3.186 4.741 0.4 8.178 0.4C11.614 0.4 14.4 3.186 14.4 6.622C14.4 10.059 11.614 12.844 8.178 12.844Z"
+        d="M7.8 12.2C4.7 12.2 2.2 9.7 2.2 6.6C2.2 3.5 4.7 1 7.8 1C10.9 1 13.4 3.5 13.4 6.6C13.4 9.7 10.9 12.2 7.8 12.2Z"
         stroke={stroke}
         strokeWidth="0.8"
         strokeLinecap="round"
@@ -29,10 +29,10 @@ export function IconMenuSearch(props: IconProps) {
 /** Figma node 1755:8417 — profile-icon */
 export function IconMenuProfile(props: IconProps) {
   return (
-    <svg viewBox="0 0 13.27 14" fill="none" aria-hidden {...props}>
-      <circle cx="6.635" cy="4.235" r="4.235" stroke={stroke} strokeWidth="0.8" />
+    <svg viewBox="0 0 13.27 15" fill="none" aria-hidden {...props}>
+      <circle cx="6.635" cy="4.235" r="4.035" stroke={stroke} strokeWidth="0.8" />
       <path
-        d="M0.4 13.6C2.2 10.8 4.8 9.4 6.635 9.4C8.47 9.4 11.07 10.8 12.87 13.6"
+        d="M0.4 14.6C2.2 11.8 4.8 10.4 6.635 10.4C8.47 10.4 11.07 11.8 12.87 14.6"
         stroke={stroke}
         strokeWidth="0.8"
         strokeLinecap="round"
@@ -44,10 +44,10 @@ export function IconMenuProfile(props: IconProps) {
 /** Figma node 1755:8420 — shopping-cart-icon (bag) */
 export function IconMenuBag(props: IconProps) {
   return (
-    <svg viewBox="0 0 12 12" fill="none" aria-hidden {...props}>
-      <rect x="0.4" y="2.4" width="11.2" height="9.2" rx="1" stroke={stroke} strokeWidth="0.8" />
+    <svg viewBox="0 0 12 15" fill="none" aria-hidden {...props}>
+      <rect x="0.4" y="4.4" width="11.2" height="9.2" rx="1" stroke={stroke} strokeWidth="0.8" />
       <path
-        d="M3 2.4V1.6C3 0.9 3.6 0.4 4.4 0.4H7.6C8.4 0.4 9 0.9 9 1.6V2.4"
+        d="M3 4.4V2.6C3 1.9 3.6 1.4 4.4 1.4H7.6C8.4 1.4 9 1.9 9 2.6V4.4"
         stroke={stroke}
         strokeWidth="0.8"
         strokeLinecap="round"

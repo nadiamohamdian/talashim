@@ -14,7 +14,7 @@ export default function ProductDemoPage() {
   const props = enrichProductDetailProps(PRODUCT_DETAIL_DEMO, PRODUCT_DETAIL_DEMO);
 
   return (
-    <div className="product-detail-page">
+    <div className="product-detail-page store-chrome-dark">
       <div className="product-detail-mobile-shell lg:hidden">
         <ProductDetailMobile {...props} />
       </div>

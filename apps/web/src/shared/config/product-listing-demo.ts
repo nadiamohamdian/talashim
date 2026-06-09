@@ -1,43 +1,47 @@
 import type { ProductSummary } from '@sadafgold/types';
+import { CATEGORY_FALLBACK_IMAGES } from '@/shared/config/images';
 
-export interface ProductListingPageMeta {
-  title: string;
-  subtitle: string;
-}
+export type {
+  ProductListingBreadcrumb,
+  ProductListingPageMeta,
+} from '@/shared/config/product-listing-meta';
 
-export const PRODUCT_LISTING_PAGE: ProductListingPageMeta = {
-  title: 'انگشتر زنانه',
-  subtitle: 'خرید انگشتر طلا با ضمانت اصالت و ارسال سریع',
-};
+export {
+  PRODUCT_LISTING_CAROUSEL_SLIDES,
+  PRODUCT_LISTING_PAGE,
+} from '@/shared/config/product-listing-meta';
 
-export const PRODUCT_LISTING_CAROUSEL_SLIDES = [
-  '/images/products/listing-hero-1.png',
-  '/images/products/listing-hero-1.png',
-  '/images/products/listing-hero-1.png',
-  '/images/products/listing-hero-1.png',
-  '/images/products/listing-hero-1.png',
+const DEMO_EARRING_IMAGE = CATEGORY_FALLBACK_IMAGES.earrings;
+
+const DEMO_LISTING_PRICES = [95_000_000, 98_000_000, 112_000_000, 125_000_000, 138_000_000, 165_000_000] as const;
+const DEMO_LISTING_CATEGORIES = ['ring', 'ring', 'bracelet', 'earring', 'necklace', 'ring'] as const;
+const DEMO_LISTING_TITLES = [
+  'انگشتر زنانه لوکس بیضی',
+  'انگشتر کلاسیک طلا',
+  'دستبند طلای ۱۸ عیار',
+  'گوشواره آذین مدل نجو',
+  'گردنبند مینیمال',
+  'انگشتر نامزدی',
 ] as const;
-
-const DEMO_RING_IMAGE = '/images/categories/rings.png';
 
 export const PRODUCT_LISTING_DEMO_PRODUCTS: ProductSummary[] = Array.from(
   { length: 6 },
   (_, index) => ({
     id: `listing-demo-${index + 1}`,
-    sku: `RNG-DEMO-${index + 1}`,
+    sku: `DEMO-${index + 1}`,
     slug: index === 0 ? 'demo' : index === 1 ? 'demo-jewelry-set' : 'demo',
-    title: 'انگشتر زنانه لوکس بیضی',
-    category: 'ring',
+    title: DEMO_LISTING_TITLES[index % DEMO_LISTING_TITLES.length],
+    category: DEMO_LISTING_CATEGORIES[index % DEMO_LISTING_CATEGORIES.length],
     karat: 18,
-    weightGram: 2.8,
+    weightGram: 0.23,
     makingFeePercent: 24,
-    priceToman: 8_500_000,
+    priceToman: DEMO_LISTING_PRICES[index % DEMO_LISTING_PRICES.length],
     compareAtPriceToman: null,
     discountPercent: null,
     discountStartsAt: null,
     discountEndsAt: null,
-    imageUrl: DEMO_RING_IMAGE,
-    hoverImageUrl: DEMO_RING_IMAGE,
+    imageUrl: DEMO_EARRING_IMAGE,
+    hoverImageUrl: DEMO_EARRING_IMAGE,
     inventory: 3,
     featured: false,
   }),
