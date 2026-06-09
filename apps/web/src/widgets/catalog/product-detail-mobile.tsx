@@ -10,6 +10,12 @@ import {
   type ProductDetailMobileProps,
   type StoneColorSwatch,
 } from '@/shared/config/product-detail-demo';
+import { ProductReviewWizard } from '@/features/catalog/components/product-review-wizard';
+import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide';
+import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
+import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
+import { toPersianDigits } from '@/shared/lib/to-persian-digits';
+import { ProductSizeRulerSection } from '@/widgets/catalog/product-size-ruler-section';
 import { StoreImage } from '@/shared/ui/store-image';
 
 export type { ProductDetailMobileProps };
@@ -24,16 +30,14 @@ const DEFAULT_STONE_SWATCHES: StoneColorSwatch[] = [
 const PRICE_TOOLTIP_TEXT =
   'وزن طلا × (قیمت روز طلا + اجرت) + ۷٪ سود + متعلقات + ۱۰٪ مالیات از سود و اجرت';
 
-function toPersianDigits(value: number | string): string {
-  return String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] ?? d);
-}
-
 export function ProductDetailMobile({
   product,
   gallery,
   heroImageUrl,
   displayPriceToman,
   ringSizes = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+  necklaceSizes,
+  braceletSizes,
   goldColors = ['طلایی', 'رزگلد', 'سفید'],
   stoneSwatches = DEFAULT_STONE_SWATCHES,
   specRows = [],
@@ -44,10 +48,17 @@ export function ProductDetailMobile({
   const [activeImage, setActiveImage] = useState(() =>
     images.length >= 5 ? 4 : 0,
   );
-  const [selectedSize, setSelectedSize] = useState(57);
+  const [selectedRingSize, setSelectedRingSize] = useState(57);
+  const [selectedNecklaceSize, setSelectedNecklaceSize] = useState(
+    () => necklaceSizes?.[2] ?? necklaceSizes?.[0] ?? 45,
+  );
+  const [selectedBraceletSize, setSelectedBraceletSize] = useState(
+    () => braceletSizes?.[2] ?? braceletSizes?.[0] ?? 18,
+  );
   const [selectedGold, setSelectedGold] = useState('طلایی');
   const [selectedStone, setSelectedStone] = useState('purple');
   const [priceTooltipOpen, setPriceTooltipOpen] = useState(false);
+  const [reviewWizardOpen, setReviewWizardOpen] = useState(false);
 
   const priceToman = displayPriceToman ?? product.priceToman;
   const heroSrc = images[activeImage] ?? heroImageUrl ?? product.imageUrl;
@@ -132,43 +143,39 @@ export function ProductDetailMobile({
       </section>
 
       <div className="product-details-body">
-        <section
+        <ProductSizeRulerSection
+          id="pdp-ring-size-title"
+          title="انتخاب سایز انگشتر"
+          guideHref={buildRingSizeGuideHref(`/products/${product.slug}`)}
+          sizes={ringSizes}
+          selectedSize={selectedRingSize}
+          onSelectSize={setSelectedRingSize}
           className="product-details-section product-details-section-size"
-          aria-labelledby="pdp-size-title"
-        >
-          <div className="product-details-section-head">
-            <h2 id="pdp-size-title" className="product-details-section-title">
-              انتخاب سایز انگشتر
-            </h2>
-            <button type="button" className="product-details-link">
-              راهنمای انتخاب سایز
-            </button>
-          </div>
+        />
 
-          <div className="product-details-ruler-wrap">
-            <div className="product-details-ruler">
-              <span className="product-details-ruler-pointer" aria-hidden />
-              <div className="product-details-ruler-track">
-                {ringSizes.map((size) => (
-                  <button
-                    key={size}
-                    type="button"
-                    data-size={size}
-                    className={
-                      selectedSize === size
-                        ? 'product-details-ruler-item is-active'
-                        : 'product-details-ruler-item'
-                    }
-                    onClick={() => setSelectedSize(size)}
-                  >
-                    <span className="product-details-ruler-tick" aria-hidden />
-                    <span className="product-details-ruler-num">{toPersianDigits(size)}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
+        {necklaceSizes?.length ? (
+          <ProductSizeRulerSection
+            id="pdp-necklace-size-title"
+            title="انتخاب سایز گردنبند"
+            guideHref={buildNecklaceSizeGuideHref(`/products/${product.slug}`)}
+            sizes={necklaceSizes}
+            selectedSize={selectedNecklaceSize}
+            onSelectSize={setSelectedNecklaceSize}
+            className="product-details-section product-details-section-size product-details-section-necklace"
+          />
+        ) : null}
+
+        {braceletSizes?.length ? (
+          <ProductSizeRulerSection
+            id="pdp-bracelet-size-title"
+            title="انتخاب سایز دستبند"
+            guideHref={buildBraceletSizeGuideHref(`/products/${product.slug}`)}
+            sizes={braceletSizes}
+            selectedSize={selectedBraceletSize}
+            onSelectSize={setSelectedBraceletSize}
+            className="product-details-section product-details-section-size product-details-section-bracelet"
+          />
+        ) : null}
 
         <section
           className="product-details-section product-details-section-gold"
@@ -289,7 +296,11 @@ export function ProductDetailMobile({
                   {review.rating.toFixed(1)}
                 </span>
               </div>
-              <button type="button" className="product-details-review-submit">
+              <button
+                type="button"
+                className="product-details-review-submit"
+                onClick={() => setReviewWizardOpen(true)}
+              >
                 ثبت نظر جدید
               </button>
             </div>
@@ -337,6 +348,12 @@ export function ProductDetailMobile({
           </div>
         </section>
       </div>
+
+      <ProductReviewWizard
+        open={reviewWizardOpen}
+        productSlug={product.slug}
+        onClose={() => setReviewWizardOpen(false)}
+      />
     </article>
   );
 }

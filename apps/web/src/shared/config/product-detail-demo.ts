@@ -33,6 +33,8 @@ export interface ProductDetailDemo extends ProductDetails {
   heroImageUrl: string;
   displayPriceToman: number;
   ringSizes: number[];
+  necklaceSizes?: number[];
+  braceletSizes?: number[];
   goldColors: string[];
   stoneSwatches: StoneColorSwatch[];
   specRows: ProductSpecRow[];
@@ -174,7 +176,85 @@ export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
   reviews: [],
 };
 
+const JEWELRY_SET_IMAGE = '/images/products/jewelry-set-lifestyle.png';
+
+const JEWELRY_SET_SPEC_ROWS: ProductSpecRow[] = [
+  { label: 'اجرت', value: '۲۲٪' },
+  { label: 'نوع طراحی', value: 'مایع / ارگانیک' },
+  { label: 'قطعات ست', value: 'انگشتر، دستبند، گوشواره' },
+  { label: 'نوع پرداخت', value: 'براق' },
+  { label: 'نوع قفل دستبند', value: 'باز' },
+  { label: 'مالیات', value: '۵۲۵,۰۰۰ تومان' },
+];
+
+export const JEWELRY_SET_DEMO: ProductDetailDemo = {
+  id: 'demo-jewelry-set-1',
+  sku: 'SET-LIQ-18-G',
+  slug: 'demo-jewelry-set',
+  title: 'ست زیورآلات طلای مایع',
+  category: 'bracelet',
+  karat: 18,
+  weightGram: 12.4,
+  makingFeePercent: 22,
+  priceToman: 24_850_000,
+  displayPriceToman: 24_850_000,
+  compareAtPriceToman: null,
+  discountPercent: null,
+  discountStartsAt: null,
+  discountEndsAt: null,
+  imageUrl: JEWELRY_SET_IMAGE,
+  hoverImageUrl: JEWELRY_SET_IMAGE,
+  heroImageUrl: JEWELRY_SET_IMAGE,
+  inventory: 5,
+  featured: true,
+  description:
+    '<p>ست زیورآلات طلای مایع با طراحی ارگانیک و فرم قطره‌ای؛ شامل انگشتر، دستبند و گوشواره با پرداخت براق و استایل مینیمال لوکس.</p>',
+  seoDescription: 'ست زیورآلات طلای مایع ۱۸ عیار — انگشتر، دستبند و گوشواره',
+  specifications: {},
+  variants: [
+    {
+      id: 'variant-jewelry-set-gold',
+      sku: 'SET-LIQ-18-G',
+      color: 'طلایی',
+      size: '45',
+      priceToman: 24_850_000,
+      weightGram: 12.4,
+      makingFeePercent: 22,
+      imageUrl: JEWELRY_SET_IMAGE,
+      quantity: 5,
+      isDefault: true,
+    },
+  ],
+  gallery: [
+    JEWELRY_SET_IMAGE,
+    JEWELRY_SET_IMAGE,
+    JEWELRY_SET_IMAGE,
+    JEWELRY_SET_IMAGE,
+    JEWELRY_SET_IMAGE,
+  ],
+  ringSizes: [50, 51, 52, 53, 54, 55, 56, 57, 58],
+  necklaceSizes: [40, 42, 45, 48, 50, 55],
+  braceletSizes: [16, 17, 18, 19, 20, 21],
+  goldColors: ['طلایی', 'رزگلد', 'سفید'],
+  stoneSwatches: DEMO_STONE_SWATCHES,
+  specRows: JEWELRY_SET_SPEC_ROWS,
+  featuredReview: {
+    id: 'jewelry-set-featured-review',
+    author: 'سارا محمدی',
+    rating: 5,
+    date: '',
+    body: 'کیفیت ساخت و درخشش طلا فوق‌العاده است. فرم مایع دستبند و انگشتر خیلی شیک و راحت است.',
+  },
+  relatedProducts: DEFAULT_RELATED_PRODUCTS,
+  ratingAverage: 5,
+  reviewCount: 3,
+  reviews: [],
+};
+
 export function resolveProductDetailDemo(slug: string): ProductDetailDemo | null {
+  if (slug === JEWELRY_SET_DEMO.slug) {
+    return JEWELRY_SET_DEMO;
+  }
   if (slug === 'demo' || slug === PRODUCT_DETAIL_DEMO.slug) {
     return PRODUCT_DETAIL_DEMO;
   }
@@ -187,6 +267,8 @@ export interface ProductDetailMobileProps {
   heroImageUrl?: string;
   displayPriceToman?: number;
   ringSizes?: number[];
+  necklaceSizes?: number[];
+  braceletSizes?: number[];
   goldColors?: string[];
   stoneSwatches?: StoneColorSwatch[];
   specRows?: ProductSpecRow[];
@@ -208,6 +290,8 @@ export function enrichProductDetailProps(
     heroImageUrl: demo.heroImageUrl,
     displayPriceToman: demo.displayPriceToman,
     ringSizes: demo.ringSizes,
+    necklaceSizes: demo.necklaceSizes,
+    braceletSizes: demo.braceletSizes,
     goldColors: demo.goldColors,
     stoneSwatches: demo.stoneSwatches,
     specRows: demo.specRows,

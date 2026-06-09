@@ -332,6 +332,97 @@ a {
   }
 }
 
+/* Minimal white header — Figma menu-mobile 390×48 */
+body:has(.store-minimal-header) .topbar-shimmer {
+  display: none;
+}
+
+body:has(.store-minimal-header) .site-header-menu {
+  top: 0 !important;
+  background: #ffffff;
+  --menu-fg: #000000;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+@media (max-width: 1023px) {
+  body:has(.store-minimal-header) .site-header-menu {
+    position: absolute !important;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    height: var(--menu-bar-h);
+    --menu-icon-search: 14px;
+    --menu-icon-profile: 13.27px;
+    --menu-icon-bag: 12px;
+    --menu-action-gap: 12px;
+  }
+
+  body:has(.store-minimal-header) .site-header-menu .container-store {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    padding-inline: 0;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar {
+    width: 100%;
+    max-width: 390px;
+    height: 48px;
+    margin-inline: auto;
+    padding: 0 13px 0 19px;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar-brand {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 31px;
+    color: #000000;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar-action {
+    color: #000000;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar-icon {
+    color: #000000;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar-icon-search {
+    width: 14px;
+    height: 14px;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar-icon-profile {
+    width: 13.27px;
+    height: 15px;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar-icon-bag {
+    width: 12px;
+    height: 15px;
+  }
+
+  body:has(.store-minimal-header) .mobile-menu-bar-icon-menu {
+    width: 24px;
+    height: 13px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body:has(.store-minimal-header) .desktop-menu-bar-sub {
+    display: none;
+  }
+
+  body:has(.store-minimal-header) .desktop-menu-bar-brand {
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 31px;
+    color: #000000;
+  }
+}
+
 .mobile-menu-bar-badge {
   position: absolute;
   top: -6px;
@@ -2523,6 +2614,13 @@ body:has(.product-detail-page) main.container-store {
   margin-bottom: 24px;
 }
 
+/* Figma node 1752:6244 — stacked ring / necklace / bracelet rulers */
+.product-details-section-necklace,
+.product-details-section-bracelet {
+  padding-top: 0;
+  margin-top: 35px;
+}
+
 .product-details-section-head {
   display: flex;
   align-items: center;
@@ -2562,14 +2660,16 @@ body:has(.product-detail-page) main.container-store {
   width: calc(100% + 2 * var(--pd-px));
   height: 41px;
   margin-inline: calc(-1 * var(--pd-px));
+  padding-inline: 10px;
 }
 
 .product-details-ruler {
   position: relative;
   width: 100%;
+  max-width: 377px;
   height: 41px;
-  margin: 0;
-  overflow: visible;
+  margin-inline: auto;
+  overflow: hidden;
   direction: ltr;
 }
 
@@ -2580,7 +2680,7 @@ body:has(.product-detail-page) main.container-store {
   z-index: 2;
   width: 0;
   height: 0;
-  border-top: 6px solid #e5e5e5;
+  border-top: 6px solid #6d5945;
   border-right: 4px solid transparent;
   border-left: 4px solid transparent;
   pointer-events: none;
@@ -2592,22 +2692,33 @@ body:has(.product-detail-page) main.container-store {
   width: 100%;
   height: 41px;
   box-sizing: border-box;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 15px clamp(4px, 2cqw, 8px) 0;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-inline: calc(50% - 15px);
+  scroll-padding-inline: calc(50% - 15px);
   direction: ltr;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.product-details-ruler-track::-webkit-scrollbar {
+  display: none;
 }
 
 .product-details-ruler-item {
-  flex: 1 1 0;
+  flex: 0 0 30px;
   display: flex;
-  min-width: 0;
+  width: 30px;
+  min-width: 30px;
+  height: 41px;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: 3px;
-  height: 26px;
-  padding: 0;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 4px 0 0;
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -2617,26 +2728,31 @@ body:has(.product-detail-page) main.container-store {
   display: block;
   flex-shrink: 0;
   width: 1px;
-  height: 10px;
-  background: #e5e5e5;
+  height: 22px;
+  background: #6d5945;
 }
 
 .product-details-ruler-num {
   font-family: var(--pd-font);
-  font-size: clamp(9px, 2.8cqw, 12px);
+  font-size: 12px;
   font-weight: 300;
-  line-height: 1.2;
-  color: var(--pd-muted);
+  line-height: 15px;
+  color: #6d5945;
+  white-space: nowrap;
+}
+
+.product-details-ruler-item.is-active {
+  padding-top: 0;
 }
 
 .product-details-ruler-item.is-active .product-details-ruler-num {
-  font-weight: 400;
-  color: var(--pd-gold);
+  font-weight: 500;
+  color: #cba670;
 }
 
 .product-details-ruler-item.is-active .product-details-ruler-tick {
-  height: 12px;
-  background: var(--pd-gold);
+  height: 28px;
+  background: #cba670;
 }
 
 .product-details-section-gold {
@@ -3159,4 +3275,819 @@ body:has(.product-detail-page) main.container-store {
     width: min(140px, 44cqw);
     min-width: 108px;
   }
+}
+
+/* Product review wizard — Figma nodes 1755:8439–8464 */
+.product-review-wizard {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.product-review-wizard-overlay {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.product-review-wizard-card {
+  position: relative;
+  box-sizing: border-box;
+  width: min(100%, 335px);
+  min-height: 220px;
+  padding: 28px 24px 24px;
+  border: 0;
+  background: #ffffff;
+  direction: rtl;
+}
+
+.product-review-wizard-title {
+  margin: 0 0 20px;
+  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: #000000;
+  text-align: right;
+}
+
+.product-review-wizard-textarea {
+  display: block;
+  width: 100%;
+  min-height: 140px;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 0;
+  background: #f2f2f2;
+  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #000000;
+  resize: vertical;
+}
+
+.product-review-wizard-textarea::placeholder {
+  color: #b3b3b3;
+}
+
+.product-review-wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.product-review-wizard-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  height: 36px;
+  padding: 0 20px;
+  border: 0;
+  background: #6d5945;
+  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.product-review-wizard-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.product-review-wizard-stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  direction: ltr;
+}
+
+.product-review-wizard-star-btn {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.product-review-wizard-phone-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 4px;
+  direction: ltr;
+}
+
+.product-review-wizard-phone-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #e5e5e5;
+  border-left: 0;
+  background: #ffffff;
+  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
+  font-size: 13px;
+  font-weight: 300;
+  color: #000000;
+  text-align: left;
+}
+
+.product-review-wizard-btn-send {
+  flex-shrink: 0;
+  min-width: 72px;
+  height: 40px;
+  border-radius: 0;
+}
+
+.product-review-wizard-error {
+  margin: 12px 0 0;
+  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
+  font-size: 11px;
+  font-weight: 300;
+  line-height: 1.5;
+  color: #b42318;
+  text-align: right;
+}
+
+.product-review-wizard-close {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  color: #6d5945;
+  cursor: pointer;
+}
+
+.product-review-wizard-success {
+  margin: 24px 0 8px;
+  padding: 0 8px;
+  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.9;
+  color: #000000;
+  text-align: center;
+}
+
+/* Jewelry size guides — Figma nodes 1752:7108, 1752:7163, 1752:7217 */
+body:has(.jewelry-size-guide-page) {
+  background: #ffffff;
+  overflow-x: clip;
+}
+
+body:has(.jewelry-size-guide-page) main.container-store {
+  width: 100%;
+  max-width: none;
+  padding: 0 !important;
+}
+
+.jewelry-size-guide-page {
+  --jsg-font: 'Yekan Bakh', var(--font-sans);
+  --jsg-text: #000000;
+  --jsg-gold: #cba670;
+  --jsg-gold-dark: #6d5945;
+  --jsg-cell-bg: #faf9f8;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow-x: clip;
+  background: #ffffff;
+  font-family: var(--jsg-font);
+  color: var(--jsg-text);
+}
+
+.jewelry-size-guide-inner {
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+  /* Figma content starts at y=98 below 48px header */
+  padding: 50px 10px 32px;
+}
+
+.jewelry-size-guide-hero {
+  text-align: center;
+}
+
+.jewelry-size-guide-title {
+  margin: 0;
+  font-family: var(--jsg-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  color: var(--jsg-gold-dark);
+}
+
+.jewelry-size-guide-lead {
+  margin: 28px auto 0;
+  max-width: 369px;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-text);
+  text-align: center;
+}
+
+/* Ring diagram — Figma Group 317 */
+.jewelry-size-guide-diagram-slot {
+  margin-top: 56px;
+}
+
+.jewelry-size-guide-ring-diagram {
+  width: 145px;
+  margin-inline: auto;
+}
+
+.jewelry-size-guide-ring-diagram-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.jewelry-size-guide-info-block {
+  margin-top: 56px;
+}
+
+.jewelry-size-guide-info-subtitle {
+  margin: 0;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 19px;
+  color: var(--jsg-gold-dark);
+  text-align: right;
+}
+
+.jewelry-size-guide-info-body {
+  margin: 18px 0 0;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-text);
+  text-align: right;
+}
+
+.jewelry-size-guide-page--bracelet .jewelry-size-guide-info-body {
+  margin-top: 14px;
+}
+
+.jewelry-size-guide-chart-heading {
+  margin: 37px 0 0;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-text);
+  text-align: right;
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap,
+.jewelry-size-guide-page--bracelet .jewelry-size-guide-table-wrap {
+  margin-top: 24px;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-table-wrap {
+  margin-top: 24px;
+}
+
+.jewelry-size-guide-table-wrap {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 32px 12px 20px;
+  background: var(--jsg-cell-bg);
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap {
+  padding-bottom: 24px;
+}
+
+.jewelry-size-guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.jewelry-size-guide-table thead th {
+  padding: 0 0 10px;
+  border-bottom: 0.6px solid rgb(109 89 69 / 0.3);
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-gold-dark);
+  text-align: right;
+  vertical-align: bottom;
+}
+
+.jewelry-size-guide-table thead th:last-child {
+  padding-left: 8px;
+}
+
+.jewelry-size-guide-table tbody td {
+  height: 27px;
+  padding: 0;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-text);
+  text-align: right;
+  vertical-align: middle;
+}
+
+.jewelry-size-guide-table tbody td:last-child {
+  padding-left: 8px;
+}
+
+.jewelry-size-guide-section {
+  margin-top: 56px;
+}
+
+.jewelry-size-guide-section-title {
+  margin: 0 0 16px;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-text);
+  text-align: right;
+}
+
+.jewelry-size-guide-tips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jewelry-size-guide-tips li {
+  position: relative;
+  padding-right: 18px;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-text);
+  text-align: right;
+}
+
+.jewelry-size-guide-tips--justify li {
+  text-align: justify;
+}
+
+.jewelry-size-guide-tips li + li {
+  margin-top: 12px;
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-tips li + li {
+  margin-top: 24px;
+}
+
+.jewelry-size-guide-page--bracelet .jewelry-size-guide-tips li + li {
+  margin-top: 24px;
+}
+
+.jewelry-size-guide-tips li::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--jsg-gold-dark);
+}
+
+.jewelry-size-guide-return-btn {
+  display: flex;
+  width: 100%;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 56px;
+  border: 0;
+  border-radius: 0;
+  background: var(--jsg-gold-dark);
+  font-family: var(--jsg-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  color: #ffffff;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.jewelry-size-guide-return-btn:hover {
+  background: #5c4b3a;
+}
+
+/* Product listing — Figma node 1752:6679 */
+body:has(.product-listing-page) {
+  background: #ffffff;
+  overflow-x: clip;
+}
+
+body:has(.product-listing-page) main.container-store {
+  width: 100%;
+  max-width: none;
+  padding: 0 !important;
+}
+
+.product-listing-page {
+  --pl-font: 'Yekan Bakh', var(--font-sans);
+  --pl-dark: #564739;
+  --pl-gold: #6d5945;
+  --pl-gold-accent: #cba670;
+  --pl-muted-bg: #f9f9f9;
+  --pl-dot-inactive: #efe9e3;
+  width: 100%;
+  background: #ffffff;
+  font-family: var(--pl-font);
+  color: #000000;
+}
+
+.product-listing-inner {
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+  padding: 48px 10px 40px;
+}
+
+.product-listing-header {
+  margin-bottom: 24px;
+}
+
+.product-listing-title {
+  margin: 0;
+  font-family: var(--pl-font);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 31px;
+  color: var(--pl-dark);
+  text-align: right;
+}
+
+.product-listing-subtitle {
+  margin: 16px 0 0;
+  max-width: 236px;
+  margin-right: 0;
+  margin-left: auto;
+  font-family: var(--pl-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: #000000;
+  text-align: right;
+}
+
+.product-listing-carousel {
+  width: 100%;
+  max-width: 370px;
+  margin-inline: auto;
+}
+
+.product-listing-carousel-frame {
+  position: relative;
+  width: 100%;
+  height: 148px;
+  overflow: hidden;
+  background: #000000;
+}
+
+.product-listing-carousel-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.product-listing-carousel-dots {
+  display: flex;
+  width: 44px;
+  height: 4px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px auto 0;
+}
+
+.product-listing-carousel-dot {
+  width: 4px;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--pl-dot-inactive);
+  cursor: pointer;
+}
+
+.product-listing-carousel-dot.is-active {
+  background: var(--pl-gold-accent);
+}
+
+.product-listing-toolbar {
+  margin-top: 56px;
+  border-top: 0.3px solid var(--pl-gold);
+  border-bottom: 0.3px solid var(--pl-gold);
+}
+
+.product-listing-toolbar-inner {
+  display: flex;
+  height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 73px;
+}
+
+.product-listing-toolbar-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--pl-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--pl-gold);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.product-listing-toolbar-divider {
+  width: 0.3px;
+  height: 24px;
+  background: var(--pl-gold);
+}
+
+.product-listing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 170px);
+  justify-content: space-between;
+  gap: 28px;
+  margin-top: 28px;
+}
+
+.product-listing-empty {
+  margin: 28px 0 0;
+  font-family: var(--pl-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--pl-gold);
+  text-align: right;
+}
+
+.product-listing-card {
+  width: 170px;
+  height: 231px;
+  background: #ffffff;
+}
+
+.product-listing-card-link {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+}
+
+.product-listing-card-media {
+  position: relative;
+  width: calc(100% - 10px);
+  height: 143px;
+  margin-inline: auto;
+  background: var(--pl-muted-bg);
+}
+
+.product-listing-card-image {
+  object-fit: contain;
+  object-position: center;
+  padding: 5px;
+}
+
+.product-listing-card-title {
+  margin: 8px 5px 0;
+  font-family: var(--pl-font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 19px;
+  color: var(--pl-dark);
+  text-align: right;
+}
+
+.product-listing-card-price {
+  margin: 4px 5px 0;
+  font-family: var(--pl-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 18px;
+  color: var(--pl-gold);
+  text-align: right;
+}
+
+.product-listing-card-weight {
+  margin: 2px 5px 0;
+  font-family: var(--pl-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 18px;
+  color: var(--pl-gold);
+  text-align: right;
+}
+
+.product-listing-pagination {
+  display: flex;
+  width: 117px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 56px auto 0;
+  direction: ltr;
+}
+
+.product-listing-pagination-item,
+.product-listing-pagination-ellipsis {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--pl-font);
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 24px;
+  color: var(--pl-gold);
+  cursor: pointer;
+}
+
+.product-listing-pagination-ellipsis {
+  cursor: default;
+}
+
+.product-listing-pagination-item.is-active {
+  font-weight: 400;
+}
+
+/* Sort & filter sheets — Figma 1752:7271 / 1752:7288 */
+.product-listing-sheet-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.product-listing-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgb(0 0 0 / 35%);
+  cursor: pointer;
+}
+
+.product-listing-sheet {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 390px;
+  background: #ffffff;
+  padding: 67px 45px 40px;
+  text-align: right;
+}
+
+.product-listing-sort-sheet {
+  min-height: 330px;
+  padding-bottom: 48px;
+}
+
+.product-listing-filter-sheet {
+  max-height: min(773px, 92vh);
+  overflow-y: auto;
+  padding-bottom: 56px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.product-listing-sheet-title {
+  margin: 0 0 34px;
+  font-family: var(--pl-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 25px;
+  color: var(--pl-gold);
+}
+
+.product-listing-filter-section .product-listing-sheet-title {
+  margin-bottom: 34px;
+}
+
+.product-listing-filter-section + .product-listing-filter-section {
+  margin-top: 56px;
+}
+
+.product-listing-sheet-options {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.product-listing-sheet-options li + li {
+  margin-top: 12px;
+}
+
+.product-listing-sheet-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.product-listing-sheet-option-label {
+  flex: 1;
+  font-family: var(--pl-font);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 22px;
+  color: #000000;
+  text-align: right;
+}
+
+.product-listing-sheet-checkbox {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  border: 0.4px solid #000000;
+  border-radius: 0;
+  appearance: none;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.product-listing-sheet-checkbox:checked {
+  background: #000000;
+  box-shadow: inset 0 0 0 1px #ffffff;
+}
+
+.product-listing-filter-color-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.product-listing-filter-color-chip {
+  box-sizing: border-box;
+  min-width: 40px;
+  height: 20px;
+  padding: 0 6px;
+  border: 0.4px solid #000000;
+  background: #ffffff;
+  font-family: var(--pl-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: #6d5945;
+  cursor: pointer;
+}
+
+.product-listing-filter-color-chip.is-active {
+  background: #f5f0e8;
+}
+
+.product-listing-filter-clear {
+  display: block;
+  width: 100%;
+  margin-top: 56px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--pl-font);
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 25px;
+  color: #c10007;
+  text-align: right;
+  cursor: pointer;
 }
