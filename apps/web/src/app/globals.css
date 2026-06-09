@@ -2223,3 +2223,940 @@ a {
     text-align: center;
   }
 }
+
+/* Product details — Figma nodes 1752:5975, 1752:6082 */
+body:has(.product-detail-page) {
+  background: #ffffff;
+  overflow-x: clip;
+}
+
+body:has(.product-detail-page) main.container-store {
+  width: 100%;
+  max-width: none;
+  padding: 0 !important;
+}
+
+.product-detail-page {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding-bottom: 0;
+  overflow-x: clip;
+}
+
+.product-detail-mobile-shell {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+@media (max-width: 1023px) {
+  body:has(.product-detail-page) .topbar-shimmer {
+    display: none;
+  }
+
+  body:has(.product-detail-page) .site-header-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  body:has(.product-detail-page) .mobile-menu-bar {
+    width: 100%;
+    max-width: none;
+    padding-inline: 19px;
+  }
+}
+
+.product-details {
+  --pd-font: 'Yekan Bakh', var(--font-sans);
+  --pd-text: #000000;
+  --pd-muted: #8a8a8a;
+  --pd-gold: #cba670;
+  --pd-gold-dark: #6d5945;
+  --pd-border: #e5e5e5;
+  --pd-cell-bg: #faf9f8;
+  --pd-px: clamp(8px, 2.56cqw, 12px);
+  --pd-hero-h: clamp(580px, calc(100cqw * 859 / 390), 859px);
+  --pd-glass-w: min(371px, 95cqw);
+  --pd-glass-top: 68.8%;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  overflow-x: clip;
+  font-family: var(--pd-font);
+  background: #ffffff;
+  color: var(--pd-text);
+  container-type: inline-size;
+  container-name: product-details;
+}
+
+/* Hero — scales with viewport (Figma 390×859) */
+.product-details-hero {
+  position: relative;
+  width: 100%;
+  height: var(--pd-hero-h);
+  overflow: hidden;
+  background: #1a1410;
+}
+
+.product-details-hero-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  min-width: 100%;
+  min-height: 100%;
+  border: 0;
+  object-fit: cover;
+  object-position: center center;
+  transform: translate(-50%, -50%) scale(1.12);
+}
+
+/* Figma overlay layer — Rectangle 45, Group 179 */
+.product-details-hero-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.product-details-hero-ui > * {
+  pointer-events: auto;
+}
+
+.product-details-hero-focus {
+  position: absolute;
+  top: 46.7%;
+  left: 14.87%;
+  z-index: 2;
+  width: 34.1%;
+  height: 11.4%;
+  pointer-events: none;
+  background:
+    linear-gradient(#ffffff, #ffffff) left top / 22px 1px no-repeat,
+    linear-gradient(#ffffff, #ffffff) left top / 1px 21px no-repeat,
+    linear-gradient(#ffffff, #ffffff) right top / 22px 1px no-repeat,
+    linear-gradient(#ffffff, #ffffff) right top / 1px 21px no-repeat,
+    linear-gradient(#ffffff, #ffffff) left bottom / 22px 1px no-repeat,
+    linear-gradient(#ffffff, #ffffff) left bottom / 1px 21px no-repeat,
+    linear-gradient(#ffffff, #ffffff) right bottom / 22px 1px no-repeat,
+    linear-gradient(#ffffff, #ffffff) right bottom / 1px 21px no-repeat;
+  border-radius: 4px;
+}
+
+/* Rectangle 45 — Figma node 1752:5978 */
+.product-details-glass {
+  position: absolute;
+  top: var(--pd-glass-top);
+  left: 50%;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: var(--pd-glass-w);
+  min-height: clamp(180px, 54cqw, 211px);
+  height: auto;
+  padding: clamp(12px, 4.1cqw, 16px) clamp(14px, 4.6cqw, 18px) clamp(10px, 3.6cqw, 14px);
+  background: rgba(255, 255, 255, 0.64);
+  transform: translateX(-50%);
+}
+
+.product-details-glass-title {
+  margin: 0;
+  font-size: clamp(13px, 3.85cqw, 15px);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--pd-gold-dark);
+  text-align: right;
+  word-break: break-word;
+}
+
+.product-details-glass-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  direction: rtl;
+}
+
+.product-details-glass-row-label {
+  flex-shrink: 0;
+  font-size: clamp(11px, 3.08cqw, 12px);
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--pd-text);
+}
+
+.product-details-glass-row-value {
+  min-width: 0;
+  font-size: clamp(11px, 3.08cqw, 12px);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--pd-gold-dark);
+  text-align: left;
+  word-break: break-word;
+}
+
+.product-details-glass-divider {
+  margin: 12px 0 10px;
+  border: 0;
+  border-top: 1px solid rgba(109, 89, 69, 0.18);
+}
+
+.product-details-glass-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  direction: rtl;
+}
+
+.product-details-action {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.5cqw, 6px);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--pd-font);
+  font-size: clamp(8px, 2.3cqw, 9px);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--pd-gold-dark);
+  text-align: center;
+  cursor: pointer;
+}
+
+.product-details-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.product-details-action-cart::before,
+.product-details-action-video .product-details-action-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--pd-gold-dark);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 8px;
+  line-height: 1;
+  color: var(--pd-gold-dark);
+}
+
+.product-details-action-cart::before {
+  content: '+';
+}
+
+/* Group 179 — Figma node 1752:5978 */
+.product-details-dots {
+  position: absolute;
+  top: 96.5%;
+  left: 50%;
+  z-index: 4;
+  display: flex;
+  width: auto;
+  max-width: calc(100% - 32px);
+  height: 6px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  direction: ltr;
+  transform: translate(-50%, -100%);
+}
+
+.product-details-dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.product-details-dot.is-active {
+  width: 14px;
+  background: var(--pd-gold);
+}
+
+.product-details-body {
+  position: relative;
+  z-index: 5;
+  min-width: 0;
+  padding-inline: var(--pd-px);
+  overflow-x: clip;
+  background: #ffffff;
+}
+
+/* Config sections — Figma absolute Y converted to flow spacing */
+.product-details-section {
+  padding: 0;
+}
+
+.product-details-section-size {
+  padding-top: 46px;
+}
+
+.product-details-section-size .product-details-section-head {
+  margin-bottom: 24px;
+}
+
+.product-details-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+  direction: rtl;
+}
+
+.product-details-section-title {
+  margin: 0;
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--pd-text);
+  text-align: right;
+}
+
+.product-details-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--pd-gold);
+  text-align: right;
+  cursor: pointer;
+}
+
+/* Frame 10 — Figma node 1752:6082 */
+.product-details-section-size .product-details-ruler-wrap {
+  position: relative;
+  box-sizing: border-box;
+  width: calc(100% + 2 * var(--pd-px));
+  height: 41px;
+  margin-inline: calc(-1 * var(--pd-px));
+}
+
+.product-details-ruler {
+  position: relative;
+  width: 100%;
+  height: 41px;
+  margin: 0;
+  overflow: visible;
+  direction: ltr;
+}
+
+.product-details-ruler-pointer {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  border-top: 6px solid #e5e5e5;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.product-details-ruler-track {
+  display: flex;
+  width: 100%;
+  height: 41px;
+  box-sizing: border-box;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 15px clamp(4px, 2cqw, 8px) 0;
+  direction: ltr;
+}
+
+.product-details-ruler-item {
+  flex: 1 1 0;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.product-details-ruler-tick {
+  display: block;
+  flex-shrink: 0;
+  width: 1px;
+  height: 10px;
+  background: #e5e5e5;
+}
+
+.product-details-ruler-num {
+  font-family: var(--pd-font);
+  font-size: clamp(9px, 2.8cqw, 12px);
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--pd-muted);
+}
+
+.product-details-ruler-item.is-active .product-details-ruler-num {
+  font-weight: 400;
+  color: var(--pd-gold);
+}
+
+.product-details-ruler-item.is-active .product-details-ruler-tick {
+  height: 12px;
+  background: var(--pd-gold);
+}
+
+.product-details-section-gold {
+  margin-top: 35px;
+}
+
+.product-details-section-gold .product-details-section-title {
+  margin-bottom: 16px;
+}
+
+.product-details-section-stone {
+  margin-top: 42px;
+}
+
+.product-details-section-stone .product-details-section-title {
+  margin-bottom: 18px;
+}
+
+/* Group 338 — Figma gold color chips */
+.product-details-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(6px, 2cqw, 8px);
+  width: 100%;
+  max-width: 200px;
+  margin-right: 0;
+  margin-left: auto;
+  direction: rtl;
+}
+
+.product-details-option {
+  display: inline-flex;
+  width: clamp(36px, 10.25cqw, 40px);
+  height: 20px;
+  flex: 0 0 clamp(36px, 10.25cqw, 40px);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #ececec;
+  border-radius: 0;
+  background: #ffffff;
+  font-family: var(--pd-font);
+  font-size: 9px;
+  font-weight: 300;
+  line-height: 19px;
+  white-space: nowrap;
+  color: #b3b3b3;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.product-details-option.is-active {
+  border-color: #000000;
+  color: #000000;
+}
+
+/* Group 337 — Figma stone color swatches */
+.product-details-stone-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(6px, 2cqw, 8px);
+  width: 100%;
+  max-width: 160px;
+  margin-right: 0;
+  margin-left: auto;
+  direction: rtl;
+}
+
+.product-details-stone-swatch {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  padding: 0;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.product-details-stone-swatch.is-active {
+  border-color: #000000;
+}
+
+.product-details-specs-section {
+  margin-top: 42px;
+}
+
+.product-details-specs-section .product-details-section-head {
+  margin-bottom: 40px;
+}
+
+.product-details-price-tooltip-wrap {
+  position: relative;
+}
+
+.product-details-price-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  max-width: 240px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  background: #000000;
+  font-size: 10px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #ffffff;
+  text-align: center;
+  white-space: normal;
+}
+
+.product-details-price-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 24px;
+  border: 5px solid transparent;
+  border-bottom-color: #000000;
+}
+
+/* Specs table — Figma node 1836:6567 */
+.product-details-specs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+  table-layout: fixed;
+}
+
+.product-details-spec-row {
+  height: 40px;
+}
+
+.product-details-spec-label,
+.product-details-spec-value {
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--pd-cell-bg);
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--pd-gold-dark);
+  text-align: right;
+  vertical-align: middle;
+}
+
+.product-details-spec-label {
+  width: clamp(72px, 23cqw, 90px);
+  min-width: clamp(72px, 23cqw, 90px);
+  font-weight: 300;
+}
+
+.product-details-spec-value {
+  width: auto;
+  font-weight: 300;
+}
+
+/* Featured review — Figma Group 167 / node 1752:6058 (390×317) */
+.product-details-review {
+  position: relative;
+  box-sizing: border-box;
+  width: calc(100% + 2 * var(--pd-px));
+  margin-top: clamp(24px, 8.2cqw, 32px);
+  margin-inline: calc(-1 * var(--pd-px));
+  overflow-x: clip;
+  background: #ffffff;
+}
+
+.product-details-review-frame {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: clamp(260px, 81.3cqw, 317px);
+  direction: rtl;
+}
+
+/* Line 24 / 25 — decorative frame segments */
+.product-details-review-line {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  background: #6d5945;
+  pointer-events: none;
+}
+
+/* top horizontal: left 45px, width 345px */
+.product-details-review-line-top {
+  top: 0;
+  left: 11.538%;
+  width: 88.462%;
+  height: 0.6px;
+}
+
+/* left vertical: left 45px */
+.product-details-review-line-left {
+  top: 0;
+  bottom: 23.66%;
+  left: 11.538%;
+  width: 0.6px;
+  height: auto;
+}
+
+/* bottom horizontal: width 325px */
+.product-details-review-line-bottom {
+  bottom: 0;
+  left: 0;
+  width: 83.333%;
+  height: 0.6px;
+}
+
+/* right vertical: left 325px, top 75px */
+.product-details-review-line-right {
+  top: 23.66%;
+  bottom: 0;
+  left: 83.333%;
+  width: 0.6px;
+  height: auto;
+}
+
+/* Vector quote marks */
+.product-details-quote {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: 7.95%;
+  height: 7.26%;
+  background-color: #6d5945;
+  -webkit-mask-image: url('/images/product-detail/quote-marks.png');
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-image: url('/images/product-detail/quote-marks.png');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  user-select: none;
+  pointer-events: none;
+}
+
+.product-details-quote-open {
+  top: 2.52%;
+  left: 79.23%;
+}
+
+.product-details-quote-close {
+  bottom: 8.83%;
+  left: 7.44%;
+  transform: scaleX(-1);
+}
+
+/* Text column — between vertical lines at 11.538% and 83.333% (Figma 64–309px) */
+.product-details-review-content {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 62.82%;
+  margin-left: 16.41%;
+  margin-right: 20.77%;
+  padding-top: clamp(48px, 17.4cqw, 68px);
+  padding-bottom: clamp(20px, 7cqw, 28px);
+}
+
+.product-details-review-body {
+  margin: 0;
+  font-family: var(--pd-font);
+  font-size: clamp(11px, 3.08cqw, 12px);
+  font-weight: 300;
+  line-height: 197%;
+  color: #000000;
+  text-align: justify;
+}
+
+.product-details-review-author {
+  margin: clamp(12px, 4.1cqw, 16px) 0 0;
+  font-family: var(--pd-font);
+  font-size: clamp(11px, 3.08cqw, 12px);
+  font-weight: 400;
+  line-height: 19px;
+  color: #6d5945;
+  text-align: right;
+}
+
+.product-details-review-rating {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  margin-top: clamp(4px, 1.5cqw, 6px);
+  direction: ltr;
+}
+
+.product-details-review-star {
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.product-details-review-score {
+  font-family: var(--pd-font);
+  font-size: clamp(14px, 4.1cqw, 16px);
+  font-weight: 400;
+  line-height: 25px;
+  color: #6d5945;
+  text-align: right;
+}
+
+.product-details-review-submit {
+  display: block;
+  width: fit-content;
+  margin: clamp(14px, 5.1cqw, 20px) 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--pd-font);
+  font-size: clamp(11px, 3.08cqw, 12px);
+  font-weight: 300;
+  line-height: 19px;
+  color: #cba670;
+  text-align: right;
+  cursor: pointer;
+}
+
+/* Related products — Figma below review */
+.product-details-related {
+  position: relative;
+  width: calc(100% + 2 * var(--pd-px));
+  min-width: 0;
+  margin-top: clamp(28px, 10.25cqw, 40px);
+  margin-inline: calc(-1 * var(--pd-px));
+  padding-bottom: clamp(28px, 10.25cqw, 40px);
+  overflow-x: clip;
+}
+
+.product-details-related-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-inline: var(--pd-px);
+  direction: rtl;
+}
+
+.product-details-related-heading {
+  position: relative;
+  min-width: 0;
+  min-height: 19px;
+  overflow: hidden;
+}
+
+.product-details-related-watermark {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 0;
+  max-width: 100%;
+  overflow: hidden;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(28px, 12.3cqw, 48px);
+  font-weight: 400;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+  text-overflow: clip;
+  pointer-events: none;
+  transform: translateY(-62%);
+  user-select: none;
+}
+
+.product-details-related-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: #000000;
+  text-align: right;
+}
+
+.product-details-related-view-all {
+  flex-shrink: 0;
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: #cba670;
+  text-decoration: none;
+}
+
+.product-details-related-track {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  gap: 10px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-inline: var(--pd-px);
+  padding-bottom: 4px;
+  direction: rtl;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.product-details-related-track::-webkit-scrollbar {
+  display: none;
+}
+
+.product-details-related-card {
+  flex: 0 0 min(152px, 42cqw);
+  width: min(152px, 42cqw);
+  min-width: 118px;
+  scroll-snap-align: start;
+}
+
+.product-details-related-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.product-details-related-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #d9d9d9;
+}
+
+.product-details-related-image {
+  object-fit: contain;
+  padding: 18px;
+}
+
+.product-details-related-name {
+  margin: 8px 0 0;
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 19px;
+  color: #000000;
+  text-align: right;
+}
+
+.product-details-related-price {
+  margin: 4px 0 0;
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 19px;
+  color: #6d5945;
+  text-align: right;
+}
+
+.product-details-related-weight {
+  margin: 2px 0 0;
+  font-family: var(--pd-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: #8a8a8a;
+  text-align: right;
+}
+
+/* Narrow phones — container queries on .product-details */
+@container product-details (max-width: 374px) {
+  .product-details-section-head {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .product-details-link {
+    font-size: 11px;
+  }
+
+  .product-details-ruler-tick {
+    height: 8px;
+  }
+
+  .product-details-ruler-item.is-active .product-details-ruler-tick {
+    height: 10px;
+  }
+}
+
+@container product-details (max-width: 340px) {
+  .product-details-glass-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .product-details-glass-row-value {
+    width: 100%;
+    text-align: right;
+  }
+
+  .product-details-review-content {
+    width: calc(83.333% - 11.538% - 16px);
+    margin-left: calc(11.538% + 8px);
+    margin-right: calc(16.667% + 8px);
+  }
+
+  .product-details-related-watermark {
+    font-size: 24px;
+  }
+
+  .product-details-related-card {
+    flex-basis: min(140px, 44cqw);
+    width: min(140px, 44cqw);
+    min-width: 108px;
+  }
+}

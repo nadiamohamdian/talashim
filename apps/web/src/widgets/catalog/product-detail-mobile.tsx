@@ -1,0 +1,342 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import Link from 'next/link';
+import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
+import { formatPrice } from '@/shared/lib/format-price';
+import {
+  DEFAULT_FEATURED_REVIEW,
+  DEFAULT_RELATED_PRODUCTS,
+  type ProductDetailMobileProps,
+  type StoneColorSwatch,
+} from '@/shared/config/product-detail-demo';
+import { StoreImage } from '@/shared/ui/store-image';
+
+export type { ProductDetailMobileProps };
+
+const DEFAULT_STONE_SWATCHES: StoneColorSwatch[] = [
+  { id: 'pink', color: '#F2D4D9', label: 'صورتی' },
+  { id: 'purple', color: '#D8CCE8', label: 'بنفش' },
+  { id: 'blue', color: '#C8D9ED', label: 'آبی' },
+  { id: 'gray', color: '#D9D9D9', label: 'خاکستری' },
+];
+
+const PRICE_TOOLTIP_TEXT =
+  'وزن طلا × (قیمت روز طلا + اجرت) + ۷٪ سود + متعلقات + ۱۰٪ مالیات از سود و اجرت';
+
+function toPersianDigits(value: number | string): string {
+  return String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[Number(d)] ?? d);
+}
+
+export function ProductDetailMobile({
+  product,
+  gallery,
+  heroImageUrl,
+  displayPriceToman,
+  ringSizes = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+  goldColors = ['طلایی', 'رزگلد', 'سفید'],
+  stoneSwatches = DEFAULT_STONE_SWATCHES,
+  specRows = [],
+  featuredReview,
+  relatedProducts = [],
+}: ProductDetailMobileProps) {
+  const images = gallery?.length ? gallery : [heroImageUrl ?? product.imageUrl];
+  const [activeImage, setActiveImage] = useState(() =>
+    images.length >= 5 ? 4 : 0,
+  );
+  const [selectedSize, setSelectedSize] = useState(57);
+  const [selectedGold, setSelectedGold] = useState('طلایی');
+  const [selectedStone, setSelectedStone] = useState('purple');
+  const [priceTooltipOpen, setPriceTooltipOpen] = useState(false);
+
+  const priceToman = displayPriceToman ?? product.priceToman;
+  const heroSrc = images[activeImage] ?? heroImageUrl ?? product.imageUrl;
+  const review = featuredReview ?? DEFAULT_FEATURED_REVIEW;
+  const relatedItems =
+    relatedProducts.length > 0 ? relatedProducts : DEFAULT_RELATED_PRODUCTS;
+
+  const specs = useMemo(() => {
+    if (specRows.length > 0) return specRows;
+    return Object.entries(product.specifications ?? {}).map(([label, value]) => ({
+      label,
+      value,
+    }));
+  }, [product.specifications, specRows]);
+
+  return (
+    <article className="product-details">
+      <section className="product-details-hero" aria-label="تصاویر محصول">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={heroSrc} alt={product.title} className="product-details-hero-image" />
+
+        <div className="product-details-hero-ui">
+          <div className="product-details-hero-focus" aria-hidden />
+
+          <div className="product-details-glass">
+            <h1 className="product-details-glass-title">{product.title}</h1>
+
+            <div className="product-details-glass-row">
+              <span className="product-details-glass-row-value">
+                {formatPrice(priceToman)} تومان
+              </span>
+              <span className="product-details-glass-row-label">قیمت</span>
+            </div>
+
+            <div className="product-details-glass-row">
+              <span className="product-details-glass-row-value">
+                {toPersianDigits(product.weightGram)} گرم (طلای {toPersianDigits(product.karat)} عیار)
+              </span>
+              <span className="product-details-glass-row-label">وزن</span>
+            </div>
+
+            <hr className="product-details-glass-divider" />
+
+            <div className="product-details-glass-actions">
+              <button type="button" className="product-details-action product-details-action-video">
+                <span className="product-details-action-icon" aria-hidden>
+                  ▶
+                </span>
+                مشاهده ویدئو محصول
+              </button>
+              <AddToCartButton
+                productId={product.id}
+                slug={product.slug}
+                title={product.title}
+                priceToman={priceToman}
+                imageUrl={product.imageUrl}
+                weightGram={product.weightGram}
+                quantity={1}
+                disabled={product.inventory <= 0}
+                className="product-details-action product-details-action-cart"
+                label="افزودن به سبد خرید"
+              />
+            </div>
+          </div>
+
+          <div className="product-details-dots" role="tablist" aria-label="اسلایدهای محصول">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                role="tab"
+                aria-selected={index === activeImage}
+                className={
+                  index === activeImage ? 'product-details-dot is-active' : 'product-details-dot'
+                }
+                onClick={() => setActiveImage(index)}
+                aria-label={`اسلاید ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="product-details-body">
+        <section
+          className="product-details-section product-details-section-size"
+          aria-labelledby="pdp-size-title"
+        >
+          <div className="product-details-section-head">
+            <h2 id="pdp-size-title" className="product-details-section-title">
+              انتخاب سایز انگشتر
+            </h2>
+            <button type="button" className="product-details-link">
+              راهنمای انتخاب سایز
+            </button>
+          </div>
+
+          <div className="product-details-ruler-wrap">
+            <div className="product-details-ruler">
+              <span className="product-details-ruler-pointer" aria-hidden />
+              <div className="product-details-ruler-track">
+                {ringSizes.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    data-size={size}
+                    className={
+                      selectedSize === size
+                        ? 'product-details-ruler-item is-active'
+                        : 'product-details-ruler-item'
+                    }
+                    onClick={() => setSelectedSize(size)}
+                  >
+                    <span className="product-details-ruler-tick" aria-hidden />
+                    <span className="product-details-ruler-num">{toPersianDigits(size)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          className="product-details-section product-details-section-gold"
+          aria-labelledby="pdp-gold-title"
+        >
+          <h2 id="pdp-gold-title" className="product-details-section-title">
+            انتخاب رنگ طلا
+          </h2>
+          <div className="product-details-options">
+            {goldColors.map((color) => (
+              <button
+                key={color}
+                type="button"
+                className={
+                  selectedGold === color
+                    ? 'product-details-option is-active'
+                    : 'product-details-option'
+                }
+                onClick={() => setSelectedGold(color)}
+              >
+                {color}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section
+          className="product-details-section product-details-section-stone"
+          aria-labelledby="pdp-stone-title"
+        >
+          <h2 id="pdp-stone-title" className="product-details-section-title">
+            انتخاب رنگ سنگ
+          </h2>
+          <div className="product-details-stone-swatches">
+            {stoneSwatches.map((swatch) => (
+              <button
+                key={swatch.id}
+                type="button"
+                className={
+                  selectedStone === swatch.id
+                    ? 'product-details-stone-swatch is-active'
+                    : 'product-details-stone-swatch'
+                }
+                style={{ backgroundColor: swatch.color }}
+                aria-label={swatch.label}
+                aria-pressed={selectedStone === swatch.id}
+                onClick={() => setSelectedStone(swatch.id)}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="product-details-section product-details-specs-section" aria-labelledby="pdp-specs-title">
+          <div className="product-details-section-head">
+            <h2 id="pdp-specs-title" className="product-details-section-title">
+              مشخصات
+            </h2>
+            <div className="product-details-price-tooltip-wrap">
+              <button
+                type="button"
+                className="product-details-link"
+                aria-expanded={priceTooltipOpen}
+                onClick={() => setPriceTooltipOpen((open) => !open)}
+              >
+                نحوه محاسبه قیمت
+              </button>
+              {priceTooltipOpen ? (
+                <div className="product-details-price-tooltip" role="tooltip">
+                  {PRICE_TOOLTIP_TEXT}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <table className="product-details-specs-table">
+            <tbody>
+              {specs.map((row) => (
+                <tr key={row.label} className="product-details-spec-row">
+                  <th scope="row" className="product-details-spec-label">
+                    {row.label}
+                  </th>
+                  <td className="product-details-spec-value">{row.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section className="product-details-review" aria-label="نظر مشتری">
+          <div className="product-details-review-frame">
+            <span className="product-details-review-line product-details-review-line-top" aria-hidden />
+            <span className="product-details-review-line product-details-review-line-left" aria-hidden />
+            <span className="product-details-review-line product-details-review-line-bottom" aria-hidden />
+            <span className="product-details-review-line product-details-review-line-right" aria-hidden />
+            <span className="product-details-quote product-details-quote-open" aria-hidden />
+            <span className="product-details-quote product-details-quote-close" aria-hidden />
+            <div className="product-details-review-content">
+              <p className="product-details-review-body">{review.body}</p>
+              <p className="product-details-review-author">{review.author}</p>
+              <div
+                className="product-details-review-rating"
+                aria-label={`امتیاز ${review.rating.toFixed(1)}`}
+              >
+                <svg
+                  className="product-details-review-star"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M6 0L7.412 4.176H12L8.294 6.756L9.706 10.932L6 8.352L2.294 10.932L3.706 6.756L0 4.176H4.588L6 0Z"
+                    fill="#FFB900"
+                  />
+                </svg>
+                <span className="product-details-review-score">
+                  {review.rating.toFixed(1)}
+                </span>
+              </div>
+              <button type="button" className="product-details-review-submit">
+                ثبت نظر جدید
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="product-details-related" aria-labelledby="pdp-related-title">
+          <div className="product-details-related-header">
+            <div className="product-details-related-heading">
+              <span className="product-details-related-watermark" aria-hidden>
+                Related Products
+              </span>
+              <h2 id="pdp-related-title" className="product-details-related-title">
+                محصولات مشابه
+              </h2>
+            </div>
+            <Link href="/products" className="product-details-related-view-all">
+              نمایش همه
+            </Link>
+          </div>
+
+          <div className="product-details-related-track" role="list">
+            {relatedItems.map((item) => (
+              <article key={item.id} className="product-details-related-card" role="listitem">
+                <Link href={item.href ?? '/products'} className="product-details-related-link">
+                  <div className="product-details-related-media">
+                    <StoreImage
+                      src={item.imageUrl}
+                      alt={item.title}
+                      fill
+                      className="product-details-related-image"
+                        sizes="42vw"
+                    />
+                  </div>
+                  <h3 className="product-details-related-name">{item.title}</h3>
+                  <p className="product-details-related-price">
+                    {formatPrice(item.priceToman)} تومان
+                  </p>
+                  <p className="product-details-related-weight">
+                    {toPersianDigits(item.weightGram)} گرم
+                  </p>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+    </article>
+  );
+}
