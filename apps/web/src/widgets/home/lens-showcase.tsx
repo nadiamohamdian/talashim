@@ -1,79 +1,99 @@
 'use client';
 
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import type { PublicCmsLensVideo } from '@sadafgold/types';
-
-const PLACEHOLDER_COUNT = 3;
+import type { LensShowcaseDemoItem } from '@/shared/config/lens-showcase-demo';
+import { LensVideoPopup } from '@/widgets/home/lens-video-popup';
 
 interface LensShowcaseProps {
-  videos: PublicCmsLensVideo[];
+  items: LensShowcaseDemoItem[];
 }
 
-export function LensShowcase({ videos }: LensShowcaseProps) {
-  const items =
-    videos.length > 0
-      ? videos
-      : Array.from({ length: PLACEHOLDER_COUNT }, (_, index) => ({
-          id: `placeholder-${index}`,
-          title: null,
-          videoUrl: '',
-          thumbnailUrl: null,
-          sortOrder: index,
-        }));
+export function LensShowcase({ items }: LensShowcaseProps) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   return (
-    <section className="lens-showcase" aria-labelledby="lens-showcase-title">
-      <div className="lens-showcase-inner">
-        <div className="lens-showcase-header">
-          <div className="lens-showcase-heading">
-            <p className="lens-showcase-eyebrow">Talashim Lens</p>
-            <h2 id="lens-showcase-title" className="lens-showcase-title">
-              لنز طلاشیم
-            </h2>
+    <>
+      <section className="lens-showcase" aria-labelledby="lens-showcase-title">
+        <div className="lens-showcase-inner">
+          <div className="lens-showcase-header">
+            <div className="lens-showcase-heading">
+              <p className="lens-showcase-eyebrow">Talashim Lens</p>
+              <h2 id="lens-showcase-title" className="lens-showcase-title">
+                لنز طلاشیم
+              </h2>
+            </div>
+
+            <Link href="/lens" className="lens-showcase-view-all">
+              نمایش همه
+            </Link>
           </div>
 
-          <Link href="/lens" className="lens-showcase-view-all">
-            نمایش همه
-          </Link>
+          <div className="lens-showcase-track" role="list">
+            {items.map((item, index) => (
+              <LensShowcaseCard
+                key={item.id}
+                item={item}
+                onOpen={() => setActiveIndex(index)}
+              />
+            ))}
+          </div>
         </div>
+      </section>
 
-        <div className="lens-showcase-track" role="list">
-          {items.map((item) => (
-            <LensShowcaseCard key={item.id} video={item} isPlaceholder={!item.videoUrl} />
-          ))}
-        </div>
-      </div>
-    </section>
+      {activeIndex !== null
+        ? createPortal(
+            <LensVideoPopup
+              items={items}
+              activeIndex={activeIndex}
+              onClose={() => setActiveIndex(null)}
+              onNavigate={setActiveIndex}
+            />,
+            document.body,
+          )
+        : null}
+    </>
   );
 }
 
 function LensShowcaseCard({
-  video,
-  isPlaceholder,
+  item,
+  onOpen,
 }: {
-  video: PublicCmsLensVideo;
-  isPlaceholder: boolean;
+  item: LensShowcaseDemoItem;
+  onOpen: () => void;
 }) {
-  if (isPlaceholder) {
-    return (
-      <div className="lens-showcase-card lens-showcase-card-placeholder" role="listitem" aria-hidden>
-        <span className="sr-only">جایگاه ویدیو</span>
-      </div>
-    );
-  }
-
   return (
-    <article className="lens-showcase-card" role="listitem">
-      <video
-        className="lens-showcase-video"
-        src={video.videoUrl}
-        poster={video.thumbnailUrl ?? undefined}
-        playsInline
-        muted
-        loop
-        preload="metadata"
-        aria-label={video.title ?? 'ویدیو لنز طلاشیم'}
-      />
-    </article>
+    <button
+      type="button"
+      className="lens-showcase-card"
+      role="listitem"
+      onClick={onOpen}
+      aria-label={item.title ?? 'مشاهده ویدیو لنز طلاشیم'}
+    >
+      {item.videoUrl ? (
+        <video
+          className="lens-showcase-video"
+          src={item.videoUrl}
+          poster={item.thumbnailUrl}
+          playsInline
+          muted
+          loop
+          preload="metadata"
+          tabIndex={-1}
+          aria-hidden
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element -- static local poster; avoids next/image hydration drift
+        <img
+          src={item.thumbnailUrl}
+          alt=""
+          className="lens-showcase-poster"
+          loading="lazy"
+          decoding="async"
+        />
+      )}
+    </button>
   );
 }
