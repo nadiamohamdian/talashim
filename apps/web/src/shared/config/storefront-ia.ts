@@ -124,6 +124,74 @@ export const HOME_CATEGORY_SHOWCASE = [
   },
 ] as const;
 
+/** Figma node 1752:5924 — homepage budget picker (mobile) */
+export const HOME_BUDGET_RANGES = [
+  {
+    id: '1-3m',
+    label: '۱-۳ میلیون تومان',
+    href: '/products?minPrice=1000000&maxPrice=3000000',
+  },
+  {
+    id: '4-8m',
+    label: '۴-۸ میلیون تومان',
+    href: '/products?minPrice=4000000&maxPrice=8000000',
+  },
+  {
+    id: '9-15m',
+    label: '۹-۱۵ میلیون تومان',
+    href: '/products?minPrice=9000000&maxPrice=15000000',
+  },
+  {
+    id: '16m-plus',
+    label: '+۱۶ میلیون تومان',
+    href: '/products?minPrice=16000000',
+  },
+] as const;
+
+/** Homepage wedding rings promo — Figma node 1752:5959 */
+export const HOME_WEDDING_PROMO = {
+  title: 'برای یک عمر کنار هم',
+  subtitle: 'حلقه‌های ازدواج و ست، برای لحظه‌های ماندگار',
+  ctaLabel: 'مشاهده محصولات',
+  href: '/products?category=ring',
+  backgroundImageUrl: '/images/home/wedding-promo-bg.png',
+  ringImageUrl: '/images/home/wedding-ring.png',
+} as const;
+
+/** Homepage product carousel — demo items until admin CMS is wired */
+export interface HomeProductCarouselItem {
+  id: string;
+  title: string;
+  priceToman: number;
+  weightGram: number;
+  imageUrl: string;
+  hoverImageUrl?: string;
+  href?: string;
+}
+
+const DEMO_CAROUSEL_PRODUCT: Omit<HomeProductCarouselItem, 'id'> = {
+  title: 'انگشتر زنانه لوکس بیضی',
+  priceToman: 8_500_000,
+  weightGram: 2.8,
+  imageUrl: '/images/home/new-arrival-necklace.png',
+  hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+  href: '/products',
+};
+
+export const HOME_NEW_ARRIVALS_SHOWCASE: HomeProductCarouselItem[] = [
+  { id: 'demo-new-arrival-1', ...DEMO_CAROUSEL_PRODUCT },
+  { id: 'demo-new-arrival-2', ...DEMO_CAROUSEL_PRODUCT },
+  { id: 'demo-new-arrival-3', ...DEMO_CAROUSEL_PRODUCT },
+  { id: 'demo-new-arrival-4', ...DEMO_CAROUSEL_PRODUCT },
+];
+
+export const HOME_BESTSELLERS_SHOWCASE: HomeProductCarouselItem[] = [
+  { id: 'demo-bestseller-1', ...DEMO_CAROUSEL_PRODUCT },
+  { id: 'demo-bestseller-2', ...DEMO_CAROUSEL_PRODUCT },
+  { id: 'demo-bestseller-3', ...DEMO_CAROUSEL_PRODUCT },
+  { id: 'demo-bestseller-4', ...DEMO_CAROUSEL_PRODUCT },
+];
+
 export const HOME_CATEGORY_SHORTCUTS = [
   {
     slug: 'rings',

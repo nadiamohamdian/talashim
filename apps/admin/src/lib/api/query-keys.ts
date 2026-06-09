@@ -96,6 +96,8 @@ export const adminQueryKeys = {
     homepage: ['admin', 'cms', 'homepage'] as const,
     banners: (page: number, status: string, placement = '') =>
       ['admin', 'cms', 'banners', page, status, placement] as const,
+    lensVideos: (page: number, status: string) =>
+      ['admin', 'cms', 'lens-videos', page, status] as const,
     pages: (page: number, search: string) => ['admin', 'cms', 'pages', page, search] as const,
     seo: ['admin', 'cms', 'seo'] as const,
     media: (page: number, search: string, folder: string) =>

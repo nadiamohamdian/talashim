@@ -17,6 +17,8 @@ export type ProductVideoField = {
 interface ProductMediaFieldsProps {
   imageUrl: string;
   onImageUrlChange: (value: string) => void;
+  hoverImageUrl: string;
+  onHoverImageUrlChange: (value: string) => void;
   galleryImages: GalleryImageField[];
   onGalleryChange: (images: GalleryImageField[]) => void;
   videos: ProductVideoField[];
@@ -54,6 +56,8 @@ function updateVideoAt(
 export function ProductMediaFields({
   imageUrl,
   onImageUrlChange,
+  hoverImageUrl,
+  onHoverImageUrlChange,
   galleryImages,
   onGalleryChange,
   videos,
@@ -69,6 +73,16 @@ export function ProductMediaFields({
         onChange={onImageUrlChange}
         folder="products"
         previewAlt="پیش‌نمایش شاخص"
+      />
+
+      <ImageUrlField
+        label="تصویر هاور"
+        required
+        hint="تصویر جایگزین هنگام هاور روی کارت — مثلاً محصول در حال استفاده."
+        value={hoverImageUrl}
+        onChange={onHoverImageUrlChange}
+        folder="products"
+        previewAlt="پیش‌نمایش هاور"
       />
 
       <div>

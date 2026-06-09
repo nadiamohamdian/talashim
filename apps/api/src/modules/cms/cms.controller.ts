@@ -9,6 +9,7 @@ import {
   PublicCmsBannerResponseDto,
   PublicCmsCollectionResponseDto,
   PublicCmsHomepageResponseDto,
+  PublicCmsLensVideoResponseDto,
   PublicCmsSeoResponseDto,
   PublicCmsStaticPageResponseDto,
   PublicCmsStaticPageSummaryResponseDto,
@@ -29,6 +30,14 @@ export class CmsPublicController {
   @ApiOkResponse({ type: PublicCmsBannerResponseDto, isArray: true })
   listBanners(@Query() query: PublicBannersQueryDto) {
     return this.adminCmsService.listPublicBanners(query.placement);
+  }
+
+  @Get('lens-videos')
+  @HttpCache({ ttlSeconds: 120 })
+  @ApiOperation({ summary: 'List published Talashim Lens videos' })
+  @ApiOkResponse({ type: PublicCmsLensVideoResponseDto, isArray: true })
+  listLensVideos() {
+    return this.adminCmsService.listPublicLensVideos();
   }
 
   @Get('collections/:id')

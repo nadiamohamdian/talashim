@@ -231,6 +231,10 @@ export class CreateAdminProductDto {
   @IsUrl({ require_tld: false })
   imageUrl!: string;
 
+  @ApiProperty()
+  @IsUrl({ require_tld: false })
+  hoverImageUrl!: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @Type(() => Boolean)
@@ -363,6 +367,11 @@ export class UpdateAdminProductDto {
   @IsOptional()
   @IsUrl({ require_tld: false })
   imageUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  hoverImageUrl?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

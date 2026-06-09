@@ -8,6 +8,7 @@ import {
   type ProductSeoFormValues,
 } from '../components/product-seo-fields';
 import type { ProductVariantField } from '../components/product-variant-fields';
+import type { GalleryImageField, ProductVideoField } from '../components/product-media-fields';
 
 export class ProductFormValidationError extends Error {
   constructor(message: string) {
@@ -21,6 +22,7 @@ export type ProductFormValues = {
   title: string;
   description: string;
   imageUrl: string;
+  hoverImageUrl: string;
   weightGram: string;
   karat: string;
   priceToman: string;
@@ -135,13 +137,19 @@ export function validateProductForm(
   options?: {
     mode?: 'create' | 'edit';
     originalImageUrl?: string;
+    originalHoverImageUrl?: string;
   },
 ): string[] {
   const errors: string[] = [];
   const mode = options?.mode ?? 'create';
   const originalImageUrl = options?.originalImageUrl?.trim() ?? '';
+  const originalHoverImageUrl = options?.originalHoverImageUrl?.trim() ?? '';
   const coverImageChanged =
     mode === 'edit' && originalImageUrl.length > 0 && form.imageUrl.trim() === originalImageUrl;
+  const hoverImageChanged =
+    mode === 'edit' &&
+    originalHoverImageUrl.length > 0 &&
+    form.hoverImageUrl.trim() === originalHoverImageUrl;
 
   if (form.sku.trim().length < 2) {
     errors.push('SKU محصول را وارد کنید (حداقل ۲ کاراکتر).');
@@ -157,6 +165,13 @@ export function validateProductForm(
     const coverImageError = validateLibraryImageUrl(form.imageUrl, 'تصویر شاخص محصول');
     if (coverImageError) {
       errors.push(coverImageError);
+    }
+  }
+
+  if (!hoverImageChanged) {
+    const hoverImageError = validateLibraryImageUrl(form.hoverImageUrl, 'تصویر هاور محصول');
+    if (hoverImageError) {
+      errors.push(hoverImageError);
     }
   }
 
@@ -273,6 +288,7 @@ export function buildProductCreateBody(
     makingFeePercent: Number(form.makingFeePercent),
     priceToman: parseIntegerDigitsToNumber(form.priceToman),
     imageUrl: normalizeMediaUrl(form.imageUrl),
+    hoverImageUrl: normalizeMediaUrl(form.hoverImageUrl),
     featured: form.featured,
     discountPercent,
     discountStartsAt: discountPercent > 0 ? discountStartsAt : undefined,

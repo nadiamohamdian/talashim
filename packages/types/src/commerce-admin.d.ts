@@ -22,6 +22,7 @@ export interface AdminProductDto {
     makingFeePercent: number;
     priceToman: number;
     imageUrl: string;
+    hoverImageUrl: string;
     featured: boolean;
     inventory: AdminProductInventoryDto | null;
     createdAt: string;

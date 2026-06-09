@@ -9,12 +9,14 @@ import type {
   AdminBlogPostDto,
   CmsBannerDto,
   CmsHomepageDto,
+  CmsLensVideoDto,
   CmsSeoSettingsDto,
   CmsStaticPageDto,
   MediaAssetDto,
   ProductSummary,
   PublicCmsCollection,
   PublicCmsHomepage,
+  PublicCmsLensVideo,
   PublicCmsSeo,
 } from '@talashim/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
@@ -27,6 +29,7 @@ import { CmsBannerLinkType, type Prisma } from '@/generated/prisma';
 import type {
   AdminBannersQueryDto,
   AdminBlogQueryDto,
+  AdminLensVideosQueryDto,
   AdminMediaQueryDto,
   AdminStaticPagesQueryDto,
   RegisterMediaAssetDto,
@@ -35,6 +38,7 @@ import type {
   UpdateMediaAssetDto,
   UpsertBlogPostDto,
   UpsertCmsBannerDto,
+  UpsertCmsLensVideoDto,
   UpsertCmsStaticPageDto,
   UpsertFaqPostDto,
 } from '../dto/admin-cms.dto';
@@ -48,6 +52,7 @@ import {
   revalidateStorefrontBanners,
   revalidateStorefrontFaq,
   revalidateStorefrontHomepage,
+  revalidateStorefrontLens,
   revalidateStorefrontSeo,
   revalidateStorefrontStaticPages,
 } from '@/infrastructure/storefront/storefront-cache.util';
@@ -226,6 +231,11 @@ export class AdminCmsService {
     return items.map((banner) => this.mapPublicBanner(banner));
   }
 
+  async listPublicLensVideos(): Promise<PublicCmsLensVideo[]> {
+    const items = await this.cmsRepository.findPublishedLensVideos();
+    return items.map((video) => this.mapPublicLensVideo(video));
+  }
+
   async getPublicCollection(id: string): Promise<PublicCmsCollection> {
     const banner = await this.cmsRepository.findPublishedBannerById(id);
     if (!banner) {
@@ -363,6 +373,72 @@ export class AdminCmsService {
     }
     await this.cmsRepository.deleteBanner(id);
     void revalidateStorefrontBanners();
+    return { ok: true };
+  }
+
+  async listLensVideos(query: AdminLensVideosQueryDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.read);
+
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await this.cmsRepository.listLensVideos(skip, limit, query.status);
+
+    return {
+      page,
+      limit,
+      total,
+      items: items.map((video) => this.mapLensVideo(video)),
+    };
+  }
+
+  async createLensVideo(dto: UpsertCmsLensVideoDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
+
+    const video = await this.cmsRepository.createLensVideo({
+      title: dto.title?.trim() || null,
+      videoUrl: requireLibraryImageUrl(dto.videoUrl, 'فایل ویدیو'),
+      thumbnailUrl: optionalLibraryImageUrl(dto.thumbnailUrl, 'تصویر بندانگشتی') ?? null,
+      sortOrder: dto.sortOrder ?? 0,
+      status: dto.status ?? 'PUBLISHED',
+    });
+
+    void revalidateStorefrontLens();
+    return this.mapLensVideo(video);
+  }
+
+  async updateLensVideo(id: string, dto: UpsertCmsLensVideoDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
+
+    const existing = await this.cmsRepository.findLensVideoById(id);
+    if (!existing) {
+      throw new NotFoundException('Lens video not found');
+    }
+
+    const video = await this.cmsRepository.updateLensVideo(id, {
+      title: dto.title !== undefined ? dto.title?.trim() || null : undefined,
+      videoUrl: dto.videoUrl ? requireLibraryImageUrl(dto.videoUrl, 'فایل ویدیو') : undefined,
+      thumbnailUrl:
+        dto.thumbnailUrl !== undefined
+          ? (optionalLibraryImageUrl(dto.thumbnailUrl, 'تصویر بندانگشتی') ?? null)
+          : undefined,
+      sortOrder: dto.sortOrder,
+      status: dto.status,
+    });
+
+    void revalidateStorefrontLens();
+    return this.mapLensVideo(video);
+  }
+
+  async deleteLensVideo(id: string, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
+    const existing = await this.cmsRepository.findLensVideoById(id);
+    if (!existing) {
+      throw new NotFoundException('Lens video not found');
+    }
+    await this.cmsRepository.deleteLensVideo(id);
+    void revalidateStorefrontLens();
     return { ok: true };
   }
 
@@ -557,6 +633,31 @@ export class AdminCmsService {
     });
 
     return this.mapMedia(asset);
+  }
+
+  async uploadMediaVideo(
+    file: UploadedImageFile,
+    folder: string | undefined,
+    actor: AuthenticatedUser,
+  ) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.media.write);
+
+    try {
+      const saved = await this.mediaStorage.saveVideo(file, folder ?? 'lens');
+      const asset = await this.cmsRepository.createMedia({
+        filename: saved.filename,
+        url: saved.url,
+        mimeType: saved.mimeType,
+        sizeBytes: saved.sizeBytes,
+        folder: folder ?? 'lens',
+        uploader: { connect: { id: actor.id } },
+      });
+
+      return this.mapMedia(asset);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'آپلود ویدیو ناموفق بود';
+      throw new BadRequestException(message);
+    }
   }
 
   async updateMedia(id: string, dto: UpdateMediaAssetDto, actor: AuthenticatedUser) {
@@ -783,6 +884,29 @@ export class AdminCmsService {
       folder: asset.folder,
       uploadedBy: asset.uploadedBy,
       createdAt: asset.createdAt.toISOString(),
+    };
+  }
+
+  private mapLensVideo(video: Prisma.CmsLensVideoGetPayload<object>): CmsLensVideoDto {
+    return {
+      id: video.id,
+      title: video.title,
+      videoUrl: video.videoUrl,
+      thumbnailUrl: video.thumbnailUrl,
+      sortOrder: video.sortOrder,
+      status: video.status,
+      createdAt: video.createdAt.toISOString(),
+      updatedAt: video.updatedAt.toISOString(),
+    };
+  }
+
+  private mapPublicLensVideo(video: Prisma.CmsLensVideoGetPayload<object>): PublicCmsLensVideo {
+    return {
+      id: video.id,
+      title: video.title,
+      videoUrl: video.videoUrl,
+      thumbnailUrl: video.thumbnailUrl,
+      sortOrder: video.sortOrder,
     };
   }
 }

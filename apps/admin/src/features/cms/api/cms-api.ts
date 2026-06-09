@@ -4,6 +4,7 @@ import type {
   AdminBlogPostDto,
   CmsBannerDto,
   CmsHomepageDto,
+  CmsLensVideoDto,
   CmsSeoSettingsDto,
   CmsStaticPageDto,
   MediaAssetDto,
@@ -162,6 +163,34 @@ export function deleteBanner(id: string) {
   return axiosClient.delete<{ ok: boolean }>(`/admin/cms/banners/${id}`).then((r) => r.data);
 }
 
+export type UpsertLensVideoPayload = {
+  title?: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  sortOrder?: number;
+  status?: CmsBannerDto['status'];
+};
+
+export function fetchLensVideos(params?: { page?: number; status?: string }) {
+  return axiosClient
+    .get<PaginatedResponse<CmsLensVideoDto>>('/admin/cms/lens-videos', { params })
+    .then((r) => r.data);
+}
+
+export function createLensVideo(payload: UpsertLensVideoPayload) {
+  return axiosClient.post<CmsLensVideoDto>('/admin/cms/lens-videos', payload).then((r) => r.data);
+}
+
+export function updateLensVideo(id: string, payload: UpsertLensVideoPayload) {
+  return axiosClient
+    .patch<CmsLensVideoDto>(`/admin/cms/lens-videos/${id}`, payload)
+    .then((r) => r.data);
+}
+
+export function deleteLensVideo(id: string) {
+  return axiosClient.delete<{ ok: boolean }>(`/admin/cms/lens-videos/${id}`).then((r) => r.data);
+}
+
 export function fetchStaticPages(params?: {
   page?: number;
   search?: string;
@@ -224,6 +253,17 @@ export function uploadMediaImage(file: File, options?: { folder?: string }) {
   const folder = options?.folder ?? 'general';
   return axiosClient
     .post<MediaAssetDto>(`/admin/media/upload?folder=${encodeURIComponent(folder)}`, form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    .then((r) => r.data);
+}
+
+export function uploadMediaVideo(file: File, options?: { folder?: string }) {
+  const form = new FormData();
+  form.append('file', file);
+  const folder = options?.folder ?? 'lens';
+  return axiosClient
+    .post<MediaAssetDto>(`/admin/media/upload-video?folder=${encodeURIComponent(folder)}`, form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     .then((r) => r.data);

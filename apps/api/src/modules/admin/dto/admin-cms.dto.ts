@@ -262,6 +262,61 @@ export class AdminBannersQueryDto extends PaginationQueryDto {
   placement?: CmsBannerPlacement;
 }
 
+export class AdminLensVideosQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({ enum: CmsBannerStatus })
+  @IsOptional()
+  @IsEnum(CmsBannerStatus)
+  status?: CmsBannerStatus;
+}
+
+export class UpsertCmsLensVideoDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  title?: string;
+
+  @ApiProperty()
+  @IsString()
+  @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
+  videoUrl!: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(emptyStringToUndefined)
+  @IsString()
+  @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
+  thumbnailUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  sortOrder?: number;
+
+  @ApiPropertyOptional({ enum: CmsBannerStatus })
+  @IsOptional()
+  @IsEnum(CmsBannerStatus)
+  status?: CmsBannerStatus;
+}
+
+export class PublicCmsLensVideoResponseDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  title!: string | null;
+
+  @ApiProperty()
+  videoUrl!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  thumbnailUrl!: string | null;
+
+  @ApiProperty()
+  sortOrder!: number;
+}
+
 export class UpsertCmsBannerDto {
   @ApiProperty()
   @IsString()

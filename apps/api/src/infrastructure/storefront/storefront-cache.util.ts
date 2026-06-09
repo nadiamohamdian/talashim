@@ -32,6 +32,35 @@ export async function revalidateStorefrontBanners(): Promise<void> {
   }
 }
 
+export async function revalidateStorefrontLens(): Promise<void> {
+  const env = getApiEnv();
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) {
+    return;
+  }
+
+  const url = `${env.WEB_URL.replace(/\/$/, '')}/api/revalidate`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': secret,
+      },
+      body: JSON.stringify({ path: '/', tag: 'content:lens-videos' }),
+    });
+
+    if (!response.ok) {
+      logger.warn(`Storefront lens revalidation failed (${response.status})`);
+    }
+  } catch (error) {
+    logger.warn(
+      `Storefront lens revalidation error: ${error instanceof Error ? error.message : 'unknown'}`,
+    );
+  }
+}
+
 export async function revalidateStorefrontHomepage(): Promise<void> {
   const env = getApiEnv();
   const secret = process.env.REVALIDATE_SECRET;

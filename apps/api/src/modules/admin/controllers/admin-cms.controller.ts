@@ -21,6 +21,7 @@ import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import {
   AdminBannersQueryDto,
   AdminBlogQueryDto,
+  AdminLensVideosQueryDto,
   AdminMediaQueryDto,
   AdminStaticPagesQueryDto,
   RegisterMediaAssetDto,
@@ -29,6 +30,7 @@ import {
   UpdateCmsSeoDto,
   UpsertBlogPostDto,
   UpsertCmsBannerDto,
+  UpsertCmsLensVideoDto,
   UpsertCmsStaticPageDto,
   UpsertFaqPostDto,
 } from '../dto/admin-cms.dto';
@@ -151,6 +153,34 @@ export class AdminCmsController {
     return this.adminCmsService.deleteBanner(id, actor);
   }
 
+  @Get('lens-videos')
+  @ApiOperation({ summary: 'List Talashim Lens videos' })
+  listLensVideos(@Query() query: AdminLensVideosQueryDto, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminCmsService.listLensVideos(query, actor);
+  }
+
+  @Post('lens-videos')
+  @ApiOperation({ summary: 'Create Talashim Lens video' })
+  createLensVideo(@Body() dto: UpsertCmsLensVideoDto, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminCmsService.createLensVideo(dto, actor);
+  }
+
+  @Patch('lens-videos/:id')
+  @ApiOperation({ summary: 'Update Talashim Lens video' })
+  updateLensVideo(
+    @Param('id') id: string,
+    @Body() dto: UpsertCmsLensVideoDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminCmsService.updateLensVideo(id, dto, actor);
+  }
+
+  @Delete('lens-videos/:id')
+  @ApiOperation({ summary: 'Delete Talashim Lens video' })
+  deleteLensVideo(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminCmsService.deleteLensVideo(id, actor);
+  }
+
   @Get('pages')
   @ApiOperation({ summary: 'List static pages' })
   listPages(@Query() query: AdminStaticPagesQueryDto, @CurrentUser() actor: AuthenticatedUser) {
@@ -224,6 +254,30 @@ export class AdminMediaController {
       throw new BadRequestException('فایل تصویر ارسال نشده است');
     }
     return this.adminCmsService.uploadMedia(
+      {
+        buffer: file.buffer,
+        mimetype: file.mimetype,
+        size: file.size,
+        originalname: file.originalname,
+      },
+      folder,
+      actor,
+    );
+  }
+
+  @Post('upload-video')
+  @ApiOperation({ summary: 'Upload video file to media library' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadMediaVideo(
+    @UploadedFile() file: UploadedImageFile | undefined,
+    @Query('folder') folder: string | undefined,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    if (!file?.buffer?.length) {
+      throw new BadRequestException('فایل ویدیو ارسال نشده است');
+    }
+    return this.adminCmsService.uploadMediaVideo(
       {
         buffer: file.buffer,
         mimetype: file.mimetype,

@@ -223,6 +223,7 @@ export class CatalogService {
       discountStartsAt: discountMeta.discountStartsAt,
       discountEndsAt: discountMeta.discountEndsAt,
       imageUrl: product.imageUrl,
+      hoverImageUrl: product.hoverImageUrl,
       inventory:
         (product.inventoryItem?.quantity ?? 0) -
         (product.inventoryItem?.reserved ?? 0),

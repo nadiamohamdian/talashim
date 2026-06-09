@@ -63,6 +63,7 @@ export interface ProductSummary {
     discountStartsAt?: string | null;
     discountEndsAt?: string | null;
     imageUrl: string;
+    hoverImageUrl: string;
     inventory: number;
     featured?: boolean;
     pricing?: ProductPricing;

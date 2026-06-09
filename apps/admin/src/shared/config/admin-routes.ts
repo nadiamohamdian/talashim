@@ -532,6 +532,17 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     parentId: 'dashboard',
   }),
   r({
+    id: 'cms.lens',
+    path: '/cms/lens',
+    label: 'لنز طلاشیم',
+    sectionId: 'content',
+    sectionLabel: 'محتوا و رسانه',
+    template: 'list',
+    permission: ADMIN_PERMISSIONS.cms.write,
+    availability: 'live',
+    parentId: 'dashboard',
+  }),
+  r({
     id: 'cms.faq',
     path: '/cms/faq',
     label: 'سوالات متداول',

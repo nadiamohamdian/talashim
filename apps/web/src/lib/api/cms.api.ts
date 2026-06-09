@@ -3,6 +3,7 @@ import type {
   PublicCmsBanner,
   PublicCmsCollection,
   PublicCmsHomepage,
+  PublicCmsLensVideo,
   PublicCmsSeo,
   PublicCmsStaticPage,
   PublicCmsStaticPageSummary,
@@ -23,6 +24,13 @@ export async function getPublishedBanners(
   return serverFetchCatalogList<PublicCmsBanner[]>(`/cms/banners${query}`, {
     revalidate: 120,
     tags: ['content:banners'],
+  });
+}
+
+export async function getPublishedLensVideos(): Promise<PublicCmsLensVideo[]> {
+  return serverFetchCatalogList<PublicCmsLensVideo[]>('/cms/lens-videos', {
+    revalidate: 120,
+    tags: ['content:lens-videos'],
   });
 }
 

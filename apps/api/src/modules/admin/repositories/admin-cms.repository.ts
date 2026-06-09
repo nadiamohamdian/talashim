@@ -299,6 +299,46 @@ export class AdminCmsRepository implements OnModuleInit {
     return this.prisma.cmsStaticPage.delete({ where: { id } });
   }
 
+  listLensVideos(skip: number, take: number, status?: string) {
+    const where: Prisma.CmsLensVideoWhereInput = {};
+    if (status) {
+      where.status = status as Prisma.EnumCmsBannerStatusFilter['equals'];
+    }
+
+    return this.prisma.$transaction([
+      this.prisma.cmsLensVideo.findMany({
+        where,
+        skip,
+        take,
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      }),
+      this.prisma.cmsLensVideo.count({ where }),
+    ]);
+  }
+
+  findPublishedLensVideos() {
+    return this.prisma.cmsLensVideo.findMany({
+      where: { status: 'PUBLISHED' },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+    });
+  }
+
+  findLensVideoById(id: string) {
+    return this.prisma.cmsLensVideo.findUnique({ where: { id } });
+  }
+
+  createLensVideo(data: Prisma.CmsLensVideoCreateInput) {
+    return this.prisma.cmsLensVideo.create({ data });
+  }
+
+  updateLensVideo(id: string, data: Prisma.CmsLensVideoUpdateInput) {
+    return this.prisma.cmsLensVideo.update({ where: { id }, data });
+  }
+
+  deleteLensVideo(id: string) {
+    return this.prisma.cmsLensVideo.delete({ where: { id } });
+  }
+
   async getOrCreateSeo() {
     const existing = await this.prisma.cmsSeoSettings.findUnique({ where: { id: 'default' } });
     if (existing) {

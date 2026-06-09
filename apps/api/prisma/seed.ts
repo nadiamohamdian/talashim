@@ -130,6 +130,7 @@ async function main() {
       makingFeePercent: 19,
       priceToman: 0,
       imageUrl: seedMedia.product,
+      hoverImageUrl: seedMedia.product,
       description:
         'انگشتر طلا ۱۸ عیار با الهام از طرح کلاسیک ونکلیف الحمرا؛ قیمت نهایی بر اساس وزن، اجرت و نرخ لحظه‌ای طلا محاسبه می‌شود.',
       seoDescription:
@@ -147,6 +148,7 @@ async function main() {
       makingFeePercent: 9,
       priceToman: 0,
       imageUrl: seedMedia.product,
+      hoverImageUrl: seedMedia.product,
       description:
         'انگشتر 18 عیار با طراحی کلاسیک و مناسب فروش آنلاین با نمایش قیمت شفاف.',
       seoDescription:
@@ -164,6 +166,7 @@ async function main() {
       makingFeePercent: 11,
       priceToman: 0,
       imageUrl: seedMedia.product,
+      hoverImageUrl: seedMedia.product,
       description:
         'گردنبند مینیمال برای فروشگاه طلا با توضیح دقیق محصول و تصویر استاندارد.',
       seoDescription: 'گردنبند طلای تلاشیم با کیفیت ساخت بالا و قیمت روز.',
@@ -186,6 +189,7 @@ async function main() {
         makingFeePercent: item.makingFeePercent,
         priceToman: item.priceToman,
         imageUrl: item.imageUrl,
+        hoverImageUrl: item.hoverImageUrl,
         featured: item.featured,
       },
       create: {
@@ -200,6 +204,7 @@ async function main() {
         makingFeePercent: item.makingFeePercent,
         priceToman: item.priceToman,
         imageUrl: item.imageUrl,
+        hoverImageUrl: item.hoverImageUrl,
         featured: item.featured,
       },
     });

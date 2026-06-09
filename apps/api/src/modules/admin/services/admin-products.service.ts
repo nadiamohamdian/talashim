@@ -137,6 +137,7 @@ export class AdminProductsService {
         makingFeePercent: dto.makingFeePercent,
         priceToman: dto.priceToman,
         imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر اصلی محصول'),
+        hoverImageUrl: requireLibraryImageUrl(dto.hoverImageUrl, 'تصویر هاور محصول'),
         featured: dto.featured ?? false,
         ...this.resolveDiscountFields(dto.discountPercent, dto.discountStartsAt, dto.discountEndsAt),
       },
@@ -195,6 +196,14 @@ export class AdminProductsService {
                 dto.imageUrl,
                 existing.imageUrl,
                 'تصویر اصلی محصول',
+              )
+            : undefined,
+        hoverImageUrl:
+          dto.hoverImageUrl !== undefined
+            ? this.resolveProductImageUrl(
+                dto.hoverImageUrl,
+                existing.hoverImageUrl,
+                'تصویر هاور محصول',
               )
             : undefined,
         featured: dto.featured,
@@ -559,6 +568,7 @@ export class AdminProductsService {
       makingFeePercent: product.makingFeePercent,
       priceToman: tomanBigIntToNumber(product.priceToman),
       imageUrl: product.imageUrl,
+      hoverImageUrl: product.hoverImageUrl,
       featured: product.featured,
       inventory: inv
         ? {

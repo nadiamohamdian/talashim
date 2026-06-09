@@ -53,6 +53,7 @@ const emptyForm = {
   makingFeePercent: '10',
   priceToman: '0',
   imageUrl: '',
+  hoverImageUrl: '',
   featured: false,
   initialQuantity: '0',
   discountPercent: '',
@@ -72,6 +73,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const hydratedSlugRef = useRef<string | null>(null);
   const originalImageUrlRef = useRef('');
+  const originalHoverImageUrlRef = useRef('');
 
   const detailQuery = useQuery({
     queryKey: ['admin', 'commerce', 'product-slug', slug],
@@ -83,11 +85,13 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
     if (mode !== 'edit' || !slug) {
       hydratedSlugRef.current = null;
       originalImageUrlRef.current = '';
+      originalHoverImageUrlRef.current = '';
       return;
     }
     if (hydratedSlugRef.current !== slug) {
       hydratedSlugRef.current = null;
       originalImageUrlRef.current = '';
+      originalHoverImageUrlRef.current = '';
     }
   }, [mode, slug]);
 
@@ -98,6 +102,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
 
     const p = detailQuery.data;
     originalImageUrlRef.current = p.imageUrl;
+    originalHoverImageUrlRef.current = p.hoverImageUrl;
     hydratedSlugRef.current = slug ?? null;
     setForm({
         sku: p.sku,
@@ -118,6 +123,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         makingFeePercent: String(p.makingFeePercent),
         priceToman: String(p.priceToman),
         imageUrl: p.imageUrl,
+        hoverImageUrl: p.hoverImageUrl,
         featured: p.featured,
         initialQuantity: '0',
         discountPercent: p.discountPercent ? String(p.discountPercent) : '',
@@ -192,6 +198,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         title: form.title,
         description: form.description,
         imageUrl: form.imageUrl,
+        hoverImageUrl: form.hoverImageUrl,
         weightGram: form.weightGram,
         karat: form.karat,
         priceToman: form.priceToman,
@@ -212,6 +219,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
       const errors = validateProductForm(formValues, variants, seoValues, {
         mode,
         originalImageUrl: originalImageUrlRef.current,
+        originalHoverImageUrl: originalHoverImageUrlRef.current,
       });
       if (errors.length > 0) {
         setValidationErrors(errors);
@@ -446,6 +454,8 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           <ProductMediaFields
             imageUrl={form.imageUrl}
             onImageUrlChange={(value) => setForm({ ...form, imageUrl: value })}
+            hoverImageUrl={form.hoverImageUrl}
+            onHoverImageUrlChange={(value) => setForm({ ...form, hoverImageUrl: value })}
             galleryImages={galleryImages}
             onGalleryChange={setGalleryImages}
             videos={videos}

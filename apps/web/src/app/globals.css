@@ -65,11 +65,13 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: clip;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -244,6 +246,7 @@ a {
   align-items: center;
   justify-content: space-between;
   padding-inline: 19px;
+  direction: ltr;
 }
 
 .mobile-menu-bar-brand {
@@ -305,6 +308,28 @@ a {
 .mobile-menu-bar-icon-menu {
   width: var(--menu-icon-menu-w);
   height: var(--menu-icon-menu-h);
+}
+
+/* Homepage mobile — hero under transparent header (Figma 1752:5901) */
+@media (max-width: 1023px) {
+  body:has(.home-page) .topbar-shimmer {
+    display: none;
+  }
+
+  body:has(.home-page) .site-header-menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  body:has(.home-page) main.container-store {
+    padding-top: 0;
+  }
 }
 
 .mobile-menu-bar-badge {
@@ -772,6 +797,783 @@ a {
     max-width: 720px;
     margin-inline-start: auto;
   }
+}
+
+/* Mobile promo hero — Figma node 1752:5901 */
+.promo-hero-mobile {
+  --hero-font: 'Yekan Bakh', var(--font-sans);
+  --hero-fg: #fdfdfd;
+  --hero-title-size: 28px;
+  --hero-desc-size: 13px;
+  --hero-px: 20px;
+  --hero-pb: 42px;
+  --hero-actions-w: 350px;
+  --hero-cta-h: 50px;
+  --hero-cta-primary-w: 288px;
+  --hero-cta-icon: 50px;
+  --hero-cta-gap: 12px;
+  --hero-cta-bg: rgba(255, 255, 255, 0.3);
+  --hero-cta-border: rgba(255, 255, 255, 1);
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  font-family: var(--hero-font);
+}
+
+.promo-hero-mobile-bg {
+  object-fit: cover;
+  object-position: center top;
+}
+
+.promo-hero-mobile-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.08) 40%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+}
+
+.promo-hero-mobile-content {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 0 var(--hero-px) var(--hero-pb);
+  text-align: center;
+}
+
+.promo-hero-mobile-title {
+  margin: 0;
+  font-family: var(--hero-font);
+  font-size: var(--hero-title-size);
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--hero-fg);
+}
+
+.promo-hero-mobile-description {
+  max-width: 320px;
+  font-family: var(--hero-font);
+  font-size: var(--hero-desc-size);
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--hero-fg);
+  opacity: 0.95;
+}
+
+.promo-hero-mobile-actions {
+  display: flex;
+  width: 100%;
+  max-width: var(--hero-actions-w);
+  height: var(--hero-cta-h);
+  align-items: center;
+  gap: var(--hero-cta-gap);
+  margin-top: 8px;
+  direction: ltr;
+}
+
+.promo-hero-mobile-cta-primary {
+  flex: 0 0 var(--hero-cta-primary-w);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hero-cta-primary-w);
+  height: var(--hero-cta-h);
+  padding: 0;
+  border: 1px solid var(--hero-cta-border);
+  border-radius: 999px;
+  background: var(--hero-cta-bg);
+  font-family: var(--hero-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: 0;
+  color: var(--hero-fg);
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.promo-hero-mobile-cta-primary:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.promo-hero-mobile-cta-icon {
+  flex: 0 0 var(--hero-cta-icon);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hero-cta-icon);
+  height: var(--hero-cta-icon);
+  border: 1px solid var(--hero-cta-border);
+  border-radius: 50%;
+  background: var(--hero-cta-bg);
+  color: var(--hero-fg);
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.promo-hero-mobile-cta-icon:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.promo-hero-mobile-cta-icon-svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Budget showcase — Figma node 1752:5924 */
+.budget-showcase {
+  --budget-bg: #000000;
+  --budget-border: #ffffff;
+  --budget-btn-bg: #342c22;
+  --budget-text: #ffffff;
+  --budget-font: 'Yekan Bakh', var(--font-sans);
+  --budget-inset: 14px;
+  --budget-inner-px: 16px;
+  --budget-title-size: 16px;
+  --budget-btn-size: 14px;
+  --budget-btn-h: 44px;
+  --budget-btn-gap: 10px;
+  --budget-title-pt: 43px;
+  --budget-title-pb: 24px;
+  --budget-coin-w: 340px;
+  background: var(--budget-bg);
+  font-family: var(--budget-font);
+}
+
+.budget-showcase-frame {
+  position: relative;
+  margin: var(--budget-inset);
+  overflow: hidden;
+  border: 1px solid var(--budget-border);
+  min-height: 0;
+}
+
+.budget-showcase-content {
+  position: relative;
+  z-index: 1;
+  padding: var(--budget-title-pt) var(--budget-inner-px) 117px;
+}
+
+.budget-showcase-title {
+  margin: 0 0 var(--budget-title-pb);
+  font-family: var(--budget-font);
+  font-size: var(--budget-title-size);
+  font-weight: 300;
+  line-height: normal;
+  color: var(--budget-text);
+  text-align: center;
+  letter-spacing: 0;
+}
+
+.budget-showcase-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--budget-btn-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.budget-showcase-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--budget-btn-h);
+  background: var(--budget-btn-bg);
+  font-family: var(--budget-font);
+  font-size: var(--budget-btn-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--budget-text);
+  text-align: center;
+  text-decoration: none;
+  letter-spacing: 0;
+  transition: opacity 0.2s ease;
+}
+
+.budget-showcase-btn:hover {
+  opacity: 0.88;
+}
+
+.budget-showcase-btn:focus-visible {
+  outline: 2px solid var(--budget-text);
+  outline-offset: 2px;
+}
+
+.budget-showcase-coin {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  z-index: 0;
+  width: var(--budget-coin-w);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.budget-showcase-coin-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (min-width: 640px) {
+  .budget-showcase {
+    display: none;
+  }
+}
+
+/* Wedding promo banner — Figma node 1752:5959 (350 × 110.95) */
+.wedding-promo-banner {
+  --wedding-text: #ffffff;
+  --wedding-cta: #b88e5f;
+  --wedding-font: 'Yekan Bakh', var(--font-sans);
+  --wedding-design-w: 350;
+  --wedding-design-h: 110.95;
+  --wedding-inset: 20px;
+  --wedding-inner-max: 350px;
+  padding: 0 var(--wedding-inset);
+  font-family: var(--wedding-font);
+}
+
+.wedding-promo-banner-inner {
+  position: relative;
+  width: 100%;
+  max-width: var(--wedding-inner-max);
+  aspect-ratio: 350 / 110.95;
+  margin-inline: auto;
+  overflow: hidden;
+  background-color: #000000;
+  background-image: url('/images/home/wedding-promo-bg.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  container-type: size;
+}
+
+/* Group 137 — copy block */
+.wedding-promo-banner-copy {
+  position: absolute;
+  left: calc(17 / var(--wedding-design-w) * 100%);
+  top: calc(20.36 / var(--wedding-design-h) * 100%);
+  width: calc(230 / var(--wedding-design-w) * 100%);
+  height: calc(35 / var(--wedding-design-h) * 100%);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: calc(8 / var(--wedding-design-h) * 100cqh);
+  direction: rtl;
+  text-align: right;
+}
+
+.wedding-promo-banner-title {
+  margin: 0;
+  font-family: var(--wedding-font);
+  font-size: calc(16 / var(--wedding-design-w) * 100cqw);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--wedding-text);
+  white-space: nowrap;
+}
+
+.wedding-promo-banner-subtitle {
+  margin: 0;
+  font-family: var(--wedding-font);
+  font-size: calc(11 / var(--wedding-design-w) * 100cqw);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--wedding-text);
+  white-space: nowrap;
+}
+
+/* Group 139 — CTA */
+.wedding-promo-banner-cta {
+  position: absolute;
+  left: calc(115 / var(--wedding-design-w) * 100%);
+  top: calc(75.36 / var(--wedding-design-h) * 100%);
+  width: calc(132 / var(--wedding-design-w) * 100%);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(4 / var(--wedding-design-w) * 100cqw);
+  direction: rtl;
+  font-family: var(--wedding-font);
+  font-size: calc(11 / var(--wedding-design-w) * 100cqw);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--wedding-cta);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wedding-promo-banner-cta:focus-visible {
+  outline: 2px solid var(--wedding-cta);
+  outline-offset: 3px;
+}
+
+.wedding-promo-banner-cta-arrow {
+  font-size: calc(11 / var(--wedding-design-w) * 100cqw);
+  line-height: 1;
+}
+
+/* Ring — 99×39 in Figma, rotate(90deg); asset is vertical, placed at right edge */
+.wedding-promo-banner-ring {
+  position: absolute;
+  right: calc(1 / var(--wedding-design-w) * 100%);
+  top: calc(9.36 / var(--wedding-design-h) * 100%);
+  width: calc(39 / var(--wedding-design-w) * 100%) !important;
+  height: calc(99 / var(--wedding-design-h) * 100%) !important;
+  z-index: 2;
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (min-width: 640px) {
+  .wedding-promo-banner {
+    --wedding-inner-max: 700px;
+    --wedding-inset: 40px;
+  }
+}
+
+/* Lens showcase — Talashim Lens mobile section */
+.lens-showcase {
+  --lens-bg: #ffffff;
+  --lens-title-color: #000000;
+  --lens-eyebrow-color: #8a8a8a;
+  --lens-link-color: #cba670;
+  --lens-placeholder: #d9d9d9;
+  --lens-font: 'Yekan Bakh', var(--font-sans);
+  --lens-px: 19px;
+  --lens-py: 24px;
+  --lens-card-w: 140px;
+  --lens-card-gap: 12px;
+  --lens-title-size: 12px;
+  --lens-eyebrow-size: 11px;
+  --lens-link-size: 12px;
+  background: var(--lens-bg);
+  font-family: var(--lens-font);
+  overflow: hidden;
+}
+
+.lens-showcase-inner {
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+  padding: var(--lens-py) 0 var(--lens-py) var(--lens-px);
+}
+
+.lens-showcase-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-inline-end: var(--lens-px);
+  direction: rtl;
+}
+
+.lens-showcase-heading {
+  text-align: right;
+}
+
+.lens-showcase-eyebrow {
+  margin: 0;
+  font-family: var(--lens-font);
+  font-size: var(--lens-eyebrow-size);
+  font-weight: 300;
+  line-height: normal;
+  color: var(--lens-eyebrow-color);
+  letter-spacing: 0.02em;
+}
+
+.lens-showcase-title {
+  margin: 4px 0 0;
+  font-family: var(--lens-font);
+  font-size: var(--lens-title-size);
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--lens-title-color);
+  text-align: right;
+  letter-spacing: 0;
+}
+
+.lens-showcase-view-all {
+  flex-shrink: 0;
+  font-family: var(--lens-font);
+  font-size: var(--lens-link-size);
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--lens-link-color);
+  text-align: right;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.lens-showcase-view-all:hover {
+  opacity: 0.85;
+}
+
+.lens-showcase-track {
+  display: flex;
+  gap: var(--lens-card-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-inline-end: var(--lens-px);
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.lens-showcase-track::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.lens-showcase-card {
+  flex: 0 0 var(--lens-card-w);
+  width: var(--lens-card-w);
+  aspect-ratio: 9 / 16;
+  scroll-snap-align: start;
+  overflow: hidden;
+  background: var(--lens-placeholder);
+}
+
+.lens-showcase-card-placeholder {
+  background: var(--lens-placeholder);
+}
+
+.lens-showcase-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--lens-placeholder);
+}
+
+@media (min-width: 640px) {
+  .lens-showcase-inner {
+    max-width: 1280px;
+    padding: 40px 0 40px 1.5rem;
+  }
+
+  .lens-showcase-header {
+    padding-inline-end: 1.5rem;
+  }
+
+  .lens-showcase-track {
+    padding-inline-end: 1.5rem;
+  }
+
+  .lens-showcase {
+    --lens-title-size: 12px;
+    --lens-link-size: 12px;
+    --lens-eyebrow-size: 12px;
+    --lens-card-w: 180px;
+    --lens-card-gap: 16px;
+  }
+}
+
+/* Home product carousel — new arrivals & bestsellers */
+.home-product-carousel {
+  --hpc-bg: #ffffff;
+  --hpc-title-color: #000000;
+  --hpc-meta-color: #8a8a8a;
+  --hpc-link-color: #cba670;
+  --hpc-media-bg: #d9d9d9;
+  --hpc-watermark-color: rgba(0, 0, 0, 0.06);
+  --hpc-font: 'Yekan Bakh', var(--font-sans);
+  --hpc-px: 19px;
+  --hpc-py: 24px;
+  --hpc-card-w: 152px;
+  --hpc-card-gap: 12px;
+  --hpc-title-size: 12px;
+  --hpc-item-title-size: 14px;
+  --hpc-meta-size: 13px;
+  --hpc-link-size: 12px;
+  --hpc-watermark-size: 52px;
+  --hpc-media-pad: 18px;
+  background: var(--hpc-bg);
+  font-family: var(--hpc-font);
+  overflow: hidden;
+}
+
+.home-product-carousel-inner {
+  width: 100%;
+  max-width: 390px;
+  margin-inline: auto;
+  padding: var(--hpc-py) 0 var(--hpc-py) var(--hpc-px);
+}
+
+.home-product-carousel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-inline-end: var(--hpc-px);
+  direction: rtl;
+}
+
+.home-product-carousel-heading {
+  position: relative;
+  min-height: 19px;
+  text-align: right;
+}
+
+.home-product-carousel-watermark {
+  position: absolute;
+  top: 50%;
+  right: -4px;
+  z-index: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: var(--hpc-watermark-size);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--hpc-watermark-color);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-58%);
+  user-select: none;
+}
+
+.home-product-carousel-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--hpc-font);
+  font-size: var(--hpc-title-size);
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--hpc-title-color);
+  text-align: right;
+  letter-spacing: 0;
+}
+
+.home-product-carousel-view-all {
+  flex-shrink: 0;
+  font-family: var(--hpc-font);
+  font-size: var(--hpc-link-size);
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--hpc-link-color);
+  text-align: right;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.home-product-carousel-view-all:hover {
+  opacity: 0.85;
+}
+
+.home-product-carousel-track {
+  display: flex;
+  gap: var(--hpc-card-gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-inline-end: var(--hpc-px);
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.home-product-carousel-track::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.home-product-carousel-card {
+  flex: 0 0 var(--hpc-card-w);
+  width: var(--hpc-card-w);
+  scroll-snap-align: start;
+}
+
+.home-product-carousel-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-product-carousel-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--hpc-media-bg);
+}
+
+.home-product-carousel-media-primary,
+.home-product-carousel-media-hover {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.35s ease;
+}
+
+.home-product-carousel-media-primary {
+  z-index: 1;
+  padding: var(--hpc-media-pad);
+}
+
+.home-product-carousel-media-hover {
+  z-index: 2;
+  opacity: 0;
+}
+
+.home-product-carousel-card-link:hover .home-product-carousel-media-hover,
+.home-product-carousel-card-link:focus-visible .home-product-carousel-media-hover,
+.home-product-carousel-card:hover .home-product-carousel-media-hover {
+  opacity: 1;
+}
+
+.home-product-carousel-card-link:hover .home-product-carousel-media-primary,
+.home-product-carousel-card-link:focus-visible .home-product-carousel-media-primary,
+.home-product-carousel-card:hover .home-product-carousel-media-primary {
+  opacity: 0;
+}
+
+.home-product-carousel-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-position: center;
+}
+
+.home-product-carousel-image-primary {
+  object-fit: contain;
+}
+
+.home-product-carousel-image-hover {
+  object-fit: cover;
+}
+
+.home-product-carousel-item-title {
+  margin: 10px 0 0;
+  font-family: var(--hpc-font);
+  font-size: var(--hpc-item-title-size);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--hpc-title-color);
+  text-align: right;
+}
+
+.home-product-carousel-price {
+  margin: 6px 0 0;
+  font-family: var(--hpc-font);
+  font-size: var(--hpc-meta-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--hpc-meta-color);
+  text-align: right;
+}
+
+.home-product-carousel-price span {
+  font-size: 12px;
+}
+
+.home-product-carousel-weight {
+  margin: 4px 0 0;
+  font-family: var(--hpc-font);
+  font-size: var(--hpc-meta-size);
+  font-weight: 400;
+  line-height: normal;
+  color: var(--hpc-meta-color);
+  text-align: right;
+}
+
+@media (min-width: 640px) {
+  .home-product-carousel-inner {
+    max-width: 1280px;
+    padding: 40px 0 40px 1.5rem;
+  }
+
+  .home-product-carousel-header {
+    padding-inline-end: 1.5rem;
+  }
+
+  .home-product-carousel-track {
+    padding-inline-end: 1.5rem;
+  }
+
+  .home-product-carousel {
+    --hpc-title-size: 12px;
+    --hpc-link-size: 12px;
+    --hpc-item-title-size: 15px;
+    --hpc-card-w: 180px;
+    --hpc-card-gap: 16px;
+    --hpc-watermark-size: 64px;
+    --hpc-media-pad: 16px;
+  }
+}
+
+/* Catalog product card — hover image swap */
+.product-card-media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--nude-50, #faf8f6);
+}
+
+.product-card-media-primary,
+.product-card-media-hover {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.35s ease;
+}
+
+.product-card-media-primary {
+  opacity: 1;
+}
+
+.product-card-media-hover {
+  opacity: 0;
+}
+
+.card-luxury:hover .product-card-media-hover,
+.card-luxury:focus-within .product-card-media-hover {
+  opacity: 1;
+}
+
+.card-luxury:hover .product-card-media-primary,
+.card-luxury:focus-within .product-card-media-primary {
+  opacity: 0;
+}
+
+.product-card-image {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.product-card-image-primary {
+  object-fit: cover;
+}
+
+.product-card-image-hover {
+  object-fit: cover;
+}
+
+.card-luxury:hover .product-card-image-primary {
+  transform: scale(1.05);
 }
 
 /* Footer — Figma node 1755:8334 */

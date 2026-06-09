@@ -27,6 +27,18 @@ export class MediaStorageService {
     return this.saveFile(file, folder);
   }
 
+  async saveVideo(file: UploadedImageFile, folder = 'lens'): Promise<SavedMediaFile> {
+    const allowed = ['video/mp4', 'video/webm'];
+    if (!allowed.includes(file.mimetype)) {
+      throw new Error('Unsupported video file type');
+    }
+    const maxBytes = 50 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      throw new Error('Video file too large');
+    }
+    return this.saveFile(file, folder);
+  }
+
   async saveReceipt(file: UploadedImageFile, folder = 'payment-receipts'): Promise<SavedMediaFile> {
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
     if (!allowed.includes(file.mimetype)) {
@@ -64,6 +76,8 @@ export class MediaStorageService {
     if (mime === 'image/webp') return '.webp';
     if (mime === 'image/gif') return '.gif';
     if (mime === 'application/pdf') return '.pdf';
+    if (mime === 'video/mp4') return '.mp4';
+    if (mime === 'video/webm') return '.webm';
     return null;
   }
 

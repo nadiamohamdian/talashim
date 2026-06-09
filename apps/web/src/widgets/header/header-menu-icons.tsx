@@ -92,3 +92,18 @@ export function IconMenuChevronUp(props: IconProps) {
     </svg>
   );
 }
+
+/** Figma node 1752:5901 — hero diagonal arrow CTA */
+export function IconHeroArrowDiagonal(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden {...props}>
+      <path
+        d="M7 17L17 7M17 7H9M17 7V15"
+        stroke={stroke}
+        strokeWidth="0.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

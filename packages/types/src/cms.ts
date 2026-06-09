@@ -15,6 +15,25 @@ export interface PublicCmsBanner {
   sortOrder: number;
 }
 
+export interface PublicCmsLensVideo {
+  id: string;
+  title: string | null;
+  videoUrl: string;
+  thumbnailUrl: string | null;
+  sortOrder: number;
+}
+
+export interface CmsLensVideoDto {
+  id: string;
+  title: string | null;
+  videoUrl: string;
+  thumbnailUrl: string | null;
+  sortOrder: number;
+  status: CmsBannerStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PublicCmsCollection {
   id: string;
   title: string;

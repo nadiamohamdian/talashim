@@ -4,6 +4,7 @@ export const MEDIA_FOLDERS = [
   { value: 'products', label: 'محصولات' },
   { value: 'blog', label: 'وبلاگ و FAQ' },
   { value: 'banners', label: 'بنرها' },
+  { value: 'lens', label: 'لنز طلاشیم' },
   { value: 'cms', label: 'تنظیمات و SEO' },
 ] as const;
 
