@@ -1,5 +1,7 @@
-import type { ProductDetails, ProductVariant } from '@sadafgold/types';
+import type { ProductCategory, ProductDetails, ProductSummary, ProductVariant } from '@sadafgold/types';
 import type { HomeProductCarouselItem } from '@/shared/config/storefront-ia';
+import { PRODUCT_LISTING_DEMO_PRODUCTS } from '@/shared/config/product-listing-demo';
+import { normalizeProductCategory } from '@/shared/lib/catalog-category';
 
 export interface ProductReviewDemo {
   id: string;
@@ -255,10 +257,66 @@ export function resolveProductDetailDemo(slug: string): ProductDetailDemo | null
   if (slug === JEWELRY_SET_DEMO.slug) {
     return JEWELRY_SET_DEMO;
   }
-  if (slug === 'demo' || slug === PRODUCT_DETAIL_DEMO.slug) {
+  if (slug === PRODUCT_DETAIL_DEMO.slug) {
     return PRODUCT_DETAIL_DEMO;
   }
+
+  const listingProduct = PRODUCT_LISTING_DEMO_PRODUCTS.find((product) => product.slug === slug);
+  if (listingProduct) {
+    return buildListingDetailDemo(listingProduct);
+  }
+
   return null;
+}
+
+const DEFAULT_NECKLACE_SIZES = [40, 42, 45, 48, 50, 55];
+const DEFAULT_BRACELET_SIZES = [16, 17, 18, 19, 20, 21];
+
+function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
+  const normalizedCategory = normalizeProductCategory(source.category);
+  const isRingCategory = normalizedCategory === 'ring' || normalizedCategory === 'wedding_ring';
+  const isNecklace = normalizedCategory === 'necklace';
+  const isBracelet = normalizedCategory === 'bracelet';
+  const template = isBracelet ? JEWELRY_SET_DEMO : PRODUCT_DETAIL_DEMO;
+
+  return {
+    ...template,
+    id: source.id,
+    sku: source.sku,
+    slug: source.slug,
+    title: source.title,
+    category: source.category as ProductCategory,
+    karat: source.karat,
+    weightGram: source.weightGram,
+    makingFeePercent: source.makingFeePercent,
+    priceToman: source.priceToman,
+    displayPriceToman: source.priceToman,
+    compareAtPriceToman: source.compareAtPriceToman ?? null,
+    discountPercent: source.discountPercent ?? null,
+    discountStartsAt: source.discountStartsAt ?? null,
+    discountEndsAt: source.discountEndsAt ?? null,
+    imageUrl: source.imageUrl,
+    hoverImageUrl: source.hoverImageUrl,
+    heroImageUrl: source.imageUrl,
+    inventory: source.inventory,
+    featured: source.featured ?? false,
+    description: `<p>${source.title} — نمایش دمو فروشگاه طلاشیم.</p>`,
+    seoDescription: source.title,
+    gallery: template.gallery.map((image, index) => (index === 0 ? source.imageUrl : image)),
+    ringSizes: isRingCategory ? PRODUCT_DETAIL_DEMO.ringSizes : [],
+    necklaceSizes: isNecklace ? DEFAULT_NECKLACE_SIZES : undefined,
+    braceletSizes: isBracelet ? DEFAULT_BRACELET_SIZES : undefined,
+    specRows: isBracelet ? JEWELRY_SET_SPEC_ROWS : DEMO_SPEC_ROWS,
+    relatedProducts: DEFAULT_RELATED_PRODUCTS,
+    featuredReview: template.featuredReview,
+    goldColors: template.goldColors,
+    stoneSwatches: template.stoneSwatches,
+    ratingAverage: template.ratingAverage,
+    reviewCount: template.reviewCount,
+    reviews: template.reviews,
+    variants: template.variants,
+    specifications: template.specifications,
+  };
 }
 
 export interface ProductDetailMobileProps {

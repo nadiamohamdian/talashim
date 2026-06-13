@@ -15,10 +15,15 @@ import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide'
 import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
 import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
+import { resolveProductJewelrySizeKind } from '@/shared/lib/catalog-category';
 import { ProductSizeRulerSection } from '@/widgets/catalog/product-size-ruler-section';
 import { StoreImage } from '@/shared/ui/store-image';
 
 export type { ProductDetailMobileProps };
+
+const DEFAULT_RING_SIZES = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63];
+const DEFAULT_NECKLACE_SIZES = [40, 42, 45, 48, 50, 55];
+const DEFAULT_BRACELET_SIZES = [16, 17, 18, 19, 20, 21];
 
 const DEFAULT_STONE_SWATCHES: StoneColorSwatch[] = [
   { id: 'pink', color: '#F2D4D9', label: 'صورتی' },
@@ -35,7 +40,7 @@ export function ProductDetailMobile({
   gallery,
   heroImageUrl,
   displayPriceToman,
-  ringSizes = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+  ringSizes,
   necklaceSizes,
   braceletSizes,
   goldColors = ['طلایی', 'رزگلد', 'سفید'],
@@ -59,6 +64,11 @@ export function ProductDetailMobile({
   const [selectedStone, setSelectedStone] = useState('purple');
   const [priceTooltipOpen, setPriceTooltipOpen] = useState(false);
   const [reviewWizardOpen, setReviewWizardOpen] = useState(false);
+
+  const sizeKind = resolveProductJewelrySizeKind(product.category);
+  const ringSizeOptions = ringSizes ?? DEFAULT_RING_SIZES;
+  const necklaceSizeOptions = necklaceSizes ?? DEFAULT_NECKLACE_SIZES;
+  const braceletSizeOptions = braceletSizes ?? DEFAULT_BRACELET_SIZES;
 
   const priceToman = displayPriceToman ?? product.priceToman;
   const heroSrc = images[activeImage] ?? heroImageUrl ?? product.imageUrl;
@@ -143,34 +153,36 @@ export function ProductDetailMobile({
       </section>
 
       <div className="product-details-body">
-        <ProductSizeRulerSection
-          id="pdp-ring-size-title"
-          title="انتخاب سایز انگشتر"
-          guideHref={buildRingSizeGuideHref(`/products/${product.slug}`)}
-          sizes={ringSizes}
-          selectedSize={selectedRingSize}
-          onSelectSize={setSelectedRingSize}
-          className="product-details-section product-details-section-size"
-        />
+        {sizeKind === 'ring' ? (
+          <ProductSizeRulerSection
+            id="pdp-ring-size-title"
+            title="انتخاب سایز انگشتر"
+            guideHref={buildRingSizeGuideHref(`/products/${product.slug}`)}
+            sizes={ringSizeOptions}
+            selectedSize={selectedRingSize}
+            onSelectSize={setSelectedRingSize}
+            className="product-details-section product-details-section-size"
+          />
+        ) : null}
 
-        {necklaceSizes?.length ? (
+        {sizeKind === 'necklace' ? (
           <ProductSizeRulerSection
             id="pdp-necklace-size-title"
             title="انتخاب سایز گردنبند"
             guideHref={buildNecklaceSizeGuideHref(`/products/${product.slug}`)}
-            sizes={necklaceSizes}
+            sizes={necklaceSizeOptions}
             selectedSize={selectedNecklaceSize}
             onSelectSize={setSelectedNecklaceSize}
             className="product-details-section product-details-section-size product-details-section-necklace"
           />
         ) : null}
 
-        {braceletSizes?.length ? (
+        {sizeKind === 'bracelet' ? (
           <ProductSizeRulerSection
             id="pdp-bracelet-size-title"
             title="انتخاب سایز دستبند"
             guideHref={buildBraceletSizeGuideHref(`/products/${product.slug}`)}
-            sizes={braceletSizes}
+            sizes={braceletSizeOptions}
             selectedSize={selectedBraceletSize}
             onSelectSize={setSelectedBraceletSize}
             className="product-details-section product-details-section-size product-details-section-bracelet"

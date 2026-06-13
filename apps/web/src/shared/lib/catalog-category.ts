@@ -39,6 +39,32 @@ export function normalizeProductCategory(category: string): string {
   return category.trim().toLowerCase();
 }
 
+export type ProductJewelrySizeKind = 'ring' | 'necklace' | 'bracelet';
+
+/** Maps product category to the jewelry size selector shown on PDP. */
+export function resolveProductJewelrySizeKind(
+  category: string | undefined | null,
+): ProductJewelrySizeKind | null {
+  if (!category?.trim()) {
+    return null;
+  }
+
+  const normalized = normalizeProductCategory(category);
+  const resolved = resolveCatalogCategorySlug(normalized) ?? normalized;
+
+  switch (resolved) {
+    case 'ring':
+    case 'wedding_ring':
+      return 'ring';
+    case 'necklace':
+      return 'necklace';
+    case 'bracelet':
+      return 'bracelet';
+    default:
+      return null;
+  }
+}
+
 export function matchesCatalogCategory(productCategory: string, categorySlug: string): boolean {
   const resolved = resolveCatalogCategorySlug(categorySlug);
   if (!resolved) {

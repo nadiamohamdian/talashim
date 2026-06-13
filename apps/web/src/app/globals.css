@@ -3297,6 +3297,7 @@ body:has(.product-detail-page) main.container-store {
 
 .product-details-section-size {
   padding-top: 46px;
+  overflow-x: visible;
 }
 
 .product-details-section-size .product-details-section-head {
@@ -3349,16 +3350,15 @@ body:has(.product-detail-page) main.container-store {
   width: calc(100% + 2 * var(--pd-px));
   height: 41px;
   margin-inline: calc(-1 * var(--pd-px));
-  padding-inline: 10px;
+  padding-inline: 0;
+  overflow: visible;
 }
 
 .product-details-ruler {
   position: relative;
   width: 100%;
-  max-width: 377px;
   height: 41px;
-  margin-inline: auto;
-  overflow: hidden;
+  overflow: visible;
   direction: ltr;
 }
 
@@ -3379,6 +3379,7 @@ body:has(.product-detail-page) main.container-store {
 .product-details-ruler-track {
   display: flex;
   width: 100%;
+  min-width: 0;
   height: 41px;
   box-sizing: border-box;
   flex-wrap: nowrap;
@@ -3388,9 +3389,24 @@ body:has(.product-detail-page) main.container-store {
   padding-inline: calc(50% - 15px);
   scroll-padding-inline: calc(50% - 15px);
   direction: ltr;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.product-details-ruler-track.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+.product-details-ruler-track.is-dragging .product-details-ruler-item {
+  pointer-events: none;
 }
 
 .product-details-ruler-track::-webkit-scrollbar {
@@ -3410,7 +3426,9 @@ body:has(.product-detail-page) main.container-store {
   padding: 4px 0 0;
   border: 0;
   background: transparent;
-  cursor: pointer;
+  cursor: inherit;
+  touch-action: pan-x;
+  scroll-snap-align: center;
 }
 
 .product-details-ruler-tick {
@@ -3572,38 +3590,41 @@ body:has(.product-detail-page) main.container-store {
   width: 100%;
   border-collapse: separate;
   border-spacing: 4px;
-  table-layout: fixed;
+  table-layout: auto;
 }
 
 .product-details-spec-row {
-  height: 40px;
+  height: auto;
 }
 
 .product-details-spec-label,
 .product-details-spec-value {
-  height: 40px;
+  min-height: 40px;
   padding: 0 12px;
   border: 0;
   border-radius: 4px;
   background: var(--pd-cell-bg);
-  font-family: var(--pd-font);
+  font-family: 'Yekan Bakh', var(--font-sans);
   font-size: 12px;
+  font-style: normal;
   font-weight: 300;
-  line-height: 19px;
-  color: var(--pd-gold-dark);
-  text-align: right;
+  line-height: 197%;
+  letter-spacing: 0;
+  color: rgba(109, 89, 69, 1);
   vertical-align: middle;
 }
 
 .product-details-spec-label {
-  width: clamp(72px, 23cqw, 90px);
-  min-width: clamp(72px, 23cqw, 90px);
+  width: 1%;
+  white-space: nowrap;
   font-weight: 300;
+  text-align: right;
 }
 
 .product-details-spec-value {
   width: auto;
   font-weight: 300;
+  text-align: justify;
 }
 
 /* Featured review — Figma Group 167 / node 1752:6058 (390×317) */
@@ -3691,12 +3712,14 @@ body:has(.product-detail-page) main.container-store {
 .product-details-quote-open {
   top: 2.52%;
   left: 79.23%;
+  transform: scaleX(-1);
 }
 
 .product-details-quote-close {
   bottom: 8.83%;
   left: 7.44%;
-  transform: scaleX(-1);
+  transform: rotate(360deg);
+  transform-origin: center;
 }
 
 /* Text column — between vertical lines at 11.538% and 83.333% (Figma 64–309px) */
