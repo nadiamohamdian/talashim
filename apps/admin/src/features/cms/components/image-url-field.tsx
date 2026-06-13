@@ -12,6 +12,7 @@ interface ImageUrlFieldProps {
   onChange: (url: string) => void;
   folder?: string;
   previewAlt?: string;
+  previewClassName?: string;
   required?: boolean;
 }
 
@@ -22,6 +23,7 @@ export function ImageUrlField({
   onChange,
   folder = 'products',
   previewAlt = 'پیش‌نمایش',
+  previewClassName,
   required,
 }: ImageUrlFieldProps) {
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -69,7 +71,7 @@ export function ImageUrlField({
           <img
             src={value}
             alt={previewAlt}
-            className="aspect-square max-h-40 rounded-lg object-cover"
+            className={previewClassName ?? 'aspect-square max-h-40 rounded-lg object-cover'}
           />
           <p className="mt-2 truncate font-mono text-[10px] text-muted" dir="ltr">
             {value}

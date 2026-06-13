@@ -173,6 +173,40 @@ async function main() {
       featured: true,
       quantity: 2,
     },
+    {
+      sku: 'TL-WR-0320-01',
+      slug: 'classic-wedding-ring',
+      title: 'حلقه ازدواج کلاسیک',
+      category: ProductCategory.WEDDING_RING,
+      karat: 18,
+      weightGram: '3.20',
+      makingFeePercent: 12,
+      priceToman: 0,
+      imageUrl: seedMedia.product,
+      hoverImageUrl: seedMedia.product,
+      description:
+        'حلقه ازدواج طلای ۱۸ عیار با طراحی ماندگار و مناسب ست عروسی.',
+      seoDescription: 'حلقه ازدواج کلاسیک ۱۸ عیار با قیمت شفاف و ضمانت اصالت.',
+      featured: true,
+      quantity: 4,
+    },
+    {
+      sku: 'TL-WR-0280-02',
+      slug: 'eternity-wedding-ring',
+      title: 'حلقه ازدواج eternity',
+      category: ProductCategory.WEDDING_RING,
+      karat: 18,
+      weightGram: '2.80',
+      makingFeePercent: 14,
+      priceToman: 0,
+      imageUrl: seedMedia.product,
+      hoverImageUrl: seedMedia.product,
+      description:
+        'حلقه ازدواج با نگین‌های ظریف برای ست کامل عروسی.',
+      seoDescription: 'حلقه ازدواج eternity ۱۸ عیار با طراحی لوکس.',
+      featured: false,
+      quantity: 3,
+    },
   ];
 
   for (const item of products) {

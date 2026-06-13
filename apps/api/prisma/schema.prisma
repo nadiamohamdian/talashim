@@ -22,6 +22,7 @@ enum ProductCategory {
   BRACELET
   EARRING
   COIN
+  WEDDING_RING
 }
 
 enum CartStatus {

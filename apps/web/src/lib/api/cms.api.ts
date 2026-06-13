@@ -9,6 +9,7 @@ import type {
   PublicCmsStaticPageSummary,
 } from '@sadafgold/types';
 import { platformConfig } from '@sadafgold/shared';
+import { getDefaultHeroImageUrl } from '@/shared/config/cms-hero';
 import {
   ApiClientError,
   isApiUnreachableError,
@@ -68,9 +69,9 @@ export async function getPublicHomepage(): Promise<PublicCmsHomepage> {
         titleAccent: 'در هر قطعه طلا',
         description:
           'گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.',
-        primaryCta: { label: 'مشاهده فروشگاه', href: '/products' },
-        secondaryCta: { label: 'انگشترهای زنانه', href: '/categories/rings' },
-        imageUrl: '',
+        primaryCta: { label: 'مشاهده کالکشن ها', href: '/products' },
+        secondaryCta: { label: 'انگشترهای زنانه', href: '/products?category=rings' },
+        imageUrl: getDefaultHeroImageUrl(),
       },
       sections: {
         featuredTitle: 'جدیدترین محصولات',

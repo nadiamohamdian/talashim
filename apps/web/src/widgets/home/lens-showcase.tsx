@@ -85,7 +85,7 @@ function LensShowcaseCard({
           aria-hidden
         />
       ) : (
-        // eslint-disable-next-line @next/next/no-img-element -- static local poster; avoids next/image hydration drift
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={item.thumbnailUrl}
           alt=""

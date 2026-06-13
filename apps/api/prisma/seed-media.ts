@@ -1,7 +1,11 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { PrismaClient } from '../src/generated/prisma';
 import { getApiEnv } from '../src/config/env';
+import {
+  CMS_HERO_MEDIA_FILE,
+  CMS_HERO_MEDIA_FOLDER,
+} from '../src/modules/admin/cms/cms-defaults';
 
 const PLACEHOLDER_SVG = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
@@ -76,6 +80,33 @@ export async function ensureSeedMediaAssets(prisma: PrismaClient): Promise<SeedM
       });
     }
   }
+
+  const heroDir = join(process.cwd(), 'uploads', CMS_HERO_MEDIA_FOLDER);
+  await mkdir(heroDir, { recursive: true });
+  const heroPath = join(heroDir, CMS_HERO_MEDIA_FILE);
+  let heroSize = 0;
+  try {
+    const heroBuffer = await readFile(heroPath);
+    heroSize = heroBuffer.length;
+  } catch {
+    await writeFile(heroPath, buffer);
+    heroSize = buffer.length;
+  }
+
+  const heroUrl = `${base}/${CMS_HERO_MEDIA_FOLDER}/${CMS_HERO_MEDIA_FILE}`;
+  await prisma.mediaAsset.upsert({
+    where: { id: 'seed-media-hero-mobile' },
+    update: { url: heroUrl, sizeBytes: heroSize, mimeType: 'image/png' },
+    create: {
+      id: 'seed-media-hero-mobile',
+      filename: CMS_HERO_MEDIA_FILE,
+      url: heroUrl,
+      mimeType: 'image/png',
+      sizeBytes: heroSize,
+      folder: CMS_HERO_MEDIA_FOLDER,
+      alt: 'تصویر هیرو موبایل',
+    },
+  });
 
   return urls as SeedMediaUrls;
 }

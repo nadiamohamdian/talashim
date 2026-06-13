@@ -1,18 +1,16 @@
 import Link from 'next/link';
 import type { CmsHeroConfig } from '@sadafgold/types';
+import {
+  CMS_HERO_STATIC_FALLBACK,
+  getDefaultHeroImageUrl,
+} from '@/shared/config/cms-hero';
 import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { StoreImage } from '@/shared/ui/store-image';
 import { IconHeroArrowDiagonal } from '@/widgets/header/header-menu-icons';
 
-/** Local hero asset — apps/web/public/images/home/hero-mobile-bg.png */
-const MOBILE_HERO_IMAGE = '/images/home/hero-mobile-bg.png';
-
-function resolveMobileHeroImage(imageUrl: string): string {
+function resolveHeroImage(imageUrl: string): string {
   const trimmed = imageUrl.trim();
-  if (trimmed.startsWith('/images/')) {
-    return trimmed;
-  }
-  return MOBILE_HERO_IMAGE;
+  return trimmed || getDefaultHeroImageUrl();
 }
 
 interface PromoHeroProps {
@@ -21,13 +19,13 @@ interface PromoHeroProps {
 
 export function PromoHero({ hero }: PromoHeroProps) {
   const badge = hero.badge.trim() || 'کالکشن جدید';
-  const title = hero.title.trim() || 'گالری طلاشیم';
+  const title = hero.title.trim() || 'زیبایی ماندگار';
   const titleAccent = hero.titleAccent.trim();
   const description = hero.description.trim();
-  const heroImage = resolveMobileHeroImage(hero.imageUrl);
-  const primaryLabel = hero.primaryCta.label.trim() || 'مشاهده کالکشن‌ها';
+  const heroImage = resolveHeroImage(hero.imageUrl);
+  const primaryLabel = hero.primaryCta.label.trim() || 'مشاهده کالکشن ها';
   const primaryHref = hero.primaryCta.href.trim() || '/products';
-  const secondaryHref = hero.secondaryCta.href.trim() || '/categories/rings';
+  const secondaryHref = hero.secondaryCta.href.trim() || '/products?category=rings';
   const imageCaption = title;
 
   return (
@@ -39,7 +37,9 @@ export function PromoHero({ hero }: PromoHeroProps) {
           alt=""
           fill
           priority
+          unoptimized
           sizes="100vw"
+          fallbackSrc={CMS_HERO_STATIC_FALLBACK}
           className="promo-hero-mobile-bg"
         />
         <div className="promo-hero-mobile-overlay" aria-hidden />
@@ -116,7 +116,9 @@ export function PromoHero({ hero }: PromoHeroProps) {
                   fill
                   className="object-cover"
                   priority
+                  quality={92}
                   sizes="(max-width: 1024px) 100vw, 50vw"
+                  fallbackSrc={CMS_HERO_STATIC_FALLBACK}
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-nude-100 via-gold-light/30 to-nude-200" />

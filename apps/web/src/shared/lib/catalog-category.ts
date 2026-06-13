@@ -13,6 +13,10 @@ const CATEGORY_SLUG_MAP: Record<string, string> = {
   earrings: 'earring',
   coin: 'coin',
   coins: 'coin',
+  'wedding-ring': 'wedding_ring',
+  'wedding-rings': 'wedding_ring',
+  wedding_ring: 'wedding_ring',
+  wedding_rings: 'wedding_ring',
 };
 
 const CATEGORY_META: Record<string, { parent: string; title: string }> = {
@@ -21,6 +25,7 @@ const CATEGORY_META: Record<string, { parent: string; title: string }> = {
   bracelet: { parent: 'زنانه', title: 'دستبند' },
   earring: { parent: 'زنانه', title: 'گوشواره' },
   coin: { parent: 'سرمایه‌گذاری', title: 'سکه' },
+  wedding_ring: { parent: 'ازدواج', title: 'حلقه ازدواج' },
 };
 
 export function resolveCatalogCategorySlug(slug: string | undefined | null): string | undefined {

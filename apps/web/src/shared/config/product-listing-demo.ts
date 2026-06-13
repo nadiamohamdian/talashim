@@ -14,18 +14,29 @@ export {
 const DEMO_EARRING_IMAGE = CATEGORY_FALLBACK_IMAGES.earrings;
 
 const DEMO_LISTING_PRICES = [95_000_000, 98_000_000, 112_000_000, 125_000_000, 138_000_000, 165_000_000] as const;
-const DEMO_LISTING_CATEGORIES = ['ring', 'ring', 'bracelet', 'earring', 'necklace', 'ring'] as const;
+const DEMO_LISTING_CATEGORIES = [
+  'ring',
+  'ring',
+  'bracelet',
+  'earring',
+  'necklace',
+  'wedding_ring',
+  'wedding_ring',
+  'ring',
+] as const;
 const DEMO_LISTING_TITLES = [
   'انگشتر زنانه لوکس بیضی',
   'انگشتر کلاسیک طلا',
   'دستبند طلای ۱۸ عیار',
   'گوشواره آذین مدل نجو',
   'گردنبند مینیمال',
+  'حلقه ازدواج کلاسیک',
+  'حلقه ازدواج eternity',
   'انگشتر نامزدی',
 ] as const;
 
 export const PRODUCT_LISTING_DEMO_PRODUCTS: ProductSummary[] = Array.from(
-  { length: 6 },
+  { length: 8 },
   (_, index) => ({
     id: `listing-demo-${index + 1}`,
     sku: `DEMO-${index + 1}`,

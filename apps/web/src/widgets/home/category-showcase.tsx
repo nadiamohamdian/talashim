@@ -5,6 +5,10 @@ import { HOME_CATEGORY_SHOWCASE } from '@/shared/config/storefront-ia';
 import { getMediaFileUrl } from '@/shared/lib/media-url';
 import { StoreImage } from '@/shared/ui/store-image';
 
+function resolveCategoryImage(category: (typeof HOME_CATEGORY_SHOWCASE)[number]): string {
+  return getMediaFileUrl('general', category.imageFile);
+}
+
 export function CategoryShowcase() {
   return (
     <section className="category-showcase" aria-labelledby="category-showcase-title">
@@ -22,10 +26,12 @@ export function CategoryShowcase() {
             >
               <div className="category-showcase-media">
                 <StoreImage
-                  src={getMediaFileUrl('general', category.imageFile)}
+                  src={resolveCategoryImage(category)}
                   fallbackSrc={category.fallbackImageUrl}
                   alt={category.label}
                   fill
+                  priority
+                  unoptimized
                   className="category-showcase-image object-cover object-center"
                   sizes="(max-width: 390px) 33vw, 180px"
                 />

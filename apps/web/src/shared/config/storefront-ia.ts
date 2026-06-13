@@ -59,6 +59,14 @@ export const STOREFRONT_CATEGORIES: StorefrontCategory[] = [
     seoDescription: 'گوشواره‌های طلا برای استایل روزمره و مجلسی.',
   },
   {
+    slug: 'wedding-rings',
+    label: 'Wedding Rings',
+    labelFa: 'حلقه ازدواج',
+    productTypes: ['gold_jewelry'],
+    seoTitle: pageTitle('حلقه ازدواج'),
+    seoDescription: 'حلقه‌های ازدواج و ست‌های طلا برای لحظه‌های ماندگار.',
+  },
+  {
     slug: 'coins',
     label: 'Coins',
     labelFa: 'سکه',
@@ -124,37 +132,37 @@ export const HOME_CATEGORY_SHOWCASE = [
   },
 ] as const;
 
-/** Figma node 1752:5924 — homepage budget picker (mobile) */
+/** Figma node 1875:948 — homepage budget picker (mobile) */
 export const HOME_BUDGET_RANGES = [
   {
-    id: '90-110m',
-    label: '۹۰-۱۱۰ میلیون تومان',
-    href: '/products?minPrice=90000000&maxPrice=110000000',
+    id: '1-3m',
+    label: '۱-۳ میلیون تومان',
+    href: '/products?minPrice=1000000&maxPrice=3000000',
   },
   {
-    id: '110-130m',
-    label: '۱۱۰-۱۳۰ میلیون تومان',
-    href: '/products?minPrice=110000000&maxPrice=130000000',
+    id: '4-8m',
+    label: '۴-۸ میلیون تومان',
+    href: '/products?minPrice=4000000&maxPrice=8000000',
   },
   {
-    id: '130-150m',
-    label: '۱۳۰-۱۵۰ میلیون تومان',
-    href: '/products?minPrice=130000000&maxPrice=150000000',
+    id: '9-15m',
+    label: '۹-۱۵ میلیون تومان',
+    href: '/products?minPrice=9000000&maxPrice=15000000',
   },
   {
-    id: '150m-plus',
-    label: '+۱۵۰ میلیون تومان',
-    href: '/products?minPrice=150000000',
+    id: '16m-plus',
+    label: '+۱۶ میلیون تومان',
+    href: '/products?minPrice=16000000',
   },
 ] as const;
 
-/** Homepage wedding rings promo — Figma node 1752:5959 */
+/** Homepage wedding rings promo — Figma node 1875:983 */
 export const HOME_WEDDING_PROMO = {
   title: 'برای یک عمر کنار هم',
   subtitle: 'حلقه‌های ازدواج و ست، برای لحظه‌های ماندگار',
   ctaLabel: 'مشاهده محصولات',
-  href: '/products?category=ring',
-  backgroundImageUrl: '/images/home/wedding-promo-bg.png',
+  href: '/products?category=wedding-rings',
+  backgroundImageUrl: '/images/home/Group 136.png',
   ringImageUrl: '/images/home/wedding-ring.png',
 } as const;
 

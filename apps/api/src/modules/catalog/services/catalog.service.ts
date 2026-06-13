@@ -54,9 +54,13 @@ export class CatalogService {
       BRACELET: 'دستبند',
       EARRING: 'گوشواره',
       COIN: 'سکه',
+      WEDDING_RING: 'حلقه ازدواج',
     };
     return rows.map((row) => ({
-      slug: row.category.toLowerCase(),
+      slug:
+        row.category === ProductCategory.WEDDING_RING
+          ? 'wedding-rings'
+          : row.category.toLowerCase(),
       label: labels[row.category] ?? row.category,
       productCount: row._count.id,
     }));
@@ -132,6 +136,10 @@ export class CatalogService {
       earrings: ProductCategory.EARRING,
       coin: ProductCategory.COIN,
       coins: ProductCategory.COIN,
+      'wedding-ring': ProductCategory.WEDDING_RING,
+      'wedding-rings': ProductCategory.WEDDING_RING,
+      wedding_ring: ProductCategory.WEDDING_RING,
+      wedding_rings: ProductCategory.WEDDING_RING,
     };
 
     return map[slug];

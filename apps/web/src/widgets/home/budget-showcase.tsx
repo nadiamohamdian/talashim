@@ -1,8 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { HOME_BUDGET_RANGES } from '@/shared/config/storefront-ia';
+
+const COIN_IMAGE =
+  '/images/home/94ea6cc1714e5ef26c4230e1b531377d_1-removebg-preview%201_Nero_AI_Background_Remover_transparent.png';
 
 export function BudgetShowcase() {
   return (
@@ -23,17 +25,11 @@ export function BudgetShowcase() {
             ))}
           </ul>
         </div>
+      </div>
 
-        <div className="budget-showcase-coin" aria-hidden>
-          <Image
-            src="/images/home/krugerrand-coin.png"
-            alt=""
-            width={340}
-            height={93}
-            className="budget-showcase-coin-image"
-            priority={false}
-          />
-        </div>
+      <div className="budget-showcase-coin" aria-hidden>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={COIN_IMAGE} alt="" className="budget-showcase-coin-image" decoding="async" />
       </div>
     </section>
   );

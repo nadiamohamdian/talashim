@@ -33,12 +33,10 @@ export function MobileMenuBar() {
           <UserAccountDropdown variant="menu-icon" />
 
           <Link href="/cart" className="mobile-menu-bar-action" aria-label="سبد خرید">
-            <span className="relative inline-flex">
-              <IconMenuBag className="mobile-menu-bar-icon mobile-menu-bar-icon-bag" />
-              {cartBadge != null ? (
-                <span className="mobile-menu-bar-badge">{cartBadge}</span>
-              ) : null}
-            </span>
+            <IconMenuBag className="mobile-menu-bar-icon mobile-menu-bar-icon-bag" />
+            {cartBadge != null ? (
+              <span className="mobile-menu-bar-badge">{cartBadge}</span>
+            ) : null}
           </Link>
 
           <button

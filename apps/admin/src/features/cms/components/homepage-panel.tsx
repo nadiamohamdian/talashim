@@ -62,10 +62,14 @@ export function HomepagePanel() {
   return (
     <CmsPageShell routeId="cms.homepage">
       <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
-        <h2 className="text-sm font-semibold text-foreground">بخش هیرو</h2>
+        <h2 className="text-sm font-semibold text-foreground">بخش هیرو (موبایل و دسکتاپ)</h2>
+        <p className="text-xs text-muted">
+          عنوان، توضیح، متن دکمه و تصویر پس‌زمینه هیرو موبایل از اینجا قابل ویرایش است. پس از ذخیره،
+          تغییرات در صفحه اصلی فروشگاه اعمال می‌شود.
+        </p>
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label>برچسب</Label>
+            <Label>برچسب (دسکتاپ)</Label>
             <Input
               className="mt-1"
               value={hero.badge}
@@ -73,7 +77,7 @@ export function HomepagePanel() {
             />
           </div>
           <div>
-            <Label>عنوان اصلی</Label>
+            <Label>عنوان هیرو</Label>
             <Input
               className="mt-1"
               value={hero.title}
@@ -153,10 +157,13 @@ export function HomepagePanel() {
           </div>
           <div className="md:col-span-2">
             <ImageUrlField
-              label="تصویر هیرو"
+              label="تصویر پس‌زمینه هیرو موبایل"
+              hint="پیشنهاد: تصویر عمودی با کیفیت بالا (حداقل ۱۲۰۰×۲۱۰۰ پیکسل). در موبایل تمام‌صفحه نمایش داده می‌شود."
               value={hero.imageUrl}
               onChange={(url) => setHero({ ...hero, imageUrl: url })}
-              folder="banners"
+              folder="general"
+              previewAlt="پیش‌نمایش هیرو موبایل"
+              previewClassName="aspect-[9/16] max-h-56 w-full rounded-lg object-cover"
             />
           </div>
         </div>

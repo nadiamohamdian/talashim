@@ -71,7 +71,10 @@ export function UserAccountDropdown({ variant = 'default' }: UserAccountDropdown
   const displayName = user?.fullName ?? 'حساب من';
 
   return (
-    <div ref={rootRef} className="relative">
+    <div
+      ref={rootRef}
+      className={variant === 'menu-icon' ? 'mobile-menu-bar-action-wrap' : 'relative'}
+    >
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}

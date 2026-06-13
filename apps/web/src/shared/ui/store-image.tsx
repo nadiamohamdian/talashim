@@ -150,7 +150,7 @@ export function StoreImage({
     return <ImageUnavailablePlaceholder alt={alt} className={className} fill={fill} />;
   }
 
-  const useNativeImage = !isNextImageHostAllowed(currentSrc);
+  const useNativeImage = !isNextImageHostAllowed(currentSrc) || props.unoptimized === true;
 
   if (useNativeImage) {
     return (

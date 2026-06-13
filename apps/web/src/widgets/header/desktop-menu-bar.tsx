@@ -43,12 +43,10 @@ export function DesktopMenuBar() {
           <UserAccountDropdown variant="menu-icon" />
 
           <Link href="/cart" className="desktop-menu-bar-action" aria-label="سبد خرید">
-            <span className="relative inline-flex">
-              <IconMenuBag className="desktop-menu-bar-icon desktop-menu-bar-icon-bag" />
-              {cartBadge != null ? (
-                <span className="desktop-menu-bar-badge">{cartBadge}</span>
-              ) : null}
-            </span>
+            <IconMenuBag className="desktop-menu-bar-icon desktop-menu-bar-icon-bag" />
+            {cartBadge != null ? (
+              <span className="desktop-menu-bar-badge">{cartBadge}</span>
+            ) : null}
           </Link>
         </div>
       </div>

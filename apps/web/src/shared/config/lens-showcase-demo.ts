@@ -23,7 +23,7 @@ const DEMO_LENS_PRODUCTS: LensShowcaseProductVariant[] = [
     title: 'انگشتر زنانه لوکس بیضی',
     priceToman: 8_500_000,
     weightGram: 2.8,
-    imageUrl: '/images/home/new-arrival-necklace.png',
+    imageUrl: '/images/home/lens-product-ring.png',
     href: '/products',
   },
   {
@@ -45,13 +45,28 @@ const DEMO_LENS_PRODUCTS: LensShowcaseProductVariant[] = [
 ];
 
 const DEMO_LENS_POSTER = '/images/home/lens-demo-poster.png';
+export const LENS_EDITORIAL_HERO =
+  '/images/home/9c4dd67d8f1d19b4e88be95aa15037b4%202.png';
+
+export const LENS_EDITORIAL_META = {
+  eyebrow: 'Talashim Lens',
+  title: 'ست‌ها از نمای نزدیک',
+  description:
+    'از نیم‌ست‌های ظریف روزمره تا ست‌های کامل و چشمگیر، مجموعه‌ای متنوع برای سلیقه‌ها و مناسبت‌های مختلف.',
+} as const;
+
+export const LENS_EDITORIAL_HOTSPOTS = [
+  { id: 'hotspot-earring', top: '16%', left: '24%' },
+  { id: 'hotspot-ring', top: '44%', left: '50%' },
+  { id: 'hotspot-bracelet', top: '56%', left: '66%' },
+] as const;
 
 export const LENS_SHOWCASE_DEMO_ITEMS: LensShowcaseDemoItem[] = [
   {
     id: 'demo-lens-1',
     title: 'کالکشن گوشواره',
     videoUrl: '',
-    thumbnailUrl: DEMO_LENS_POSTER,
+    thumbnailUrl: LENS_EDITORIAL_HERO,
     sortOrder: 0,
     products: DEMO_LENS_PRODUCTS,
   },
@@ -59,7 +74,7 @@ export const LENS_SHOWCASE_DEMO_ITEMS: LensShowcaseDemoItem[] = [
     id: 'demo-lens-2',
     title: 'ست عروسی',
     videoUrl: '',
-    thumbnailUrl: DEMO_LENS_POSTER,
+    thumbnailUrl: '/images/home/new-arrival-lifestyle.png',
     sortOrder: 1,
     products: DEMO_LENS_PRODUCTS,
   },
@@ -72,3 +87,11 @@ export const LENS_SHOWCASE_DEMO_ITEMS: LensShowcaseDemoItem[] = [
     products: DEMO_LENS_PRODUCTS,
   },
 ];
+
+/** Horizontal carousel cards — poster thumbnails until CMS lens API is wired */
+export const LENS_CAROUSEL_DEMO_ITEMS: LensShowcaseDemoItem[] = LENS_SHOWCASE_DEMO_ITEMS.map(
+  (item) => ({
+    ...item,
+    thumbnailUrl: DEMO_LENS_POSTER,
+  }),
+);

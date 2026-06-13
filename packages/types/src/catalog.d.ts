@@ -1,6 +1,6 @@
 export type ProductType = 'melted_gold' | 'gold_jewelry' | 'coins' | 'investment_gold' | 'wholesale';
-export type ProductCategorySlug = 'rings' | 'necklaces' | 'bracelets' | 'earrings' | 'coins' | 'bars' | 'melted' | 'investment' | 'wholesale';
-export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'coin';
+export type ProductCategorySlug = 'rings' | 'necklaces' | 'bracelets' | 'earrings' | 'wedding-rings' | 'coins' | 'bars' | 'melted' | 'investment' | 'wholesale';
+export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'coin' | 'wedding_ring';
 export type ProductStatus = 'draft' | 'active' | 'archived' | 'out_of_stock';
 export interface ProductSeoMetadata {
     title: string;

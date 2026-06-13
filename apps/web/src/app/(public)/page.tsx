@@ -1,7 +1,8 @@
 import { getPublicHomepage } from '@/lib/api/cms.api';
-import { LENS_SHOWCASE_DEMO_ITEMS } from '@/shared/config/lens-showcase-demo';
+import { LENS_CAROUSEL_DEMO_ITEMS, LENS_SHOWCASE_DEMO_ITEMS } from '@/shared/config/lens-showcase-demo';
 import { CategoryShowcase } from '@/widgets/home/category-showcase';
 import { BudgetShowcase } from '@/widgets/home/budget-showcase';
+import { LensSetsShowcase } from '@/widgets/home/lens-sets-showcase';
 import { LensShowcase } from '@/widgets/home/lens-showcase';
 import { BestsellersShowcase, NewArrivalsShowcase } from '@/widgets/home/new-arrivals-showcase';
 import { WeddingPromoBanner } from '@/widgets/home/wedding-promo-banner';
@@ -17,7 +18,10 @@ export default async function HomePage() {
       {homepage.sections.showCategoryShowcase ? <CategoryShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? <BudgetShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? (
-        <LensShowcase items={LENS_SHOWCASE_DEMO_ITEMS} />
+        <>
+          <LensSetsShowcase items={LENS_SHOWCASE_DEMO_ITEMS} />
+          <LensShowcase items={LENS_CAROUSEL_DEMO_ITEMS} />
+        </>
       ) : null}
       {homepage.sections.showCategoryShowcase ? <NewArrivalsShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? <WeddingPromoBanner /> : null}
