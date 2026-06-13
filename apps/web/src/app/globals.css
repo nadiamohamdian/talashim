@@ -66,6 +66,7 @@
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.25rem;
+  --store-max-width: 1440px;
 }
 
 .dark {
@@ -135,7 +136,7 @@ a {
 
 .container-store {
   width: 100%;
-  max-width: 1280px;
+  max-width: var(--store-max-width);
   margin-inline: auto;
   padding-inline: 1rem;
 }
@@ -471,12 +472,10 @@ body:has(.product-detail-page) .site-header-menu {
     padding-top: 0;
     padding-bottom: 0;
     width: 100%;
-    max-width: none;
     padding-inline: 0;
   }
 
   body:has(.home-page) .desktop-menu-bar .container-store {
-    max-width: none;
     padding-inline: clamp(40px, 6vw, 120px);
   }
 
@@ -951,16 +950,21 @@ body:has(.product-detail-page) .site-header-menu {
   gap: 30px;
 }
 
+/* Homepage hero — full viewport, independent from content sections */
+.home-hero-fullscreen {
+  position: relative;
+  width: 100vw;
+  max-width: none;
+  margin-inline: calc(50% - 50vw);
+  overflow-x: clip;
+}
+
 /*
  * Section order — Figma 1932:7552 (mobile) vs 1919:7554 (desktop).
  * DOM follows mobile: Lens Sets → Lens carousel.
  * Desktop reorders via flex `order` (Brand Editorial → Lens carousel → Lens Sets).
  */
 @media (min-width: 1024px) {
-  .home-page .promo-hero-desktop {
-    order: 1;
-  }
-
   .home-page .category-showcase {
     order: 2;
   }
@@ -1115,7 +1119,7 @@ body:has(.product-detail-page) .site-header-menu {
   --hero-cta-border: rgba(255, 255, 255, 1);
   position: relative;
   width: 100%;
-  min-height: 100svh;
+  height: 100svh;
   overflow: hidden;
   font-family: var(--hero-font);
 }
@@ -1236,7 +1240,6 @@ body:has(.product-detail-page) .site-header-menu {
   --hero-desktop-font: 'Yekan Bakh', var(--font-sans);
   --hero-desktop-fg: #fdfdfd;
   --hero-desktop-bg: #4e4031;
-  --hero-desktop-h: 100svh;
   --hero-desktop-panel-left: clamp(48px, 6.32vw, 120px);
   --hero-desktop-title-size: clamp(36px, 3.33vw, 48px);
   --hero-desktop-desc-size: clamp(18px, 1.67vw, 24px);
@@ -1246,8 +1249,7 @@ body:has(.product-detail-page) .site-header-menu {
   --hero-desktop-card-gap: clamp(8px, 0.83vw, 12px);
   position: relative;
   width: 100%;
-  height: var(--hero-desktop-h);
-  min-height: var(--hero-desktop-h);
+  height: 100svh;
   overflow: hidden;
   font-family: var(--hero-desktop-font);
   background: var(--hero-desktop-bg);
@@ -3303,7 +3305,6 @@ body:has(.product-detail-page) .site-header-menu {
 
   .promo-hero-desktop {
     width: 100%;
-    min-height: 100svh;
     height: 100svh;
   }
 
@@ -4067,8 +4068,8 @@ body:has(.product-detail-page) .site-header-menu {
 
 .site-footer-shell {
   width: 100%;
-  max-width: none;
-  margin-inline: 0;
+  max-width: var(--store-max-width);
+  margin-inline: auto;
   padding-inline: var(--footer-px);
 }
 
@@ -4459,7 +4460,6 @@ body:has(.product-detail-page) {
 
 body:has(.product-detail-page) main.container-store {
   width: 100%;
-  max-width: none;
   padding: 0 !important;
 }
 
@@ -5598,7 +5598,6 @@ body:has(.jewelry-size-guide-page) {
 
 body:has(.jewelry-size-guide-page) main.container-store {
   width: 100%;
-  max-width: none;
   padding: 0 !important;
 }
 
@@ -5850,7 +5849,6 @@ body:has(.product-listing-page) {
 
 body:has(.product-listing-page) main.container-store {
   width: 100%;
-  max-width: none;
   padding: 0 !important;
 }
 
@@ -6376,7 +6374,6 @@ body:has(.cart-page) {
 
 body:has(.cart-page) main.container-store {
   width: 100%;
-  max-width: none;
   padding: 0 !important;
 }
 
@@ -6831,7 +6828,6 @@ body:has(.checkout-page) {
 
 body:has(.checkout-page) main.container-store {
   width: 100%;
-  max-width: none;
   padding: 0 !important;
 }
 
@@ -7726,7 +7722,6 @@ body:has(.auth-page) {
 
 body:has(.auth-page) main.container-store {
   width: 100%;
-  max-width: none;
   padding: 0 !important;
 }
 
@@ -7964,7 +7959,6 @@ body:has(.categories-page) {
 
 body:has(.categories-page) main.container-store {
   width: 100%;
-  max-width: none;
   padding: 0 !important;
 }
 

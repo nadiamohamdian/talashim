@@ -38,3 +38,4 @@ export const DEFAULT_CMS_SEO = {
   googleAnalyticsId: null as string | null,
   extraMeta: null as Record<string, string> | null,
 };
+ 

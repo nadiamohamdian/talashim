@@ -14,8 +14,11 @@ export default async function HomePage() {
   const homepage = await getPublicHomepage();
 
   return (
-    <div className="home-page store-chrome-dark -mx-4 overflow-x-clip sm:-mx-6 lg:mx-0 lg:w-full lg:max-w-none">
-      <PromoHero hero={homepage.hero} />
+    <>
+      <div className="home-hero-fullscreen">
+        <PromoHero hero={homepage.hero} />
+      </div>
+      <div className="home-page store-chrome-dark -mx-4 overflow-x-clip sm:-mx-6 lg:mx-0 lg:w-full">
       {homepage.sections.showCategoryShowcase ? <CategoryShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? <BudgetShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? <BestsellersShowcase /> : null}
@@ -30,5 +33,6 @@ export default async function HomePage() {
       {homepage.sections.showCategoryShowcase ? <WeddingPromoBanner /> : null}
       {homepage.sections.showCategoryShowcase ? <HomeMagazineShowcase /> : null}
     </div>
+    </>
   );
 }
