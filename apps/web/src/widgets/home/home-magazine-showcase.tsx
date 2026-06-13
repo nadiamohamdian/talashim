@@ -21,7 +21,7 @@ function formatMagazineExcerpt(value: string): string {
 function mapBlogPostsToItems(
   posts: Awaited<ReturnType<typeof getBlogPosts>>,
 ): HomeMagazineArticleItem[] {
-  return posts.slice(0, 6).map((post) => ({
+  return posts.slice(0, 3).map((post) => ({
     id: post.id,
     title: post.title,
     excerpt: formatMagazineExcerpt(post.excerpt || post.content || HOME_MAGAZINE_DEMO_EXCERPT),
@@ -30,13 +30,31 @@ function mapBlogPostsToItems(
   }));
 }
 
+function ensureThreeMagazineItems(items: HomeMagazineArticleItem[]): HomeMagazineArticleItem[] {
+  if (items.length >= 3) {
+    return items.slice(0, 3);
+  }
+
+  const padded = [...items];
+
+  for (let index = items.length; index < 3; index += 1) {
+    const fallback = HOME_MAGAZINE_DEMO_ITEMS[index] ?? HOME_MAGAZINE_DEMO_ITEMS[0];
+    padded.push({
+      ...fallback,
+      id: `${fallback.id}-fill-${index}`,
+    });
+  }
+
+  return padded;
+}
+
 export async function HomeMagazineShowcase() {
   let items = HOME_MAGAZINE_DEMO_ITEMS;
 
   try {
     const posts = await getBlogPosts();
     if (posts.length > 0) {
-      items = mapBlogPostsToItems(posts);
+      items = ensureThreeMagazineItems(mapBlogPostsToItems(posts));
     }
   } catch {
     items = HOME_MAGAZINE_DEMO_ITEMS;
@@ -48,7 +66,7 @@ export async function HomeMagazineShowcase() {
         <div className="home-magazine-showcase-header">
           <div className="home-magazine-showcase-heading">
             <span className="home-magazine-showcase-watermark" aria-hidden>
-              Magazine Preview
+              Talashim Magazine
             </span>
             <h2 id="home-magazine-title" className="home-magazine-showcase-title">
               مجله طلاشیم

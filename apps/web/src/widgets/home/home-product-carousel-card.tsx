@@ -1,6 +1,5 @@
 'use client';
 
-import { StoreImage } from '@/shared/ui/store-image';
 import { formatPrice } from '@/shared/lib/format-price';
 import type { HomeProductCarouselItem } from '@/shared/config/storefront-ia';
 
@@ -15,22 +14,24 @@ export function HomeProductCarouselCard({ item }: HomeProductCarouselCardProps) 
     <>
       <div className="home-product-carousel-media">
         <div className="home-product-carousel-media-primary">
-          <StoreImage
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={item.imageUrl}
             alt={item.title}
-            fill
             className="home-product-carousel-image home-product-carousel-image-primary"
-            sizes="152px"
+            loading="lazy"
+            decoding="async"
           />
         </div>
         {hoverImageUrl ? (
           <div className="home-product-carousel-media-hover" aria-hidden>
-            <StoreImage
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={hoverImageUrl}
               alt=""
-              fill
               className="home-product-carousel-image home-product-carousel-image-hover"
-              sizes="152px"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         ) : null}

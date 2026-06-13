@@ -16,22 +16,7 @@ export function FooterBrand() {
           />
         </div>
 
-        <div className="footer-brand-lines" aria-hidden>
-          <Image
-            src="/images/footer/line-left.png"
-            alt=""
-            width={146}
-            height={1}
-            className="footer-brand-line footer-brand-line-left"
-          />
-          <Image
-            src="/images/footer/line-right.png"
-            alt=""
-            width={113}
-            height={1}
-            className="footer-brand-line footer-brand-line-right"
-          />
-        </div>
+        <div className="footer-brand-lines" aria-hidden />
 
         <p className="footer-brand-word footer-brand-word-ta">Ta</p>
         <p className="footer-brand-word footer-brand-word-ashim">ashim</p>

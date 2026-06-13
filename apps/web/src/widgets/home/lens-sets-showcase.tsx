@@ -23,8 +23,7 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
 
   const slideCount = items.length;
   const activeItem = items[activeIndex] ?? items[0];
-  const featuredProduct =
-    activeItem?.products[activeIndex % Math.max(activeItem.products.length, 1)];
+  const spotlightProducts = activeItem?.products.slice(0, LENS_EDITORIAL_HOTSPOTS.length) ?? [];
 
   const goPrev = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -55,8 +54,9 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
             <h2 id="lens-sets-title" className="lens-sets-showcase-title">
               {LENS_EDITORIAL_META.title}
             </h2>
-            <p className="lens-sets-showcase-description">{LENS_EDITORIAL_META.description}</p>
           </header>
+
+          <p className="lens-sets-showcase-description">{LENS_EDITORIAL_META.description}</p>
 
           <div className="lens-sets-showcase-stage">
             <div
@@ -78,67 +78,69 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
                 fill
                 unoptimized
                 className="lens-sets-showcase-hero-image"
-                sizes="(max-width: 390px) 350px, 350px"
+                sizes="(min-width: 1024px) min(691px, 50vw), 350px"
               />
               <span className="lens-sets-showcase-hero-overlay" aria-hidden />
 
-              {featuredProduct ? (
+              {spotlightProducts.map((product, index) => (
                 <Link
-                  href={featuredProduct.href}
-                  className="lens-sets-showcase-product-chip"
+                  key={product.id}
+                  href={product.href}
+                  className={`lens-sets-showcase-product-chip lens-sets-showcase-product-chip--${index}`}
                   onClick={(event) => event.stopPropagation()}
                 >
                   <span className="lens-sets-showcase-product-chip-copy">
-                    <span className="lens-sets-showcase-product-chip-title">
-                      {featuredProduct.title}
-                    </span>
+                    <span className="lens-sets-showcase-product-chip-title">{product.title}</span>
                     <span className="lens-sets-showcase-product-chip-price">
-                      {formatPrice(featuredProduct.priceToman)} تومان
+                      {formatPrice(product.priceToman)} تومان
+                    </span>
+                    <span className="lens-sets-showcase-product-chip-weight">
+                      {product.weightGram} گرم
                     </span>
                   </span>
                   <span className="lens-sets-showcase-product-chip-thumb">
                     <StoreImage
-                      src={featuredProduct.imageUrl}
+                      src={product.imageUrl}
                       alt=""
-                      width={30}
-                      height={33}
+                      width={80}
+                      height={80}
                       unoptimized
                       className="lens-sets-showcase-product-chip-image"
                     />
                   </span>
                 </Link>
-              ) : null}
+              ))}
 
               {LENS_EDITORIAL_HOTSPOTS.map((spot) => (
                 <span
                   key={spot.id}
                   className="lens-sets-showcase-hotspot"
-                  style={{ top: `calc(${spot.top} + 30px)`, left: spot.left }}
+                  style={{ top: spot.top, left: spot.left }}
                   aria-hidden
                 >
                   +
                 </span>
               ))}
-
-              <div className="lens-sets-showcase-nav">
-                <button
-                  type="button"
-                  className="lens-sets-showcase-nav-btn"
-                  onClick={goPrev}
-                  aria-label="اسلاید قبلی"
-                >
-                  <IconChevron direction="prev" />
-                </button>
-                <button
-                  type="button"
-                  className="lens-sets-showcase-nav-btn"
-                  onClick={goNext}
-                  aria-label="اسلاید بعدی"
-                >
-                  <IconChevron direction="next" />
-                </button>
-              </div>
             </div>
+          </div>
+
+          <div className="lens-sets-showcase-nav">
+            <button
+              type="button"
+              className="lens-sets-showcase-nav-btn"
+              onClick={goPrev}
+              aria-label="اسلاید قبلی"
+            >
+              <IconChevron direction="prev" />
+            </button>
+            <button
+              type="button"
+              className="lens-sets-showcase-nav-btn"
+              onClick={goNext}
+              aria-label="اسلاید بعدی"
+            >
+              <IconChevron direction="next" />
+            </button>
           </div>
         </div>
       </section>

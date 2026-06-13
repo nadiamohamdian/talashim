@@ -1,17 +1,15 @@
-'use client';
-
 import Link from 'next/link';
 import { HOME_WEDDING_PROMO } from '@/shared/config/storefront-ia';
 import { StoreImage } from '@/shared/ui/store-image';
 
-function WeddingPromoCtaArrow() {
+function WeddingRingsPromoArrow() {
   return (
     <svg
       viewBox="0 0 10.2439 28.7317"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
-      className="wedding-promo-banner-cta-arrow"
+      className="wedding-rings-promo-cta-arrow"
     >
       <path
         d="M5.12179 28.2317V0.50005"
@@ -32,35 +30,38 @@ function WeddingPromoCtaArrow() {
 }
 
 export function WeddingPromoBanner() {
-  const { title, subtitle, ctaLabel, href, ringImageUrl } = HOME_WEDDING_PROMO;
+  const { title, subtitle, desktopSubtitle, ctaLabel, href, imageUrl } = HOME_WEDDING_PROMO;
 
   return (
-    <section className="wedding-promo-banner" aria-labelledby="wedding-promo-title">
-      <Link href={href} className="wedding-promo-banner-inner">
-        <div className="wedding-promo-banner-content">
-          <div className="wedding-promo-banner-copy">
-            <h2 id="wedding-promo-title" className="wedding-promo-banner-title">
-              {title}
-            </h2>
-            <p className="wedding-promo-banner-subtitle">{subtitle}</p>
-          </div>
-
-          <div className="wedding-promo-banner-cta">
-            <WeddingPromoCtaArrow />
-            <span className="wedding-promo-banner-cta-label">{ctaLabel}</span>
-          </div>
+    <section className="wedding-rings-promo" aria-labelledby="wedding-rings-promo-title">
+      <Link href={href} className="wedding-rings-promo-card">
+        <div className="wedding-rings-promo-media" aria-hidden>
+          <StoreImage
+            src={imageUrl}
+            alt=""
+            fill
+            unoptimized
+            sizes="(min-width: 1024px) 100vw, 100vw"
+            className="wedding-rings-promo-image"
+          />
         </div>
 
-        <div className="wedding-promo-banner-ring-wrap" aria-hidden>
-          <StoreImage
-            src={ringImageUrl}
-            alt=""
-            width={99}
-            height={39}
-            unoptimized
-            className="wedding-promo-banner-ring"
-            sizes="120px"
-          />
+        <div className="wedding-rings-promo-overlay">
+          <div className="wedding-rings-promo-panel">
+            <h2 id="wedding-rings-promo-title" className="wedding-rings-promo-title">
+              {title}
+            </h2>
+            <p className="wedding-rings-promo-subtitle wedding-rings-promo-subtitle--mobile">
+              {subtitle}
+            </p>
+            <p className="wedding-rings-promo-subtitle wedding-rings-promo-subtitle--desktop">
+              {desktopSubtitle}
+            </p>
+            <div className="wedding-rings-promo-cta">
+              <WeddingRingsPromoArrow />
+              <span className="wedding-rings-promo-cta-label">{ctaLabel}</span>
+            </div>
+          </div>
         </div>
       </Link>
     </section>

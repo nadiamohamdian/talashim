@@ -56,9 +56,9 @@ export const LENS_EDITORIAL_META = {
 } as const;
 
 export const LENS_EDITORIAL_HOTSPOTS = [
-  { id: 'hotspot-earring', top: '16%', left: '24%' },
-  { id: 'hotspot-ring', top: '44%', left: '50%' },
-  { id: 'hotspot-bracelet', top: '56%', left: '66%' },
+  { id: 'hotspot-ring', top: '52%', left: '36%' },
+  { id: 'hotspot-earring', top: '20%', left: '58%' },
+  { id: 'hotspot-bracelet', top: '72%', left: '40%' },
 ] as const;
 
 export const LENS_SHOWCASE_DEMO_ITEMS: LensShowcaseDemoItem[] = [
@@ -88,10 +88,15 @@ export const LENS_SHOWCASE_DEMO_ITEMS: LensShowcaseDemoItem[] = [
   },
 ];
 
-/** Horizontal carousel cards — poster thumbnails until CMS lens API is wired */
-export const LENS_CAROUSEL_DEMO_ITEMS: LensShowcaseDemoItem[] = LENS_SHOWCASE_DEMO_ITEMS.map(
-  (item) => ({
-    ...item,
+/** Horizontal lens row — full-width grid until CMS lens API is wired */
+export const LENS_CAROUSEL_DEMO_ITEMS: LensShowcaseDemoItem[] = [
+  ...LENS_SHOWCASE_DEMO_ITEMS,
+  {
+    id: 'demo-lens-carousel-4',
+    title: 'کالکشن دستبند',
+    videoUrl: '',
     thumbnailUrl: DEMO_LENS_POSTER,
-  }),
-);
+    sortOrder: 3,
+    products: DEMO_LENS_PRODUCTS,
+  },
+];

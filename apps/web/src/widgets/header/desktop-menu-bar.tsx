@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useCartHydrated } from '@/features/cart/hooks/use-cart-hydrated';
 import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
 import { UserAccountDropdown } from '@/widgets/account/user-account-dropdown';
-import { CategoryNavMenu, MainNavLinks } from '@/widgets/header/main-nav';
+import { CategoryNavMenu, HomeHeroDesktopNav, MainNavLinks } from '@/widgets/header/main-nav';
 import {
   IconMenuBag,
   IconMenuSearch,
@@ -13,6 +14,8 @@ import {
 import { StoreSearchBar } from '@/widgets/header/store-search-bar';
 
 export function DesktopMenuBar() {
+  const pathname = usePathname();
+  const isHomeHero = pathname === '/';
   const cartHydrated = useCartHydrated();
   const { count } = useDisplayCart();
   const cartBadge = cartHydrated && count > 0 ? count : undefined;
@@ -25,8 +28,11 @@ export function DesktopMenuBar() {
           Talashim
         </Link>
 
-        <nav className="desktop-menu-bar-nav" aria-label="منوی اصلی">
-          <MainNavLinks />
+        <nav
+          className={isHomeHero ? 'desktop-menu-bar-nav desktop-menu-bar-nav-hero' : 'desktop-menu-bar-nav'}
+          aria-label={isHomeHero ? 'دسته‌بندی محصولات' : 'منوی اصلی'}
+        >
+          {isHomeHero ? <HomeHeroDesktopNav /> : <MainNavLinks />}
         </nav>
 
         <div className="desktop-menu-bar-actions">
@@ -57,14 +63,16 @@ export function DesktopMenuBar() {
         </div>
       ) : null}
 
-      <div className="desktop-menu-bar-sub">
-        <div className="container-store desktop-menu-bar-sub-inner">
-          <CategoryNavMenu />
-          <Link href="/products?sale=1" className="desktop-menu-bar-sale">
-            تخفیف‌های روز
-          </Link>
+      {!isHomeHero ? (
+        <div className="desktop-menu-bar-sub">
+          <div className="container-store desktop-menu-bar-sub-inner">
+            <CategoryNavMenu />
+            <Link href="/products?sale=1" className="desktop-menu-bar-sale">
+              تخفیف‌های روز
+            </Link>
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

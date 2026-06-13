@@ -19,7 +19,9 @@ export function LensShowcase({ items }: LensShowcaseProps) {
         <div className="lens-showcase-inner">
           <div className="lens-showcase-header">
             <div className="lens-showcase-heading">
-              <p className="lens-showcase-eyebrow">Talashim Lens</p>
+              <span className="lens-showcase-eyebrow" aria-hidden>
+                Talashim Lens
+              </span>
               <h2 id="lens-showcase-title" className="lens-showcase-title">
                 لنز طلاشیم
               </h2>
@@ -64,6 +66,9 @@ function LensShowcaseCard({
   item: LensShowcaseDemoItem;
   onOpen: () => void;
 }) {
+  const hasVideo = item.videoUrl.length > 0;
+  const hasPoster = item.thumbnailUrl.length > 0;
+
   return (
     <button
       type="button"
@@ -72,11 +77,11 @@ function LensShowcaseCard({
       onClick={onOpen}
       aria-label={item.title ?? 'مشاهده ویدیو لنز طلاشیم'}
     >
-      {item.videoUrl ? (
+      {hasVideo ? (
         <video
           className="lens-showcase-video"
           src={item.videoUrl}
-          poster={item.thumbnailUrl}
+          poster={hasPoster ? item.thumbnailUrl : undefined}
           playsInline
           muted
           loop
@@ -84,7 +89,7 @@ function LensShowcaseCard({
           tabIndex={-1}
           aria-hidden
         />
-      ) : (
+      ) : hasPoster ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={item.thumbnailUrl}
@@ -93,7 +98,7 @@ function LensShowcaseCard({
           loading="lazy"
           decoding="async"
         />
-      )}
+      ) : null}
     </button>
   );
 }

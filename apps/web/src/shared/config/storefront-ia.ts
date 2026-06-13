@@ -149,14 +149,24 @@ export const MOBILE_HAMBURGER_MENU: MobileHamburgerMenuItem[] = [
   { id: 'gift', label: 'هدیه', href: '/products?type=gold_jewelry' },
 ];
 
-/** Figma node 1752:5944 — homepage category showcase (3 columns) */
-export const HOME_CATEGORY_SHOWCASE = [
+/** Figma node 1752:5944 (mobile) + 1919:7554 (desktop) */
+export interface HomeCategoryShowcaseItem {
+  slug: string;
+  label: string;
+  href: string;
+  imageFile: string;
+  fallbackImageUrl: string;
+  desktopImageUrl?: string;
+}
+
+export const HOME_CATEGORY_SHOWCASE: HomeCategoryShowcaseItem[] = [
   {
     slug: 'rings',
     label: 'انگشتر',
     href: '/products?category=rings',
     imageFile: 'd428dd8d-6f43-4a64-bda1-47457426c536.png',
     fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.rings,
+    desktopImageUrl: '/images/home/category-desktop/rings.jpg',
   },
   {
     slug: 'bracelets',
@@ -164,6 +174,7 @@ export const HOME_CATEGORY_SHOWCASE = [
     href: '/products?category=bracelets',
     imageFile: '8dc1f429-afdc-48c7-81a4-f8a5e972faf4.png',
     fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.bracelets,
+    desktopImageUrl: '/images/home/category-desktop/bracelets.jpg',
   },
   {
     slug: 'earrings',
@@ -172,7 +183,15 @@ export const HOME_CATEGORY_SHOWCASE = [
     imageFile: '4df3c2ed-250d-4700-aca7-d7b54e5422b8.png',
     fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.earrings,
   },
-] as const;
+  {
+    slug: 'necklaces',
+    label: 'گردنبند',
+    href: '/products?category=necklaces',
+    imageFile: '4df3c2ed-250d-4700-aca7-d7b54e5422b8.png',
+    fallbackImageUrl: CATEGORY_FALLBACK_IMAGES.necklaces,
+    desktopImageUrl: '/images/home/71204743576e384a1b000507bf12a9ea%201.png',
+  },
+];
 
 /** Figma node 1875:948 — homepage budget picker (mobile) */
 export const HOME_BUDGET_RANGES = [
@@ -193,19 +212,29 @@ export const HOME_BUDGET_RANGES = [
   },
   {
     id: '16m-plus',
-    label: '+۱۶ میلیون تومان',
+    label: 'بالای ۱۶ میلیون تومان',
     href: '/products?minPrice=16000000',
   },
 ] as const;
 
-/** Homepage wedding rings promo — Figma node 1875:983 */
+/** Homepage wedding rings promo — Figma Group 386 (1616×512 artboard) */
 export const HOME_WEDDING_PROMO = {
   title: 'برای یک عمر کنار هم',
   subtitle: 'حلقه‌های ازدواج و ست، برای لحظه‌های ماندگار',
+  desktopSubtitle:
+    'حلقه‌های ست و ازدواج با طراحی‌های هماهنگ و ماندگار، برای آغاز فصل جدیدی از زندگی شما.',
   ctaLabel: 'مشاهده محصولات',
   href: '/products?category=wedding-rings',
-  backgroundImageUrl: '/images/home/Group 136.png',
-  ringImageUrl: '/images/home/wedding-ring.png',
+  imageUrl: '/images/home/Group 386.png',
+} as const;
+
+/** Homepage brand editorial — Figma Group 342 (below bestsellers) */
+export const HOME_BRAND_EDITORIAL = {
+  title: 'هر قطعه، فراتر از یک اکسسوری',
+  description:
+    'ما باور داریم اکسسوری‌ها تنها برای درخشیدن ساخته نمی‌شوند؛ آن‌ها همراه لحظه‌هایی هستند که ارزش به‌یادماندن دارند. هر قطعه با دقت در جزئیات، ظرافت در طراحی و توجه به کیفیت خلق می‌شود تا فراتر از یک اکسسوری باشد. از مناسبت‌های خاص گرفته تا زیبایی روزمره، طلاهای ما بخشی از داستانی هستند که با گذر زمان ارزش و معنا پیدا می‌کند و برای سال‌ها همراه شما باقی می‌ماند.',
+  leftImageUrl: '/images/home/Capture58_2-removebg-preview%201.png',
+  rightImageUrl: '/images/home/Capture58%202.png',
 } as const;
 
 /** Homepage product carousel — demo items until admin CMS is wired */
@@ -219,28 +248,89 @@ export interface HomeProductCarouselItem {
   href?: string;
 }
 
-const DEMO_CAROUSEL_PRODUCT: Omit<HomeProductCarouselItem, 'id'> = {
-  title: 'انگشتر زنانه لوکس بیضی',
-  priceToman: 8_500_000,
-  weightGram: 2.8,
-  imageUrl: '/images/home/new-arrival-necklace.png',
-  hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-  href: '/products',
-};
-
-export const HOME_NEW_ARRIVALS_SHOWCASE: HomeProductCarouselItem[] = [
-  { id: 'demo-new-arrival-1', ...DEMO_CAROUSEL_PRODUCT },
-  { id: 'demo-new-arrival-2', ...DEMO_CAROUSEL_PRODUCT },
-  { id: 'demo-new-arrival-3', ...DEMO_CAROUSEL_PRODUCT },
-  { id: 'demo-new-arrival-4', ...DEMO_CAROUSEL_PRODUCT },
+const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
+  {
+    id: 'demo-carousel-ring',
+    title: 'انگشتر زنانه لوکس بیضی',
+    priceToman: 8_500_000,
+    weightGram: 2.8,
+    imageUrl: '/images/home/lens-product-ring.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=rings',
+  },
+  {
+    id: 'demo-carousel-necklace',
+    title: 'گردنبند طلای ۱۸ عیار',
+    priceToman: 14_200_000,
+    weightGram: 3.5,
+    imageUrl: '/images/home/new-arrival-necklace.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=necklaces',
+  },
+  {
+    id: 'demo-carousel-earrings',
+    title: 'گوشواره طلای ۱۸ عیار',
+    priceToman: 12_400_000,
+    weightGram: 3.2,
+    imageUrl: '/images/home/hero-carousel-necklace.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=earrings',
+  },
+  {
+    id: 'demo-carousel-bracelet',
+    title: 'دستبند زنجیری ظریف',
+    priceToman: 9_750_000,
+    weightGram: 4.1,
+    imageUrl: '/images/home/hero-carousel-bracelet.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=bracelets',
+  },
+  {
+    id: 'demo-carousel-set',
+    title: 'نیم‌ست طلای روزمره',
+    priceToman: 18_900_000,
+    weightGram: 5.6,
+    imageUrl: '/images/home/hero-carousel-ring.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=sets',
+  },
+  {
+    id: 'demo-carousel-vintage-bracelet',
+    title: 'دستبند Vintage Knot',
+    priceToman: 11_300_000,
+    weightGram: 3.9,
+    imageUrl: '/images/home/VintageKnotAdjustableBracelet1_720x 2.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=bracelets',
+  },
+  {
+    id: 'demo-carousel-wedding-ring',
+    title: 'انگشتر نامزدی کلاسیک',
+    priceToman: 16_800_000,
+    weightGram: 4.4,
+    imageUrl: '/images/home/wedding-ring.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=rings',
+  },
+  {
+    id: 'demo-carousel-pendant',
+    title: 'آویز طلای مینیمال',
+    priceToman: 7_950_000,
+    weightGram: 2.4,
+    imageUrl: '/images/home/a3eb1243002467eaa8beb1676880561c 2.png',
+    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    href: '/products?category=necklaces',
+  },
 ];
 
-export const HOME_BESTSELLERS_SHOWCASE: HomeProductCarouselItem[] = [
-  { id: 'demo-bestseller-1', ...DEMO_CAROUSEL_PRODUCT },
-  { id: 'demo-bestseller-2', ...DEMO_CAROUSEL_PRODUCT },
-  { id: 'demo-bestseller-3', ...DEMO_CAROUSEL_PRODUCT },
-  { id: 'demo-bestseller-4', ...DEMO_CAROUSEL_PRODUCT },
-];
+export const HOME_NEW_ARRIVALS_SHOWCASE: HomeProductCarouselItem[] = DEMO_CAROUSEL_PRODUCTS;
+
+export const HOME_BESTSELLERS_SHOWCASE: HomeProductCarouselItem[] = DEMO_CAROUSEL_PRODUCTS.map(
+  (item, index) => ({
+    ...item,
+    id: `demo-bestseller-${index + 1}`,
+  }),
+);
 
 export const HOME_CATEGORY_SHORTCUTS = [
   {
@@ -274,6 +364,44 @@ export const HOME_CATEGORY_SHORTCUTS = [
     imageUrl: CATEGORY_FALLBACK_IMAGES.necklaces,
   },
 ] as const;
+
+/** Figma node 1919:7602 — desktop homepage hero */
+export const HOME_HERO_DESKTOP_BG =
+  '/images/home/f79c2b28-7564-4b56-bc2b-db720beb6f63%20(2)%201.png';
+
+export const HOME_HERO_DESKTOP_NAV = [
+  { label: 'انگشتر', href: '/products?category=rings' },
+  { label: 'دستبند', href: '/products?category=bracelets' },
+  { label: 'گوشواره', href: '/products?category=earrings' },
+  { label: 'گردنبند', href: '/products?category=necklaces' },
+  { label: 'ست و نیم ست', href: '/products?category=sets' },
+  { label: 'کودکانه', href: '/products?category=kids' },
+  { label: 'هدیه', href: '/products?type=gold_jewelry' },
+] as const;
+
+export interface HomeHeroDesktopCarouselItem {
+  id: string;
+  imageUrl: string;
+  href: string;
+}
+
+export const HOME_HERO_DESKTOP_CAROUSEL: HomeHeroDesktopCarouselItem[] = [
+  {
+    id: 'hero-carousel-ring',
+    imageUrl: '/images/home/hero-carousel-ring.png',
+    href: '/products?category=rings',
+  },
+  {
+    id: 'hero-carousel-necklace',
+    imageUrl: '/images/home/hero-carousel-necklace.png',
+    href: '/products?category=necklaces',
+  },
+  {
+    id: 'hero-carousel-bracelet',
+    imageUrl: '/images/home/hero-carousel-bracelet.png',
+    href: '/products?category=bracelets',
+  },
+];
 
 export const FOOTER_NAV = {
   shop: [

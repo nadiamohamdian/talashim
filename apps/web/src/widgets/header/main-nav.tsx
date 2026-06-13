@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@sadafgold/ui';
-import { PRIMARY_NAV, STOREFRONT_CATEGORIES } from '@/shared/config/storefront-ia';
+import { PRIMARY_NAV, HOME_HERO_DESKTOP_NAV, STOREFRONT_CATEGORIES } from '@/shared/config/storefront-ia';
 import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { IconMenu } from '@/shared/ui/icons';
 
@@ -43,6 +43,18 @@ export function CategoryNavMenu() {
         </>
       ) : null}
     </div>
+  );
+}
+
+export function HomeHeroDesktopNav() {
+  return (
+    <>
+      {HOME_HERO_DESKTOP_NAV.map((item) => (
+        <Link key={item.href} href={item.href} className="desktop-menu-bar-hero-nav-link">
+          {item.label}
+        </Link>
+      ))}
+    </>
   );
 }
 
