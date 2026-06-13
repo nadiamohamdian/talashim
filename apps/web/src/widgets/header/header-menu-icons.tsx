@@ -74,6 +74,28 @@ export function IconMenuHamburger(props: IconProps) {
   );
 }
 
+/** Drawer home — return to homepage */
+export function IconMenuHome(props: IconProps) {
+  return (
+    <svg viewBox="0 0 14 14" fill="none" aria-hidden {...props}>
+      <path
+        d="M2 6.5L7 2L12 6.5"
+        stroke={stroke}
+        strokeWidth={menuStroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M3.5 6.5V12H10.5V6.5"
+        stroke={stroke}
+        strokeWidth={menuStroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 /** Drawer close — thin stroke matching menu icon set */
 export function IconMenuClose(props: IconProps) {
   return (

@@ -4,6 +4,7 @@ import { CategoryShowcase } from '@/widgets/home/category-showcase';
 import { BudgetShowcase } from '@/widgets/home/budget-showcase';
 import { LensSetsShowcase } from '@/widgets/home/lens-sets-showcase';
 import { LensShowcase } from '@/widgets/home/lens-showcase';
+import { HomeMagazineShowcase } from '@/widgets/home/home-magazine-showcase';
 import { BestsellersShowcase, NewArrivalsShowcase } from '@/widgets/home/new-arrivals-showcase';
 import { WeddingPromoBanner } from '@/widgets/home/wedding-promo-banner';
 import { PromoHero } from '@/widgets/home/promo-hero';
@@ -26,6 +27,7 @@ export default async function HomePage() {
       {homepage.sections.showCategoryShowcase ? <NewArrivalsShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? <WeddingPromoBanner /> : null}
       {homepage.sections.showCategoryShowcase ? <BestsellersShowcase /> : null}
+      {homepage.sections.showCategoryShowcase ? <HomeMagazineShowcase /> : null}
     </div>
   );
 }

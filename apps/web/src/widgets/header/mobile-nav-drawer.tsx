@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useEffect, useId, useState } from 'react';
-import { PRIMARY_NAV, STOREFRONT_CATEGORIES } from '@/shared/config/storefront-ia';
-import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
+import { createPortal } from 'react-dom';
+import { MOBILE_HAMBURGER_MENU } from '@/shared/config/storefront-ia';
 import {
   IconMenuChevronDown,
   IconMenuChevronUp,
   IconMenuClose,
+  IconMenuHome,
 } from '@/widgets/header/header-menu-icons';
 
 interface MobileNavDrawerProps {
@@ -15,24 +16,18 @@ interface MobileNavDrawerProps {
   onClose: () => void;
 }
 
-const CATEGORY_GROUP_ID = 'categories';
-
 export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
-  const { featureFlags } = useStorefrontSettings();
-  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const submenuId = useId();
 
-  const links = [
-    ...PRIMARY_NAV,
-    ...(featureFlags.enableGoldTrading
-      ? [{ label: 'معاملات طلا', href: '/trading' }]
-      : []),
-    ...(featureFlags.enableBlog ? [{ label: 'مجله', href: '/blog' }] : []),
-  ];
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) {
-      setExpandedGroup(null);
+      setExpandedId(null);
       return;
     }
 
@@ -49,11 +44,9 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  const categoriesExpanded = expandedGroup === CATEGORY_GROUP_ID;
-
-  return (
+  return createPortal(
     <>
       <button
         type="button"
@@ -63,11 +56,15 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
       />
 
       <aside className="mobile-nav-drawer" aria-label="منوی موبایل">
-        <div className="mobile-nav-drawer-top">
+        <div className="mobile-nav-drawer-head">
+          <Link href="/" onClick={onClose} className="mobile-nav-drawer-home" aria-label="صفحه اصلی">
+            <IconMenuHome className="mobile-nav-drawer-home-icon" />
+          </Link>
+
           <button
             type="button"
             className="mobile-nav-drawer-close"
-            aria-label="بستن"
+            aria-label="بستن منو"
             onClick={onClose}
           >
             <IconMenuClose className="mobile-nav-drawer-close-icon" />
@@ -76,63 +73,85 @@ export function MobileNavDrawer({ open, onClose }: MobileNavDrawerProps) {
 
         <nav className="mobile-nav-drawer-nav" aria-label="ناوبری اصلی">
           <ul className="mobile-nav-drawer-list">
-            <li className="mobile-nav-drawer-item mobile-nav-drawer-item-group">
-              <button
-                type="button"
-                className="mobile-nav-drawer-row mobile-nav-drawer-row-parent"
-                aria-expanded={categoriesExpanded}
-                aria-controls={submenuId}
-                onClick={() =>
-                  setExpandedGroup((current) =>
-                    current === CATEGORY_GROUP_ID ? null : CATEGORY_GROUP_ID,
-                  )
-                }
-              >
-                <span className="mobile-nav-drawer-row-label">دسته‌بندی کالاها</span>
-                {categoriesExpanded ? (
-                  <IconMenuChevronUp className="mobile-nav-drawer-chevron" />
-                ) : (
-                  <IconMenuChevronDown className="mobile-nav-drawer-chevron" />
-                )}
-              </button>
+            {MOBILE_HAMBURGER_MENU.map((item, index) => {
+              const hasNested = Boolean(item.subLinks?.length);
+              const isExpanded = expandedId === item.id;
+              const isLast = index === MOBILE_HAMBURGER_MENU.length - 1;
 
-              {categoriesExpanded ? (
-                <ul id={submenuId} className="mobile-nav-drawer-submenu">
-                  {STOREFRONT_CATEGORIES.map((category) => (
-                    <li key={category.slug} className="mobile-nav-drawer-subitem">
-                      <Link
-                        href={`/categories/${category.slug}`}
-                        onClick={onClose}
-                        className="mobile-nav-drawer-sublink"
+              return (
+                <li key={item.id} className="mobile-nav-drawer-item">
+                  {hasNested ? (
+                    <>
+                      <button
+                        type="button"
+                        className="mobile-nav-drawer-row mobile-nav-drawer-row-parent"
+                        aria-expanded={isExpanded}
+                        aria-controls={`${submenuId}-${item.id}`}
+                        onClick={() =>
+                          setExpandedId((current) => (current === item.id ? null : item.id))
+                        }
                       >
-                        {category.labelFa}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </li>
+                        <span className="mobile-nav-drawer-row-label">{item.label}</span>
+                        {isExpanded ? (
+                          <IconMenuChevronUp className="mobile-nav-drawer-chevron" />
+                        ) : (
+                          <IconMenuChevronDown className="mobile-nav-drawer-chevron" />
+                        )}
+                      </button>
 
-            {links.map((item) => (
-              <li key={item.href} className="mobile-nav-drawer-item">
-                <Link href={item.href} onClick={onClose} className="mobile-nav-drawer-row mobile-nav-drawer-link">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+                      {isExpanded ? (
+                        <div id={`${submenuId}-${item.id}`} className="mobile-nav-drawer-nested">
+                          {item.subLinks ? (
+                            <ul className="mobile-nav-drawer-sublist">
+                              {item.subLinks.map((subLink) => (
+                                <li key={subLink.href} className="mobile-nav-drawer-subitem">
+                                  <Link
+                                    href={subLink.href}
+                                    onClick={onClose}
+                                    className="mobile-nav-drawer-sublink"
+                                  >
+                                    {subLink.label}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
 
-            <li className="mobile-nav-drawer-item">
-              <Link
-                href="/products?sale=1"
-                onClick={onClose}
-                className="mobile-nav-drawer-row mobile-nav-drawer-link mobile-nav-drawer-link-accent"
-              >
-                تخفیف‌های روز
-              </Link>
-            </li>
+                          {item.priceRanges ? (
+                            <div className="mobile-nav-drawer-price-panel">
+                              {item.priceRanges.map((range) => (
+                                <Link
+                                  key={range.href}
+                                  href={range.href}
+                                  onClick={onClose}
+                                  className="mobile-nav-drawer-price-link"
+                                >
+                                  {range.label}
+                                </Link>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href ?? '/products'}
+                      onClick={onClose}
+                      className="mobile-nav-drawer-row mobile-nav-drawer-link"
+                    >
+                      {item.label}
+                    </Link>
+                  )}
+
+                  {!isLast ? <span className="mobile-nav-drawer-divider" aria-hidden /> : null}
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </aside>
-    </>
+    </>,
+    document.body,
   );
 }

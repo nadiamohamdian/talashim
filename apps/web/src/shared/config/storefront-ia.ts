@@ -107,6 +107,48 @@ export const PRIMARY_NAV: StorefrontNavItem[] = [
   { label: 'تماس با ما', href: '/contact' },
 ];
 
+export interface MobileHamburgerSubLink {
+  label: string;
+  href: string;
+}
+
+export interface MobileHamburgerMenuItem {
+  id: string;
+  label: string;
+  href?: string;
+  subLinks?: MobileHamburgerSubLink[];
+  priceRanges?: MobileHamburgerSubLink[];
+}
+
+/** Figma nodes 1755:8299 + 1755:8312 — mobile hamburger drawer */
+export const MOBILE_HAMBURGER_MENU: MobileHamburgerMenuItem[] = [
+  {
+    id: 'rings',
+    label: 'انگشتر',
+    subLinks: [
+      { label: 'انگشتر ظریف', href: '/products?category=rings&ringStyle=delicate' },
+      { label: 'انگشتر نگین‌دار', href: '/products?category=rings&ringStyle=gem' },
+      { label: 'انگشتر بدون نگین', href: '/products?category=rings&ringStyle=plain' },
+      { label: 'انگشتر مینیمال', href: '/products?category=rings&ringStyle=minimal' },
+      { label: 'انگشتر پهن', href: '/products?category=rings&ringStyle=wide' },
+      { label: 'انگشتر مولتی کالر', href: '/products?category=rings&ringStyle=multi-color' },
+      { label: 'انگشتر تحویل فوری', href: '/products?category=rings&ringStyle=express' },
+    ],
+    priceRanges: [
+      { label: 'تا 20 میلیون تومان', href: '/products?category=rings&maxPrice=20000000' },
+      { label: '20 تا 40 میلیون تومان', href: '/products?category=rings&minPrice=20000000&maxPrice=40000000' },
+      { label: '40 تا 60 میلیون تومان', href: '/products?category=rings&minPrice=40000000&maxPrice=60000000' },
+      { label: '60 تا 80 میلیون تومان', href: '/products?category=rings&minPrice=60000000&maxPrice=80000000' },
+      { label: 'بالای 80 میلیون تومان', href: '/products?category=rings&minPrice=80000000' },
+    ],
+  },
+  { id: 'bracelets', label: 'دستبند', href: '/categories/bracelets' },
+  { id: 'necklaces', label: 'گردنبند', href: '/categories/necklaces' },
+  { id: 'earrings', label: 'گوشواره', href: '/categories/earrings' },
+  { id: 'collections', label: 'کالکشن ها', href: '/products?sort=new-collection' },
+  { id: 'gift', label: 'هدیه', href: '/products?type=gold_jewelry' },
+];
+
 /** Figma node 1752:5944 — homepage category showcase (3 columns) */
 export const HOME_CATEGORY_SHOWCASE = [
   {
