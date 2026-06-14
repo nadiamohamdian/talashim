@@ -62,7 +62,7 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
             <div
               className="lens-sets-showcase-hero"
               role="button"
-              tabIndex={0}
+              tabIndex={-1}
               onClick={openPopup}
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -72,15 +72,17 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
               }}
               aria-label="مشاهده لنز طلاشیم"
             >
-              <StoreImage
-                src={heroImage}
-                alt=""
-                fill
-                unoptimized
-                className="lens-sets-showcase-hero-image"
-                sizes="(min-width: 1024px) min(691px, 50vw), 350px"
-              />
-              <span className="lens-sets-showcase-hero-overlay" aria-hidden />
+              <div className="lens-sets-showcase-hero-media" aria-hidden>
+                <StoreImage
+                  src={heroImage}
+                  alt=""
+                  fill
+                  unoptimized
+                  className="lens-sets-showcase-hero-image"
+                  sizes="(min-width: 1024px) min(691px, 50vw), 350px"
+                />
+                <span className="lens-sets-showcase-hero-overlay" />
+              </div>
 
               {spotlightProducts.map((product, index) => (
                 <Link

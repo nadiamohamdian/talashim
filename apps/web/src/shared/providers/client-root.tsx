@@ -10,6 +10,7 @@ import { SiteFooter } from '@/widgets/footer/site-footer';
 import { GoldPriceTicker } from '@/widgets/header/gold-price-ticker';
 import { SiteHeader } from '@/widgets/header/site-header';
 import { QueryProvider } from '@/shared/providers/query-provider';
+import { ScrollManager } from '@/shared/providers/scroll-manager';
 import { SessionBootstrap } from '@/shared/providers/session-bootstrap';
 import type { PropsWithChildren } from 'react';
 
@@ -30,6 +31,7 @@ export function ClientRoot({
       <SessionBootstrap>
         <StorefrontSettingsProvider value={settings}>
           <ThemeProvider>
+            <ScrollManager />
             <div className="flex min-h-full flex-1 flex-col">
               <GlobalBannerBar banners={globalBanners} />
               {settings.gold.showGoldTickerInHeader ? <GoldPriceTicker /> : null}
