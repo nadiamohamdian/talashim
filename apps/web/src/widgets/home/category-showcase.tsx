@@ -1,17 +1,28 @@
 'use client';
 
 import Link from 'next/link';
+import type { CmsHomepageSections } from '@sadafgold/types';
 import {
-  HOME_CATEGORY_SHOWCASE,
-  type HomeCategoryShowcaseItem,
-} from '@/shared/config/storefront-ia';
+  resolveCategoryShowcase,
+  resolveCategoryShowcaseImage,
+  type ResolvedCategoryShowcaseItem,
+} from '@/shared/config/cms-category-showcase';
 import { getMediaFileUrl } from '@/shared/lib/media-url';
 import { StoreImage } from '@/shared/ui/store-image';
 
-function resolveCategoryImage(
-  category: HomeCategoryShowcaseItem,
+interface CategoryShowcaseProps {
+  sections: CmsHomepageSections;
+}
+
+function resolveCategoryImageSrc(
+  category: ResolvedCategoryShowcaseItem,
   viewport: 'mobile' | 'desktop',
 ): string {
+  const cmsImage = resolveCategoryShowcaseImage(category, viewport);
+  if (cmsImage) {
+    return cmsImage;
+  }
+
   if (viewport === 'desktop' && category.desktopImageUrl) {
     return category.desktopImageUrl;
   }
@@ -19,21 +30,20 @@ function resolveCategoryImage(
   return getMediaFileUrl('general', category.imageFile);
 }
 
-export function CategoryShowcase() {
+export function CategoryShowcase({ sections }: CategoryShowcaseProps) {
+  const { title, items } = resolveCategoryShowcase(sections);
+
   return (
     <section className="category-showcase" aria-labelledby="category-showcase-title">
       <div className="category-showcase-inner">
         <div className="category-showcase-heading">
-          <span className="category-showcase-watermark" aria-hidden>
-            Product Categories
-          </span>
           <h2 id="category-showcase-title" className="category-showcase-title">
-            دسته بندی محصولات
+            {title}
           </h2>
         </div>
 
         <div className="category-showcase-grid">
-          {HOME_CATEGORY_SHOWCASE.map((category) => (
+          {items.map((category) => (
             <Link
               key={category.slug}
               href={category.href}
@@ -41,7 +51,7 @@ export function CategoryShowcase() {
             >
               <div className="category-showcase-media">
                 <StoreImage
-                  src={resolveCategoryImage(category, 'mobile')}
+                  src={resolveCategoryImageSrc(category, 'mobile')}
                   fallbackSrc={category.fallbackImageUrl}
                   alt={category.label}
                   fill
@@ -51,7 +61,7 @@ export function CategoryShowcase() {
                   sizes="(max-width: 390px) 33vw, 180px"
                 />
                 <StoreImage
-                  src={resolveCategoryImage(category, 'desktop')}
+                  src={resolveCategoryImageSrc(category, 'desktop')}
                   fallbackSrc={category.fallbackImageUrl}
                   alt=""
                   fill

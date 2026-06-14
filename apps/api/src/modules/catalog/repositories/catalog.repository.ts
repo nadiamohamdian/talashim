@@ -51,6 +51,14 @@ export class CatalogRepository {
     });
   }
 
+  findNewArrivals(limit = 12) {
+    return this.prisma.product.findMany({
+      include: { inventoryItem: true },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+  }
+
   findAll(limit = 12, category?: ProductCategory, search?: string, skip = 0, sale = false) {
     const where = this.buildWhere({ category, search, sale });
     return this.prisma.product.findMany({

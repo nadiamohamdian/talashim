@@ -1,62 +1,201 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { HomeProductCarouselItem } from '@/shared/config/storefront-ia';
 import { HomeProductCarouselCard } from '@/widgets/home/home-product-carousel-card';
 
 export interface HomeProductCarouselProps {
   id: string;
   title: string;
-  watermark: string;
   viewAllHref?: string;
   viewAllLabel?: string;
   items: readonly HomeProductCarouselItem[];
   className?: string;
 }
 
+const LOOP_COPY_COUNT = 3;
+
+interface LoopedCarouselItem {
+  item: HomeProductCarouselItem;
+  loopKey: string;
+}
+
+function buildLoopedItems(items: readonly HomeProductCarouselItem[]): LoopedCarouselItem[] {
+  if (items.length === 0) {
+    return [];
+  }
+
+  return Array.from({ length: LOOP_COPY_COUNT }, (_, copyIndex) =>
+    items.map((item, itemIndex) => ({
+      item,
+      loopKey: `${item.id}-loop-${copyIndex}-${itemIndex}`,
+    })),
+  ).flat();
+}
+
+function isRtlElement(element: HTMLElement): boolean {
+  return getComputedStyle(element).direction === 'rtl';
+}
+
+function getNormalizedScrollLeft(track: HTMLDivElement): number {
+  if (!isRtlElement(track)) {
+    return track.scrollLeft;
+  }
+
+  if (track.scrollLeft <= 0) {
+    return Math.abs(track.scrollLeft);
+  }
+
+  return track.scrollWidth - track.clientWidth - track.scrollLeft;
+}
+
+function setNormalizedScrollLeft(
+  track: HTMLDivElement,
+  position: number,
+  behavior: ScrollBehavior = 'auto',
+): void {
+  if (!isRtlElement(track)) {
+    track.scrollTo({ left: position, behavior });
+    return;
+  }
+
+  if (track.scrollLeft <= 0) {
+    track.scrollTo({ left: -position, behavior });
+    return;
+  }
+
+  const maxScroll = track.scrollWidth - track.clientWidth;
+  track.scrollTo({ left: maxScroll - position, behavior });
+}
+
+function jumpNormalizedScrollLeft(track: HTMLDivElement, position: number): void {
+  const previousSnap = track.style.scrollSnapType;
+  track.style.scrollSnapType = 'none';
+  setNormalizedScrollLeft(track, position, 'auto');
+  requestAnimationFrame(() => {
+    track.style.scrollSnapType = previousSnap;
+  });
+}
+
+function getTrackMetrics(track: HTMLDivElement, itemCount: number) {
+  const firstCard = track.querySelector<HTMLElement>('.home-product-carousel-card');
+  if (!firstCard || itemCount === 0) {
+    return null;
+  }
+
+  const trackStyles = getComputedStyle(track);
+  const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap || '0') || 0;
+  const step = firstCard.offsetWidth + gap;
+  const segmentWidth = step * itemCount;
+
+  return { step, segmentWidth };
+}
+
 export function HomeProductCarousel({
   id,
   title,
-  watermark,
   viewAllHref = '/products',
   viewAllLabel = 'نمایش همه',
   items,
   className,
 }: HomeProductCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const isJumpingRef = useRef(false);
+  const loopItems = useMemo(() => buildLoopedItems(items), [items]);
+  const canLoop = items.length > 1;
+
+  const normalizeLoopPosition = useCallback(() => {
+    const track = trackRef.current;
+    if (!track || !canLoop || isJumpingRef.current) {
+      return;
+    }
+
+    const metrics = getTrackMetrics(track, items.length);
+    if (!metrics) {
+      return;
+    }
+
+    const { segmentWidth } = metrics;
+    const position = getNormalizedScrollLeft(track);
+    const lowerBound = segmentWidth * 0.5;
+    const upperBound = segmentWidth * 2.5;
+
+    if (position < lowerBound) {
+      isJumpingRef.current = true;
+      jumpNormalizedScrollLeft(track, position + segmentWidth);
+      isJumpingRef.current = false;
+      return;
+    }
+
+    if (position > upperBound) {
+      isJumpingRef.current = true;
+      jumpNormalizedScrollLeft(track, position - segmentWidth);
+      isJumpingRef.current = false;
+    }
+  }, [canLoop, items.length]);
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) {
+    if (!track || items.length === 0) {
       return;
     }
 
-    if (getComputedStyle(track).direction === 'rtl') {
-      track.scrollLeft = 0;
+    const metrics = getTrackMetrics(track, items.length);
+    if (!metrics) {
+      return;
     }
+
+    jumpNormalizedScrollLeft(track, metrics.segmentWidth);
   }, [items]);
 
-  const scrollTrack = useCallback((direction: 'prev' | 'next') => {
+  useEffect(() => {
     const track = trackRef.current;
-    if (!track) {
+    if (!track || !canLoop) {
       return;
     }
 
-    const firstCard = track.querySelector<HTMLElement>('.home-product-carousel-card');
-    if (!firstCard) {
-      return;
-    }
+    const onScroll = () => {
+      if (!isJumpingRef.current) {
+        requestAnimationFrame(normalizeLoopPosition);
+      }
+    };
 
-    const trackStyles = getComputedStyle(track);
-    const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap || '0') || 0;
-    const scrollAmount = firstCard.offsetWidth + gap;
+    track.addEventListener('scroll', onScroll, { passive: true });
+    return () => track.removeEventListener('scroll', onScroll);
+  }, [canLoop, normalizeLoopPosition]);
 
-    track.scrollBy({
-      left: direction === 'next' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
-  }, []);
+  const scrollTrack = useCallback(
+    (direction: 'prev' | 'next') => {
+      const track = trackRef.current;
+      if (!track) {
+        return;
+      }
+
+      const metrics = getTrackMetrics(track, items.length);
+      if (!metrics) {
+        return;
+      }
+
+      const { step } = metrics;
+      const delta = direction === 'next' ? step : -step;
+      const isRtl = isRtlElement(track);
+
+      track.scrollBy({
+        left: isRtl ? -delta : delta,
+        behavior: 'smooth',
+      });
+
+      window.setTimeout(() => {
+        normalizeLoopPosition();
+      }, 360);
+    },
+    [items.length, normalizeLoopPosition],
+  );
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <section
@@ -66,9 +205,6 @@ export function HomeProductCarousel({
       <div className="home-product-carousel-inner">
         <div className="home-product-carousel-header">
           <div className="home-product-carousel-heading">
-            <span className="home-product-carousel-watermark" aria-hidden>
-              {watermark}
-            </span>
             <h2 id={id} className="home-product-carousel-title">
               {title}
             </h2>
@@ -81,6 +217,7 @@ export function HomeProductCarousel({
                 className="home-product-carousel-nav-btn home-product-carousel-nav-btn--prev"
                 onClick={() => scrollTrack('prev')}
                 aria-label="محصولات قبلی"
+                disabled={!canLoop}
               >
                 <IconCarouselArrow direction="prev" />
               </button>
@@ -89,6 +226,7 @@ export function HomeProductCarousel({
                 className="home-product-carousel-nav-btn home-product-carousel-nav-btn--next"
                 onClick={() => scrollTrack('next')}
                 aria-label="محصولات بعدی"
+                disabled={!canLoop}
               >
                 <IconCarouselArrow direction="next" />
               </button>
@@ -101,8 +239,8 @@ export function HomeProductCarousel({
         </div>
 
         <div ref={trackRef} className="home-product-carousel-track" role="list">
-          {items.map((item) => (
-            <article key={item.id} className="home-product-carousel-card" role="listitem">
+          {loopItems.map(({ item, loopKey }) => (
+            <article key={loopKey} className="home-product-carousel-card" role="listitem">
               {item.href ? (
                 <Link href={item.href} className="home-product-carousel-card-link">
                   <HomeProductCarouselCard item={item} />

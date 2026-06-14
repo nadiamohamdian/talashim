@@ -298,6 +298,13 @@ export class UpsertCmsLensVideoDto {
   @IsOptional()
   @IsEnum(CmsBannerStatus)
   status?: CmsBannerStatus;
+
+  @ApiPropertyOptional({ type: [String], maxItems: 12 })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(12)
+  @IsString({ each: true })
+  productIds?: string[];
 }
 
 export class PublicCmsLensVideoResponseDto {
@@ -315,6 +322,9 @@ export class PublicCmsLensVideoResponseDto {
 
   @ApiProperty()
   sortOrder!: number;
+
+  @ApiProperty({ type: [Object] })
+  products!: Record<string, unknown>[];
 }
 
 export class UpsertCmsBannerDto {

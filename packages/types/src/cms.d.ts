@@ -39,6 +39,11 @@ export interface CmsHeroCta {
     label: string;
     href: string;
 }
+export interface CmsHeroDesktopCarouselItem {
+    id: string;
+    imageUrl: string;
+    href: string;
+}
 export interface CmsHeroConfig {
     badge: string;
     title: string;
@@ -47,13 +52,37 @@ export interface CmsHeroConfig {
     primaryCta: CmsHeroCta;
     secondaryCta: CmsHeroCta;
     imageUrl: string;
+    desktopBackgroundImageUrl?: string;
+    desktopCarouselItems?: CmsHeroDesktopCarouselItem[];
+}
+export type CmsCategoryShowcaseSlug = 'rings' | 'bracelets' | 'earrings' | 'necklaces';
+export interface CmsCategoryShowcaseItem {
+    slug: CmsCategoryShowcaseSlug;
+    label: string;
+    href: string;
+    mobileImageUrl?: string;
+    desktopImageUrl?: string;
+}
+export interface CmsCategoryShowcaseConfig {
+    title: string;
+    items: CmsCategoryShowcaseItem[];
 }
 export interface CmsHomepageSections {
     featuredTitle: string;
     featuredSubtitle: string;
     bestsellerTitle: string;
     bestsellerSubtitle: string;
+    newArrivalsTitle: string;
     showCategoryShowcase: boolean;
+    categoryShowcase?: CmsCategoryShowcaseConfig;
+    bestsellerProductIds?: string[];
+    newArrivalsProductIds?: string[];
+}
+export interface PublicCmsHomepage {
+    hero: CmsHeroConfig;
+    sections: CmsHomepageSections;
+    bestsellerProducts: ProductSummary[];
+    newArrivalsProducts: ProductSummary[];
 }
 export interface CmsHomepageDto {
     hero: CmsHeroConfig;

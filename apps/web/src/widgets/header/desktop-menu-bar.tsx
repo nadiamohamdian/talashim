@@ -46,7 +46,7 @@ export function DesktopMenuBar() {
             <IconMenuSearch className="desktop-menu-bar-icon desktop-menu-bar-icon-search" />
           </button>
 
-          <UserAccountDropdown variant="menu-icon" />
+          <UserAccountDropdown variant="menu-icon" surface="desktop" />
 
           <Link href="/cart" className="desktop-menu-bar-action" aria-label="سبد خرید">
             <IconMenuBag className="desktop-menu-bar-icon desktop-menu-bar-icon-bag" />

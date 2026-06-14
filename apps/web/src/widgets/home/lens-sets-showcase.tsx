@@ -7,6 +7,7 @@ import {
   LENS_EDITORIAL_HERO,
   LENS_EDITORIAL_HOTSPOTS,
   LENS_EDITORIAL_META,
+  getLensProductPageHref,
   type LensShowcaseDemoItem,
 } from '@/shared/config/lens-showcase-demo';
 import { formatPrice } from '@/shared/lib/format-price';
@@ -50,13 +51,11 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
       <section className="lens-sets-showcase" aria-labelledby="lens-sets-title">
         <div className="lens-sets-showcase-inner">
           <header className="lens-sets-showcase-intro">
-            <p className="lens-sets-showcase-eyebrow">{LENS_EDITORIAL_META.eyebrow}</p>
             <h2 id="lens-sets-title" className="lens-sets-showcase-title">
               {LENS_EDITORIAL_META.title}
             </h2>
+            <p className="lens-sets-showcase-description">{LENS_EDITORIAL_META.description}</p>
           </header>
-
-          <p className="lens-sets-showcase-description">{LENS_EDITORIAL_META.description}</p>
 
           <div className="lens-sets-showcase-stage">
             <div
@@ -85,7 +84,7 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
               {spotlightProducts.map((product, index) => (
                 <Link
                   key={product.id}
-                  href={product.href}
+                  href={getLensProductPageHref(product.slug)}
                   className={`lens-sets-showcase-product-chip lens-sets-showcase-product-chip--${index}`}
                   onClick={(event) => event.stopPropagation()}
                 >
@@ -122,25 +121,25 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
                 </span>
               ))}
             </div>
-          </div>
 
-          <div className="lens-sets-showcase-nav">
-            <button
-              type="button"
-              className="lens-sets-showcase-nav-btn"
-              onClick={goPrev}
-              aria-label="اسلاید قبلی"
-            >
-              <IconChevron direction="prev" />
-            </button>
-            <button
-              type="button"
-              className="lens-sets-showcase-nav-btn"
-              onClick={goNext}
-              aria-label="اسلاید بعدی"
-            >
-              <IconChevron direction="next" />
-            </button>
+            <div className="lens-sets-showcase-nav">
+              <button
+                type="button"
+                className="lens-sets-showcase-nav-btn"
+                onClick={goPrev}
+                aria-label="اسلاید قبلی"
+              >
+                <IconChevron direction="prev" />
+              </button>
+              <button
+                type="button"
+                className="lens-sets-showcase-nav-btn"
+                onClick={goNext}
+                aria-label="اسلاید بعدی"
+              >
+                <IconChevron direction="next" />
+              </button>
+            </div>
           </div>
         </div>
       </section>

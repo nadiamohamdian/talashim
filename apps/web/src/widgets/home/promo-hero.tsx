@@ -7,6 +7,7 @@ import {
 import {
   HOME_HERO_DESKTOP_BG,
   HOME_HERO_DESKTOP_CAROUSEL,
+  type HomeHeroDesktopCarouselItem,
 } from '@/shared/config/storefront-ia';
 import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { StoreImage } from '@/shared/ui/store-image';
@@ -18,6 +19,24 @@ function resolveHeroImage(imageUrl: string): string {
   return trimmed || getDefaultHeroImageUrl();
 }
 
+function resolveDesktopBackgroundImage(imageUrl: string | undefined): string {
+  const trimmed = imageUrl?.trim();
+  return trimmed || HOME_HERO_DESKTOP_BG;
+}
+
+function resolveDesktopCarouselItems(
+  items: CmsHeroConfig['desktopCarouselItems'],
+): HomeHeroDesktopCarouselItem[] {
+  const configured =
+    items?.filter((item) => item.imageUrl.trim().length > 0).map((item) => ({
+      id: item.id,
+      imageUrl: item.imageUrl.trim(),
+      href: item.href.trim() || '/products',
+    })) ?? [];
+
+  return configured.length > 0 ? configured : HOME_HERO_DESKTOP_CAROUSEL;
+}
+
 interface PromoHeroProps {
   hero: CmsHeroConfig;
 }
@@ -27,6 +46,8 @@ export function PromoHero({ hero }: PromoHeroProps) {
   const desktopTitle = title === 'زیبایی ماندگار' ? 'گالری طلاشیم' : title;
   const description = hero.description.trim();
   const heroImage = resolveHeroImage(hero.imageUrl);
+  const desktopBackgroundImage = resolveDesktopBackgroundImage(hero.desktopBackgroundImageUrl);
+  const desktopCarouselItems = resolveDesktopCarouselItems(hero.desktopCarouselItems);
   const primaryLabel = hero.primaryCta.label.trim() || 'مشاهده کالکشن ها';
   const primaryHref = hero.primaryCta.href.trim() || '/products';
   const secondaryHref = hero.secondaryCta.href.trim() || '/products?category=rings';
@@ -76,7 +97,7 @@ export function PromoHero({ hero }: PromoHeroProps) {
         <div className="promo-hero-desktop-bg" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={HOME_HERO_DESKTOP_BG}
+            src={desktopBackgroundImage}
             alt=""
             className="promo-hero-desktop-bg-image"
             decoding="async"
@@ -85,23 +106,25 @@ export function PromoHero({ hero }: PromoHeroProps) {
         </div>
 
         <div className="promo-hero-desktop-panel">
-          <h1 className="promo-hero-desktop-title">{desktopTitle}</h1>
-          {description ? (
-            <RichHtmlContent
-              html={description}
-              className="promo-hero-desktop-description [&_p]:mb-0"
-            />
-          ) : (
-            <p className="promo-hero-desktop-description">
-              لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ نامفهوم
-            </p>
-          )}
+          <section className="promo-hero-desktop-copy" aria-label="معرفی گالری">
+            <h1 className="promo-hero-desktop-title">{desktopTitle}</h1>
+            {description ? (
+              <RichHtmlContent
+                html={description}
+                className="promo-hero-desktop-description [&_p]:mb-0 [&_p]:text-center"
+              />
+            ) : (
+              <p className="promo-hero-desktop-description">
+                لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ نامفهوم
+              </p>
+            )}
 
-          <Link href={primaryHref} className="promo-hero-desktop-cta">
-            {primaryLabel}
-          </Link>
+            <Link href={primaryHref} className="promo-hero-desktop-cta">
+              {primaryLabel}
+            </Link>
+          </section>
 
-          <PromoHeroDesktopCarousel items={HOME_HERO_DESKTOP_CAROUSEL} />
+          <PromoHeroDesktopCarousel items={desktopCarouselItems} />
         </div>
       </section>
     </>

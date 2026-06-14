@@ -46,6 +46,11 @@ export class CatalogService {
     return Promise.all(products.map((product) => this.toProductSummary(product)));
   }
 
+  async findNewArrivals(limit = 12) {
+    const products = await this.catalogRepository.findNewArrivals(limit);
+    return Promise.all(products.map((product) => this.toProductSummary(product)));
+  }
+
   async findCategories() {
     const rows = await this.catalogRepository.countByCategory();
     const labels: Record<string, string> = {

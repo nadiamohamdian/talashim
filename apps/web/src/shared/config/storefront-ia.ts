@@ -233,8 +233,8 @@ export const HOME_BRAND_EDITORIAL = {
   title: 'هر قطعه، فراتر از یک اکسسوری',
   description:
     'ما باور داریم اکسسوری‌ها تنها برای درخشیدن ساخته نمی‌شوند؛ آن‌ها همراه لحظه‌هایی هستند که ارزش به‌یادماندن دارند. هر قطعه با دقت در جزئیات، ظرافت در طراحی و توجه به کیفیت خلق می‌شود تا فراتر از یک اکسسوری باشد. از مناسبت‌های خاص گرفته تا زیبایی روزمره، طلاهای ما بخشی از داستانی هستند که با گذر زمان ارزش و معنا پیدا می‌کند و برای سال‌ها همراه شما باقی می‌ماند.',
-  leftImageUrl: '/images/home/Capture58_2-removebg-preview%201.png',
-  rightImageUrl: '/images/home/Capture58%202.png',
+  leftImageUrl: '/images/home/Capture58%202.png',
+  rightImageUrl: '/images/home/Capture58_2-removebg-preview%201.png',
 } as const;
 
 /** Homepage product carousel — demo items until admin CMS is wired */
@@ -385,6 +385,8 @@ export interface HomeHeroDesktopCarouselItem {
   href: string;
 }
 
+export const HOME_HERO_DESKTOP_CAROUSEL_VISIBLE_COUNT = 3;
+
 export const HOME_HERO_DESKTOP_CAROUSEL: HomeHeroDesktopCarouselItem[] = [
   {
     id: 'hero-carousel-ring',
@@ -400,6 +402,16 @@ export const HOME_HERO_DESKTOP_CAROUSEL: HomeHeroDesktopCarouselItem[] = [
     id: 'hero-carousel-bracelet',
     imageUrl: '/images/home/hero-carousel-bracelet.png',
     href: '/products?category=bracelets',
+  },
+  {
+    id: 'hero-carousel-earrings',
+    imageUrl: '/images/categories/earrings.png',
+    href: '/products?category=earrings',
+  },
+  {
+    id: 'hero-carousel-sets',
+    imageUrl: '/images/home/new-arrival-necklace.png',
+    href: '/products?category=sets',
   },
 ];
 

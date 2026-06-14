@@ -169,6 +169,7 @@ export type UpsertLensVideoPayload = {
   thumbnailUrl?: string;
   sortOrder?: number;
   status?: CmsBannerDto['status'];
+  productIds?: string[];
 };
 
 export function fetchLensVideos(params?: { page?: number; status?: string }) {

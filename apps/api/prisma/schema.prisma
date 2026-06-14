@@ -145,6 +145,7 @@ model Product {
   variants          ProductVariant[]
   inventoryMoves    InventoryMovement[]
   bannerLinks       CmsBannerProduct[]
+  lensVideoLinks    CmsLensVideoProduct[]
   reviews           ProductReview[]
 
   @@index([discountPercent, discountEndsAt])
@@ -480,16 +481,29 @@ model CmsStaticPage {
 }
 
 model CmsLensVideo {
-  id           String          @id @default(cuid())
+  id           String               @id @default(cuid())
   title        String?
   videoUrl     String
   thumbnailUrl String?
-  sortOrder    Int             @default(0)
-  status       CmsBannerStatus @default(DRAFT)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  sortOrder    Int                  @default(0)
+  status       CmsBannerStatus      @default(DRAFT)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  products     CmsLensVideoProduct[]
 
   @@index([status, sortOrder])
+}
+
+model CmsLensVideoProduct {
+  id           String       @id @default(cuid())
+  lensVideoId  String
+  productId    String
+  sortOrder    Int          @default(0)
+  lensVideo    CmsLensVideo @relation(fields: [lensVideoId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([lensVideoId, productId])
+  @@index([lensVideoId, sortOrder])
 }
 
 model CmsSeoSettings {

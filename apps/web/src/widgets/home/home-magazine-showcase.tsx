@@ -65,9 +65,6 @@ export async function HomeMagazineShowcase() {
       <div className="home-magazine-showcase-inner">
         <div className="home-magazine-showcase-header">
           <div className="home-magazine-showcase-heading">
-            <span className="home-magazine-showcase-watermark" aria-hidden>
-              Talashim Magazine
-            </span>
             <h2 id="home-magazine-title" className="home-magazine-showcase-title">
               مجله طلاشیم
             </h2>

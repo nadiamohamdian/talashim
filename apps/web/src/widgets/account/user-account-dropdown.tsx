@@ -20,9 +20,10 @@ const BASE_MENU_ITEMS = [
 
 interface UserAccountDropdownProps {
   variant?: 'default' | 'menu-icon';
+  surface?: 'mobile' | 'desktop';
 }
 
-export function UserAccountDropdown({ variant = 'default' }: UserAccountDropdownProps) {
+export function UserAccountDropdown({ variant = 'default', surface = 'mobile' }: UserAccountDropdownProps) {
   const { isAuthenticated, user } = useAuth();
   const wishlistEnabled = useFeatureFlag('enableWishlist');
   const logoutMutation = useLogoutMutation();
@@ -43,11 +44,20 @@ export function UserAccountDropdown({ variant = 'default' }: UserAccountDropdown
     return () => document.removeEventListener('mousedown', onPointerDown);
   }, []);
 
+  const menuIconActionClass =
+    surface === 'desktop' ? 'desktop-menu-bar-action' : 'mobile-menu-bar-action';
+  const menuIconProfileClass =
+    surface === 'desktop'
+      ? 'desktop-menu-bar-icon desktop-menu-bar-icon-profile'
+      : 'mobile-menu-bar-icon mobile-menu-bar-icon-profile';
+  const menuIconWrapClass =
+    surface === 'desktop' ? 'desktop-menu-bar-action-wrap' : 'mobile-menu-bar-action-wrap';
+
   if (!isAuthenticated) {
     if (variant === 'menu-icon') {
       return (
-        <Link href={buildLoginHref('/profile')} className="mobile-menu-bar-action" aria-label="حساب کاربری">
-          <IconMenuProfile className="mobile-menu-bar-icon mobile-menu-bar-icon-profile" />
+        <Link href={buildLoginHref('/profile')} className={menuIconActionClass} aria-label="حساب کاربری">
+          <IconMenuProfile className={menuIconProfileClass} />
         </Link>
       );
     }
@@ -73,14 +83,14 @@ export function UserAccountDropdown({ variant = 'default' }: UserAccountDropdown
   return (
     <div
       ref={rootRef}
-      className={variant === 'menu-icon' ? 'mobile-menu-bar-action-wrap' : 'relative'}
+      className={variant === 'menu-icon' ? menuIconWrapClass : 'relative'}
     >
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={
           variant === 'menu-icon'
-            ? 'mobile-menu-bar-action'
+            ? menuIconActionClass
             : 'inline-flex items-center gap-2.5 rounded-xl px-1.5 py-1 transition hover:bg-nude-50'
         }
         aria-expanded={open}
@@ -88,7 +98,7 @@ export function UserAccountDropdown({ variant = 'default' }: UserAccountDropdown
         aria-label="حساب کاربری"
       >
         {variant === 'menu-icon' ? (
-          <IconMenuProfile className="mobile-menu-bar-icon mobile-menu-bar-icon-profile" />
+          <IconMenuProfile className={menuIconProfileClass} />
         ) : (
           <>
             <span className="inline-flex rounded-lg bg-nude-50 p-2 text-gold-dark">

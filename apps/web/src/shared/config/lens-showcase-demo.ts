@@ -1,11 +1,20 @@
 /** Demo lens videos + linked product variants — until CMS lens API is wired */
 export interface LensShowcaseProductVariant {
   id: string;
+  slug: string;
   title: string;
   priceToman: number;
   weightGram: number;
   imageUrl: string;
-  href: string;
+}
+
+export function getLensProductPageHref(slug: string): string {
+  const normalized = slug.trim();
+  if (!normalized) {
+    return '/products';
+  }
+
+  return `/products/${encodeURIComponent(normalized)}`;
 }
 
 export interface LensShowcaseDemoItem {
@@ -20,27 +29,27 @@ export interface LensShowcaseDemoItem {
 const DEMO_LENS_PRODUCTS: LensShowcaseProductVariant[] = [
   {
     id: 'lens-product-1',
+    slug: 'royal-ring',
     title: 'انگشتر زنانه لوکس بیضی',
     priceToman: 8_500_000,
     weightGram: 2.8,
     imageUrl: '/images/home/lens-product-ring.png',
-    href: '/products',
   },
   {
     id: 'lens-product-2',
+    slug: 'van-cleef-alhambra-ring',
     title: 'گوشواره طلای ۱۸ عیار',
     priceToman: 12_400_000,
     weightGram: 3.2,
     imageUrl: '/images/categories/earrings.png',
-    href: '/products?category=earrings',
   },
   {
     id: 'lens-product-3',
+    slug: 'talashim-necklace',
     title: 'دستبند زنجیری ظریف',
     priceToman: 9_750_000,
     weightGram: 4.1,
     imageUrl: '/images/categories/bracelets.png',
-    href: '/products?category=bracelets',
   },
 ];
 
@@ -49,7 +58,6 @@ export const LENS_EDITORIAL_HERO =
   '/images/home/9c4dd67d8f1d19b4e88be95aa15037b4%202.png';
 
 export const LENS_EDITORIAL_META = {
-  eyebrow: 'Talashim Lens',
   title: 'ست‌ها از نمای نزدیک',
   description:
     'از نیم‌ست‌های ظریف روزمره تا ست‌های کامل و چشمگیر، مجموعه‌ای متنوع برای سلیقه‌ها و مناسبت‌های مختلف.',

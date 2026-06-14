@@ -3,7 +3,7 @@ import type { SVGProps } from 'react';
 type IconProps = SVGProps<SVGSVGElement>;
 
 const stroke = 'currentColor';
-const menuStroke = '1.15';
+const menuStroke = '0.8';
 
 /** Figma node 1755:8414 — search-icon */
 export function IconMenuSearch(props: IconProps) {

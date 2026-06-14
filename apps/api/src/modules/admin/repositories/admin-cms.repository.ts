@@ -14,8 +14,19 @@ export const CMS_BANNER_PRODUCTS_INCLUDE = {
   },
 } satisfies Prisma.CmsBannerInclude;
 
+export const CMS_LENS_VIDEO_PRODUCTS_INCLUDE = {
+  products: {
+    orderBy: { sortOrder: 'asc' as const },
+    select: { productId: true },
+  },
+} satisfies Prisma.CmsLensVideoInclude;
+
 export type CmsBannerWithProducts = Prisma.CmsBannerGetPayload<{
   include: typeof CMS_BANNER_PRODUCTS_INCLUDE;
+}>;
+
+export type CmsLensVideoWithProducts = Prisma.CmsLensVideoGetPayload<{
+  include: typeof CMS_LENS_VIDEO_PRODUCTS_INCLUDE;
 }>;
 
 @Injectable()
@@ -200,6 +211,21 @@ export class AdminCmsRepository implements OnModuleInit {
     });
   }
 
+  setLensVideoProducts(lensVideoId: string, productIds: string[]) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.cmsLensVideoProduct.deleteMany({ where: { lensVideoId } });
+      if (productIds.length > 0) {
+        await tx.cmsLensVideoProduct.createMany({
+          data: productIds.map((productId, sortOrder) => ({
+            lensVideoId,
+            productId,
+            sortOrder,
+          })),
+        });
+      }
+    });
+  }
+
   findPublishedBanners(placement?: string) {
     const now = new Date();
     const where: Prisma.CmsBannerWhereInput = {
@@ -311,6 +337,7 @@ export class AdminCmsRepository implements OnModuleInit {
         skip,
         take,
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+        include: CMS_LENS_VIDEO_PRODUCTS_INCLUDE,
       }),
       this.prisma.cmsLensVideo.count({ where }),
     ]);
@@ -320,11 +347,15 @@ export class AdminCmsRepository implements OnModuleInit {
     return this.prisma.cmsLensVideo.findMany({
       where: { status: 'PUBLISHED' },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      include: CMS_LENS_VIDEO_PRODUCTS_INCLUDE,
     });
   }
 
   findLensVideoById(id: string) {
-    return this.prisma.cmsLensVideo.findUnique({ where: { id } });
+    return this.prisma.cmsLensVideo.findUnique({
+      where: { id },
+      include: CMS_LENS_VIDEO_PRODUCTS_INCLUDE,
+    });
   }
 
   createLensVideo(data: Prisma.CmsLensVideoCreateInput) {

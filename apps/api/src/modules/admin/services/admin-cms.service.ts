@@ -9,6 +9,7 @@ import type {
   AdminBlogPostDto,
   CmsBannerDto,
   CmsHomepageDto,
+  CmsHomepageSections,
   CmsLensVideoDto,
   CmsSeoSettingsDto,
   CmsStaticPageDto,
@@ -42,7 +43,7 @@ import type {
   UpsertCmsStaticPageDto,
   UpsertFaqPostDto,
 } from '../dto/admin-cms.dto';
-import { AdminCmsRepository, type CmsBannerWithProducts } from '../repositories/admin-cms.repository';
+import { AdminCmsRepository, type CmsBannerWithProducts, type CmsLensVideoWithProducts } from '../repositories/admin-cms.repository';
 import { CatalogService } from '@/modules/catalog/services/catalog.service';
 import {
   MediaStorageService,
@@ -233,7 +234,11 @@ export class AdminCmsService {
 
   async listPublicLensVideos(): Promise<PublicCmsLensVideo[]> {
     const items = await this.cmsRepository.findPublishedLensVideos();
-    return items.map((video) => this.mapPublicLensVideo(video));
+    const productIds = [...new Set(items.flatMap((video) => video.products.map((item) => item.productId)))];
+    const products = await this.catalogService.findByIds(productIds);
+    const productsById = new Map(products.map((product) => [product.id, product as ProductSummary]));
+
+    return items.map((video) => this.mapPublicLensVideo(video, productsById));
   }
 
   async getPublicCollection(id: string): Promise<PublicCmsCollection> {
@@ -270,9 +275,17 @@ export class AdminCmsService {
   async getPublicHomepage(): Promise<PublicCmsHomepage> {
     const row = await this.cmsRepository.getOrCreateHomepage();
     const mapped = this.mapHomepage(row);
+    const sections = mapped.sections as CmsHomepageSections;
+    const [bestsellerProducts, newArrivalsProducts] = await Promise.all([
+      this.resolveBestsellerProducts(sections),
+      this.resolveNewArrivalsProducts(sections),
+    ]);
+
     return {
       hero: mapped.hero,
-      sections: mapped.sections,
+      sections,
+      bestsellerProducts,
+      newArrivalsProducts,
     };
   }
 
@@ -396,6 +409,8 @@ export class AdminCmsService {
   async createLensVideo(dto: UpsertCmsLensVideoDto, actor: AuthenticatedUser) {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
+    const productIds = await this.normalizeLensVideoProductIds(dto.productIds);
+
     const video = await this.cmsRepository.createLensVideo({
       title: dto.title?.trim() || null,
       videoUrl: requireLibraryImageUrl(dto.videoUrl, 'فایل ویدیو'),
@@ -404,8 +419,11 @@ export class AdminCmsService {
       status: dto.status ?? 'PUBLISHED',
     });
 
+    await this.cmsRepository.setLensVideoProducts(video.id, productIds);
+
     void revalidateStorefrontLens();
-    return this.mapLensVideo(video);
+    const saved = await this.cmsRepository.findLensVideoById(video.id);
+    return this.mapLensVideo(saved!);
   }
 
   async updateLensVideo(id: string, dto: UpsertCmsLensVideoDto, actor: AuthenticatedUser) {
@@ -416,7 +434,7 @@ export class AdminCmsService {
       throw new NotFoundException('Lens video not found');
     }
 
-    const video = await this.cmsRepository.updateLensVideo(id, {
+    await this.cmsRepository.updateLensVideo(id, {
       title: dto.title !== undefined ? dto.title?.trim() || null : undefined,
       videoUrl: dto.videoUrl ? requireLibraryImageUrl(dto.videoUrl, 'فایل ویدیو') : undefined,
       thumbnailUrl:
@@ -427,8 +445,14 @@ export class AdminCmsService {
       status: dto.status,
     });
 
+    if (dto.productIds !== undefined) {
+      const productIds = await this.normalizeLensVideoProductIds(dto.productIds);
+      await this.cmsRepository.setLensVideoProducts(id, productIds);
+    }
+
     void revalidateStorefrontLens();
-    return this.mapLensVideo(video);
+    const saved = await this.cmsRepository.findLensVideoById(id);
+    return this.mapLensVideo(saved!);
   }
 
   async deleteLensVideo(id: string, actor: AuthenticatedUser) {
@@ -810,6 +834,64 @@ export class AdminCmsService {
     };
   }
 
+  private coerceBestsellerProductIds(value: unknown): string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    const ids = value
+      .filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0)
+      .map((entry) => entry.trim());
+
+    return [...new Set(ids)].slice(0, 12);
+  }
+
+  private async resolveBestsellerProducts(sections: CmsHomepageSections): Promise<ProductSummary[]> {
+    try {
+      const ids = this.coerceBestsellerProductIds(sections.bestsellerProductIds ?? []);
+
+      if (ids.length >= 7) {
+        const products = await this.catalogService.findByIds(ids);
+        if (products.length >= 7) {
+          return products.slice(0, 12) as ProductSummary[];
+        }
+      }
+
+      return (await this.catalogService.findBestsellers(12)) as ProductSummary[];
+    } catch {
+      return [];
+    }
+  }
+
+  private coerceNewArrivalsProductIds(value: unknown): string[] {
+    if (!Array.isArray(value)) {
+      return [];
+    }
+
+    const ids = value
+      .filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0)
+      .map((entry) => entry.trim());
+
+    return [...new Set(ids)].slice(0, 12);
+  }
+
+  private async resolveNewArrivalsProducts(sections: CmsHomepageSections): Promise<ProductSummary[]> {
+    try {
+      const ids = this.coerceNewArrivalsProductIds(sections.newArrivalsProductIds ?? []);
+
+      if (ids.length >= 1) {
+        const products = await this.catalogService.findByIds(ids);
+        if (products.length >= 1) {
+          return products.slice(0, 12) as ProductSummary[];
+        }
+      }
+
+      return (await this.catalogService.findNewArrivals(12)) as ProductSummary[];
+    } catch {
+      return [];
+    }
+  }
+
   private mapHomepage(row: Prisma.CmsHomepageGetPayload<object>): CmsHomepageDto {
     return {
       hero: row.hero as unknown as CmsHomepageDto['hero'],
@@ -887,7 +969,28 @@ export class AdminCmsService {
     };
   }
 
-  private mapLensVideo(video: Prisma.CmsLensVideoGetPayload<object>): CmsLensVideoDto {
+  private async normalizeLensVideoProductIds(productIds: unknown): Promise<string[]> {
+    if (!Array.isArray(productIds)) {
+      return [];
+    }
+
+    const normalized = [...new Set(productIds.filter((id): id is string => typeof id === 'string' && id.length > 0))];
+    if (normalized.length > 12) {
+      throw new BadRequestException('حداکثر ۱۲ محصول برای هر ویدیو لنز مجاز است');
+    }
+    if (normalized.length === 0) {
+      return [];
+    }
+
+    const found = await this.cmsRepository.countProductsByIds(normalized);
+    if (found !== normalized.length) {
+      throw new BadRequestException('برخی محصولات انتخاب‌شده یافت نشد');
+    }
+
+    return normalized;
+  }
+
+  private mapLensVideo(video: CmsLensVideoWithProducts): CmsLensVideoDto {
     return {
       id: video.id,
       title: video.title,
@@ -895,18 +998,25 @@ export class AdminCmsService {
       thumbnailUrl: video.thumbnailUrl,
       sortOrder: video.sortOrder,
       status: video.status,
+      productIds: video.products.map((item) => item.productId),
       createdAt: video.createdAt.toISOString(),
       updatedAt: video.updatedAt.toISOString(),
     };
   }
 
-  private mapPublicLensVideo(video: Prisma.CmsLensVideoGetPayload<object>): PublicCmsLensVideo {
+  private mapPublicLensVideo(
+    video: CmsLensVideoWithProducts,
+    productsById: Map<string, ProductSummary>,
+  ): PublicCmsLensVideo {
     return {
       id: video.id,
       title: video.title,
       videoUrl: video.videoUrl,
       thumbnailUrl: video.thumbnailUrl,
       sortOrder: video.sortOrder,
+      products: video.products
+        .map((item) => productsById.get(item.productId))
+        .filter((product): product is ProductSummary => product != null),
     };
   }
 }

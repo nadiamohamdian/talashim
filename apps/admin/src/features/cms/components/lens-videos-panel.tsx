@@ -27,6 +27,7 @@ import {
   type UpsertLensVideoPayload,
 } from '../api/cms-api';
 import { ImageUrlField } from './image-url-field';
+import { BannerProductPicker } from './banner-product-picker';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
@@ -42,6 +43,7 @@ const emptyForm = (): UpsertLensVideoPayload => ({
   thumbnailUrl: '',
   status: 'PUBLISHED',
   sortOrder: 0,
+  productIds: [],
 });
 
 function validateForm(form: UpsertLensVideoPayload): string | null {
@@ -90,6 +92,7 @@ export function LensVideosPanel() {
         thumbnailUrl: form.thumbnailUrl?.trim() || undefined,
         status: form.status,
         sortOrder: form.sortOrder ?? 0,
+        productIds: form.productIds ?? [],
       };
 
       if (editingId) {
@@ -136,6 +139,7 @@ export function LensVideosPanel() {
       thumbnailUrl: video.thumbnailUrl ?? '',
       status: video.status,
       sortOrder: video.sortOrder,
+      productIds: video.productIds ?? [],
     });
     setSaveError(null);
   };
@@ -235,6 +239,15 @@ export function LensVideosPanel() {
               value={form.thumbnailUrl ?? ''}
               onChange={(url) => setForm({ ...form, thumbnailUrl: url })}
               folder="lens"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <BannerProductPicker
+              value={form.productIds ?? []}
+              onChange={(productIds) => setForm({ ...form, productIds })}
+              maxProducts={12}
+              label="محصولات این ویدیو"
+              description="محصولات در پاپ‌آپ لنز نمایش داده می‌شوند و با کلیک کاربر به صفحه محصول هدایت می‌شود."
             />
           </div>
         </div>

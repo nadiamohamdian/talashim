@@ -1,5 +1,8 @@
-import { getPublicHomepage } from '@/lib/api/cms.api';
-import { LENS_CAROUSEL_DEMO_ITEMS, LENS_SHOWCASE_DEMO_ITEMS } from '@/shared/config/lens-showcase-demo';
+import { getPublicHomepage, getPublishedLensVideos } from '@/lib/api/cms.api';
+import {
+  resolveLensCarouselItems,
+  resolveLensSetsShowcaseItems,
+} from '@/shared/config/cms-lens-showcase';
 import { CategoryShowcase } from '@/widgets/home/category-showcase';
 import { BrandEditorialShowcase } from '@/widgets/home/brand-editorial-showcase';
 import { BudgetShowcase } from '@/widgets/home/budget-showcase';
@@ -11,7 +14,13 @@ import { WeddingPromoBanner } from '@/widgets/home/wedding-promo-banner';
 import { PromoHero } from '@/widgets/home/promo-hero';
 
 export default async function HomePage() {
-  const homepage = await getPublicHomepage();
+  const [homepage, lensVideos] = await Promise.all([
+    getPublicHomepage(),
+    getPublishedLensVideos(),
+  ]);
+
+  const lensSetsItems = resolveLensSetsShowcaseItems(lensVideos);
+  const lensCarouselItems = resolveLensCarouselItems(lensVideos);
 
   return (
     <>
@@ -19,17 +28,29 @@ export default async function HomePage() {
         <PromoHero hero={homepage.hero} />
       </div>
       <div className="home-page store-chrome-dark -mx-4 overflow-x-clip sm:-mx-6 lg:mx-0 lg:w-full">
-      {homepage.sections.showCategoryShowcase ? <CategoryShowcase /> : null}
+      {homepage.sections.showCategoryShowcase ? (
+        <CategoryShowcase sections={homepage.sections} />
+      ) : null}
       {homepage.sections.showCategoryShowcase ? <BudgetShowcase /> : null}
-      {homepage.sections.showCategoryShowcase ? <BestsellersShowcase /> : null}
+      {homepage.sections.showCategoryShowcase ? (
+        <BestsellersShowcase
+          sections={homepage.sections}
+          products={homepage.bestsellerProducts ?? []}
+        />
+      ) : null}
       {homepage.sections.showCategoryShowcase ? <BrandEditorialShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? (
-        <LensSetsShowcase items={LENS_SHOWCASE_DEMO_ITEMS} />
+        <LensSetsShowcase items={lensSetsItems} />
       ) : null}
       {homepage.sections.showCategoryShowcase ? (
-        <LensShowcase items={LENS_CAROUSEL_DEMO_ITEMS} />
+        <LensShowcase items={lensCarouselItems} />
       ) : null}
-      {homepage.sections.showCategoryShowcase ? <NewArrivalsShowcase /> : null}
+      {homepage.sections.showCategoryShowcase ? (
+        <NewArrivalsShowcase
+          sections={homepage.sections}
+          products={homepage.newArrivalsProducts ?? []}
+        />
+      ) : null}
       {homepage.sections.showCategoryShowcase ? <WeddingPromoBanner /> : null}
       {homepage.sections.showCategoryShowcase ? <HomeMagazineShowcase /> : null}
     </div>

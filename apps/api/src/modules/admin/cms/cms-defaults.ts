@@ -1,4 +1,8 @@
-import type { CmsHeroConfig, CmsHomepageSections } from '@talashim/types';
+import type {
+  CmsCategoryShowcaseItem,
+  CmsHeroConfig,
+  CmsHomepageSections,
+} from '@talashim/types';
 import { getApiEnv } from '@/config/env';
 
 export const CMS_HERO_MEDIA_FILE = 'a5b565d2-4979-4a17-9538-66f5d01d5397.png';
@@ -19,14 +23,32 @@ export const DEFAULT_CMS_HERO: CmsHeroConfig = {
   primaryCta: { label: 'مشاهده کالکشن ها', href: '/products' },
   secondaryCta: { label: 'انگشترهای زنانه', href: '/products?category=rings' },
   imageUrl: buildCmsHeroMediaUrl(),
+  desktopBackgroundImageUrl: '',
+  desktopCarouselItems: [],
 };
+
+export const DEFAULT_CMS_CATEGORY_SHOWCASE_ITEMS: CmsCategoryShowcaseItem[] = [
+  { slug: 'rings', label: 'انگشتر', href: '/products?category=rings' },
+  { slug: 'bracelets', label: 'دستبند', href: '/products?category=bracelets' },
+  { slug: 'earrings', label: 'گوشواره', href: '/products?category=earrings' },
+  { slug: 'necklaces', label: 'گردنبند', href: '/products?category=necklaces' },
+];
+
+export const CMS_CATEGORY_SHOWCASE_SLUGS = DEFAULT_CMS_CATEGORY_SHOWCASE_ITEMS.map(
+  (item) => item.slug,
+);
 
 export const DEFAULT_CMS_SECTIONS: CmsHomepageSections = {
   featuredTitle: 'جدیدترین محصولات',
   featuredSubtitle: 'آخرین طراحی‌های طلا و جواهر',
   bestsellerTitle: 'پرفروش‌ترین محصولات',
   bestsellerSubtitle: 'بر اساس تعداد فروش واقعی',
+  newArrivalsTitle: 'جدیدترین ها',
   showCategoryShowcase: true,
+  categoryShowcase: {
+    title: 'دسته بندی محصولات',
+    items: DEFAULT_CMS_CATEGORY_SHOWCASE_ITEMS.map((item) => ({ ...item })),
+  },
 };
 
 export const DEFAULT_CMS_SEO = {

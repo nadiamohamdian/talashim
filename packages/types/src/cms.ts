@@ -21,6 +21,7 @@ export interface PublicCmsLensVideo {
   videoUrl: string;
   thumbnailUrl: string | null;
   sortOrder: number;
+  products: ProductSummary[];
 }
 
 export interface CmsLensVideoDto {
@@ -30,6 +31,7 @@ export interface CmsLensVideoDto {
   thumbnailUrl: string | null;
   sortOrder: number;
   status: CmsBannerStatus;
+  productIds: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -78,6 +80,12 @@ export interface CmsHeroCta {
   href: string;
 }
 
+export interface CmsHeroDesktopCarouselItem {
+  id: string;
+  imageUrl: string;
+  href: string;
+}
+
 export interface CmsHeroConfig {
   badge: string;
   title: string;
@@ -85,7 +93,29 @@ export interface CmsHeroConfig {
   description: string;
   primaryCta: CmsHeroCta;
   secondaryCta: CmsHeroCta;
+  /** Mobile hero background */
   imageUrl: string;
+  /** Desktop hero background — empty uses storefront default asset */
+  desktopBackgroundImageUrl?: string;
+  /** Desktop hero product carousel — empty uses storefront defaults */
+  desktopCarouselItems?: CmsHeroDesktopCarouselItem[];
+}
+
+export type CmsCategoryShowcaseSlug = 'rings' | 'bracelets' | 'earrings' | 'necklaces';
+
+export interface CmsCategoryShowcaseItem {
+  slug: CmsCategoryShowcaseSlug;
+  label: string;
+  href: string;
+  /** Mobile card image — empty uses storefront default */
+  mobileImageUrl?: string;
+  /** Desktop card image — empty uses storefront default */
+  desktopImageUrl?: string;
+}
+
+export interface CmsCategoryShowcaseConfig {
+  title: string;
+  items: CmsCategoryShowcaseItem[];
 }
 
 export interface CmsHomepageSections {
@@ -93,7 +123,15 @@ export interface CmsHomepageSections {
   featuredSubtitle: string;
   bestsellerTitle: string;
   bestsellerSubtitle: string;
+  /** Homepage new arrivals carousel title */
+  newArrivalsTitle: string;
   showCategoryShowcase: boolean;
+  /** Category showcase title and per-category images */
+  categoryShowcase?: CmsCategoryShowcaseConfig;
+  /** Homepage bestsellers carousel — 7–12 catalog product IDs */
+  bestsellerProductIds?: string[];
+  /** Homepage new arrivals carousel — 1–12 catalog product IDs */
+  newArrivalsProductIds?: string[];
 }
 
 export interface CmsHomepageDto {
@@ -105,6 +143,10 @@ export interface CmsHomepageDto {
 export interface PublicCmsHomepage {
   hero: CmsHeroConfig;
   sections: CmsHomepageSections;
+  /** Resolved bestseller products for the homepage carousel */
+  bestsellerProducts: ProductSummary[];
+  /** Resolved new arrivals products for the homepage carousel */
+  newArrivalsProducts: ProductSummary[];
 }
 
 /** Public storefront SEO settings (from CMS). */

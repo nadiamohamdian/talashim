@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { HOME_BUDGET_RANGES } from '@/shared/config/storefront-ia';
 
-const BUDGET_MOBILE_COIN_IMAGE =
-  '/images/home/94ea6cc1714e5ef26c4230e1b531377d_1-removebg-preview%201_Nero_AI_Background_Remover_transparent.png';
+const BUDGET_COIN_IMAGE =
+  '/images/home/ChatGPT%20Image%20Jun%2014%2C%202026%2C%2009_58_25%20AM.png';
 
-const BUDGET_DESKTOP_COIN_IMAGE =
-  '/images/home/94ea6cc1714e5ef26c4230e1b531377d_1-removebg-preview%202.jpg';
+/** RTL 2×2 grid — outer corner accent per cell (Figma 1875:948) */
+const BUDGET_ITEM_CORNERS = ['tl', 'tr', 'bl', 'br'] as const;
 
 export function BudgetShowcase() {
   return (
@@ -19,14 +19,13 @@ export function BudgetShowcase() {
           </h2>
 
           <div className="budget-showcase-grid-wrap">
-            <span className="budget-showcase-corner budget-showcase-corner--tl" aria-hidden />
-            <span className="budget-showcase-corner budget-showcase-corner--tr" aria-hidden />
-            <span className="budget-showcase-corner budget-showcase-corner--bl" aria-hidden />
-            <span className="budget-showcase-corner budget-showcase-corner--br" aria-hidden />
-
             <ul className="budget-showcase-list">
-              {HOME_BUDGET_RANGES.map((range) => (
-                <li key={range.id}>
+              {HOME_BUDGET_RANGES.map((range, index) => (
+                <li key={range.id} className="budget-showcase-item">
+                  <span
+                    className={`budget-showcase-corner budget-showcase-corner--${BUDGET_ITEM_CORNERS[index]}`}
+                    aria-hidden
+                  />
                   <Link href={range.href} className="budget-showcase-btn">
                     {range.label}
                   </Link>
@@ -39,7 +38,7 @@ export function BudgetShowcase() {
         <div className="budget-showcase-coin budget-showcase-coin--desktop" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={BUDGET_DESKTOP_COIN_IMAGE}
+            src={BUDGET_COIN_IMAGE}
             alt=""
             className="budget-showcase-coin-image"
             decoding="async"
@@ -50,7 +49,7 @@ export function BudgetShowcase() {
       <div className="budget-showcase-coin budget-showcase-coin--mobile" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={BUDGET_MOBILE_COIN_IMAGE}
+          src={BUDGET_COIN_IMAGE}
           alt=""
           className="budget-showcase-coin-image"
           decoding="async"

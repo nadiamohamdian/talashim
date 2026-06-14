@@ -7,14 +7,25 @@ import type { AdminProductDto } from '@talashim/types';
 import { fetchAdminProduct, fetchAdminProducts } from '@/features/commerce/api/commerce-api';
 import { formatToman } from '@/features/commerce/lib/labels';
 
-const MAX_PRODUCTS = 48;
+const DEFAULT_MAX_PRODUCTS = 48;
 
 interface BannerProductPickerProps {
   value: string[];
   onChange: (productIds: string[]) => void;
+  maxProducts?: number;
+  minProducts?: number;
+  label?: string;
+  description?: string;
 }
 
-export function BannerProductPicker({ value, onChange }: BannerProductPickerProps) {
+export function BannerProductPicker({
+  value,
+  onChange,
+  maxProducts = DEFAULT_MAX_PRODUCTS,
+  minProducts = 0,
+  label = 'محصولات این بنر',
+  description = 'با کلیک روی بنر، فقط این محصولات در فروشگاه نمایش داده می‌شوند.',
+}: BannerProductPickerProps) {
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Record<string, AdminProductDto>>({});
 
@@ -71,7 +82,7 @@ export function BannerProductPicker({ value, onChange }: BannerProductPickerProp
     if (value.includes(product.id)) {
       return;
     }
-    if (value.length >= MAX_PRODUCTS) {
+    if (value.length >= maxProducts) {
       return;
     }
     setSelected((current) => ({ ...current, [product.id]: product }));
@@ -86,13 +97,17 @@ export function BannerProductPicker({ value, onChange }: BannerProductPickerProp
     <div className="space-y-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <Label>محصولات این بنر</Label>
-          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-            با کلیک روی بنر، فقط این محصولات در فروشگاه نمایش داده می‌شوند.
-          </p>
+          <Label>{label}</Label>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">{description}</p>
+          {minProducts > 0 ? (
+            <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+              حداقل {minProducts.toLocaleString('fa-IR')} و حداکثر{' '}
+              {maxProducts.toLocaleString('fa-IR')} محصول.
+            </p>
+          ) : null}
         </div>
         <span className="text-xs text-[var(--muted-foreground)]">
-          {value.length}/{MAX_PRODUCTS}
+          {value.length}/{maxProducts}
         </span>
       </div>
 
@@ -149,7 +164,7 @@ export function BannerProductPicker({ value, onChange }: BannerProductPickerProp
           ) : data?.items.length ? (
             data.items.map((product) => {
               const isSelected = value.includes(product.id);
-              const isDisabled = !isSelected && value.length >= MAX_PRODUCTS;
+              const isDisabled = !isSelected && value.length >= maxProducts;
 
               return (
                 <div

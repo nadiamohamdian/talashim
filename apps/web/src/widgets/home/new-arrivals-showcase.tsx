@@ -1,29 +1,40 @@
-import {
-  HOME_BESTSELLERS_SHOWCASE,
-  HOME_NEW_ARRIVALS_SHOWCASE,
-} from '@/shared/config/storefront-ia';
+import type { CmsHomepageSections, ProductSummary } from '@sadafgold/types';
+import { resolveBestsellersShowcase } from '@/shared/config/cms-bestsellers-showcase';
+import { resolveNewArrivalsShowcase } from '@/shared/config/cms-new-arrivals-showcase';
 import { HomeProductCarousel } from '@/widgets/home/home-product-carousel';
 
-export function NewArrivalsShowcase() {
+interface BestsellersShowcaseProps {
+  sections: Pick<CmsHomepageSections, 'bestsellerTitle'>;
+  products: ProductSummary[];
+}
+
+interface NewArrivalsShowcaseProps {
+  sections: Pick<CmsHomepageSections, 'newArrivalsTitle'>;
+  products: ProductSummary[];
+}
+
+export function NewArrivalsShowcase({ sections, products }: NewArrivalsShowcaseProps) {
+  const { title, items } = resolveNewArrivalsShowcase(sections, products);
+
   return (
     <HomeProductCarousel
-      className="home-product-carousel--bestsellers"
+      className="home-product-carousel--bestsellers home-product-carousel--new-arrivals"
       id="new-arrivals-title"
-      title="جدیدترین ها"
-      watermark="New Arrivals"
-      items={HOME_NEW_ARRIVALS_SHOWCASE}
+      title={title}
+      items={items}
     />
   );
 }
 
-export function BestsellersShowcase() {
+export function BestsellersShowcase({ sections, products }: BestsellersShowcaseProps) {
+  const { title, items } = resolveBestsellersShowcase(sections, products);
+
   return (
     <HomeProductCarousel
       className="home-product-carousel--bestsellers"
       id="bestsellers-title"
-      title="پرفروش‌ترین‌ها"
-      watermark="Best Sellers"
-      items={HOME_BESTSELLERS_SHOWCASE}
+      title={title}
+      items={items}
     />
   );
 }

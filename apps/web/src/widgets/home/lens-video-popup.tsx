@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import type { LensShowcaseDemoItem } from '@/shared/config/lens-showcase-demo';
+import { getLensProductPageHref, type LensShowcaseDemoItem } from '@/shared/config/lens-showcase-demo';
 import { formatPrice } from '@/shared/lib/format-price';
 import { StoreImage } from '@/shared/ui/store-image';
 
@@ -196,7 +196,7 @@ export function LensVideoPopup({
             {item.products.map((product) => (
               <Link
                 key={product.id}
-                href={product.href}
+                href={getLensProductPageHref(product.slug)}
                 className="lens-video-popup-product"
               >
                 <div className="lens-video-popup-product-copy">

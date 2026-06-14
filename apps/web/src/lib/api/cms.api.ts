@@ -29,10 +29,21 @@ export async function getPublishedBanners(
 }
 
 export async function getPublishedLensVideos(): Promise<PublicCmsLensVideo[]> {
-  return serverFetchCatalogList<PublicCmsLensVideo[]>('/cms/lens-videos', {
-    revalidate: 120,
-    tags: ['content:lens-videos'],
-  });
+  try {
+    return await serverFetchCatalogList<PublicCmsLensVideo[]>('/cms/lens-videos', {
+      revalidate: 120,
+      tags: ['content:lens-videos'],
+    });
+  } catch (error) {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      (isApiUnreachableError(error) ||
+        (error instanceof ApiClientError && error.status >= 500))
+    ) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 export async function getPublicCollection(id: string): Promise<PublicCmsCollection | null> {
@@ -55,33 +66,60 @@ export async function getPublicCollection(id: string): Promise<PublicCmsCollecti
   }
 }
 
-export async function getPublicHomepage(): Promise<PublicCmsHomepage> {
-  const result = await serverFetchCatalogDetail<PublicCmsHomepage>('/cms/homepage', {
-    revalidate: 120,
-    tags: ['content:homepage'],
-  });
+function defaultPublicHomepage(): PublicCmsHomepage {
+  return {
+    hero: {
+      badge: 'کالکشن جدید',
+      title: 'زیبایی ماندگار',
+      titleAccent: 'در هر قطعه طلا',
+      description:
+        'گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.',
+      primaryCta: { label: 'مشاهده کالکشن ها', href: '/products' },
+      secondaryCta: { label: 'انگشترهای زنانه', href: '/products?category=rings' },
+      imageUrl: getDefaultHeroImageUrl(),
+      desktopBackgroundImageUrl: '',
+      desktopCarouselItems: [],
+    },
+    sections: {
+      featuredTitle: 'جدیدترین محصولات',
+      featuredSubtitle: 'آخرین طراحی‌های طلا و جواهر',
+      bestsellerTitle: 'پرفروش‌ترین محصولات',
+      bestsellerSubtitle: 'بر اساس تعداد فروش واقعی',
+      newArrivalsTitle: 'جدیدترین ها',
+      showCategoryShowcase: true,
+      categoryShowcase: {
+        title: 'دسته بندی محصولات',
+        items: [
+          { slug: 'rings', label: 'انگشتر', href: '/products?category=rings' },
+          { slug: 'bracelets', label: 'دستبند', href: '/products?category=bracelets' },
+          { slug: 'earrings', label: 'گوشواره', href: '/products?category=earrings' },
+          { slug: 'necklaces', label: 'گردنبند', href: '/products?category=necklaces' },
+        ],
+      },
+    },
+    bestsellerProducts: [],
+    newArrivalsProducts: [],
+  };
+}
 
-  return (
-    result ?? {
-      hero: {
-        badge: 'کالکشن جدید',
-        title: 'زیبایی ماندگار',
-        titleAccent: 'در هر قطعه طلا',
-        description:
-          'گالری طلای طلاشیم — انگشتر، گوشواره، دستبند و گردنبند با قیمت روز، وزن دقیق و خرید آنلاین امن.',
-        primaryCta: { label: 'مشاهده کالکشن ها', href: '/products' },
-        secondaryCta: { label: 'انگشترهای زنانه', href: '/products?category=rings' },
-        imageUrl: getDefaultHeroImageUrl(),
-      },
-      sections: {
-        featuredTitle: 'جدیدترین محصولات',
-        featuredSubtitle: 'آخرین طراحی‌های طلا و جواهر',
-        bestsellerTitle: 'پرفروش‌ترین محصولات',
-        bestsellerSubtitle: 'بر اساس تعداد فروش واقعی',
-        showCategoryShowcase: true,
-      },
+export async function getPublicHomepage(): Promise<PublicCmsHomepage> {
+  try {
+    const result = await serverFetchCatalogDetail<PublicCmsHomepage>('/cms/homepage', {
+      revalidate: 120,
+      tags: ['content:homepage'],
+    });
+
+    return result ?? defaultPublicHomepage();
+  } catch (error) {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      (isApiUnreachableError(error) ||
+        (error instanceof ApiClientError && error.status >= 500))
+    ) {
+      return defaultPublicHomepage();
     }
-  );
+    throw error;
+  }
 }
 
 export async function getPublishedStaticPages(): Promise<PublicCmsStaticPageSummary[]> {

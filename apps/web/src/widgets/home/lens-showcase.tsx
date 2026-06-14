@@ -19,9 +19,6 @@ export function LensShowcase({ items }: LensShowcaseProps) {
         <div className="lens-showcase-inner">
           <div className="lens-showcase-header">
             <div className="lens-showcase-heading">
-              <span className="lens-showcase-eyebrow" aria-hidden>
-                Talashim Lens
-              </span>
               <h2 id="lens-showcase-title" className="lens-showcase-title">
                 لنز طلاشیم
               </h2>

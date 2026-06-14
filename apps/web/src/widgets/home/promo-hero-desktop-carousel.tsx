@@ -2,31 +2,40 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import type { HomeHeroDesktopCarouselItem } from '@/shared/config/storefront-ia';
+import {
+  HOME_HERO_DESKTOP_CAROUSEL_VISIBLE_COUNT,
+  type HomeHeroDesktopCarouselItem,
+} from '@/shared/config/storefront-ia';
 
 interface PromoHeroDesktopCarouselProps {
   items: HomeHeroDesktopCarouselItem[];
 }
 
-const VISIBLE_COUNT = 3;
-
 export function PromoHeroDesktopCarousel({ items }: PromoHeroDesktopCarouselProps) {
   const [offset, setOffset] = useState(0);
   const slideCount = items.length;
+  const visibleCount = Math.min(HOME_HERO_DESKTOP_CAROUSEL_VISIBLE_COUNT, slideCount);
+  const canNavigate = slideCount > HOME_HERO_DESKTOP_CAROUSEL_VISIBLE_COUNT;
 
   if (slideCount === 0) {
     return null;
   }
 
-  const visibleItems = Array.from({ length: Math.min(VISIBLE_COUNT, slideCount) }, (_, index) => {
+  const visibleItems = Array.from({ length: visibleCount }, (_, index) => {
     return items[(offset + index) % slideCount];
   });
 
   const goPrev = () => {
+    if (!canNavigate) {
+      return;
+    }
     setOffset((current) => (current - 1 + slideCount) % slideCount);
   };
 
   const goNext = () => {
+    if (!canNavigate) {
+      return;
+    }
     setOffset((current) => (current + 1) % slideCount);
   };
 
@@ -37,14 +46,16 @@ export function PromoHeroDesktopCarousel({ items }: PromoHeroDesktopCarouselProp
         className="promo-hero-desktop-carousel-nav promo-hero-desktop-carousel-nav-prev"
         onClick={goPrev}
         aria-label="محصول قبلی"
+        disabled={!canNavigate}
+        hidden={!canNavigate}
       >
         <IconCarouselArrow direction="prev" />
       </button>
 
       <div className="promo-hero-desktop-carousel-track" role="list">
-        {visibleItems.map((item) => (
+        {visibleItems.map((item, index) => (
           <Link
-            key={item.id}
+            key={`${item.id}-${offset}-${index}`}
             href={item.href}
             className="promo-hero-desktop-carousel-item"
             role="listitem"
@@ -60,6 +71,8 @@ export function PromoHeroDesktopCarousel({ items }: PromoHeroDesktopCarouselProp
         className="promo-hero-desktop-carousel-nav promo-hero-desktop-carousel-nav-next"
         onClick={goNext}
         aria-label="محصول بعدی"
+        disabled={!canNavigate}
+        hidden={!canNavigate}
       >
         <IconCarouselArrow direction="next" />
       </button>
