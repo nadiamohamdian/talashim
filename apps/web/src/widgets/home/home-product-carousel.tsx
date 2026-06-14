@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { HomeProductCarouselItem } from '@/shared/config/storefront-ia';
 import { HomeProductCarouselCard } from '@/widgets/home/home-product-carousel-card';
 
@@ -15,6 +15,29 @@ export interface HomeProductCarouselProps {
 }
 
 const LOOP_COPY_COUNT = 3;
+const DESKTOP_CAROUSEL_LOOP_QUERY = '(min-width: 1024px)';
+
+function subscribeDesktopCarouselLoop(onStoreChange: () => void): () => void {
+  const mq = window.matchMedia(DESKTOP_CAROUSEL_LOOP_QUERY);
+  mq.addEventListener('change', onStoreChange);
+  return () => mq.removeEventListener('change', onStoreChange);
+}
+
+function getDesktopCarouselLoopSnapshot(): boolean {
+  return window.matchMedia(DESKTOP_CAROUSEL_LOOP_QUERY).matches;
+}
+
+function getDesktopCarouselLoopServerSnapshot(): boolean {
+  return false;
+}
+
+function useDesktopCarouselLoop(): boolean {
+  return useSyncExternalStore(
+    subscribeDesktopCarouselLoop,
+    getDesktopCarouselLoopSnapshot,
+    getDesktopCarouselLoopServerSnapshot,
+  );
+}
 
 interface LoopedCarouselItem {
   item: HomeProductCarouselItem;
@@ -102,8 +125,18 @@ export function HomeProductCarousel({
 }: HomeProductCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const isJumpingRef = useRef(false);
-  const loopItems = useMemo(() => buildLoopedItems(items), [items]);
-  const canLoop = items.length > 1;
+  const loopEnabled = useDesktopCarouselLoop();
+  const trackItems = useMemo(() => {
+    if (loopEnabled) {
+      return buildLoopedItems(items);
+    }
+
+    return items.map((item) => ({
+      item,
+      loopKey: item.id,
+    }));
+  }, [items, loopEnabled]);
+  const canLoop = loopEnabled && items.length > 1;
 
   const normalizeLoopPosition = useCallback(() => {
     const track = trackRef.current;
@@ -137,7 +170,7 @@ export function HomeProductCarousel({
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track || items.length === 0) {
+    if (!track || items.length === 0 || !loopEnabled) {
       return;
     }
 
@@ -147,7 +180,7 @@ export function HomeProductCarousel({
     }
 
     jumpNormalizedScrollLeft(track, metrics.segmentWidth);
-  }, [items]);
+  }, [items, loopEnabled]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -239,7 +272,7 @@ export function HomeProductCarousel({
         </div>
 
         <div ref={trackRef} className="home-product-carousel-track" role="list">
-          {loopItems.map(({ item, loopKey }) => (
+          {trackItems.map(({ item, loopKey }) => (
             <article key={loopKey} className="home-product-carousel-card" role="listitem">
               {item.href ? (
                 <Link href={item.href} className="home-product-carousel-card-link">

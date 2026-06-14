@@ -51,6 +51,7 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
       <section className="lens-sets-showcase" aria-labelledby="lens-sets-title">
         <div className="lens-sets-showcase-inner">
           <header className="lens-sets-showcase-intro">
+            <span className="lens-sets-showcase-eyebrow">Talashim Lens</span>
             <h2 id="lens-sets-title" className="lens-sets-showcase-title">
               {LENS_EDITORIAL_META.title}
             </h2>
