@@ -1,23 +1,12 @@
 import type { Metadata } from 'next';
-import { ContactForm } from '@/features/contact/components/contact-form';
-import { ContactInfoPanel } from '@/features/contact/components/contact-info-panel';
-import { PublicPageShell } from '@/widgets/content/public-page-shell';
+import { CONTACT_PAGE_META } from '@/shared/config/contact-page';
+import { ContactPageView } from '@/widgets/contact/contact-page-view';
 
 export const metadata: Metadata = {
-  title: 'تماس با ما',
+  title: CONTACT_PAGE_META.title,
+  description: CONTACT_PAGE_META.description,
 };
 
 export default function ContactPage() {
-  return (
-    <PublicPageShell
-      eyebrow="ارتباط"
-      title="تماس با ما"
-      description="راه‌های ارتباط با تیم فروش و پشتیبانی."
-    >
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <ContactForm />
-        <ContactInfoPanel />
-      </div>
-    </PublicPageShell>
-  );
+  return <ContactPageView />;
 }

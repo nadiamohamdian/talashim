@@ -1,15 +1,11 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProductBySlug } from '@/shared/api/catalog-api';
 import {
   enrichProductDetailProps,
   resolveProductDetailDemo,
 } from '@/shared/config/product-detail-demo';
-import { ProductDetailTabs } from '@/widgets/catalog/product-detail-tabs';
 import { ProductDetailMobile } from '@/widgets/catalog/product-detail-mobile';
-import { ProductDetailView } from '@/widgets/catalog/product-detail-view';
-import { ProductTrustBadges } from '@/widgets/catalog/product-trust-badges';
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -69,26 +65,8 @@ export default async function ProductDetailsPage({ params }: ProductDetailsPageP
 
   return (
     <div className="product-detail-page store-chrome-dark">
-      <div className="product-detail-mobile-shell lg:hidden">
+      <div className="product-detail-mobile-shell">
         <ProductDetailMobile {...mobileProps} />
-      </div>
-
-      <div className="product-detail-page-desktop hidden space-y-8 px-4 py-6 sm:px-6 md:py-10 lg:block">
-        <nav className="text-xs text-muted">
-          <Link href="/" className="hover:text-gold-dark">
-            صفحه اصلی
-          </Link>
-          <span className="mx-2">/</span>
-          <Link href="/products" className="hover:text-gold-dark">
-            محصولات
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="text-foreground">{product.title}</span>
-        </nav>
-
-        <ProductDetailView product={product} />
-        <ProductTrustBadges />
-        <ProductDetailTabs product={product} />
       </div>
     </div>
   );

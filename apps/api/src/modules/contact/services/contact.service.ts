@@ -12,8 +12,9 @@ export class ContactService {
         action: 'contact.message',
         context: {
           fullName: payload.fullName,
-          email: payload.email,
+          email: payload.email ?? null,
           phone: payload.phone,
+          subject: payload.subject ?? null,
           message: payload.message,
         },
       },

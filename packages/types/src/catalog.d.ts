@@ -48,6 +48,13 @@ export interface ProductVariant {
     quantity: number;
     isDefault: boolean;
 }
+export interface ProductVideo {
+    id: string;
+    title: string;
+    videoUrl: string;
+    thumbnailUrl?: string | null;
+    sortOrder: number;
+}
 export interface ProductSummary {
     id: string;
     sku: string;
@@ -79,6 +86,8 @@ export interface ProductDetails extends ProductSummary {
     color?: string;
     specifications?: Record<string, string>;
     variants?: ProductVariant[];
+    galleryUrls?: string[];
+    videos?: ProductVideo[];
 }
 export interface StorefrontProductSummary {
     id: string;

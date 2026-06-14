@@ -1,5 +1,6 @@
-import type { ProductCategory, ProductDetails, ProductSummary, ProductVariant } from '@sadafgold/types';
+import type { ProductCategory, ProductDetails, ProductSummary, ProductVariant, ProductVideo } from '@sadafgold/types';
 import type { HomeProductCarouselItem } from '@/shared/config/storefront-ia';
+import { CATEGORY_FALLBACK_IMAGES } from '@/shared/config/images';
 import { PRODUCT_LISTING_DEMO_PRODUCTS } from '@/shared/config/product-listing-demo';
 import { normalizeProductCategory } from '@/shared/lib/catalog-category';
 
@@ -18,6 +19,24 @@ export const DEFAULT_FEATURED_REVIEW: ProductReviewDemo = {
   date: '',
   body: 'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است.',
 };
+
+export const DEMO_PRODUCT_REVIEWS: ProductReviewDemo[] = [
+  DEFAULT_FEATURED_REVIEW,
+  {
+    id: 'demo-review-2',
+    author: 'مریم حسینی',
+    rating: 4.5,
+    date: '',
+    body: 'کیفیت ساخت و درخشش طلا عالی بود. بسته‌بندی هم بسیار شیک و مطمئن ارسال شد.',
+  },
+  {
+    id: 'demo-review-3',
+    author: 'علی رضایی',
+    rating: 5,
+    date: '',
+    body: 'طراحی مینیمال و ظریف؛ دقیقاً همان چیزی بود که دنبالش بودم. پیشنهاد می‌کنم.',
+  },
+];
 
 export interface ProductSpecRow {
   label: string;
@@ -45,7 +64,18 @@ export interface ProductDetailDemo extends ProductDetails {
   ratingAverage: number;
   reviewCount: number;
   reviews: ProductReviewDemo[];
+  videos: ProductVideo[];
 }
+
+const DEMO_PRODUCT_VIDEOS: ProductVideo[] = [
+  {
+    id: 'demo-product-video',
+    title: 'ویدیو معرفی محصول',
+    videoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm',
+    thumbnailUrl: '/images/products/pdp-hero.png',
+    sortOrder: 0,
+  },
+];
 
 const DEMO_VARIANTS: ProductVariant[] = [
   {
@@ -113,19 +143,27 @@ export const DEFAULT_RELATED_PRODUCTS: HomeProductCarouselItem[] = [
   },
   {
     id: 'related-2',
-    title: 'انگشتر زنانه لوکس بیضی',
-    priceToman: 8_500_000,
-    weightGram: 2.8,
-    imageUrl: '/images/home/new-arrival-necklace.png',
-    href: '/products/demo',
+    title: 'انگشتر کلاسیک طلا',
+    priceToman: 9_800_000,
+    weightGram: 3.1,
+    imageUrl: CATEGORY_FALLBACK_IMAGES.rings,
+    href: '/products/demo-classic-ring',
   },
   {
     id: 'related-3',
-    title: 'انگشتر زنانه لوکس بیضی',
-    priceToman: 8_500_000,
-    weightGram: 2.8,
-    imageUrl: '/images/home/new-arrival-necklace.png',
-    href: '/products/demo',
+    title: 'گوشواره آذین مدل نجو',
+    priceToman: 11_200_000,
+    weightGram: 2.4,
+    imageUrl: CATEGORY_FALLBACK_IMAGES.earrings,
+    href: '/products/demo-earring',
+  },
+  {
+    id: 'related-4',
+    title: 'گردنبند مینیمال',
+    priceToman: 12_500_000,
+    weightGram: 4.2,
+    imageUrl: CATEGORY_FALLBACK_IMAGES.necklaces,
+    href: '/products/demo-necklace',
   },
 ];
 
@@ -175,7 +213,8 @@ export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
   relatedProducts: DEFAULT_RELATED_PRODUCTS,
   ratingAverage: 5,
   reviewCount: 1,
-  reviews: [],
+  reviews: DEMO_PRODUCT_REVIEWS,
+  videos: DEMO_PRODUCT_VIDEOS,
 };
 
 const JEWELRY_SET_IMAGE = '/images/products/jewelry-set-lifestyle.png';
@@ -250,7 +289,8 @@ export const JEWELRY_SET_DEMO: ProductDetailDemo = {
   relatedProducts: DEFAULT_RELATED_PRODUCTS,
   ratingAverage: 5,
   reviewCount: 3,
-  reviews: [],
+  reviews: DEMO_PRODUCT_REVIEWS,
+  videos: DEMO_PRODUCT_VIDEOS,
 };
 
 export function resolveProductDetailDemo(slug: string): ProductDetailDemo | null {
@@ -316,6 +356,7 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     reviews: template.reviews,
     variants: template.variants,
     specifications: template.specifications,
+    videos: template.videos,
   };
 }
 
@@ -332,19 +373,35 @@ export interface ProductDetailMobileProps {
   specRows?: ProductSpecRow[];
   featuredReview?: ProductReviewDemo;
   relatedProducts?: HomeProductCarouselItem[];
+  videos?: ProductVideo[];
+  reviews?: ProductReviewDemo[];
 }
 
 export function enrichProductDetailProps(
   product: ProductDetails,
   demo: ProductDetailDemo | null,
 ): ProductDetailMobileProps {
+  const gallery =
+    demo?.gallery ??
+    (product.galleryUrls?.length ? product.galleryUrls : [product.imageUrl]);
+  const videos = demo?.videos ?? product.videos ?? [];
+  const reviews = demo?.reviews ?? [];
+
   if (!demo) {
-    return { product, relatedProducts: DEFAULT_RELATED_PRODUCTS };
+    return {
+      product,
+      gallery,
+      heroImageUrl: gallery[0] ?? product.imageUrl,
+      videos,
+      reviews,
+      featuredReview: DEFAULT_FEATURED_REVIEW,
+      relatedProducts: DEFAULT_RELATED_PRODUCTS,
+    };
   }
 
   return {
     product,
-    gallery: demo.gallery,
+    gallery,
     heroImageUrl: demo.heroImageUrl,
     displayPriceToman: demo.displayPriceToman,
     ringSizes: demo.ringSizes,
@@ -355,5 +412,7 @@ export function enrichProductDetailProps(
     specRows: demo.specRows,
     featuredReview: demo.featuredReview,
     relatedProducts: demo.relatedProducts,
+    videos,
+    reviews,
   };
 }

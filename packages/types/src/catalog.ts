@@ -76,6 +76,14 @@ export interface ProductVariant {
   isDefault: boolean;
 }
 
+export interface ProductVideo {
+  id: string;
+  title: string;
+  videoUrl: string;
+  thumbnailUrl?: string | null;
+  sortOrder: number;
+}
+
 /** Current REST API list shape (backward compatible). */
 export interface ProductSummary {
   id: string;
@@ -109,6 +117,8 @@ export interface ProductDetails extends ProductSummary {
   color?: string;
   specifications?: Record<string, string>;
   variants?: ProductVariant[];
+  galleryUrls?: string[];
+  videos?: ProductVideo[];
 }
 
 /** Target storefront catalog model (full IA — align API in P1). */

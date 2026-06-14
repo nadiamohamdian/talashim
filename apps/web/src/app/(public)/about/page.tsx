@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-import {
-  CmsStaticPageLoader,
-  generateCmsStaticPageMetadata,
-} from '@/features/content/components/cms-static-page-loader';
+import { ABOUT_PAGE_META } from '@/shared/config/about-page';
+import { AboutPageView } from '@/widgets/about/about-page-view';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return generateCmsStaticPageMetadata('about');
-}
+export const metadata: Metadata = {
+  title: ABOUT_PAGE_META.title,
+  description: ABOUT_PAGE_META.description,
+};
 
 export default function AboutPage() {
-  return <CmsStaticPageLoader slug="about" />;
+  return <AboutPageView />;
 }

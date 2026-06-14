@@ -13,6 +13,7 @@ import { AdminTradingController } from './controllers/admin-trading.controller';
 import { AdminInventoryController } from './controllers/admin-inventory.controller';
 import { AdminOrdersController } from './controllers/admin-orders.controller';
 import { AdminProductsController } from './controllers/admin-products.controller';
+import { AdminProductReviewsController } from './controllers/admin-product-reviews.controller';
 import { AdminNotificationsController } from './controllers/admin-notifications.controller';
 import { AdminController } from './controllers/admin.controller';
 import { AdminSettingsController } from './controllers/admin-settings.controller';
@@ -33,6 +34,7 @@ import { AdminNotificationsRepository } from './repositories/admin-notifications
 import { AdminInventoryService } from './services/admin-inventory.service';
 import { AdminOrdersService } from './services/admin-orders.service';
 import { AdminProductsService } from './services/admin-products.service';
+import { AdminProductReviewsService } from './services/admin-product-reviews.service';
 import { AdminNotificationsService } from './services/admin-notifications.service';
 import { AdminTradingService } from './services/admin-trading.service';
 import { AdminReportsService } from './services/admin-reports.service';
@@ -59,6 +61,7 @@ import { AdminService } from './services/admin.service';
     AdminPricingController,
     AdminTradingController,
     AdminProductsController,
+    AdminProductReviewsController,
     AdminInventoryController,
     AdminOrdersController,
     AdminNotificationsController,
@@ -82,6 +85,7 @@ import { AdminService } from './services/admin.service';
     AdminFinanceService,
     AdminTradingService,
     AdminProductsService,
+    AdminProductReviewsService,
     AdminInventoryService,
     AdminOrdersService,
     AdminNotificationsService,

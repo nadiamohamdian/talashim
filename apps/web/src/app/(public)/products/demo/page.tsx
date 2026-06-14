@@ -15,15 +15,7 @@ export default function ProductDemoPage() {
 
   return (
     <div className="product-detail-page store-chrome-dark">
-      <div className="product-detail-mobile-shell lg:hidden">
-        <ProductDetailMobile {...props} />
-      </div>
-
-      <div className="product-detail-page-desktop hidden space-y-4 p-6 lg:block">
-        <p className="text-sm text-muted">
-          نمای موبایل این صفحه برای پیش‌نمایش Figma است. عرض پنجره را کمتر از ۱۰۲۴px کنید یا از
-          DevTools موبایل استفاده کنید.
-        </p>
+      <div className="product-detail-mobile-shell">
         <ProductDetailMobile {...props} />
       </div>
     </div>

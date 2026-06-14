@@ -3,7 +3,6 @@
 import type { BlogPostSummary } from '@sadafgold/types';
 import { filterPublishedBlogPosts } from '@/shared/lib/published-blog-posts';
 import { RichHtmlContent } from '@/shared/ui/rich-html-content';
-import { PublicPageShell } from '@/widgets/content/public-page-shell';
 
 interface FaqListProps {
   posts: BlogPostSummary[];
@@ -37,17 +36,5 @@ export function FaqList({ posts }: FaqListProps) {
         </details>
       ))}
     </div>
-  );
-}
-
-export function FaqPageShell({ posts }: FaqListProps) {
-  return (
-    <PublicPageShell
-      eyebrow="پشتیبانی"
-      title="سوالات متداول"
-      description="پاسخ‌های رسمی از پایگاه دانش."
-    >
-      <FaqList posts={posts} />
-    </PublicPageShell>
   );
 }

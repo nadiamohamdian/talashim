@@ -8,6 +8,7 @@ import type {
   AdminProductDetailDto,
   AdminProductDto,
   AdminProductVideoDto,
+  AdminProductReviewItem,
   OrderDetail,
   PaginatedResponse,
 } from '@sadafgold/types';
@@ -53,6 +54,25 @@ export function fetchProductVideos(params?: {
 }) {
   return axiosClient
     .get<PaginatedResponse<AdminProductVideoDto>>('/admin/products/videos', { params })
+    .then((r) => r.data);
+}
+
+export function fetchProductReviews(params?: {
+  page?: number;
+  status?: string;
+  search?: string;
+}) {
+  return axiosClient
+    .get<PaginatedResponse<AdminProductReviewItem>>('/admin/product-reviews', { params })
+    .then((r) => r.data);
+}
+
+export function reviewProductReview(
+  id: string,
+  payload: { status: 'APPROVED' | 'REJECTED' },
+) {
+  return axiosClient
+    .patch<AdminProductReviewItem>(`/admin/product-reviews/${id}/review`, payload)
     .then((r) => r.data);
 }
 

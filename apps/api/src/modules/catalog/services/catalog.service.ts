@@ -194,6 +194,11 @@ export class CatalogService {
 
     const summary = await this.toProductSummary(product);
 
+    const galleryUrls =
+      product.images.length > 0
+        ? product.images.map((image) => image.url)
+        : [product.imageUrl];
+
     return {
       ...summary,
       description: product.description,
@@ -205,6 +210,14 @@ export class CatalogService {
       seoNoIndex: product.seoNoIndex,
       color: 'طلایی',
       specifications: this.buildSpecifications(product, summary.pricing),
+      galleryUrls,
+      videos: (product.videos ?? []).map((video) => ({
+        id: video.id,
+        title: video.title,
+        videoUrl: video.videoUrl,
+        thumbnailUrl: video.thumbnailUrl,
+        sortOrder: video.sortOrder,
+      })),
       variants: (product.variants ?? []).map((variant) => ({
         id: variant.id,
         sku: variant.sku,

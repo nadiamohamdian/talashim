@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { submitProductReview } from '@/features/catalog/api/product-review-api';
 import { getApiErrorMessage } from '@/lib/api/client';
+import { queryKeys } from '@/lib/api/query-keys';
 
 type WizardStep = 'comment' | 'rating' | 'phone' | 'success';
 
@@ -36,7 +38,12 @@ function StarIcon({ filled }: { filled: boolean }) {
   );
 }
 
-export function ProductReviewWizard({ open, productSlug, onClose }: ProductReviewWizardProps) {
+export function ProductReviewWizard({
+  open,
+  productSlug,
+  onClose,
+}: ProductReviewWizardProps) {
+  const queryClient = useQueryClient();
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<WizardStep>('comment');
   const [comment, setComment] = useState('');
@@ -109,6 +116,9 @@ export function ProductReviewWizard({ open, productSlug, onClose }: ProductRevie
         rating,
         phone: normalizedPhone,
       });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.products.reviews(productSlug),
+      });
       setStep('success');
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -146,7 +156,7 @@ export function ProductReviewWizard({ open, productSlug, onClose }: ProductRevie
               ×
             </button>
             <p id="product-review-wizard-title" className="product-review-wizard-success">
-              از اینکه تجربه خود را با ما به اشتراک گذاشتید سپاسگزاریم.
+              دیدگاه شما ثبت شد. پس از بررسی و تأیید تیم طلاشیم در صفحه محصول نمایش داده می‌شود.
             </p>
           </>
         ) : null}

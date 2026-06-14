@@ -82,8 +82,9 @@ export const userApi = {
 
   submitContact(payload: {
     fullName: string;
-    email: string;
+    email?: string;
     phone: string;
+    subject?: string;
     message: string;
   }) {
     return apiPost<{ success: boolean }>('/contact', payload);

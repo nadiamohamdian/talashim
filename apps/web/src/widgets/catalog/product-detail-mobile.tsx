@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import { formatPrice } from '@/shared/lib/format-price';
 import {
-  DEFAULT_FEATURED_REVIEW,
   DEFAULT_RELATED_PRODUCTS,
   type ProductDetailMobileProps,
   type StoneColorSwatch,
 } from '@/shared/config/product-detail-demo';
 import { ProductReviewWizard } from '@/features/catalog/components/product-review-wizard';
+import { ProductVideoModal } from '@/features/catalog/components/product-video-modal';
+import { ProductReviewsShowcase } from '@/widgets/catalog/product-reviews-showcase';
 import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide';
 import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
 import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
@@ -32,6 +33,8 @@ const DEFAULT_STONE_SWATCHES: StoneColorSwatch[] = [
   { id: 'gray', color: '#D9D9D9', label: 'خاکستری' },
 ];
 
+const RELATED_PRODUCTS_DESKTOP_LIMIT = 4;
+
 const PRICE_TOOLTIP_TEXT =
   'وزن طلا × (قیمت روز طلا + اجرت) + ۷٪ سود + متعلقات + ۱۰٪ مالیات از سود و اجرت';
 
@@ -48,6 +51,8 @@ export function ProductDetailMobile({
   specRows = [],
   featuredReview,
   relatedProducts = [],
+  videos = [],
+  reviews = [],
 }: ProductDetailMobileProps) {
   const images = gallery?.length ? gallery : [heroImageUrl ?? product.imageUrl];
   const [activeImage, setActiveImage] = useState(() =>
@@ -64,6 +69,14 @@ export function ProductDetailMobile({
   const [selectedStone, setSelectedStone] = useState('purple');
   const [priceTooltipOpen, setPriceTooltipOpen] = useState(false);
   const [reviewWizardOpen, setReviewWizardOpen] = useState(false);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+
+  const primaryVideo = useMemo(() => {
+    const sorted = [...videos]
+      .filter((item) => item.videoUrl.trim().length > 0)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+    return sorted[0] ?? null;
+  }, [videos]);
 
   const sizeKind = resolveProductJewelrySizeKind(product.category);
   const ringSizeOptions = ringSizes ?? DEFAULT_RING_SIZES;
@@ -72,9 +85,10 @@ export function ProductDetailMobile({
 
   const priceToman = displayPriceToman ?? product.priceToman;
   const heroSrc = images[activeImage] ?? heroImageUrl ?? product.imageUrl;
-  const review = featuredReview ?? DEFAULT_FEATURED_REVIEW;
-  const relatedItems =
-    relatedProducts.length > 0 ? relatedProducts : DEFAULT_RELATED_PRODUCTS;
+  const relatedItems = useMemo(() => {
+    const items = relatedProducts.length > 0 ? relatedProducts : DEFAULT_RELATED_PRODUCTS;
+    return items.slice(0, RELATED_PRODUCTS_DESKTOP_LIMIT);
+  }, [relatedProducts]);
 
   const specs = useMemo(() => {
     if (specRows.length > 0) return specRows;
@@ -113,7 +127,17 @@ export function ProductDetailMobile({
             <hr className="product-details-glass-divider" />
 
             <div className="product-details-glass-actions">
-              <button type="button" className="product-details-action product-details-action-video">
+              <button
+                type="button"
+                className="product-details-action product-details-action-video"
+                disabled={!primaryVideo}
+                aria-disabled={!primaryVideo}
+                onClick={() => {
+                  if (primaryVideo) {
+                    setVideoModalOpen(true);
+                  }
+                }}
+              >
                 <span className="product-details-action-icon" aria-hidden>
                   ▶
                 </span>
@@ -130,6 +154,7 @@ export function ProductDetailMobile({
                 disabled={product.inventory <= 0}
                 className="product-details-action product-details-action-cart"
                 label="افزودن به سبد خرید"
+                addedLabel="به سبد اضافه شد"
               />
             </div>
           </div>
@@ -276,48 +301,12 @@ export function ProductDetailMobile({
           </table>
         </section>
 
-        <section className="product-details-review" aria-label="نظر مشتری">
-          <div className="product-details-review-frame">
-            <span className="product-details-review-line product-details-review-line-top" aria-hidden />
-            <span className="product-details-review-line product-details-review-line-left" aria-hidden />
-            <span className="product-details-review-line product-details-review-line-bottom" aria-hidden />
-            <span className="product-details-review-line product-details-review-line-right" aria-hidden />
-            <span className="product-details-quote product-details-quote-open" aria-hidden />
-            <span className="product-details-quote product-details-quote-close" aria-hidden />
-            <div className="product-details-review-content">
-              <p className="product-details-review-body">{review.body}</p>
-              <p className="product-details-review-author">{review.author}</p>
-              <div
-                className="product-details-review-rating"
-                aria-label={`امتیاز ${review.rating.toFixed(1)}`}
-              >
-                <svg
-                  className="product-details-review-star"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  aria-hidden
-                >
-                  <path
-                    d="M6 0L7.412 4.176H12L8.294 6.756L9.706 10.932L6 8.352L2.294 10.932L3.706 6.756L0 4.176H4.588L6 0Z"
-                    fill="#FFB900"
-                  />
-                </svg>
-                <span className="product-details-review-score">
-                  {review.rating.toFixed(1)}
-                </span>
-              </div>
-              <button
-                type="button"
-                className="product-details-review-submit"
-                onClick={() => setReviewWizardOpen(true)}
-              >
-                ثبت نظر جدید
-              </button>
-            </div>
-          </div>
-        </section>
+        <ProductReviewsShowcase
+          productSlug={product.slug}
+          seedReviews={reviews}
+          featuredReview={featuredReview}
+          onSubmitReview={() => setReviewWizardOpen(true)}
+        />
 
         <section className="product-details-related" aria-labelledby="pdp-related-title">
           <div className="product-details-related-header">
@@ -365,6 +354,12 @@ export function ProductDetailMobile({
         open={reviewWizardOpen}
         productSlug={product.slug}
         onClose={() => setReviewWizardOpen(false)}
+      />
+
+      <ProductVideoModal
+        open={videoModalOpen}
+        video={primaryVideo}
+        onClose={() => setVideoModalOpen(false)}
       />
     </article>
   );

@@ -12,6 +12,7 @@ const DESCRIPTIONS: Record<string, string> = {
   'products.detail': 'جزئیات محصول، قیمت لحظه‌ای و موجودی.',
   'products.edit': 'ویرایش مشخصات و تصویر محصول.',
   'products.videos': 'ویدیوهای معرفی محصولات.',
+  'products.reviews': 'بررسی، تأیید یا رد دیدگاه‌های ثبت‌شده توسط مشتریان.',
   'inventory.overview': 'موجودی فیزیکی و رزرو هر SKU.',
   'inventory.history': 'تاریخچه تغییرات موجودی (ثبت‌شده در دفتر حرکت).',
   'inventory.reports': 'گزارش کم‌موجودی و توزیع دسته‌ها.',

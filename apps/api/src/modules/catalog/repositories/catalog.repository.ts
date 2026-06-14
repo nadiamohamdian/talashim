@@ -100,6 +100,7 @@ export class CatalogRepository {
         inventoryItem: true,
         variants: { orderBy: { sortOrder: 'asc' } },
         images: { orderBy: { sortOrder: 'asc' } },
+        videos: { orderBy: { sortOrder: 'asc' } },
       },
     });
   }

@@ -176,6 +176,18 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     nav: false,
   }),
   r({
+    id: 'products.reviews',
+    path: '/products/reviews',
+    label: 'نظرات محصول',
+    sectionId: 'catalog',
+    sectionLabel: 'فروشگاه (خرده)',
+    template: 'list',
+    permission: ADMIN_PERMISSIONS.products.read,
+    availability: 'live',
+    parentId: 'products.list',
+    navOrder: 15,
+  }),
+  r({
     id: 'inventory.overview',
     path: '/inventory',
     label: 'موجودی انبار',

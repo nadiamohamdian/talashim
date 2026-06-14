@@ -51,6 +51,7 @@ export const queryKeys = {
     bestsellers: () => [...queryKeys.products.all, 'bestsellers'] as const,
     categories: () => [...queryKeys.products.all, 'categories'] as const,
     detail: (slug: string) => [...queryKeys.products.all, 'detail', slug] as const,
+    reviews: (slug: string) => [...queryKeys.products.all, 'reviews', slug] as const,
     search: (params: ProductSearchParams) =>
       [...queryKeys.products.all, 'search', params] as const,
   },

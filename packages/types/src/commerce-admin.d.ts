@@ -68,6 +68,20 @@ export interface AdminProductVideoDto {
     createdAt: string;
     updatedAt: string;
 }
+export interface AdminProductReviewItem {
+    id: string;
+    body: string;
+    rating: number;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    phoneMasked: string;
+    author: string;
+    createdAt: string;
+    product: {
+        id: string;
+        title: string;
+        slug: string;
+    };
+}
 export interface AdminInventoryRowDto {
     productId: string;
     sku: string;

@@ -15,7 +15,7 @@ const SERVICE_LINKS = [
 const SUPPORT_LINKS = [
   { label: 'تماس با ما', href: '/contact' },
   { label: 'آدرس شعب', href: '/contact' },
-  { label: 'اخد نمایندگی', href: '/contact' },
+  { label: 'درباره ما', href: '/about' },
 ] as const;
 
 interface SiteFooterProps {
