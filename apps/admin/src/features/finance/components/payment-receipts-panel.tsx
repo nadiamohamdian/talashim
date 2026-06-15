@@ -531,14 +531,14 @@ function UnifiedReceiptDialog({
               href={row.receiptUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#564739)] hover:bg-[var(--surface,#f5f1ec)]"
+              className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#3d3630)] hover:bg-[var(--surface,#fffbf7)]"
             >
               باز کردن در تب جدید
             </a>
             {row.source === 'order' && row.referenceHref ? (
               <Link
                 href={row.referenceHref}
-                className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#564739)] hover:bg-[var(--surface,#f5f1ec)]"
+                className="inline-flex h-10 items-center rounded-[var(--radius-lg,0.75rem)] px-4 text-sm font-medium text-[var(--foreground,#3d3630)] hover:bg-[var(--surface,#fffbf7)]"
               >
                 جزئیات سفارش
               </Link>

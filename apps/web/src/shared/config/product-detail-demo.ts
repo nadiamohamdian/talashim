@@ -364,7 +364,7 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     description,
     seoDescription: catalog?.seoDescription ?? source.title,
     gallery: template.gallery.map((image, index) => (index === 0 ? source.imageUrl : image)),
-    ringSizes: sizeKinds.includes('ring') ? DEFAULT_RING_SIZES : undefined,
+    ringSizes: DEFAULT_RING_SIZES,
     necklaceSizes: sizeKinds.includes('necklace') ? DEFAULT_NECKLACE_SIZES : undefined,
     braceletSizes: sizeKinds.includes('bracelet') ? DEFAULT_BRACELET_SIZES : undefined,
     specRows:
@@ -432,7 +432,7 @@ export function enrichProductDetailProps(
       reviews,
       featuredReview: DEFAULT_FEATURED_REVIEW,
       relatedProducts: DEFAULT_RELATED_PRODUCTS,
-      ringSizes: sizeKinds.includes('ring') ? DEFAULT_RING_SIZES : undefined,
+      ringSizes: DEFAULT_RING_SIZES,
       necklaceSizes: sizeKinds.includes('necklace') ? DEFAULT_NECKLACE_SIZES : undefined,
       braceletSizes: sizeKinds.includes('bracelet') ? DEFAULT_BRACELET_SIZES : undefined,
       goldColors: catalog ? PRODUCT_DETAIL_DEMO.goldColors : undefined,

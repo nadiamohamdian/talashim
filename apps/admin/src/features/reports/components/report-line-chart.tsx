@@ -11,17 +11,18 @@ import {
   YAxis,
 } from 'recharts';
 
-const CHART_PRIMARY = '#cba670';
-const CHART_SECONDARY = '#564739';
-const CHART_GRID = '#e3e3e3';
-const CHART_MUTED = '#8a8078';
+const CHART_PRIMARY = '#c4a265';
+const CHART_SECONDARY = '#3d3630';
+const CHART_GRID = '#ebe3da';
+const CHART_MUTED = '#8a7f75';
 
 const tooltipStyle = {
-  background: '#ffffff',
-  border: '1px solid #d9d0c8',
+  background: 'var(--card)',
+  border: '1px solid var(--border)',
   borderRadius: '0.75rem',
   fontSize: '0.8125rem',
-  boxShadow: '0 2px 8px rgba(86, 71, 57, 0.08)',
+  boxShadow: 'var(--shadow-soft)',
+  color: 'var(--foreground)',
 };
 
 interface ReportLineChartProps {

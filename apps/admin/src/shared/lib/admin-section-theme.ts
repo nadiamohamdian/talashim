@@ -15,12 +15,12 @@ export interface SectionTheme {
   iconColor: string;
 }
 
-/** یکپارچه — همه بخش‌ها از پالت گرم برند */
+/** یکپارچه — همه بخش‌ها از پالت گرم برند (هم‌راستا با فروشگاه) */
 const UNIFIED: SectionTheme = {
-  accent: '#b8955f',
-  accentMuted: 'rgba(203, 166, 112, 0.22)',
-  iconBg: 'rgba(203, 166, 112, 0.14)',
-  iconColor: '#6b5648',
+  accent: '#c4a265',
+  accentMuted: 'rgba(196, 162, 101, 0.22)',
+  iconBg: 'rgba(196, 162, 101, 0.14)',
+  iconColor: '#9a7b4f',
 };
 
 export const SECTION_THEMES: Record<string, SectionTheme> = {
@@ -63,10 +63,10 @@ export const STAT_ACCENT_STYLES: Record<
   StatAccent,
   { bg: string; color: string; ring: string }
 > = {
-  gold: { bg: 'rgba(203, 166, 112, 0.16)', color: '#6b5648', ring: 'rgba(203, 166, 112, 0.3)' },
-  brown: { bg: 'rgba(86, 71, 57, 0.08)', color: '#564739', ring: 'rgba(86, 71, 57, 0.15)' },
-  warm: { bg: 'rgba(203, 166, 112, 0.12)', color: '#7a6554', ring: 'rgba(203, 166, 112, 0.22)' },
-  neutral: { bg: 'rgba(86, 71, 57, 0.06)', color: '#6b5f55', ring: 'rgba(86, 71, 57, 0.12)' },
+  gold: { bg: 'rgba(196, 162, 101, 0.16)', color: '#9a7b4f', ring: 'rgba(196, 162, 101, 0.3)' },
+  brown: { bg: 'rgba(61, 54, 48, 0.08)', color: '#3d3630', ring: 'rgba(61, 54, 48, 0.15)' },
+  warm: { bg: 'rgba(196, 162, 101, 0.12)', color: '#826842', ring: 'rgba(196, 162, 101, 0.22)' },
+  neutral: { bg: 'rgba(61, 54, 48, 0.06)', color: '#6b5f55', ring: 'rgba(61, 54, 48, 0.12)' },
 };
 
 /** @deprecated use gold | brown | warm | neutral */

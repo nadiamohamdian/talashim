@@ -2,16 +2,21 @@ import type { Metadata } from 'next';
 import { FeatureDisabledPage } from '@/features/site/components/feature-disabled-page';
 import { fetchSiteConfig } from '@/lib/api/site.api';
 import { getBlogPosts } from '@/shared/api/blog-api';
-import { BlogList } from '@/widgets/blog/blog-list';
+import { BLOG_ARCHIVE_PAGE_SIZE, BLOG_PAGE_META } from '@/shared/config/blog-page';
+import { BlogPageView } from '@/widgets/blog/blog-page-view';
 
 export const metadata: Metadata = {
-  title: 'مجله طلا',
-  description: 'مقالات، راهنماها و تحلیل بازار طلا',
+  title: BLOG_PAGE_META.title,
+  description: BLOG_PAGE_META.description,
 };
 
 export const dynamic = 'force-dynamic';
 
-export default async function BlogPage() {
+interface BlogPageProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
   const config = await fetchSiteConfig();
   if (!config.featureFlags.enableBlog) {
     return (
@@ -22,25 +27,28 @@ export default async function BlogPage() {
     );
   }
 
-  let posts: Awaited<ReturnType<typeof getBlogPosts>> = [];
+  const { page: pageParam } = await searchParams;
+  const requestedPage = Number.parseInt(pageParam ?? '1', 10);
+  const safeRequestedPage = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+  let allPosts: Awaited<ReturnType<typeof getBlogPosts>> = [];
   try {
-    posts = await getBlogPosts();
+    allPosts = await getBlogPosts();
   } catch {
-    posts = [];
+    allPosts = [];
   }
 
+  const totalPages = Math.max(1, Math.ceil(allPosts.length / BLOG_ARCHIVE_PAGE_SIZE));
+  const currentPage = Math.min(safeRequestedPage, totalPages);
+  const pagePosts =
+    allPosts.length > 0
+      ? allPosts.slice(
+          (currentPage - 1) * BLOG_ARCHIVE_PAGE_SIZE,
+          currentPage * BLOG_ARCHIVE_PAGE_SIZE,
+        )
+      : [];
+
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-sm font-medium text-amber-700">مجله طلا</p>
-        <h1 className="mt-3 text-3xl font-bold text-stone-950 dark:text-zinc-50">
-          مجله و تحلیل بازار
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600 dark:text-zinc-400">
-          دسترسی عمومی برای مهمانان و سئو.
-        </p>
-      </div>
-      <BlogList posts={posts} />
-    </div>
+    <BlogPageView posts={pagePosts} currentPage={currentPage} totalPages={totalPages} />
   );
 }

@@ -26,10 +26,10 @@ import { StatCard } from '@/widgets/admin/stat-card';
 import { PageHeader } from '@/widgets/admin/page-header';
 import { formatTomanAmount } from '@sadafgold/shared';
 
-const CHART_PRIMARY = '#cba670';
+const CHART_PRIMARY = '#c4a265';
 const CHART_SUCCESS = '#4a8a72';
-const CHART_GRID = 'rgba(86, 71, 57, 0.06)';
-const CHART_MUTED = '#7a6e64';
+const CHART_GRID = 'rgba(61, 54, 48, 0.06)';
+const CHART_MUTED = '#8a7f75';
 
 const tooltipStyle = {
   background: 'var(--card)',

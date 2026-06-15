@@ -203,7 +203,17 @@ export function resolveProductJewelrySizeKinds(
   }
 
   const single = resolveProductJewelrySizeKind(product.category);
-  return single ? [single] : [];
+  if (single) {
+    return [single];
+  }
+
+  const fromText = detectSizeKindsFromText(buildSetItemTextCorpus(product));
+  const detected = uniqueSizeKinds(fromText);
+  if (detected.length > 0) {
+    return detected;
+  }
+
+  return ['ring'];
 }
 
 export function matchesCatalogCategory(productCategory: string, categorySlug: string): boolean {

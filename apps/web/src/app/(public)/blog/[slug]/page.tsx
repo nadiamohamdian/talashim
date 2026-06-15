@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { RichHtmlContent } from '@/shared/ui/rich-html-content';
-import { StoreImage } from '@/shared/ui/store-image';
 import { FeatureDisabledPage } from '@/features/site/components/feature-disabled-page';
 import { fetchSiteConfig } from '@/lib/api/site.api';
-import { getBlogPostBySlug } from '@/shared/api/blog-api';
-import { formatPersianDate } from '@/shared/lib/persian-date';
+import { getProducts } from '@/shared/api/catalog-api';
+import { getBlogPostBySlug, getBlogPosts } from '@/shared/api/blog-api';
+import { BlogPostPageView } from '@/widgets/blog/blog-post-page-view';
 
 interface BlogDetailsPageProps {
   params: Promise<{ slug: string }>;
@@ -40,50 +38,22 @@ export default async function BlogDetailsPage({ params }: BlogDetailsPageProps) 
   }
 
   const { slug } = await params;
-  const post = await getBlogPostBySlug(slug);
+
+  const [post, allPosts, relatedProducts] = await Promise.all([
+    getBlogPostBySlug(slug),
+    getBlogPosts().catch(() => [] as Awaited<ReturnType<typeof getBlogPosts>>),
+    getProducts(6).catch(() => [] as Awaited<ReturnType<typeof getProducts>>),
+  ]);
+
   if (!post) {
     notFound();
   }
 
   return (
-    <article className="mx-auto max-w-4xl space-y-8">
-      <Link
-        href="/blog"
-        className="inline-flex text-sm font-medium text-amber-700 transition hover:text-amber-800"
-      >
-        ← بازگشت به مجله
-      </Link>
-
-      <header className="space-y-4">
-        <p className="text-sm font-medium text-amber-700">مجله طلا</p>
-        <h1 className="text-3xl font-bold text-stone-950 dark:text-zinc-50">{post.title}</h1>
-        <p className="text-sm text-stone-500 dark:text-zinc-400">
-          {formatPersianDate(post.publishedAt)}
-        </p>
-        {post.excerpt ? (
-          <p className="max-w-2xl text-base leading-8 text-stone-600 dark:text-zinc-400">
-            {post.excerpt}
-          </p>
-        ) : null}
-      </header>
-
-      {post.coverImageUrl ? (
-        <div className="relative aspect-[16/9] overflow-hidden rounded-[var(--radius-xl,0.875rem)] bg-nude-50">
-          <StoreImage
-            src={post.coverImageUrl}
-            alt={post.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 896px) 100vw, 896px"
-            priority
-          />
-        </div>
-      ) : null}
-
-      <RichHtmlContent
-        html={post.content}
-        className="prose prose-stone max-w-none text-base leading-8 text-stone-700 dark:text-zinc-300 [&_p]:mb-4"
-      />
-    </article>
+    <BlogPostPageView
+      post={post}
+      relatedPosts={allPosts}
+      relatedProducts={relatedProducts}
+    />
   );
 }

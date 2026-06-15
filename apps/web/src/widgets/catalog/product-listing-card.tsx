@@ -26,7 +26,7 @@ export function ProductListingCard({ product }: ProductListingCardProps) {
           imageUrl={product.imageUrl}
           hoverImageUrl={product.hoverImageUrl}
           alt={product.title}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 16vw"
+          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, (max-width: 1440px) 22vw, 280px"
         />
         <h3 className="store-product-card-title product-listing-card-title">{product.title}</h3>
         <p className="store-product-card-price product-listing-card-price">

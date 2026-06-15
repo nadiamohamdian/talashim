@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
 
 interface ProductSizeRulerSectionProps {
@@ -12,6 +12,19 @@ interface ProductSizeRulerSectionProps {
   selectedSize: number;
   onSelectSize: (size: number) => void;
   className?: string;
+}
+
+const SUB_TICK_OFFSETS: ReadonlyArray<{ offset: number; kind: 'medium' | 'small' }> = [
+  { offset: 6, kind: 'medium' },
+  { offset: 12, kind: 'small' },
+  { offset: 18, kind: 'small' },
+  { offset: 24, kind: 'medium' },
+];
+
+function getItemCenterInScrollContent(track: HTMLDivElement, item: HTMLElement): number {
+  const trackRect = track.getBoundingClientRect();
+  const itemRect = item.getBoundingClientRect();
+  return track.scrollLeft + (itemRect.left - trackRect.left) + itemRect.width / 2;
 }
 
 function getClosestSizeToCenter(
@@ -29,7 +42,7 @@ function getClosestSizeToCenter(
       continue;
     }
 
-    const itemCenter = item.offsetLeft + item.offsetWidth / 2;
+    const itemCenter = getItemCenterInScrollContent(track, item);
     const distance = Math.abs(itemCenter - center);
     if (distance < minDistance) {
       minDistance = distance;
@@ -41,7 +54,7 @@ function getClosestSizeToCenter(
 }
 
 function getScrollLeftForSize(track: HTMLDivElement, item: HTMLButtonElement): number {
-  return item.offsetLeft - track.clientWidth / 2 + item.offsetWidth / 2;
+  return getItemCenterInScrollContent(track, item) - track.clientWidth / 2;
 }
 
 export function ProductSizeRulerSection({
@@ -64,6 +77,39 @@ export function ProductSizeRulerSection({
   const snapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   selectedSizeRef.current = selectedSize;
+
+  const selectedIndex = Math.max(0, sizes.indexOf(selectedSize));
+
+  const rulerTicks = useMemo(() => {
+    const ticks: Array<{
+      key: string;
+      index: number;
+      kind: 'major' | 'medium' | 'small';
+      isActiveMajor: boolean;
+    }> = [];
+
+    sizes.forEach((_, index) => {
+      ticks.push({
+        key: `major-${index}`,
+        index,
+        kind: 'major',
+        isActiveMajor: index === selectedIndex,
+      });
+
+      if (index < sizes.length - 1) {
+        SUB_TICK_OFFSETS.forEach(({ offset, kind }) => {
+          ticks.push({
+            key: `sub-${index}-${offset}`,
+            index: index + offset / 30,
+            kind,
+            isActiveMajor: false,
+          });
+        });
+      }
+    });
+
+    return ticks;
+  }, [selectedIndex, sizes]);
 
   const snapToSize = useCallback((size: number, behavior: ScrollBehavior = 'smooth') => {
     const track = trackRef.current;
@@ -111,7 +157,7 @@ export function ProductSizeRulerSection({
   useEffect(() => {
     const track = trackRef.current;
     const item = itemRefs.current.get(selectedSize);
-    if (!track || !item) {
+    if (!track || !item || isDraggingRef.current) {
       return;
     }
 
@@ -123,6 +169,20 @@ export function ProductSizeRulerSection({
     snapToSize(selectedSize, isDraggingRef.current ? 'auto' : 'smooth');
   }, [selectedSize, sizes, snapToSize]);
 
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    const item = itemRefs.current.get(selectedSize);
+    if (!track || !item) {
+      return;
+    }
+
+    isProgrammaticScrollRef.current = true;
+    track.scrollLeft = getScrollLeftForSize(track, item);
+    requestAnimationFrame(() => {
+      isProgrammaticScrollRef.current = false;
+    });
+  }, [sizes]);
+
   useEffect(() => {
     const track = trackRef.current;
     if (!track) {
@@ -130,7 +190,7 @@ export function ProductSizeRulerSection({
     }
 
     const onScroll = () => {
-      if (isProgrammaticScrollRef.current) {
+      if (isProgrammaticScrollRef.current || isDraggingRef.current) {
         return;
       }
 
@@ -150,11 +210,11 @@ export function ProductSizeRulerSection({
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const track = trackRef.current;
-    if (!track || (event.pointerType === 'mouse' && event.button !== 0)) {
+    if (!track) {
       return;
     }
 
-    if (event.pointerType !== 'mouse') {
+    if (event.pointerType === 'mouse' && event.button !== 0) {
       return;
     }
 
@@ -167,7 +227,7 @@ export function ProductSizeRulerSection({
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const track = trackRef.current;
-    if (!track || !isDraggingRef.current || event.pointerType !== 'mouse') {
+    if (!track || !isDraggingRef.current) {
       return;
     }
 
@@ -182,7 +242,9 @@ export function ProductSizeRulerSection({
     }
 
     isDraggingRef.current = false;
-    track.releasePointerCapture(event.pointerId);
+    if (track.hasPointerCapture(event.pointerId)) {
+      track.releasePointerCapture(event.pointerId);
+    }
     track.classList.remove('is-dragging');
 
     const centeredSize = getClosestSizeToCenter(track, sizes, itemRefs.current);
@@ -229,31 +291,53 @@ export function ProductSizeRulerSection({
             onPointerUp={finishDrag}
             onPointerCancel={finishDrag}
           >
-            {sizes.map((size) => (
-              <button
-                key={size}
-                ref={(element) => {
-                  if (element) {
-                    itemRefs.current.set(size, element);
-                  } else {
-                    itemRefs.current.delete(size);
-                  }
-                }}
-                type="button"
-                role="option"
-                aria-selected={selectedSize === size}
-                data-size={size}
-                className={
-                  selectedSize === size
-                    ? 'product-details-ruler-item is-active'
-                    : 'product-details-ruler-item'
-                }
-                onClick={() => handleItemClick(size)}
-              >
-                <span className="product-details-ruler-num">{toPersianDigits(size)}</span>
-                <span className="product-details-ruler-tick" aria-hidden />
-              </button>
-            ))}
+            <div
+              className="product-details-ruler-strip"
+              style={{ width: `calc(${Math.max(sizes.length, 1)} * var(--ruler-slot))` }}
+            >
+              <div className="product-details-ruler-ticks" aria-hidden>
+                {rulerTicks.map((tick) => (
+                  <span
+                    key={tick.key}
+                    className={[
+                      'product-details-ruler-tick',
+                      `product-details-ruler-tick--${tick.kind}`,
+                      tick.isActiveMajor ? 'is-active' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    style={{ left: `calc((${tick.index} + 0.5) * var(--ruler-slot))` }}
+                  />
+                ))}
+              </div>
+
+              <div className="product-details-ruler-labels">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    ref={(element) => {
+                      if (element) {
+                        itemRefs.current.set(size, element);
+                      } else {
+                        itemRefs.current.delete(size);
+                      }
+                    }}
+                    type="button"
+                    role="option"
+                    aria-selected={selectedSize === size}
+                    data-size={size}
+                    className={
+                      selectedSize === size
+                        ? 'product-details-ruler-item is-active'
+                        : 'product-details-ruler-item'
+                    }
+                    onClick={() => handleItemClick(size)}
+                  >
+                    <span className="product-details-ruler-num">{toPersianDigits(size)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -90,6 +90,7 @@ export function ProductReviewsShowcase({
   const { data: apiReviews = [] } = useProductReviews(productSlug);
   const [activeIndex, setActiveIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'next' | 'prev'>('next');
   const [autoPlayPaused, setAutoPlayPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -117,9 +118,11 @@ export function ProductReviewsShowcase({
         return;
       }
 
+      const forwardSteps = (normalized - activeIndex + reviews.length) % reviews.length;
+      setSlideDirection(forwardSteps <= reviews.length / 2 ? 'next' : 'prev');
       setAnimating(true);
       setActiveIndex(normalized);
-      window.setTimeout(() => setAnimating(false), 280);
+      window.setTimeout(() => setAnimating(false), 400);
     },
     [activeIndex, hasMultiple, reviews.length],
   );
@@ -133,9 +136,10 @@ export function ProductReviewsShowcase({
     }
 
     const timer = window.setInterval(() => {
+      setSlideDirection('next');
       setActiveIndex((index) => (index + 1) % reviews.length);
       setAnimating(true);
-      window.setTimeout(() => setAnimating(false), 280);
+      window.setTimeout(() => setAnimating(false), 400);
     }, 7000);
 
     return () => window.clearInterval(timer);
@@ -216,7 +220,15 @@ export function ProductReviewsShowcase({
               onClick={goPrev}
               aria-label="نظر قبلی"
             >
-              ‹
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path
+                  d="M8.75 2.625L4.375 7L8.75 11.375"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
             <span className="product-details-review-counter" aria-live="polite">
               {toPersianDigits(activeIndex + 1)} از {toPersianDigits(reviews.length)}
@@ -227,14 +239,29 @@ export function ProductReviewsShowcase({
               onClick={goNext}
               aria-label="نظر بعدی"
             >
-              ›
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path
+                  d="M5.25 2.625L9.625 7L5.25 11.375"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           </div>
         ) : null}
 
         <div
           key={review.id}
-          className={`product-details-review-content${animating ? ' is-animating' : ''}${hasMultiple ? ' has-toolbar' : ''}`}
+          className={[
+            'product-details-review-content',
+            animating ? 'is-animating' : '',
+            animating ? `is-from-${slideDirection}` : '',
+            hasMultiple ? 'has-toolbar' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
         >
           <p className="product-details-review-body">{review.body}</p>
 
@@ -246,8 +273,8 @@ export function ProductReviewsShowcase({
             >
               <svg
                 className="product-details-review-star"
-                width="12"
-                height="12"
+                width="14"
+                height="14"
                 viewBox="0 0 12 12"
                 fill="none"
                 aria-hidden
