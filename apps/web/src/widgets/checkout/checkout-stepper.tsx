@@ -1,4 +1,5 @@
 import { CHECKOUT_STEPS, type CheckoutStep } from '@/shared/config/checkout-flow';
+import { CheckoutStepperNumeral } from '@/widgets/checkout/checkout-stepper-numeral';
 
 interface CheckoutStepperProps {
   activeStep: CheckoutStep;
@@ -27,9 +28,7 @@ export function CheckoutStepper({ activeStep }: CheckoutStepperProps) {
                   isActive || isComplete ? ' checkout-stepper-dot--active' : ''
                 }`}
               >
-                <span className="checkout-stepper-dot-num" aria-hidden>
-                  {step.step}
-                </span>
+                <CheckoutStepperNumeral step={step.step} />
               </span>
               <span
                 className={`checkout-stepper-label${

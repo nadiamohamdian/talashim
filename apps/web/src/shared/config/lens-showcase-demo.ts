@@ -64,9 +64,33 @@ export const LENS_EDITORIAL_META = {
 } as const;
 
 export const LENS_EDITORIAL_HOTSPOTS = [
-  { id: 'hotspot-ring', top: '52%', left: '36%' },
-  { id: 'hotspot-earring', top: '20%', left: '58%' },
-  { id: 'hotspot-bracelet', top: '72%', left: '40%' },
+  {
+    id: 'hotspot-ring',
+    top: '52%',
+    left: '36%',
+    chipTop: '44%',
+    chipLeft: '30%',
+    chipTranslateX: '-12%',
+    chipTranslateY: 'calc(-100% - 8px)',
+  },
+  {
+    id: 'hotspot-earring',
+    top: '20%',
+    left: '58%',
+    chipTop: '17.1%',
+    chipLeft: '56.3%',
+    chipTranslateX: '-88%',
+    chipTranslateY: 'calc(-100% - 8px)',
+  },
+  {
+    id: 'hotspot-bracelet',
+    top: '72%',
+    left: '40%',
+    chipTop: '70.7%',
+    chipLeft: '5.8%',
+    chipTranslateX: '-20%',
+    chipTranslateY: 'calc(-100% - 8px)',
+  },
 ] as const;
 
 export const LENS_SHOWCASE_DEMO_ITEMS: LensShowcaseDemoItem[] = [

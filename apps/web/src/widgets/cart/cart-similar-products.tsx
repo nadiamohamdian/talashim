@@ -26,7 +26,7 @@ export function CartSimilarProducts({ products }: CartSimilarProductsProps) {
                 imageUrl={product.imageUrl}
                 hoverImageUrl={product.hoverImageUrl}
                 alt={product.title}
-                sizes="148px"
+                sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, 148px"
               />
               <h3 className="store-product-card-title cart-similar-card-title">{product.title}</h3>
               <p className="store-product-card-price cart-similar-card-price">

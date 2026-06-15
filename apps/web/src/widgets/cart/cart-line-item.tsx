@@ -89,7 +89,7 @@ export function CartLineItemRow({
           alt={item.title}
           fill
           className="cart-line-image"
-          sizes="100px"
+          sizes="(min-width: 1024px) 148px, (min-width: 768px) 120px, 100px"
         />
       </div>
     </article>

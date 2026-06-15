@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type MouseEvent } from 'react';
+import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
@@ -118,6 +118,7 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
 
               {spotlightProducts.map((product, index) => {
                 const isOpen = openChips.has(index);
+                const spot = LENS_EDITORIAL_HOTSPOTS[index];
 
                 return (
                   <Link
@@ -127,6 +128,16 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
                     className={`lens-sets-showcase-product-chip lens-sets-showcase-product-chip--${index}${
                       isOpen ? ' lens-sets-showcase-product-chip--open' : ''
                     }`}
+                    style={
+                      spot
+                        ? ({
+                            '--lens-chip-top': spot.chipTop ?? spot.top,
+                            '--lens-chip-left': spot.chipLeft ?? spot.left,
+                            '--lens-chip-tx': spot.chipTranslateX ?? '-50%',
+                            '--lens-chip-ty': spot.chipTranslateY ?? 'calc(-100% - 8px)',
+                          } as CSSProperties)
+                        : undefined
+                    }
                     onClick={(event) => event.stopPropagation()}
                     aria-hidden={!isOpen}
                     tabIndex={isOpen ? 0 : -1}
@@ -162,7 +173,7 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
                   <button
                     key={spot.id}
                     type="button"
-                    className={`lens-sets-showcase-hotspot${
+                    className={`lens-sets-showcase-hotspot lens-sets-showcase-hotspot--${index}${
                       isOpen ? ' lens-sets-showcase-hotspot--active' : ''
                     }`}
                     style={{ top: spot.top, left: spot.left }}
