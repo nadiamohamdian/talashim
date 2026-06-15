@@ -10,10 +10,10 @@ export function SiteHeader() {
 
   return (
     <header className={`site-header-menu sticky z-40 ${headerTopClass}`}>
-      <div className="site-header-menu-inner lg:hidden">
+      <div className="site-header-menu-inner site-header-minimal-bar lg:hidden">
         <MobileMenuBar />
       </div>
-      <div className="hidden lg:block">
+      <div className="site-header-menu-inner site-header-desktop-bar hidden lg:block">
         <DesktopMenuBar />
       </div>
     </header>

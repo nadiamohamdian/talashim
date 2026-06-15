@@ -8,17 +8,22 @@ interface ProductListingHeroCarouselProps {
 }
 
 export function ProductListingHeroCarousel({ slides }: ProductListingHeroCarouselProps) {
-  const [activeIndex, setActiveIndex] = useState(slides.length - 1);
+  const [activeIndex, setActiveIndex] = useState(slides.length > 0 ? slides.length - 1 : 0);
+
+  if (slides.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="product-listing-carousel" aria-label="اسلاید محصولات">
+    <section className="product-listing-carousel" aria-label="گالری دسته‌بندی">
       <div className="product-listing-carousel-frame">
         <StoreImage
-          src={slides[activeIndex] ?? slides[0]!}
+          src={slides[activeIndex] ?? slides[0]}
           alt=""
           fill
+          unoptimized
           className="product-listing-carousel-image"
-          sizes="370px"
+          sizes="(min-width: 1024px) 560px, 370px"
           priority
         />
       </div>

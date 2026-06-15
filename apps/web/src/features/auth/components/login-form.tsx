@@ -1,13 +1,18 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { getApiErrorMessage } from '@/lib/api';
+import { AuthFloatingInput } from '@/features/auth/components/auth-floating-input';
+import { AuthAlert } from '@/features/auth/components/auth-alert';
+import { AuthSubmitButton } from '@/features/auth/components/auth-submit-button';
 import {
   useOtpRequestMutation,
   usePasswordLoginMutation,
 } from '@/features/auth/hooks/use-auth';
+import { isValidIranMobile, normalizeIranPhone } from '@/features/auth/lib/phone';
 import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 import {
   otpRequestSchema,
@@ -22,46 +27,53 @@ interface LoginFormProps {
 
 export function LoginForm({ next }: LoginFormProps) {
   const otpEnabled = useFeatureFlag('enableOtpLogin');
-  const [mode, setMode] = useState<'otp' | 'password'>('password');
+  const [mode, setMode] = useState<'otp' | 'password'>(otpEnabled ? 'otp' : 'password');
   const otpMutation = useOtpRequestMutation(next);
   const loginMutation = usePasswordLoginMutation(next);
 
   const otpForm = useForm<OtpRequestValues>({
     resolver: zodResolver(otpRequestSchema),
     defaultValues: { identifier: '' },
+    mode: 'onChange',
   });
 
   const passwordForm = useForm<PasswordLoginValues>({
     resolver: zodResolver(passwordLoginSchema),
     defaultValues: { email: '', password: '' },
+    mode: 'onChange',
   });
+
+  const otpIdentifier = otpForm.watch('identifier');
 
   const otpError =
     otpMutation.error && getApiErrorMessage(otpMutation.error, 'ارسال کد تأیید ناموفق بود');
   const passwordError =
     loginMutation.error && getApiErrorMessage(loginMutation.error, 'ورود ناموفق بود');
 
+  const otpCanSubmit = isValidIranMobile(otpIdentifier);
+  const passwordCanSubmit = passwordForm.formState.isValid;
+
   return (
     <div className="auth-form-wrap">
       {otpEnabled ? (
-        <div className="auth-mode-toggle" role="tablist" aria-label="روش ورود">
+        <div className="auth-tabs" role="tablist" aria-label="روش ورود">
           <button
             type="button"
             role="tab"
             aria-selected={mode === 'otp'}
-            className={`auth-mode-toggle-btn${mode === 'otp' ? ' auth-mode-toggle-btn--active' : ''}`}
+            className={`auth-tab${mode === 'otp' ? ' auth-tab--active' : ''}`}
             onClick={() => setMode('otp')}
           >
-            ورود با OTP
+            ورود با رمز یکبار مصرف
           </button>
           <button
             type="button"
             role="tab"
             aria-selected={mode === 'password'}
-            className={`auth-mode-toggle-btn${mode === 'password' ? ' auth-mode-toggle-btn--active' : ''}`}
+            className={`auth-tab${mode === 'password' ? ' auth-tab--active' : ''}`}
             onClick={() => setMode('password')}
           >
-            ورود با رمز
+            ورود با رمزعبور
           </button>
         </div>
       ) : null}
@@ -69,63 +81,111 @@ export function LoginForm({ next }: LoginFormProps) {
       {otpEnabled && mode === 'otp' ? (
         <form
           className="auth-form"
-          onSubmit={otpForm.handleSubmit((values) => otpMutation.mutate(values))}
+          onSubmit={otpForm.handleSubmit((values) =>
+            otpMutation.mutate({
+              identifier: normalizeIranPhone(values.identifier),
+            }),
+          )}
         >
-          <label className="auth-field" htmlFor="identifier">
-            <span className="auth-field-label">موبایل یا ایمیل</span>
-            <input
-              id="identifier"
-              className="auth-input"
-              inputMode="email"
-              placeholder="0912xxxxxxx یا you@example.com"
-              {...otpForm.register('identifier')}
-            />
-            {otpForm.formState.errors.identifier ? (
-              <span className="auth-field-error">{otpForm.formState.errors.identifier.message}</span>
-            ) : null}
-          </label>
-          <button type="submit" className="auth-submit" disabled={otpMutation.isPending}>
-            {otpMutation.isPending ? 'در حال ارسال...' : 'دریافت کد تأیید'}
-          </button>
-          {otpError ? <p className="auth-form-error">{otpError}</p> : null}
+          <p className="auth-form-hint">شماره موبایل خود را وارد نمائید</p>
+
+          <Controller
+            control={otpForm.control}
+            name="identifier"
+            render={({ field, fieldState }) => (
+              <AuthFloatingInput
+                id="identifier"
+                label="تلفن همراه"
+                value={field.value}
+                onChange={(value) => field.onChange(normalizeIranPhone(value).slice(0, 11))}
+                onBlur={field.onBlur}
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                maxLength={11}
+                numeric
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+
+          <p className="auth-terms">
+            ورود به منزله قبول{' '}
+            <Link href="/policies" className="auth-terms-link">
+              قوانین و مقررات
+            </Link>{' '}
+            طلاشیم می باشد.
+          </p>
+
+          <AuthSubmitButton
+            isEnabled={otpCanSubmit}
+            isPending={otpMutation.isPending}
+            pendingLabel="در حال ارسال"
+          >
+            ادامه
+          </AuthSubmitButton>
+
+          {otpError ? <AuthAlert variant="error">{otpError}</AuthAlert> : null}
         </form>
       ) : (
         <form
           className="auth-form"
           onSubmit={passwordForm.handleSubmit((values) => loginMutation.mutate(values))}
         >
-          <label className="auth-field" htmlFor="email">
-            <span className="auth-field-label">ایمیل</span>
-            <input
-              id="email"
-              type="email"
-              className="auth-input"
-              placeholder="you@example.com"
-              autoComplete="email"
-              {...passwordForm.register('email')}
-            />
-            {passwordForm.formState.errors.email ? (
-              <span className="auth-field-error">{passwordForm.formState.errors.email.message}</span>
-            ) : null}
-          </label>
-          <label className="auth-field" htmlFor="password">
-            <span className="auth-field-label">رمز عبور</span>
-            <input
-              id="password"
-              type="password"
-              className="auth-input"
-              placeholder="••••••••"
-              autoComplete="current-password"
-              {...passwordForm.register('password')}
-            />
-            {passwordForm.formState.errors.password ? (
-              <span className="auth-field-error">{passwordForm.formState.errors.password.message}</span>
-            ) : null}
-          </label>
-          <button type="submit" className="auth-submit" disabled={loginMutation.isPending}>
-            {loginMutation.isPending ? 'در حال ورود...' : 'ورود به حساب'}
-          </button>
-          {passwordError ? <p className="auth-form-error">{passwordError}</p> : null}
+          <p className="auth-form-hint">ایمیل و رمز عبور خود را وارد نمائید</p>
+
+          <Controller
+            control={passwordForm.control}
+            name="email"
+            render={({ field, fieldState }) => (
+              <AuthFloatingInput
+                id="email"
+                label="ایمیل"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+
+          <Controller
+            control={passwordForm.control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <AuthFloatingInput
+                id="password"
+                label="رمز عبور"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                type="password"
+                autoComplete="current-password"
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+
+          <p className="auth-terms">
+            ورود به منزله قبول{' '}
+            <Link href="/policies" className="auth-terms-link">
+              قوانین و مقررات
+            </Link>{' '}
+            طلاشیم می باشد.
+          </p>
+
+          <AuthSubmitButton
+            isEnabled={passwordCanSubmit}
+            isPending={loginMutation.isPending}
+            pendingLabel="در حال ورود"
+          >
+            ادامه
+          </AuthSubmitButton>
+
+          {passwordError ? <AuthAlert variant="error">{passwordError}</AuthAlert> : null}
         </form>
       )}
     </div>

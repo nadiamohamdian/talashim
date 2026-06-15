@@ -40,7 +40,7 @@ export function AboutPageView() {
                     width={value.iconWidth}
                     height={value.iconHeight}
                     className="about-value-icon"
-                    sizes="30px"
+                    unoptimized
                   />
                 </span>
                 <h3 className="about-value-label">{value.label}</h3>

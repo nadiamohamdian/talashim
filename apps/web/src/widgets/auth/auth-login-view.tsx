@@ -9,11 +9,7 @@ interface AuthLoginViewProps {
 
 export function AuthLoginView({ next }: AuthLoginViewProps) {
   return (
-    <AuthPageShell
-      eyebrow="احراز هویت"
-      title="ورود به طلاشیم"
-      description="فقط برای اقدامات محافظت‌شده (خرید، معامله، کیف پول). مرور فروشگاه بدون ورود امکان‌پذیر است."
-    >
+    <AuthPageShell showSignupFooter>
       <Suspense fallback={<p className="auth-loading">در حال بارگذاری...</p>}>
         <LoginSessionGuard>
           <LoginForm next={next ?? null} />

@@ -1,4 +1,5 @@
 import type { ProductSummary } from '@sadafgold/types';
+import { CATALOG_DEMO_PRODUCTS } from '@talashim/shared/constants/demo-products';
 import { CATEGORY_FALLBACK_IMAGES } from '@/shared/config/images';
 
 export type {
@@ -11,71 +12,34 @@ export {
   PRODUCT_LISTING_PAGE,
 } from '@/shared/config/product-listing-meta';
 
-const DEMO_LISTING_PRICES = [95_000_000, 98_000_000, 112_000_000, 125_000_000, 138_000_000, 165_000_000] as const;
+export const DEMO_LISTING_SLUGS = CATALOG_DEMO_PRODUCTS.map((product) => product.slug);
 
-const DEMO_LISTING_CATEGORIES = [
-  'ring',
-  'ring',
-  'bracelet',
-  'earring',
-  'necklace',
-  'wedding_ring',
-  'wedding_ring',
-  'ring',
-] as const;
-
-const DEMO_LISTING_TITLES = [
-  'انگشتر زنانه لوکس بیضی',
-  'انگشتر کلاسیک طلا',
-  'دستبند طلای ۱۸ عیار',
-  'گوشواره آذین مدل نجو',
-  'گردنبند مینیمال',
-  'حلقه ازدواج کلاسیک',
-  'حلقه ازدواج eternity',
-  'انگشتر نامزدی',
-] as const;
-
-export const DEMO_LISTING_SLUGS = [
-  'demo',
-  'demo-classic-ring',
-  'demo-bracelet',
-  'demo-earring',
-  'demo-necklace',
-  'demo-wedding-ring-classic',
-  'demo-wedding-ring-eternity',
-  'demo-engagement-ring',
-] as const;
-
-const DEMO_LISTING_IMAGES = [
-  CATEGORY_FALLBACK_IMAGES.rings,
-  CATEGORY_FALLBACK_IMAGES.rings,
-  CATEGORY_FALLBACK_IMAGES.bracelets,
-  CATEGORY_FALLBACK_IMAGES.earrings,
-  CATEGORY_FALLBACK_IMAGES.necklaces,
-  CATEGORY_FALLBACK_IMAGES.rings,
-  CATEGORY_FALLBACK_IMAGES.rings,
-  CATEGORY_FALLBACK_IMAGES.rings,
-] as const;
-
-export const PRODUCT_LISTING_DEMO_PRODUCTS: ProductSummary[] = Array.from(
-  { length: 8 },
-  (_, index) => ({
-    id: `listing-demo-${index + 1}`,
-    sku: `DEMO-${index + 1}`,
-    slug: DEMO_LISTING_SLUGS[index],
-    title: DEMO_LISTING_TITLES[index],
-    category: DEMO_LISTING_CATEGORIES[index],
-    karat: 18,
-    weightGram: 0.23,
-    makingFeePercent: 24,
-    priceToman: DEMO_LISTING_PRICES[index % DEMO_LISTING_PRICES.length],
+export const PRODUCT_LISTING_DEMO_PRODUCTS: ProductSummary[] = CATALOG_DEMO_PRODUCTS.map(
+  (item) => ({
+    id: `listing-${item.slug}`,
+    sku: item.sku,
+    slug: item.slug,
+    title: item.title,
+    category: item.category,
+    karat: item.karat,
+    weightGram: item.weightGram,
+    makingFeePercent: item.makingFeePercent,
+    priceToman: item.priceToman,
     compareAtPriceToman: null,
     discountPercent: null,
     discountStartsAt: null,
     discountEndsAt: null,
-    imageUrl: DEMO_LISTING_IMAGES[index],
-    hoverImageUrl: DEMO_LISTING_IMAGES[index],
-    inventory: 3,
-    featured: false,
+    imageUrl: item.storefrontImagePath,
+    hoverImageUrl: item.storefrontImagePath,
+    inventory: item.inventory,
+    featured: item.featured,
   }),
 );
+
+/** @deprecated Use CATALOG_DEMO_PRODUCTS from @talashim/shared */
+export const DEMO_LISTING_IMAGES = {
+  rings: CATEGORY_FALLBACK_IMAGES.rings,
+  bracelets: CATEGORY_FALLBACK_IMAGES.bracelets,
+  earrings: CATEGORY_FALLBACK_IMAGES.earrings,
+  necklaces: CATEGORY_FALLBACK_IMAGES.necklaces,
+} as const;

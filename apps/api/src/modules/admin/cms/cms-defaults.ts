@@ -1,4 +1,5 @@
 import type {
+  CmsCategoryListingGalleryItem,
   CmsCategoryShowcaseItem,
   CmsHeroConfig,
   CmsHomepageSections,
@@ -24,7 +25,23 @@ export const DEFAULT_CMS_HERO: CmsHeroConfig = {
   secondaryCta: { label: 'انگشترهای زنانه', href: '/products?category=rings' },
   imageUrl: buildCmsHeroMediaUrl(),
   desktopBackgroundImageUrl: '',
-  desktopCarouselItems: [],
+  desktopCarouselItems: [
+    {
+      id: 'hero-carousel-ring',
+      imageUrl: '/images/home/hero-carousel-ring.png',
+      href: '/products?category=rings',
+    },
+    {
+      id: 'hero-carousel-necklace',
+      imageUrl: '/images/home/hero-carousel-necklace.png',
+      href: '/products?category=necklaces',
+    },
+    {
+      id: 'hero-carousel-bracelet',
+      imageUrl: '/images/home/hero-carousel-bracelet.png',
+      href: '/products?category=bracelets',
+    },
+  ],
 };
 
 export const DEFAULT_CMS_CATEGORY_SHOWCASE_ITEMS: CmsCategoryShowcaseItem[] = [
@@ -38,6 +55,16 @@ export const CMS_CATEGORY_SHOWCASE_SLUGS = DEFAULT_CMS_CATEGORY_SHOWCASE_ITEMS.m
   (item) => item.slug,
 );
 
+export const DEFAULT_CMS_CATEGORY_LISTING_GALLERY_ITEMS: CmsCategoryListingGalleryItem[] = [
+  { slug: 'rings', label: 'انگشتر زنانه', imageUrls: [] },
+  { slug: 'necklaces', label: 'گردنبند', imageUrls: [] },
+  { slug: 'bracelets', label: 'دستبند', imageUrls: [] },
+  { slug: 'earrings', label: 'گوشواره', imageUrls: [] },
+  { slug: 'sets', label: 'ست و نیم‌ست', imageUrls: [] },
+  { slug: 'wedding-rings', label: 'حلقه ازدواج', imageUrls: [] },
+  { slug: 'coins', label: 'سکه', imageUrls: [] },
+];
+
 export const DEFAULT_CMS_SECTIONS: CmsHomepageSections = {
   featuredTitle: 'جدیدترین محصولات',
   featuredSubtitle: 'آخرین طراحی‌های طلا و جواهر',
@@ -48,6 +75,12 @@ export const DEFAULT_CMS_SECTIONS: CmsHomepageSections = {
   categoryShowcase: {
     title: 'دسته بندی محصولات',
     items: DEFAULT_CMS_CATEGORY_SHOWCASE_ITEMS.map((item) => ({ ...item })),
+  },
+  categoryListingGallery: {
+    items: DEFAULT_CMS_CATEGORY_LISTING_GALLERY_ITEMS.map((item) => ({
+      ...item,
+      imageUrls: [],
+    })),
   },
 };
 

@@ -19,6 +19,7 @@ export function fetchAdminProducts(params?: {
   category?: string;
   featured?: boolean;
   lowStock?: boolean;
+  demoOnly?: boolean;
 }) {
   return axiosClient
     .get<PaginatedResponse<AdminProductDto>>('/admin/products', { params })

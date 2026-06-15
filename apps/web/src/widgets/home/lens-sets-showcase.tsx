@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type MouseEvent } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
@@ -18,9 +18,17 @@ interface LensSetsShowcaseProps {
   items: LensShowcaseDemoItem[];
 }
 
+const LENS_CHIP_COUNT = LENS_EDITORIAL_HOTSPOTS.length;
+
+function createDefaultOpenChips(): Set<number> {
+  const isMobile = window.matchMedia('(max-width: 1023.98px)').matches;
+  return isMobile ? new Set([0]) : new Set(Array.from({ length: LENS_CHIP_COUNT }, (_, index) => index));
+}
+
 export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [popupOpen, setPopupOpen] = useState(false);
+  const [openChips, setOpenChips] = useState<Set<number>>(() => new Set([0]));
 
   const slideCount = items.length;
   const activeItem = items[activeIndex] ?? items[0];
@@ -34,6 +42,30 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
   const goNext = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setActiveIndex((index) => (index + 1) % slideCount);
+  };
+
+  useEffect(() => {
+    setOpenChips(createDefaultOpenChips());
+  }, [activeIndex]);
+
+  const toggleChip = (index: number, event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setOpenChips((previous) => {
+      const isOpen = previous.has(index);
+      const isMobile = window.matchMedia('(max-width: 1023.98px)').matches;
+
+      if (isMobile) {
+        return isOpen ? new Set<number>() : new Set([index]);
+      }
+
+      const next = new Set(previous);
+      if (isOpen) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
   };
 
   const openPopup = () => {
@@ -84,13 +116,21 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
                 <span className="lens-sets-showcase-hero-overlay" />
               </div>
 
-              {spotlightProducts.map((product, index) => (
-                <Link
-                  key={product.id}
-                  href={getLensProductPageHref(product.slug)}
-                  className={`lens-sets-showcase-product-chip lens-sets-showcase-product-chip--${index}`}
-                  onClick={(event) => event.stopPropagation()}
-                >
+              {spotlightProducts.map((product, index) => {
+                const isOpen = openChips.has(index);
+
+                return (
+                  <Link
+                    key={product.id}
+                    id={`lens-sets-chip-${index}`}
+                    href={getLensProductPageHref(product.slug)}
+                    className={`lens-sets-showcase-product-chip lens-sets-showcase-product-chip--${index}${
+                      isOpen ? ' lens-sets-showcase-product-chip--open' : ''
+                    }`}
+                    onClick={(event) => event.stopPropagation()}
+                    aria-hidden={!isOpen}
+                    tabIndex={isOpen ? 0 : -1}
+                  >
                   <span className="lens-sets-showcase-product-chip-copy">
                     <span className="lens-sets-showcase-product-chip-title">{product.title}</span>
                     <span className="lens-sets-showcase-product-chip-price">
@@ -110,19 +150,35 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
                       className="lens-sets-showcase-product-chip-image"
                     />
                   </span>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
 
-              {LENS_EDITORIAL_HOTSPOTS.map((spot) => (
-                <span
-                  key={spot.id}
-                  className="lens-sets-showcase-hotspot"
-                  style={{ top: spot.top, left: spot.left }}
-                  aria-hidden
-                >
-                  +
-                </span>
-              ))}
+              {LENS_EDITORIAL_HOTSPOTS.map((spot, index) => {
+                const product = spotlightProducts[index];
+                const isOpen = openChips.has(index);
+
+                return (
+                  <button
+                    key={spot.id}
+                    type="button"
+                    className={`lens-sets-showcase-hotspot${
+                      isOpen ? ' lens-sets-showcase-hotspot--active' : ''
+                    }`}
+                    style={{ top: spot.top, left: spot.left }}
+                    onClick={(event) => toggleChip(index, event)}
+                    aria-expanded={isOpen}
+                    aria-controls={`lens-sets-chip-${index}`}
+                    aria-label={
+                      product
+                        ? `${isOpen ? 'بستن' : 'نمایش'} ${product.title}`
+                        : `نمایش محصول ${index + 1}`
+                    }
+                  >
+                    +
+                  </button>
+                );
+              })}
             </div>
 
             <div className="lens-sets-showcase-nav">

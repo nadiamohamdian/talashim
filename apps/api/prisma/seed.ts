@@ -15,6 +15,7 @@ import {
 } from '../src/modules/auth/constants/dev-test-accounts';
 import { getApiEnv } from '../src/config/env';
 import { ensureSeedMediaAssets } from './seed-media';
+import { seedCatalogDemoProducts } from './seed-demo-products';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -254,6 +255,8 @@ async function main() {
       },
     });
   }
+
+  await seedCatalogDemoProducts(prisma, seedMedia);
 
   const customerAddress = await prisma.address.upsert({
     where: { id: 'seed-customer-address-1' },

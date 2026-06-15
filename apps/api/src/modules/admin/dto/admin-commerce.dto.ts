@@ -146,6 +146,12 @@ export class AdminProductsQueryDto extends PaginationQueryDto {
   @Type(() => Boolean)
   @IsBoolean()
   lowStock?: boolean;
+
+  @ApiPropertyOptional({ description: 'Only catalog demo / test products (SKU DEMO- or slug demo*)' })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  demoOnly?: boolean;
 }
 
 export class CreateAdminProductDto {

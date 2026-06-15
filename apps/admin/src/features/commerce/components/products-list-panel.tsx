@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isCatalogDemoProduct } from '@sadafgold/shared';
 import {
   Badge,
   Button,
@@ -32,15 +33,17 @@ export function ProductsListPanel() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [lowStock, setLowStock] = useState(false);
+  const [demoOnly, setDemoOnly] = useState(false);
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: adminQueryKeys.commerce.products(page, search, category, lowStock),
+    queryKey: adminQueryKeys.commerce.products(page, search, category, lowStock, demoOnly),
     queryFn: () =>
       fetchAdminProducts({
         page,
         search: search || undefined,
         category: category || undefined,
         lowStock: lowStock || undefined,
+        demoOnly: demoOnly || undefined,
       }),
   });
 
@@ -108,6 +111,17 @@ export function ProductsListPanel() {
           />
           کم‌موجودی
         </label>
+        <label className="flex items-center gap-2 self-end pb-2 text-sm">
+          <input
+            type="checkbox"
+            checked={demoOnly}
+            onChange={(e) => {
+              setDemoOnly(e.target.checked);
+              setPage(1);
+            }}
+          />
+          فقط محصولات تستی
+        </label>
       </FilterBar>
 
       <Card className="overflow-hidden border-[var(--border-subtle)] bg-[var(--card)] p-0">
@@ -143,7 +157,14 @@ export function ProductsListPanel() {
               ) : (
                 data?.items.map((product) => (
                   <TableRow key={product.id}>
-                    <TableCell className="font-mono text-xs">{product.sku}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      <span className="inline-flex items-center gap-2">
+                        {product.sku}
+                        {isCatalogDemoProduct(product) ? (
+                          <Badge className="bg-amber-50 text-amber-800">تستی</Badge>
+                        ) : null}
+                      </span>
+                    </TableCell>
                     <TableCell className="font-medium">{product.title}</TableCell>
                     <TableCell>{PRODUCT_CATEGORY_FA[product.category] ?? product.category}</TableCell>
                     <TableCell>{product.karat}</TableCell>

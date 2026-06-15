@@ -248,6 +248,9 @@ export interface HomeProductCarouselItem {
   href?: string;
 }
 
+const DEMO_CAROUSEL_HOVER_LIFESTYLE =
+  '/images/products/964bdc1347006a50cdc0ea4b2ec46ea4-removebg-preview%201.png';
+
 const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
   {
     id: 'demo-carousel-ring',
@@ -291,7 +294,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     priceToman: 18_900_000,
     weightGram: 5.6,
     imageUrl: '/images/home/hero-carousel-ring.png',
-    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    hoverImageUrl: DEMO_CAROUSEL_HOVER_LIFESTYLE,
     href: '/products?category=sets',
   },
   {
@@ -300,7 +303,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     priceToman: 11_300_000,
     weightGram: 3.9,
     imageUrl: '/images/home/VintageKnotAdjustableBracelet1_720x 2.png',
-    hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
+    hoverImageUrl: DEMO_CAROUSEL_HOVER_LIFESTYLE,
     href: '/products?category=bracelets',
   },
   {
@@ -402,16 +405,6 @@ export const HOME_HERO_DESKTOP_CAROUSEL: HomeHeroDesktopCarouselItem[] = [
     id: 'hero-carousel-bracelet',
     imageUrl: '/images/home/hero-carousel-bracelet.png',
     href: '/products?category=bracelets',
-  },
-  {
-    id: 'hero-carousel-earrings',
-    imageUrl: '/images/categories/earrings.png',
-    href: '/products?category=earrings',
-  },
-  {
-    id: 'hero-carousel-sets',
-    imageUrl: '/images/home/new-arrival-necklace.png',
-    href: '/products?category=sets',
   },
 ];
 

@@ -49,6 +49,10 @@
     "./constants/auth": {
       "types": "./dist/constants/auth.d.ts",
       "default": "./dist/constants/auth.js"
+    },
+    "./constants/demo-products": {
+      "types": "./dist/constants/demo-products.d.ts",
+      "default": "./dist/constants/demo-products.js"
     }
   },
   "scripts": {

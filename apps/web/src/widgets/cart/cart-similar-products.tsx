@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { ProductSummary } from '@sadafgold/types';
 import { formatPrice } from '@/shared/lib/format-price';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
-import { StoreImage } from '@/shared/ui/store-image';
+import { StoreProductCardMedia } from '@/shared/ui/store-product-card-media';
 
 interface CartSimilarProductsProps {
   products: ProductSummary[];
@@ -20,22 +20,19 @@ export function CartSimilarProducts({ products }: CartSimilarProductsProps) {
       </h2>
       <div className="cart-similar-track">
         {products.map((product) => (
-          <article key={product.id} className="cart-similar-card">
+          <article key={product.id} className="store-product-card cart-similar-card">
             <Link href={`/products/${product.slug}`} className="cart-similar-card-link">
-              <div className="cart-similar-card-media">
-                <StoreImage
-                  src={product.imageUrl}
-                  alt={product.title}
-                  fill
-                  className="cart-similar-card-image"
-                  sizes="148px"
-                />
-              </div>
-              <h3 className="cart-similar-card-title">{product.title}</h3>
-              <p className="cart-similar-card-price">
+              <StoreProductCardMedia
+                imageUrl={product.imageUrl}
+                hoverImageUrl={product.hoverImageUrl}
+                alt={product.title}
+                sizes="148px"
+              />
+              <h3 className="store-product-card-title cart-similar-card-title">{product.title}</h3>
+              <p className="store-product-card-price cart-similar-card-price">
                 {formatPrice(product.priceToman)} تومان
               </p>
-              <p className="cart-similar-card-weight">
+              <p className="store-product-card-weight cart-similar-card-weight">
                 {toPersianDigits(product.weightGram)} گرم
               </p>
             </Link>

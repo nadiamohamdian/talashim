@@ -118,6 +118,26 @@ export interface CmsCategoryShowcaseConfig {
   items: CmsCategoryShowcaseItem[];
 }
 
+export type CmsCategoryListingGallerySlug =
+  | 'rings'
+  | 'necklaces'
+  | 'bracelets'
+  | 'earrings'
+  | 'sets'
+  | 'wedding-rings'
+  | 'coins';
+
+export interface CmsCategoryListingGalleryItem {
+  slug: CmsCategoryListingGallerySlug;
+  label: string;
+  /** Product listing page hero gallery — library image URLs in display order */
+  imageUrls: string[];
+}
+
+export interface CmsCategoryListingGalleryConfig {
+  items: CmsCategoryListingGalleryItem[];
+}
+
 export interface CmsHomepageSections {
   featuredTitle: string;
   featuredSubtitle: string;
@@ -128,6 +148,8 @@ export interface CmsHomepageSections {
   showCategoryShowcase: boolean;
   /** Category showcase title and per-category images */
   categoryShowcase?: CmsCategoryShowcaseConfig;
+  /** Category product listing page hero galleries */
+  categoryListingGallery?: CmsCategoryListingGalleryConfig;
   /** Homepage bestsellers carousel — 7–12 catalog product IDs */
   bestsellerProductIds?: string[];
   /** Homepage new arrivals carousel — 1–12 catalog product IDs */

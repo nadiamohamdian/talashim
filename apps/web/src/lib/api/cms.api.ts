@@ -78,7 +78,23 @@ function defaultPublicHomepage(): PublicCmsHomepage {
       secondaryCta: { label: 'انگشترهای زنانه', href: '/products?category=rings' },
       imageUrl: getDefaultHeroImageUrl(),
       desktopBackgroundImageUrl: '',
-      desktopCarouselItems: [],
+      desktopCarouselItems: [
+        {
+          id: 'hero-carousel-ring',
+          imageUrl: '/images/home/hero-carousel-ring.png',
+          href: '/products?category=rings',
+        },
+        {
+          id: 'hero-carousel-necklace',
+          imageUrl: '/images/home/hero-carousel-necklace.png',
+          href: '/products?category=necklaces',
+        },
+        {
+          id: 'hero-carousel-bracelet',
+          imageUrl: '/images/home/hero-carousel-bracelet.png',
+          href: '/products?category=bracelets',
+        },
+      ],
     },
     sections: {
       featuredTitle: 'جدیدترین محصولات',
@@ -94,6 +110,17 @@ function defaultPublicHomepage(): PublicCmsHomepage {
           { slug: 'bracelets', label: 'دستبند', href: '/products?category=bracelets' },
           { slug: 'earrings', label: 'گوشواره', href: '/products?category=earrings' },
           { slug: 'necklaces', label: 'گردنبند', href: '/products?category=necklaces' },
+        ],
+      },
+      categoryListingGallery: {
+        items: [
+          { slug: 'rings', label: 'انگشتر زنانه', imageUrls: [] },
+          { slug: 'necklaces', label: 'گردنبند', imageUrls: [] },
+          { slug: 'bracelets', label: 'دستبند', imageUrls: [] },
+          { slug: 'earrings', label: 'گوشواره', imageUrls: [] },
+          { slug: 'sets', label: 'ست و نیم‌ست', imageUrls: [] },
+          { slug: 'wedding-rings', label: 'حلقه ازدواج', imageUrls: [] },
+          { slug: 'coins', label: 'سکه', imageUrls: [] },
         ],
       },
     },

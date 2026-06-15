@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DEMO_PRODUCT_SKU_PREFIX, DEMO_PRODUCT_SLUG_PREFIX } from '@talashim/shared';
 import { InventoryMovementType, Prisma, ProductCategory } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 
@@ -41,6 +42,7 @@ export class AdminProductsRepository {
       category?: ProductCategory;
       featured?: boolean;
       lowStock?: boolean;
+      demoOnly?: boolean;
     },
   ) {
     const where: Prisma.ProductWhereInput = {};
@@ -51,13 +53,32 @@ export class AdminProductsRepository {
     if (filters.featured !== undefined) {
       where.featured = filters.featured;
     }
-    if (filters.search?.trim()) {
-      where.OR = [
-        { title: { contains: filters.search.trim(), mode: 'insensitive' } },
-        { sku: { contains: filters.search.trim(), mode: 'insensitive' } },
-        { slug: { contains: filters.search.trim(), mode: 'insensitive' } },
-      ];
+
+    const andClauses: Prisma.ProductWhereInput[] = [];
+
+    if (filters.demoOnly) {
+      andClauses.push({
+        OR: [
+          { sku: { startsWith: DEMO_PRODUCT_SKU_PREFIX, mode: 'insensitive' } },
+          { slug: { startsWith: DEMO_PRODUCT_SLUG_PREFIX, mode: 'insensitive' } },
+        ],
+      });
     }
+
+    if (filters.search?.trim()) {
+      andClauses.push({
+        OR: [
+          { title: { contains: filters.search.trim(), mode: 'insensitive' } },
+          { sku: { contains: filters.search.trim(), mode: 'insensitive' } },
+          { slug: { contains: filters.search.trim(), mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    if (andClauses.length > 0) {
+      where.AND = andClauses;
+    }
+
     if (filters.lowStock) {
       where.inventoryItem = {
         is: { quantity: { lte: 5 } },

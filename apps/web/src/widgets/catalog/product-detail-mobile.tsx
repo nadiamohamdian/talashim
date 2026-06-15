@@ -16,7 +16,7 @@ import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide'
 import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
 import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
-import { resolveProductJewelrySizeKind } from '@/shared/lib/catalog-category';
+import { resolveProductJewelrySizeKinds } from '@/shared/lib/catalog-category';
 import { ProductSizeRulerSection } from '@/widgets/catalog/product-size-ruler-section';
 import { StoreImage } from '@/shared/ui/store-image';
 
@@ -78,7 +78,17 @@ export function ProductDetailMobile({
     return sorted[0] ?? null;
   }, [videos]);
 
-  const sizeKind = resolveProductJewelrySizeKind(product.category);
+  const sizeKinds = useMemo(
+    () =>
+      resolveProductJewelrySizeKinds({
+        title: product.title,
+        slug: product.slug,
+        category: product.category,
+        description: product.description,
+        specifications: product.specifications,
+      }),
+    [product.category, product.description, product.slug, product.specifications, product.title],
+  );
   const ringSizeOptions = ringSizes ?? DEFAULT_RING_SIZES;
   const necklaceSizeOptions = necklaceSizes ?? DEFAULT_NECKLACE_SIZES;
   const braceletSizeOptions = braceletSizes ?? DEFAULT_BRACELET_SIZES;
@@ -178,7 +188,7 @@ export function ProductDetailMobile({
       </section>
 
       <div className="product-details-body">
-        {sizeKind === 'ring' ? (
+        {sizeKinds.includes('ring') ? (
           <ProductSizeRulerSection
             id="pdp-ring-size-title"
             title="انتخاب سایز انگشتر"
@@ -190,7 +200,7 @@ export function ProductDetailMobile({
           />
         ) : null}
 
-        {sizeKind === 'necklace' ? (
+        {sizeKinds.includes('necklace') ? (
           <ProductSizeRulerSection
             id="pdp-necklace-size-title"
             title="انتخاب سایز گردنبند"
@@ -202,7 +212,7 @@ export function ProductDetailMobile({
           />
         ) : null}
 
-        {sizeKind === 'bracelet' ? (
+        {sizeKinds.includes('bracelet') ? (
           <ProductSizeRulerSection
             id="pdp-bracelet-size-title"
             title="انتخاب سایز دستبند"

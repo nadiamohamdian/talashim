@@ -1,11 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { getApiErrorMessage } from '@/lib/api';
+import { AuthFloatingInput } from '@/features/auth/components/auth-floating-input';
+import { AuthAlert } from '@/features/auth/components/auth-alert';
+import { AuthSubmitButton } from '@/features/auth/components/auth-submit-button';
 import { useOtpVerifyMutation } from '@/features/auth/hooks/use-auth';
 import { otpVerifySchema, type OtpVerifyValues } from '@/features/auth/model/schemas';
 
@@ -18,6 +20,7 @@ export function OtpVerifyForm() {
   const form = useForm<OtpVerifyValues>({
     resolver: zodResolver(otpVerifySchema),
     defaultValues: { identifier, code: '' },
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -25,6 +28,9 @@ export function OtpVerifyForm() {
       form.setValue('identifier', identifier);
     }
   }, [identifier, form]);
+
+  const code = form.watch('code');
+  const canSubmit = /^\d{6}$/.test(code);
 
   const error =
     verifyMutation.error && getApiErrorMessage(verifyMutation.error, 'کد تأیید نامعتبر است');
@@ -34,32 +40,56 @@ export function OtpVerifyForm() {
       className="auth-form"
       onSubmit={form.handleSubmit((values) => verifyMutation.mutate(values))}
     >
-      <label className="auth-field" htmlFor="identifier">
-        <span className="auth-field-label">موبایل یا ایمیل</span>
-        <input id="identifier" className="auth-input auth-input--readonly" readOnly {...form.register('identifier')} />
-      </label>
-      <label className="auth-field" htmlFor="code">
-        <span className="auth-field-label">کد ۶ رقمی</span>
-        <input
-          id="code"
-          className="auth-input auth-input--code"
-          inputMode="numeric"
-          maxLength={6}
-          placeholder="123456"
-          autoComplete="one-time-code"
-          {...form.register('code')}
-        />
-        {form.formState.errors.code ? (
-          <span className="auth-field-error">{form.formState.errors.code.message}</span>
-        ) : null}
-      </label>
-      <button type="submit" className="auth-submit" disabled={verifyMutation.isPending}>
-        {verifyMutation.isPending ? 'در حال تأیید...' : 'تأیید و ورود'}
-      </button>
-      {error ? <p className="auth-form-error">{error}</p> : null}
-      <Link href="/login" className="auth-back-link">
-        بازگشت به ورود
-      </Link>
+      <p className="auth-form-hint">کد ۶ رقمی ارسال‌شده را وارد نمائید</p>
+
+      <Controller
+        control={form.control}
+        name="identifier"
+        render={({ field }) => (
+          <AuthFloatingInput
+            id="verify-identifier"
+            label="تلفن همراه"
+            value={field.value}
+            onChange={field.onChange}
+            readOnly
+            numeric
+          />
+        )}
+      />
+
+      <Controller
+        control={form.control}
+        name="code"
+        render={({ field, fieldState }) => (
+          <AuthFloatingInput
+            id="code"
+            label="کد تأیید"
+            value={field.value}
+            onChange={(value) => field.onChange(value.replace(/\D/g, '').slice(0, 6))}
+            onBlur={field.onBlur}
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            numeric
+            error={fieldState.error?.message}
+          />
+        )}
+      />
+
+      {identifier ? (
+        <AuthAlert variant="success">کد تائید ارسال شد</AuthAlert>
+      ) : null}
+
+      <AuthSubmitButton
+        isEnabled={canSubmit}
+        isPending={verifyMutation.isPending}
+        pendingLabel="در حال تأیید"
+      >
+        ادامه
+      </AuthSubmitButton>
+
+      {error ? <AuthAlert variant="error">{error}</AuthAlert> : null}
     </form>
   );
 }

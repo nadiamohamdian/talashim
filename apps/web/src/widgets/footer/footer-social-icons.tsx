@@ -13,8 +13,8 @@ export function FooterSocialIcons() {
         <Image
           src="/images/footer/social-icons.svg"
           alt=""
-          width={60}
-          height={13}
+          width={100}
+          height={20}
           className="site-footer-social-strip"
           aria-hidden
         />

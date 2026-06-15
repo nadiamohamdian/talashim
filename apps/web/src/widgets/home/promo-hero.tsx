@@ -1,18 +1,15 @@
 import Link from 'next/link';
-import type { CmsHeroConfig } from '@sadafgold/types';
+import type { CmsHeroConfig, ProductSummary } from '@sadafgold/types';
 import {
   CMS_HERO_STATIC_FALLBACK,
   getDefaultHeroImageUrl,
 } from '@/shared/config/cms-hero';
-import {
-  HOME_HERO_DESKTOP_BG,
-  HOME_HERO_DESKTOP_CAROUSEL,
-  type HomeHeroDesktopCarouselItem,
-} from '@/shared/config/storefront-ia';
+import { HOME_HERO_DESKTOP_BG } from '@/shared/config/storefront-ia';
 import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { StoreImage } from '@/shared/ui/store-image';
 import { IconHeroArrowDiagonal } from '@/widgets/header/header-menu-icons';
 import { PromoHeroDesktopCarousel } from '@/widgets/home/promo-hero-desktop-carousel';
+import { resolveHeroDesktopCarouselItems } from '@/widgets/home/resolve-hero-desktop-carousel';
 
 function resolveHeroImage(imageUrl: string): string {
   const trimmed = imageUrl.trim();
@@ -24,30 +21,21 @@ function resolveDesktopBackgroundImage(imageUrl: string | undefined): string {
   return trimmed || HOME_HERO_DESKTOP_BG;
 }
 
-function resolveDesktopCarouselItems(
-  items: CmsHeroConfig['desktopCarouselItems'],
-): HomeHeroDesktopCarouselItem[] {
-  const configured =
-    items?.filter((item) => item.imageUrl.trim().length > 0).map((item) => ({
-      id: item.id,
-      imageUrl: item.imageUrl.trim(),
-      href: item.href.trim() || '/products',
-    })) ?? [];
-
-  return configured.length > 0 ? configured : HOME_HERO_DESKTOP_CAROUSEL;
-}
-
 interface PromoHeroProps {
   hero: CmsHeroConfig;
+  carouselProducts?: ProductSummary[];
 }
 
-export function PromoHero({ hero }: PromoHeroProps) {
+export function PromoHero({ hero, carouselProducts = [] }: PromoHeroProps) {
   const title = hero.title.trim() || 'زیبایی ماندگار';
   const desktopTitle = title === 'زیبایی ماندگار' ? 'گالری طلاشیم' : title;
   const description = hero.description.trim();
   const heroImage = resolveHeroImage(hero.imageUrl);
   const desktopBackgroundImage = resolveDesktopBackgroundImage(hero.desktopBackgroundImageUrl);
-  const desktopCarouselItems = resolveDesktopCarouselItems(hero.desktopCarouselItems);
+  const desktopCarouselItems = resolveHeroDesktopCarouselItems(
+    hero.desktopCarouselItems,
+    carouselProducts,
+  );
   const primaryLabel = hero.primaryCta.label.trim() || 'مشاهده کالکشن ها';
   const primaryHref = hero.primaryCta.href.trim() || '/products';
   const secondaryHref = hero.secondaryCta.href.trim() || '/products?category=rings';

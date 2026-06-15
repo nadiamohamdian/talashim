@@ -25,7 +25,13 @@ export default async function HomePage() {
   return (
     <>
       <div className="home-hero-fullscreen">
-        <PromoHero hero={homepage.hero} />
+        <PromoHero
+          hero={homepage.hero}
+          carouselProducts={[
+            ...(homepage.bestsellerProducts ?? []),
+            ...(homepage.newArrivalsProducts ?? []),
+          ]}
+        />
       </div>
       <div className="home-page store-chrome-dark -mx-4 overflow-x-clip sm:-mx-6 lg:mx-0 lg:w-full">
       {homepage.sections.showCategoryShowcase ? (

@@ -55,6 +55,7 @@ export class AdminProductsService {
       category: query.category,
       featured: query.featured,
       lowStock: query.lowStock,
+      demoOnly: query.demoOnly,
     });
 
     return {

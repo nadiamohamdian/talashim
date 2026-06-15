@@ -273,7 +273,7 @@ export function HomeProductCarousel({
 
         <div ref={trackRef} className="home-product-carousel-track" role="list">
           {trackItems.map(({ item, loopKey }) => (
-            <article key={loopKey} className="home-product-carousel-card" role="listitem">
+            <article key={loopKey} className="store-product-card home-product-carousel-card" role="listitem">
               {item.href ? (
                 <Link href={item.href} className="home-product-carousel-card-link">
                   <HomeProductCarouselCard item={item} />

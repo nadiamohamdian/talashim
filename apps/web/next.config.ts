@@ -13,7 +13,14 @@ loadDotenv({ path: path.join(repoRoot, '.env.local'), override: true });
 const { buildImageRemotePatterns } = require('./src/shared/config/image-hosts') as typeof import('./src/shared/config/image-hosts');
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@sadafgold/types', '@sadafgold/ui', '@sadafgold/shared'],
+  transpilePackages: [
+    '@talashim/types',
+    '@talashim/ui',
+    '@talashim/shared',
+    '@sadafgold/types',
+    '@sadafgold/ui',
+    '@sadafgold/shared',
+  ],
   typedRoutes: false,
   images: {
     remotePatterns: buildImageRemotePatterns(),

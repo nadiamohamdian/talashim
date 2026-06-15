@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useState, type PropsWithChildren } from 'react';
 import type { ProductSummary } from '@sadafgold/types';
 import {
@@ -21,6 +20,7 @@ import { ProductListingToolbar } from '@/widgets/catalog/product-listing-toolbar
 interface ProductListingViewProps extends PropsWithChildren {
   products: ProductSummary[];
   meta?: ProductListingPageMeta;
+  gallerySlides?: readonly string[];
   showDefaultHero?: boolean;
   emptyMessage?: string;
   isLoading?: boolean;
@@ -31,6 +31,7 @@ export function ProductListingView({
   products,
   meta = PRODUCT_LISTING_PAGE,
   children,
+  gallerySlides,
   showDefaultHero = true,
   emptyMessage = 'محصولی یافت نشد.',
   isLoading = false,
@@ -73,42 +74,20 @@ export function ProductListingView({
     setSelectedGoldColors(new Set());
   }, []);
 
+  const resolvedGallerySlides =
+    gallerySlides ?? (showDefaultHero ? PRODUCT_LISTING_CAROUSEL_SLIDES : undefined);
+
   return (
     <div className="product-listing-page store-chrome-light store-minimal-header">
       <div className="product-listing-inner">
         <header className="product-listing-header">
-          {meta.breadcrumbs && meta.breadcrumbs.length > 0 ? (
-            <nav className="product-listing-breadcrumbs" aria-label="مسیر دسته‌بندی">
-              {meta.breadcrumbs.map((crumb, index) => {
-                const isLast = index === meta.breadcrumbs!.length - 1;
-                const className = isLast
-                  ? 'product-listing-breadcrumb product-listing-breadcrumb--current'
-                  : 'product-listing-breadcrumb';
-
-                if (crumb.href && !isLast) {
-                  return (
-                    <Link key={`${crumb.label}-${index}`} href={crumb.href} className={className}>
-                      {crumb.label}
-                    </Link>
-                  );
-                }
-
-                return (
-                  <span key={`${crumb.label}-${index}`} className={className}>
-                    {crumb.label}
-                  </span>
-                );
-              })}
-            </nav>
-          ) : (
-            <h1 className="product-listing-title">{meta.title}</h1>
-          )}
+          <h1 className="product-listing-title">{meta.title}</h1>
           {meta.subtitle ? <p className="product-listing-subtitle">{meta.subtitle}</p> : null}
         </header>
 
         {children ??
-          (showDefaultHero ? (
-            <ProductListingHeroCarousel slides={PRODUCT_LISTING_CAROUSEL_SLIDES} />
+          (resolvedGallerySlides && resolvedGallerySlides.length > 0 ? (
+            <ProductListingHeroCarousel slides={resolvedGallerySlides} />
           ) : null)}
 
         <ProductListingToolbar

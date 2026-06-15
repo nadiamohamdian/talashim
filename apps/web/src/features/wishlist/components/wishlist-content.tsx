@@ -2,12 +2,18 @@
 
 import Link from 'next/link';
 import { Button, Skeleton } from '@sadafgold/ui';
-import { StoreImage } from '@/shared/ui/store-image';
 import { formatPrice } from '@/shared/lib/format-price';
+import { toPersianDigits } from '@/shared/lib/to-persian-digits';
+import { StoreProductCardMedia } from '@/shared/ui/store-product-card-media';
 import { getApiErrorMessage } from '@/lib/api/client';
 import { useWishlist, useRemoveWishlistMutation } from '@/lib/api/hooks/use-wishlist';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
+
+function formatListingWeight(weightGram: number): string {
+  const value = weightGram < 1 ? weightGram.toFixed(2) : String(weightGram);
+  return toPersianDigits(value);
+}
 
 export function WishlistContent() {
   const { isAuthenticated } = useAuth();
@@ -54,27 +60,32 @@ export function WishlistContent() {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="wishlist-grid">
       {data.map((item) => (
-        <div key={item.id} className="card-luxury overflow-hidden">
-          <Link href={`/products/${item.product.slug}`} className="block">
-            <div className="relative aspect-[4/3] bg-nude-100">
-              <StoreImage
-                src={item.product.imageUrl}
-                alt={item.product.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 50vw, 33vw"
-              />
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold">{item.product.title}</h3>
-              <p className="mt-1 text-sm text-gold-dark">
+        <article key={item.id} className="store-product-card wishlist-card">
+          <Link href={`/products/${item.product.slug}`} className="wishlist-card-link">
+            <StoreProductCardMedia
+              imageUrl={item.product.imageUrl}
+              hoverImageUrl={item.product.hoverImageUrl}
+              alt={item.product.title}
+              sizes="(max-width: 640px) 50vw, 188px"
+              badge={
+                <span className="store-product-card-badge">
+                  {toPersianDigits(item.product.karat)} عیار
+                </span>
+              }
+            />
+            <div className="wishlist-card-body">
+              <h3 className="store-product-card-title wishlist-card-title">{item.product.title}</h3>
+              <p className="store-product-card-price wishlist-card-price">
                 {formatPrice(item.product.priceToman)} تومان
+              </p>
+              <p className="store-product-card-weight wishlist-card-weight">
+                {formatListingWeight(item.product.weightGram)} گرم
               </p>
             </div>
           </Link>
-          <div className="border-t border-nude-200 px-4 py-3">
+          <div className="wishlist-card-actions">
             <Button
               variant="outline"
               className="w-full text-xs"
@@ -84,7 +95,7 @@ export function WishlistContent() {
               حذف از علاقه‌مندی
             </Button>
           </div>
-        </div>
+        </article>
       ))}
     </div>
   );

@@ -22,7 +22,7 @@ export function PromoHeroDesktopCarousel({ items }: PromoHeroDesktopCarouselProp
   }
 
   const visibleItems = Array.from({ length: visibleCount }, (_, index) => {
-    return items[(offset + index) % slideCount];
+    return items[(offset + index) % slideCount]!;
   });
 
   const goPrev = () => {
@@ -47,7 +47,6 @@ export function PromoHeroDesktopCarousel({ items }: PromoHeroDesktopCarouselProp
         onClick={goPrev}
         aria-label="محصول قبلی"
         disabled={!canNavigate}
-        hidden={!canNavigate}
       >
         <IconCarouselArrow direction="prev" />
       </button>
@@ -72,7 +71,6 @@ export function PromoHeroDesktopCarousel({ items }: PromoHeroDesktopCarouselProp
         onClick={goNext}
         aria-label="محصول بعدی"
         disabled={!canNavigate}
-        hidden={!canNavigate}
       >
         <IconCarouselArrow direction="next" />
       </button>

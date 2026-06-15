@@ -66,8 +66,8 @@ export const adminQueryKeys = {
       ['admin', 'notifications', 'delivery', page, status, channel, search] as const,
   },
   commerce: {
-    products: (page: number, search: string, category: string, lowStock: boolean) =>
-      ['admin', 'commerce', 'products', page, search, category, lowStock] as const,
+    products: (page: number, search: string, category: string, lowStock: boolean, demoOnly: boolean) =>
+      ['admin', 'commerce', 'products', page, search, category, lowStock, demoOnly] as const,
     videos: (page: number, search: string) =>
       ['admin', 'commerce', 'videos', page, search] as const,
     reviews: (page: number, status: string, search: string) =>

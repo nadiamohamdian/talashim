@@ -21,14 +21,6 @@ export function DesktopMenuBar() {
   return (
     <div className="desktop-menu-bar">
       <div className="desktop-menu-bar-top">
-        <Link href="/" className="desktop-menu-bar-brand" aria-label="Talashim">
-          Talashim
-        </Link>
-
-        <nav className="desktop-menu-bar-nav" aria-label="دسته‌بندی محصولات">
-          <HomeHeroDesktopNav />
-        </nav>
-
         <div className="desktop-menu-bar-actions">
           <button
             type="button"
@@ -49,6 +41,16 @@ export function DesktopMenuBar() {
             ) : null}
           </Link>
         </div>
+
+        <nav className="desktop-menu-bar-nav" aria-label="دسته‌بندی محصولات">
+          <div className="desktop-menu-bar-nav-list">
+            <HomeHeroDesktopNav />
+          </div>
+        </nav>
+
+        <Link href="/" className="desktop-menu-bar-brand" aria-label="Talashim">
+          Talashim
+        </Link>
       </div>
 
       {searchOpen ? (

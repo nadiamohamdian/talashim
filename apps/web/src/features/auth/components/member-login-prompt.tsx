@@ -36,7 +36,7 @@ export function MemberLoginPrompt({
         </header>
 
         <div className="store-login-prompt-actions auth-card-body">
-          <Link href={buildLoginHref(returnPath)} className="auth-submit">
+          <Link href={buildLoginHref(returnPath)} className="auth-submit auth-submit--active">
             ورود
           </Link>
           <Link href="/products" className="store-login-prompt-secondary">

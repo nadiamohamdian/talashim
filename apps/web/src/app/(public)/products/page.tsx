@@ -5,6 +5,9 @@ import {
   PRODUCT_LISTING_DEMO_PRODUCTS,
   PRODUCT_LISTING_PAGE,
 } from '@/shared/config/product-listing-demo';
+import { getCategoryListingGallerySlides } from '@/shared/config/category-listing-gallery';
+import { resolveCategoryListingGallerySlides } from '@/shared/config/cms-category-listing-gallery';
+import { getPublicHomepage } from '@/lib/api/cms.api';
 import {
   filterProductsByCategory,
   getCategoryListingMeta,
@@ -115,6 +118,19 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const budgetMeta = getBudgetListingMeta(priceFilter);
   const categoryMeta = categorySlug ? getCategoryListingMeta(category ?? categorySlug) : null;
 
+  let categoryGallerySlides: readonly string[] | undefined;
+  if (categorySlug) {
+    try {
+      const homepage = await getPublicHomepage();
+      categoryGallerySlides = resolveCategoryListingGallerySlides(
+        category ?? categorySlug,
+        homepage.sections,
+      );
+    } catch {
+      categoryGallerySlides = getCategoryListingGallerySlides(category ?? categorySlug);
+    }
+  }
+
   let emptyMessage = 'محصولی یافت نشد.';
   if (hasPriceFilter && categorySlug) {
     emptyMessage = 'محصولی در این دسته و بازه قیمت یافت نشد.';
@@ -135,6 +151,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             }
           : budgetMeta ?? categoryMeta ?? PRODUCT_LISTING_PAGE
       }
+      gallerySlides={categoryGallerySlides}
       showDefaultHero={!hasPriceFilter && !onSale && !categorySlug}
       emptyMessage={emptyMessage}
     />

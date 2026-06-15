@@ -67,6 +67,15 @@ export interface CmsCategoryShowcaseConfig {
     title: string;
     items: CmsCategoryShowcaseItem[];
 }
+export type CmsCategoryListingGallerySlug = 'rings' | 'necklaces' | 'bracelets' | 'earrings' | 'sets' | 'wedding-rings' | 'coins';
+export interface CmsCategoryListingGalleryItem {
+    slug: CmsCategoryListingGallerySlug;
+    label: string;
+    imageUrls: string[];
+}
+export interface CmsCategoryListingGalleryConfig {
+    items: CmsCategoryListingGalleryItem[];
+}
 export interface CmsHomepageSections {
     featuredTitle: string;
     featuredSubtitle: string;
@@ -75,6 +84,7 @@ export interface CmsHomepageSections {
     newArrivalsTitle: string;
     showCategoryShowcase: boolean;
     categoryShowcase?: CmsCategoryShowcaseConfig;
+    categoryListingGallery?: CmsCategoryListingGalleryConfig;
     bestsellerProductIds?: string[];
     newArrivalsProductIds?: string[];
 }

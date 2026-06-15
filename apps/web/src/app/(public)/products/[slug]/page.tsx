@@ -19,8 +19,16 @@ export async function generateMetadata({
   params,
 }: ProductDetailsPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const demo = resolveProductDetailDemo(slug);
-  const product = demo ?? (await getProductBySlug(slug));
+  let apiProduct: Awaited<ReturnType<typeof getProductBySlug>> | null = null;
+
+  try {
+    apiProduct = await getProductBySlug(slug);
+  } catch {
+    apiProduct = null;
+  }
+
+  const demo = apiProduct ? null : resolveProductDetailDemo(slug);
+  const product = apiProduct ?? demo;
   if (!product) {
     return { title: 'محصول | طلاشیم' };
   }
@@ -55,8 +63,16 @@ export async function generateMetadata({
 
 export default async function ProductDetailsPage({ params }: ProductDetailsPageProps) {
   const { slug } = await params;
-  const demo = resolveProductDetailDemo(slug);
-  const product = demo ?? (await getProductBySlug(slug));
+  let apiProduct: Awaited<ReturnType<typeof getProductBySlug>> | null = null;
+
+  try {
+    apiProduct = await getProductBySlug(slug);
+  } catch {
+    apiProduct = null;
+  }
+
+  const demo = apiProduct ? null : resolveProductDetailDemo(slug);
+  const product = apiProduct ?? demo;
   if (!product) {
     notFound();
   }

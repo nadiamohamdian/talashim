@@ -52,5 +52,7 @@ export const PRODUCT_CATEGORY_FA: Record<string, string> = {
   RING: 'انگشتر',
   NECKLACE: 'گردنبند',
   BRACELET: 'دستبند',
+  EARRING: 'گوشواره',
   COIN: 'سکه',
+  WEDDING_RING: 'حلقه ازدواج',
 };

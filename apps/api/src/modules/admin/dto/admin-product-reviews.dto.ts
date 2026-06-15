@@ -18,5 +18,5 @@ export class AdminProductReviewsQueryDto extends PaginationQueryDto {
 export class ReviewAdminProductReviewDto {
   @ApiProperty({ enum: [ProductReviewStatus.APPROVED, ProductReviewStatus.REJECTED] })
   @IsIn([ProductReviewStatus.APPROVED, ProductReviewStatus.REJECTED])
-  status!: ProductReviewStatus.APPROVED | ProductReviewStatus.REJECTED;
+  status!: ProductReviewStatus;
 }
