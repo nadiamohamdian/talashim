@@ -123,6 +123,20 @@ function createConfiguredClient(): AxiosInstance {
         return Promise.reject(error);
       }
 
+      const isNetworkUnavailable =
+        error.code === 'ERR_NETWORK' ||
+        error.code === 'ECONNREFUSED' ||
+        error.message.toLowerCase().includes('network error');
+      if (isNetworkUnavailable) {
+        return Promise.reject(
+          new ApiClientError(
+            `سرویس API در دسترس نیست (${webEnv.NEXT_PUBLIC_API_BASE_URL}). لطفاً سرویس بک‌اند را اجرا کنید و دوباره تلاش کنید.`,
+            503,
+            error.code,
+          ),
+        );
+      }
+
       const status = error.response?.status;
       const message = parseApiError(error, 'درخواست API ناموفق بود');
       return Promise.reject(new ApiClientError(message, status));

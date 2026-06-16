@@ -28,6 +28,8 @@ export function mapLensVideoToShowcaseItem(video: PublicCmsLensVideo): LensShowc
     title: video.title,
     videoUrl: video.videoUrl,
     thumbnailUrl: video.thumbnailUrl ?? '',
+    heroImageUrl: video.heroImageUrl,
+    hotspots: video.hotspots?.length ? video.hotspots : undefined,
     sortOrder: video.sortOrder,
     products: (video.products ?? [])
       .map(mapProduct)

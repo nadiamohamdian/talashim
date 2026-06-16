@@ -4,6 +4,7 @@ import { CATEGORY_FALLBACK_IMAGES } from '@/shared/config/images';
 import { PRODUCT_LISTING_DEMO_PRODUCTS } from '@/shared/config/product-listing-demo';
 import { findCatalogDemoProduct } from '@talashim/shared/constants/demo-products';
 import { resolveProductJewelrySizeKinds } from '@/shared/lib/catalog-category';
+import { resolvePdpSections } from '@/shared/lib/resolve-product-pdp-config';
 
 export interface ProductReviewDemo {
   id: string;
@@ -423,6 +424,8 @@ export function enrichProductDetailProps(
       specifications: product.specifications,
     });
     const isSet = sizeKinds.length > 1;
+    const pdpSections = resolvePdpSections(product);
+    const hasPdpConfig = Boolean(product.pdpConfig);
 
     return {
       product,
@@ -432,17 +435,20 @@ export function enrichProductDetailProps(
       reviews,
       featuredReview: DEFAULT_FEATURED_REVIEW,
       relatedProducts: DEFAULT_RELATED_PRODUCTS,
-      ringSizes: DEFAULT_RING_SIZES,
-      necklaceSizes: sizeKinds.includes('necklace') ? DEFAULT_NECKLACE_SIZES : undefined,
-      braceletSizes: sizeKinds.includes('bracelet') ? DEFAULT_BRACELET_SIZES : undefined,
-      goldColors: catalog ? PRODUCT_DETAIL_DEMO.goldColors : undefined,
-      stoneSwatches: catalog ? DEMO_STONE_SWATCHES : undefined,
+      ringSizes: pdpSections.ringSizes,
+      necklaceSizes: pdpSections.necklaceSizes,
+      braceletSizes: pdpSections.braceletSizes,
+      goldColors: pdpSections.goldColors ?? (catalog && !hasPdpConfig ? PRODUCT_DETAIL_DEMO.goldColors : undefined),
+      stoneSwatches:
+        pdpSections.stoneSwatches ??
+        (catalog && !hasPdpConfig ? DEMO_STONE_SWATCHES : undefined),
       specRows:
-        catalog && isSet && catalog.setPartsLabel
+        pdpSections.specRows ??
+        (catalog && isSet && catalog.setPartsLabel
           ? buildSetSpecRows(catalog.setPartsLabel)
-          : catalog
+          : catalog && !hasPdpConfig
             ? DEMO_SPEC_ROWS
-            : undefined,
+            : undefined),
     };
   }
 

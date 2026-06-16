@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import type { ProductVariant } from '@sadafgold/types';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import { ProductDetailVideoIcon } from '@/features/cart/components/product-detail-video-icon';
+import { useDynamicProductPrice } from '@/features/catalog/hooks/use-dynamic-product-price';
 import { formatPrice } from '@/shared/lib/format-price';
 import {
   DEFAULT_RELATED_PRODUCTS,
   type ProductDetailMobileProps,
-  type StoneColorSwatch,
 } from '@/shared/config/product-detail-demo';
 import { ProductReviewWizard } from '@/features/catalog/components/product-review-wizard';
 import { ProductVideoModal } from '@/features/catalog/components/product-video-modal';
@@ -17,9 +18,13 @@ import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide'
 import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
 import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
-import { resolveProductJewelrySizeKinds } from '@/shared/lib/catalog-category';
+import { findMatchingVariant } from '@/shared/lib/resolve-product-pdp-config';
 import { ProductSizeRulerSection } from '@/widgets/catalog/product-size-ruler-section';
 import { StoreImage } from '@/shared/ui/store-image';
+import {
+  applyVariantToProduct,
+  resolveDefaultVariant,
+} from '@/widgets/catalog/product-variant-selector';
 
 export type { ProductDetailMobileProps };
 
@@ -37,13 +42,6 @@ function pickDefaultSize(sizes: number[], preferred: number): number {
   return sizes[Math.floor(sizes.length / 2)] ?? sizes[0];
 }
 
-const DEFAULT_STONE_SWATCHES: StoneColorSwatch[] = [
-  { id: 'pink', color: '#F2D4D9', label: 'صورتی' },
-  { id: 'purple', color: '#D8CCE8', label: 'بنفش' },
-  { id: 'blue', color: '#C8D9ED', label: 'آبی' },
-  { id: 'gray', color: '#D9D9D9', label: 'خاکستری' },
-];
-
 const RELATED_PRODUCTS_DESKTOP_LIMIT = 4;
 
 const PRICE_TOOLTIP_TEXT =
@@ -57,8 +55,8 @@ export function ProductDetailMobile({
   ringSizes,
   necklaceSizes,
   braceletSizes,
-  goldColors = ['طلایی', 'رزگلد', 'سفید'],
-  stoneSwatches = DEFAULT_STONE_SWATCHES,
+  goldColors,
+  stoneSwatches,
   specRows = [],
   featuredReview,
   relatedProducts = [],
@@ -76,8 +74,8 @@ export function ProductDetailMobile({
   const [selectedBraceletSize, setSelectedBraceletSize] = useState(
     () => braceletSizes?.[2] ?? braceletSizes?.[0] ?? 18,
   );
-  const [selectedGold, setSelectedGold] = useState('طلایی');
-  const [selectedStone, setSelectedStone] = useState('purple');
+  const [selectedGold, setSelectedGold] = useState(() => goldColors?.[0] ?? '');
+  const [selectedStone, setSelectedStone] = useState(() => stoneSwatches?.[0]?.id ?? '');
   const [priceTooltipOpen, setPriceTooltipOpen] = useState(false);
   const [reviewWizardOpen, setReviewWizardOpen] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
@@ -89,23 +87,29 @@ export function ProductDetailMobile({
     return sorted[0] ?? null;
   }, [videos]);
 
-  const sizeKinds = useMemo(
-    () =>
-      resolveProductJewelrySizeKinds({
-        title: product.title,
-        slug: product.slug,
-        category: product.category,
-        description: product.description,
-        specifications: product.specifications,
-      }),
-    [product.category, product.description, product.slug, product.specifications, product.title],
-  );
-  const showRingSize = sizeKinds.includes('ring');
-  const showNecklaceSize = sizeKinds.includes('necklace');
-  const showBraceletSize = sizeKinds.includes('bracelet');
+  const variants = product.variants ?? [];
+  const showRingSize = Boolean(ringSizes && ringSizes.length > 0);
+  const showNecklaceSize = Boolean(necklaceSizes && necklaceSizes.length > 0);
+  const showBraceletSize = Boolean(braceletSizes && braceletSizes.length > 0);
+  const showGoldSection = Boolean(goldColors && goldColors.length > 0);
+  const showStoneSection = Boolean(stoneSwatches && stoneSwatches.length > 0);
   const ringSizeOptions = ringSizes ?? DEFAULT_RING_SIZES;
   const necklaceSizeOptions = necklaceSizes ?? DEFAULT_NECKLACE_SIZES;
   const braceletSizeOptions = braceletSizes ?? DEFAULT_BRACELET_SIZES;
+
+  useEffect(() => {
+    if (goldColors?.length) {
+      setSelectedGold((current) => (goldColors.includes(current) ? current : goldColors[0]!));
+    }
+  }, [goldColors]);
+
+  useEffect(() => {
+    if (stoneSwatches?.length) {
+      setSelectedStone((current) =>
+        stoneSwatches.some((swatch) => swatch.id === current) ? current : stoneSwatches[0]!.id,
+      );
+    }
+  }, [stoneSwatches]);
 
   useEffect(() => {
     setSelectedRingSize((current) =>
@@ -129,7 +133,47 @@ export function ProductDetailMobile({
     );
   }, [braceletSizeOptions]);
 
-  const priceToman = displayPriceToman ?? product.priceToman;
+  const activeSize = useMemo(() => {
+    if (showRingSize) {
+      return String(selectedRingSize);
+    }
+    if (showNecklaceSize) {
+      return String(selectedNecklaceSize);
+    }
+    if (showBraceletSize) {
+      return String(selectedBraceletSize);
+    }
+    return undefined;
+  }, [
+    showBraceletSize,
+    showNecklaceSize,
+    showRingSize,
+    selectedBraceletSize,
+    selectedNecklaceSize,
+    selectedRingSize,
+  ]);
+
+  const selectedVariant = useMemo((): ProductVariant | null => {
+    if (variants.length === 0) {
+      return null;
+    }
+
+    const matched = findMatchingVariant(variants, {
+      goldColor: showGoldSection ? selectedGold : undefined,
+      size: activeSize,
+    });
+
+    return matched ?? resolveDefaultVariant(variants);
+  }, [activeSize, selectedGold, showGoldSection, variants]);
+
+  const variantProduct = useMemo(
+    () => applyVariantToProduct(product, selectedVariant),
+    [product, selectedVariant],
+  );
+  const pricedProduct = useDynamicProductPrice(variantProduct);
+  const priceToman = displayPriceToman ?? pricedProduct.priceToman;
+  const displayWeightGram = pricedProduct.weightGram;
+  const displayInventory = selectedVariant ? selectedVariant.quantity : product.inventory;
   const heroSrc = images[activeImage] ?? heroImageUrl ?? product.imageUrl;
   const relatedItems = useMemo(() => {
     const items = relatedProducts.length > 0 ? relatedProducts : DEFAULT_RELATED_PRODUCTS;
@@ -137,12 +181,21 @@ export function ProductDetailMobile({
   }, [relatedProducts]);
 
   const specs = useMemo(() => {
-    if (specRows.length > 0) return specRows;
-    return Object.entries(product.specifications ?? {}).map(([label, value]) => ({
-      label,
-      value,
-    }));
-  }, [product.specifications, specRows]);
+    const rows =
+      specRows.length > 0
+        ? specRows
+        : Object.entries(product.specifications ?? {}).map(([label, value]) => ({
+            label,
+            value,
+          }));
+
+    if (!selectedVariant?.weightGram) {
+      return rows;
+    }
+
+    const variantWeight = `${toPersianDigits(selectedVariant.weightGram)} گرم`;
+    return rows.map((row) => (row.label === 'وزن' ? { ...row, value: variantWeight } : row));
+  }, [product.specifications, selectedVariant?.weightGram, specRows]);
 
   return (
     <article className="product-details">
@@ -165,7 +218,7 @@ export function ProductDetailMobile({
 
             <div className="product-details-glass-row">
               <span className="product-details-glass-row-value">
-                {toPersianDigits(product.weightGram)} گرم (طلای {toPersianDigits(product.karat)} عیار)
+                {toPersianDigits(displayWeightGram)} گرم (طلای {toPersianDigits(product.karat)} عیار)
               </span>
               <span className="product-details-glass-row-label">وزن</span>
             </div>
@@ -192,10 +245,10 @@ export function ProductDetailMobile({
                 slug={product.slug}
                 title={product.title}
                 priceToman={priceToman}
-                imageUrl={product.imageUrl}
-                weightGram={product.weightGram}
+                imageUrl={selectedVariant?.imageUrl ?? product.imageUrl}
+                weightGram={displayWeightGram}
                 quantity={1}
-                disabled={product.inventory <= 0}
+                disabled={displayInventory <= 0}
                 variant="product-detail"
                 className="product-details-action product-details-action-cart"
                 label="افزودن به سبد خرید"
@@ -259,6 +312,7 @@ export function ProductDetailMobile({
           />
         ) : null}
 
+        {showGoldSection ? (
         <section
           className="product-details-section product-details-section-gold"
           aria-labelledby="pdp-gold-title"
@@ -267,7 +321,7 @@ export function ProductDetailMobile({
             انتخاب رنگ طلا
           </h2>
           <div className="product-details-options">
-            {goldColors.map((color) => (
+            {goldColors!.map((color) => (
               <button
                 key={color}
                 type="button"
@@ -283,7 +337,9 @@ export function ProductDetailMobile({
             ))}
           </div>
         </section>
+        ) : null}
 
+        {showStoneSection ? (
         <section
           className="product-details-section product-details-section-stone"
           aria-labelledby="pdp-stone-title"
@@ -292,7 +348,7 @@ export function ProductDetailMobile({
             انتخاب رنگ سنگ
           </h2>
           <div className="product-details-stone-swatches">
-            {stoneSwatches.map((swatch) => (
+            {stoneSwatches!.map((swatch) => (
               <button
                 key={swatch.id}
                 type="button"
@@ -309,6 +365,7 @@ export function ProductDetailMobile({
             ))}
           </div>
         </section>
+        ) : null}
 
         <section className="product-details-section product-details-specs-section" aria-labelledby="pdp-specs-title">
           <div className="product-details-section-head">

@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useCartStore } from '@/features/cart/model/cart-store';
+import { ApiClientError } from '@/lib/api/client';
 import { orderApi, type CheckoutPayload } from '@/lib/api/order.api';
 import { queryKeys, type OrdersListParams } from '@/lib/api/query-keys';
 import { useAuth } from '@/features/auth/hooks/use-auth';
@@ -47,9 +48,15 @@ export function useCart(options?: { enabled?: boolean }) {
     queryFn: ({ signal }) => orderApi.getCart(signal),
     staleTime: 10_000,
     refetchInterval: 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     enabled: (options?.enabled ?? true) && hydrated && isAuthenticated,
     retry: (failureCount, error) => {
       if (axios.isCancel(error)) {
+        return false;
+      }
+      // When API is down/unreachable, avoid noisy retries that flood the network tab.
+      if (error instanceof ApiClientError && error.status === 503) {
         return false;
       }
       return failureCount < 2;

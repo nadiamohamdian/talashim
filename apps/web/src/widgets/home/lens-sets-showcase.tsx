@@ -3,11 +3,13 @@
 import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import type { CmsLensSetsShowcaseConfig } from '@sadafgold/types';
 import {
   LENS_EDITORIAL_HERO,
   LENS_EDITORIAL_HOTSPOTS,
   LENS_EDITORIAL_META,
   getLensProductPageHref,
+  type LensHotspot,
   type LensShowcaseDemoItem,
 } from '@/shared/config/lens-showcase-demo';
 import { formatPrice } from '@/shared/lib/format-price';
@@ -16,23 +18,35 @@ import { LensVideoPopup } from '@/widgets/home/lens-video-popup';
 
 interface LensSetsShowcaseProps {
   items: LensShowcaseDemoItem[];
+  section?: CmsLensSetsShowcaseConfig;
 }
 
-const LENS_CHIP_COUNT = LENS_EDITORIAL_HOTSPOTS.length;
+function resolveHotspots(item: LensShowcaseDemoItem | undefined): readonly LensHotspot[] {
+  if (item?.hotspots?.length) {
+    return item.hotspots;
+  }
+  return LENS_EDITORIAL_HOTSPOTS;
+}
 
-function createDefaultOpenChips(): Set<number> {
+function createDefaultOpenChips(count: number): Set<number> {
   const isMobile = window.matchMedia('(max-width: 1023.98px)').matches;
-  return isMobile ? new Set([0]) : new Set(Array.from({ length: LENS_CHIP_COUNT }, (_, index) => index));
+  return isMobile ? new Set([0]) : new Set(Array.from({ length: count }, (_, index) => index));
 }
 
-export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
+export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [popupOpen, setPopupOpen] = useState(false);
   const [openChips, setOpenChips] = useState<Set<number>>(() => new Set([0]));
 
   const slideCount = items.length;
   const activeItem = items[activeIndex] ?? items[0];
-  const spotlightProducts = activeItem?.products.slice(0, LENS_EDITORIAL_HOTSPOTS.length) ?? [];
+  const activeHotspots = resolveHotspots(activeItem);
+  const spotlightProducts = activeItem?.products.slice(0, activeHotspots.length) ?? [];
+  const sectionCopy = {
+    eyebrow: section?.eyebrow?.trim() || LENS_EDITORIAL_META.eyebrow || 'Talashim Lens',
+    title: section?.title?.trim() || LENS_EDITORIAL_META.title,
+    description: section?.description?.trim() || LENS_EDITORIAL_META.description,
+  };
 
   const goPrev = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -45,8 +59,8 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
   };
 
   useEffect(() => {
-    setOpenChips(createDefaultOpenChips());
-  }, [activeIndex]);
+    setOpenChips(createDefaultOpenChips(activeHotspots.length));
+  }, [activeIndex, activeHotspots.length]);
 
   const toggleChip = (index: number, event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -76,18 +90,21 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
     return null;
   }
 
-  const heroImage = activeItem.thumbnailUrl || LENS_EDITORIAL_HERO;
+  const heroImage =
+    activeItem.heroImageUrl?.trim() ||
+    activeItem.thumbnailUrl ||
+    LENS_EDITORIAL_HERO;
 
   return (
     <>
       <section className="lens-sets-showcase" aria-labelledby="lens-sets-title">
         <div className="lens-sets-showcase-inner">
           <header className="lens-sets-showcase-intro">
-            <span className="lens-sets-showcase-eyebrow">Talashim Lens</span>
+            <span className="lens-sets-showcase-eyebrow">{sectionCopy.eyebrow}</span>
             <h2 id="lens-sets-title" className="lens-sets-showcase-title">
-              {LENS_EDITORIAL_META.title}
+              {sectionCopy.title}
             </h2>
-            <p className="lens-sets-showcase-description">{LENS_EDITORIAL_META.description}</p>
+            <p className="lens-sets-showcase-description">{sectionCopy.description}</p>
           </header>
 
           <div className="lens-sets-showcase-stage">
@@ -118,7 +135,7 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
 
               {spotlightProducts.map((product, index) => {
                 const isOpen = openChips.has(index);
-                const spot = LENS_EDITORIAL_HOTSPOTS[index];
+                const spot = activeHotspots[index];
 
                 return (
                   <Link
@@ -165,13 +182,13 @@ export function LensSetsShowcase({ items }: LensSetsShowcaseProps) {
                 );
               })}
 
-              {LENS_EDITORIAL_HOTSPOTS.map((spot, index) => {
+              {activeHotspots.map((spot, index) => {
                 const product = spotlightProducts[index];
                 const isOpen = openChips.has(index);
 
                 return (
                   <button
-                    key={spot.id}
+                    key={spot.id ?? `lens-hotspot-${index}`}
                     type="button"
                     className={`lens-sets-showcase-hotspot lens-sets-showcase-hotspot--${index}${
                       isOpen ? ' lens-sets-showcase-hotspot--active' : ''

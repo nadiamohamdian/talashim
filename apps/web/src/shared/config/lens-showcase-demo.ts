@@ -22,8 +22,20 @@ export interface LensShowcaseDemoItem {
   title: string | null;
   videoUrl: string;
   thumbnailUrl: string;
+  heroImageUrl?: string | null;
+  hotspots?: LensHotspot[];
   sortOrder: number;
   products: LensShowcaseProductVariant[];
+}
+
+export interface LensHotspot {
+  id?: string;
+  top: string;
+  left: string;
+  chipTop?: string;
+  chipLeft?: string;
+  chipTranslateX?: string;
+  chipTranslateY?: string;
 }
 
 const DEMO_LENS_PRODUCTS: LensShowcaseProductVariant[] = [
@@ -58,6 +70,7 @@ export const LENS_EDITORIAL_HERO =
   '/images/home/9c4dd67d8f1d19b4e88be95aa15037b4%202.png';
 
 export const LENS_EDITORIAL_META = {
+  eyebrow: 'Talashim Lens',
   title: 'ست‌ها از نمای نزدیک',
   description:
     'از نیم‌ست‌های ظریف روزمره تا ست‌های کامل و چشمگیر، مجموعه‌ای متنوع برای سلیقه‌ها و مناسبت‌های مختلف.',
@@ -68,8 +81,8 @@ export const LENS_EDITORIAL_HOTSPOTS = [
     id: 'hotspot-ring',
     top: '52%',
     left: '36%',
-    chipTop: '44%',
-    chipLeft: '30%',
+    chipTop: '75px',
+    chipLeft: '-11px',
     chipTranslateX: '-12%',
     chipTranslateY: 'calc(-100% - 8px)',
   },
@@ -77,8 +90,8 @@ export const LENS_EDITORIAL_HOTSPOTS = [
     id: 'hotspot-earring',
     top: '20%',
     left: '58%',
-    chipTop: '17.1%',
-    chipLeft: '56.3%',
+    chipTop: '92px',
+    chipLeft: '435px',
     chipTranslateX: '-88%',
     chipTranslateY: 'calc(-100% - 8px)',
   },
@@ -86,8 +99,8 @@ export const LENS_EDITORIAL_HOTSPOTS = [
     id: 'hotspot-bracelet',
     top: '72%',
     left: '40%',
-    chipTop: '70.7%',
-    chipLeft: '5.8%',
+    chipTop: '201px',
+    chipLeft: '46px',
     chipTranslateX: '-20%',
     chipTranslateY: 'calc(-100% - 8px)',
   },

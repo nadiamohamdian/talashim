@@ -88,8 +88,10 @@ export function LensVideosPanel() {
 
       const payload: UpsertLensVideoPayload = {
         title: form.title?.trim() || undefined,
-        videoUrl: form.videoUrl.trim(),
+        videoUrl: form.videoUrl?.trim() || undefined,
         thumbnailUrl: form.thumbnailUrl?.trim() || undefined,
+        heroImageUrl: form.heroImageUrl?.trim() || undefined,
+        hotspots: form.hotspots,
         status: form.status,
         sortOrder: form.sortOrder ?? 0,
         productIds: form.productIds ?? [],
@@ -137,6 +139,8 @@ export function LensVideosPanel() {
       title: video.title ?? '',
       videoUrl: video.videoUrl,
       thumbnailUrl: video.thumbnailUrl ?? '',
+      heroImageUrl: video.heroImageUrl ?? '',
+      hotspots: video.hotspots,
       status: video.status,
       sortOrder: video.sortOrder,
       productIds: video.productIds ?? [],

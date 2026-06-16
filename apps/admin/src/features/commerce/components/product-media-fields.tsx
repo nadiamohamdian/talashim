@@ -64,7 +64,7 @@ export function ProductMediaFields({
   onVideosChange,
 }: ProductMediaFieldsProps) {
   return (
-    <div className="md:col-span-2 space-y-6 border-t border-border pt-6">
+    <div className="space-y-6" data-span="full">
       <ImageUrlField
         label="تصویر شاخص (thumbnail)"
         required

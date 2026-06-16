@@ -17,6 +17,7 @@ export function CheckoutStepperNumeral({ step }: CheckoutStepperNumeralProps) {
       style={{
         maskImage: `url(${STEPPER_NUMERAL_ASSETS[step]})`,
         WebkitMaskImage: `url(${STEPPER_NUMERAL_ASSETS[step]})`,
+        transform: step === 2 ? 'scaleX(-1)' : undefined,
       }}
       aria-hidden
     />

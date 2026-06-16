@@ -12,6 +12,8 @@
       "@sadafgold/types/*": ["../../packages/types/src/*"],
       "@sadafgold/shared": ["../../packages/shared/src/index.ts"],
       "@sadafgold/shared/*": ["../../packages/shared/src/*"],
+      "@talashim/shared": ["../../packages/shared/src/index.ts"],
+      "@talashim/shared/*": ["../../packages/shared/src/*"],
       "@sadafgold/api-client": ["../../packages/api-client/src/index.ts"]
     }
   },

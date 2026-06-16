@@ -555,6 +555,18 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     parentId: 'dashboard',
   }),
   r({
+    id: 'cms.lensSets',
+    path: '/cms/lens-sets',
+    label: 'ست‌ها از نمای نزدیک',
+    sectionId: 'content',
+    sectionLabel: 'محتوا و رسانه',
+    template: 'list',
+    permission: ADMIN_PERMISSIONS.cms.write,
+    availability: 'live',
+    parentId: 'dashboard',
+    description: 'تصویر هیرو، محصولات روی تصویر و پاپ‌آپ لنز در بخش ست‌ها.',
+  }),
+  r({
     id: 'cms.faq',
     path: '/cms/faq',
     label: 'سوالات متداول',

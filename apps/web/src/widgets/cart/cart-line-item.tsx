@@ -50,28 +50,6 @@ export function CartLineItemRow({
         </div>
 
         <div className="cart-line-foot">
-          <span className="cart-line-total">{formatPrice(lineTotal)} تومان</span>
-
-          <div className="cart-line-qty" role="group" aria-label="تعداد">
-            <button
-              type="button"
-              className="cart-line-qty-btn"
-              aria-label="کاهش تعداد"
-              onClick={() => onQuantityChange(item.id, item.quantity - 1)}
-            >
-              -
-            </button>
-            <span className="cart-line-qty-value">{toPersianDigits(item.quantity)}</span>
-            <button
-              type="button"
-              className="cart-line-qty-btn"
-              aria-label="افزایش تعداد"
-              onClick={() => onQuantityChange(item.id, item.quantity + 1)}
-            >
-              +
-            </button>
-          </div>
-
           <div className="cart-line-variant">
             <span className="cart-line-variant-label">{variantLabel}</span>
             <span
@@ -79,6 +57,30 @@ export function CartLineItemRow({
               style={{ backgroundColor: swatchColor }}
               aria-hidden
             />
+          </div>
+
+          <div className="cart-line-foot-main">
+            <div className="cart-line-qty" role="group" aria-label="تعداد">
+              <button
+                type="button"
+                className="cart-line-qty-btn"
+                aria-label="کاهش تعداد"
+                onClick={() => onQuantityChange(item.id, item.quantity - 1)}
+              >
+                -
+              </button>
+              <span className="cart-line-qty-value">{toPersianDigits(item.quantity)}</span>
+              <button
+                type="button"
+                className="cart-line-qty-btn"
+                aria-label="افزایش تعداد"
+                onClick={() => onQuantityChange(item.id, item.quantity + 1)}
+              >
+                +
+              </button>
+            </div>
+
+            <span className="cart-line-total">{formatPrice(lineTotal)} تومان</span>
           </div>
         </div>
       </div>

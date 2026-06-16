@@ -124,6 +124,70 @@ export class AdminProductVideoInputDto {
   sortOrder?: number;
 }
 
+export class AdminProductPdpSpecRowDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  label!: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  value!: string;
+}
+
+export class AdminProductPdpStoneSwatchDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  id!: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(4)
+  color!: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  label!: string;
+}
+
+export class AdminProductPdpConfigDto {
+  @ApiPropertyOptional({ type: [AdminProductPdpSpecRowDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductPdpSpecRowDto)
+  customSpecs?: AdminProductPdpSpecRowDto[];
+
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  goldColors?: string[];
+
+  @ApiPropertyOptional({ type: [AdminProductPdpStoneSwatchDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AdminProductPdpStoneSwatchDto)
+  stoneSwatches?: AdminProductPdpStoneSwatchDto[];
+
+  @ApiPropertyOptional({ enum: ['ring', 'necklace', 'bracelet'] })
+  @IsOptional()
+  @IsString()
+  sizeKind?: 'ring' | 'necklace' | 'bracelet' | null;
+
+  @ApiPropertyOptional({ type: [Number] })
+  @IsOptional()
+  @IsArray()
+  @Type(() => Number)
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  sizes?: number[];
+}
+
 export class AdminProductsQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
@@ -292,6 +356,12 @@ export class CreateAdminProductDto {
   @ValidateNested({ each: true })
   @Type(() => AdminProductVideoInputDto)
   videos?: AdminProductVideoInputDto[];
+
+  @ApiPropertyOptional({ type: AdminProductPdpConfigDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AdminProductPdpConfigDto)
+  pdpConfig?: AdminProductPdpConfigDto | null;
 }
 
 export class UpdateAdminProductDto {
@@ -423,6 +493,12 @@ export class UpdateAdminProductDto {
   @ValidateNested({ each: true })
   @Type(() => AdminProductVideoInputDto)
   videos?: AdminProductVideoInputDto[];
+
+  @ApiPropertyOptional({ type: AdminProductPdpConfigDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AdminProductPdpConfigDto)
+  pdpConfig?: AdminProductPdpConfigDto | null;
 }
 
 export class AdminProductVideosQueryDto extends PaginationQueryDto {

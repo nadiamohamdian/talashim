@@ -9,6 +9,8 @@ import {
 } from '../components/product-seo-fields';
 import type { ProductVariantField } from '../components/product-variant-fields';
 import type { GalleryImageField, ProductVideoField } from '../components/product-media-fields';
+import type { ProductPdpOptionsForm } from '../components/product-pdp-options-fields';
+import { pdpFormToConfig } from '../components/product-pdp-options-fields';
 
 export class ProductFormValidationError extends Error {
   constructor(message: string) {
@@ -270,6 +272,7 @@ export function buildProductCreateBody(
   videos: ProductVideoField[],
   variants: ProductVariantField[],
   mode: 'create' | 'edit',
+  pdpOptions?: ProductPdpOptionsForm,
 ) {
   const { discountPercent, discountStartsAt, discountEndsAt } = resolveDiscountFields(form);
 
@@ -334,6 +337,7 @@ export function buildProductCreateBody(
           isDefault: variant.isDefault,
         };
       }),
+    pdpConfig: pdpOptions ? pdpFormToConfig(pdpOptions) : undefined,
   };
 
   if (mode === 'create') {

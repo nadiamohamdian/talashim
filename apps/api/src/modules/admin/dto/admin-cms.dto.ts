@@ -276,10 +276,12 @@ export class UpsertCmsLensVideoDto {
   @MaxLength(120)
   title?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(emptyStringToUndefined)
   @IsString()
   @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
-  videoUrl!: string;
+  videoUrl?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -287,6 +289,19 @@ export class UpsertCmsLensVideoDto {
   @IsString()
   @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
   thumbnailUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(emptyStringToUndefined)
+  @IsString()
+  @Matches(LIBRARY_MEDIA_URL_PATTERN, { message: LIBRARY_MEDIA_URL_MESSAGE })
+  heroImageUrl?: string;
+
+  @ApiPropertyOptional({ type: [Object], maxItems: 3 })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(3)
+  hotspots?: Record<string, unknown>[];
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -319,6 +334,12 @@ export class PublicCmsLensVideoResponseDto {
 
   @ApiPropertyOptional({ nullable: true })
   thumbnailUrl!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  heroImageUrl!: string | null;
+
+  @ApiProperty({ type: [Object] })
+  hotspots!: Record<string, unknown>[];
 
   @ApiProperty()
   sortOrder!: number;

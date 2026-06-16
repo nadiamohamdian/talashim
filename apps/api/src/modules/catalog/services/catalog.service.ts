@@ -11,6 +11,7 @@ import { CacheService } from '@/infrastructure/cache/cache.service';
 import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
 import { CatalogRepository } from '../repositories/catalog.repository';
 import type { CatalogQueryDto } from '../dto/catalog-query.dto';
+import { parseProductPdpConfig } from '@/modules/admin/lib/product-pdp-config.util';
 
 type ProductWithInventory = Product & {
   inventoryItem: { quantity: number; reserved: number } | null;
@@ -199,6 +200,9 @@ export class CatalogService {
         ? product.images.map((image) => image.url)
         : [product.imageUrl];
 
+    const pdpConfig = parseProductPdpConfig(product.pdpConfig);
+    const computedSpecs = this.buildSpecifications(product, summary.pricing);
+
     return {
       ...summary,
       description: product.description,
@@ -209,7 +213,8 @@ export class CatalogService {
       seoCanonicalPath: product.seoCanonicalPath ?? undefined,
       seoNoIndex: product.seoNoIndex,
       color: 'طلایی',
-      specifications: this.buildSpecifications(product, summary.pricing),
+      specifications: this.mergeSpecifications(computedSpecs, pdpConfig),
+      pdpConfig,
       galleryUrls,
       videos: (product.videos ?? []).map((video) => ({
         id: video.id,
@@ -254,6 +259,27 @@ export class CatalogService {
         ? formatTomanAmountWithUnit(pricing.wageFixedToman)
         : '—',
     };
+  }
+
+  private mergeSpecifications(
+    computed: Record<string, string>,
+    pdpConfig: ReturnType<typeof parseProductPdpConfig>,
+  ): Record<string, string> {
+    const customSpecs = pdpConfig?.customSpecs ?? [];
+    if (customSpecs.length === 0) {
+      return computed;
+    }
+
+    const merged: Record<string, string> = {};
+    for (const row of customSpecs) {
+      merged[row.label] = row.value;
+    }
+    for (const [label, value] of Object.entries(computed)) {
+      if (!(label in merged)) {
+        merged[label] = value;
+      }
+    }
+    return merged;
   }
 
   private async resolvePricing(product: ProductWithInventory): Promise<ProductPricing> {

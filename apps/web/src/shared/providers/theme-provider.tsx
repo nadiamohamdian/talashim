@@ -7,7 +7,11 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   const mode = useThemeStore((state) => state.mode);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', mode === 'dark');
+    const root = document.documentElement;
+    const isDark = mode === 'dark';
+    root.classList.toggle('dark', isDark);
+    root.classList.toggle('light', !isDark);
+    root.style.colorScheme = isDark ? 'dark' : 'light';
   }, [mode]);
 
   return <>{children}</>;

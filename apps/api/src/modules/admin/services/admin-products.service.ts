@@ -25,6 +25,7 @@ import type {
   UpdateAdminProductDto,
   UpsertAdminProductVideoDto,
 } from '../dto/admin-commerce.dto';
+import { parseProductPdpConfig } from '../lib/product-pdp-config.util';
 import { AdminProductsRepository } from '../repositories/admin-products.repository';
 import { revalidateStorefrontProducts } from '../../../infrastructure/storefront/storefront-cache.util';
 
@@ -501,6 +502,7 @@ export class AdminProductsService {
     const base = this.mapProduct(product);
     return {
       ...base,
+      pdpConfig: parseProductPdpConfig(product.pdpConfig),
       discountPercent: product.discountPercent,
       discountStartsAt: product.discountStartsAt?.toISOString() ?? null,
       discountEndsAt: product.discountEndsAt?.toISOString() ?? null,

@@ -165,8 +165,18 @@ export function deleteBanner(id: string) {
 
 export type UpsertLensVideoPayload = {
   title?: string;
-  videoUrl: string;
+  videoUrl?: string;
   thumbnailUrl?: string;
+  heroImageUrl?: string;
+  hotspots?: Array<{
+    id?: string;
+    top: string;
+    left: string;
+    chipTop?: string;
+    chipLeft?: string;
+    chipTranslateX?: string;
+    chipTranslateY?: string;
+  }>;
   sortOrder?: number;
   status?: CmsBannerDto['status'];
   productIds?: string[];

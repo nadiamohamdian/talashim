@@ -10,7 +10,7 @@ export const STANDARD_PRODUCT_KARAT_VALUES = STANDARD_PRODUCT_KARATS.map((item) 
 export { ORDER_STATUS_FA, PAYMENT_STATUS_FA, PRODUCT_CATEGORY_FA, formatToman } from '@/features/reports/lib/format';
 
 export const selectFieldClass =
-  'mt-1 flex h-11 w-full min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm';
+  'mt-1.5 flex h-11 w-full min-w-[140px] rounded-xl border border-[var(--border)] bg-[var(--input-bg)] px-3.5 text-[0.9375rem] leading-normal text-[var(--foreground)] shadow-[var(--shadow-xs)] transition-[border-color,box-shadow] duration-150 focus:border-[var(--primary)] focus:outline-none focus:ring-[3px] focus:ring-[var(--primary-muted)] disabled:cursor-not-allowed disabled:opacity-55';
 
 export const INVENTORY_MOVEMENT_FA: Record<string, string> = {
   INITIAL: 'موجودی اولیه',

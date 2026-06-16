@@ -51,6 +51,11 @@ export function useDisplayCart() {
 
   const isLoading =
     hydrated && isAuthenticated && cartQuery.isLoading && serverCart === undefined;
+  const isServerCartUnavailable =
+    hydrated &&
+    isAuthenticated &&
+    !isLoading &&
+    (cartQuery.isError || serverCart === undefined);
 
   return {
     items,
@@ -58,6 +63,9 @@ export function useDisplayCart() {
     count,
     useServer,
     isLoading,
+    isServerCartUnavailable,
+    isRefetching: cartQuery.isRefetching,
+    refetchServerCart: cartQuery.refetch,
     serverCartId: serverCart?.id ?? null,
     isAuthenticated,
   };

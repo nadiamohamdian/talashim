@@ -72,6 +72,12 @@ export const DEFAULT_CMS_SECTIONS: CmsHomepageSections = {
   bestsellerSubtitle: 'بر اساس تعداد فروش واقعی',
   newArrivalsTitle: 'جدیدترین ها',
   showCategoryShowcase: true,
+  lensSetsShowcase: {
+    eyebrow: 'Talashim Lens',
+    title: 'ست‌ها از نمای نزدیک',
+    description:
+      'از نیم‌ست‌های ظریف روزمره تا ست‌های کامل و چشمگیر، مجموعه‌ای متنوع برای سلیقه‌ها و مناسبت‌های مختلف.',
+  },
   categoryShowcase: {
     title: 'دسته بندی محصولات',
     items: DEFAULT_CMS_CATEGORY_SHOWCASE_ITEMS.map((item) => ({ ...item })),

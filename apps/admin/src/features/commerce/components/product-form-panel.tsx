@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
+import { Button, Input, Label, Skeleton } from '@talashim/ui';
 import {
   createAdminProduct,
   fetchAdminProductBySlug,
@@ -26,10 +26,18 @@ import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 import { FormattedNumberInput } from '@/shared/ui/formatted-number-input';
 import {
   ProductSeoFields,
+  hasProductSeoContent,
   type ProductSeoFormValues,
 } from './product-seo-fields';
 import type { GalleryImageField, ProductVideoField } from './product-media-fields';
 import type { ProductVariantField } from './product-variant-fields';
+import {
+  pdpConfigToForm,
+  ProductPdpOptionsFields,
+  type ProductPdpOptionsForm,
+  emptyPdpOptionsForm,
+} from './product-pdp-options-fields';
+import { AdminFormSection } from '@/shared/ui/admin-form-section';
 
 interface ProductFormPanelProps {
   mode: 'create' | 'edit';
@@ -69,6 +77,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const [galleryImages, setGalleryImages] = useState<GalleryImageField[]>([]);
   const [videos, setVideos] = useState<ProductVideoField[]>([]);
   const [variants, setVariants] = useState<ProductVariantField[]>([]);
+  const [pdpOptions, setPdpOptions] = useState<ProductPdpOptionsForm>(emptyPdpOptionsForm);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const hydratedSlugRef = useRef<string | null>(null);
@@ -158,6 +167,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             }))
           : [],
       );
+      setPdpOptions(pdpConfigToForm(p.pdpConfig));
   }, [detailQuery.data, mode, slug]);
 
   useEffect(() => {
@@ -247,6 +257,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         videos,
         variants,
         mode,
+        pdpOptions,
       );
 
       if (mode === 'create') {
@@ -273,16 +284,26 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   if (mode === 'edit' && detailQuery.isLoading) {
     return (
       <CatalogPageShell routeId={routeId}>
-        <Skeleton className="h-96 w-full rounded-[var(--radius-xl)]" />
+        <Skeleton className="h-96 w-full rounded-xl" />
       </CatalogPageShell>
     );
   }
 
+  const seoValues: ProductSeoFormValues = {
+    seoTitle: form.seoTitle,
+    seoDescription: form.seoDescription,
+    seoKeywords: form.seoKeywords,
+    ogImageUrl: form.ogImageUrl,
+    seoCanonicalPath: form.seoCanonicalPath,
+    seoNoIndex: form.seoNoIndex,
+  };
+  const seoConfigured = hasProductSeoContent(seoValues);
+
   return (
     <CatalogPageShell routeId={routeId}>
-      <Card className="border-[var(--border-subtle)] bg-[var(--card)] p-6">
+      <div className="product-form-shell">
         {validationErrors.length > 0 ? (
-          <div className="mb-4 rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3">
+          <div className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3">
             <p className="text-sm font-semibold text-[var(--error)]">لطفاً موارد زیر را تکمیل کنید:</p>
             <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--error)]">
               {validationErrors.map((error) => (
@@ -292,39 +313,43 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           </div>
         ) : null}
         {submitError ? (
-          <div className="mb-4 rounded-[var(--radius-xl)] border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
+          <div className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3 text-sm text-[var(--error)]">
             {submitError}
           </div>
         ) : null}
-        <div className="grid gap-4 md:grid-cols-2">
+
+        <AdminFormSection
+          title="اطلاعات اصلی"
+          description="شناسه، عنوان و توضیحات محصول"
+        >
           <div>
-            <Label>SKU *</Label>
+            <Label className="admin-field-label">SKU *</Label>
             <Input
-              className="mt-1"
+              className="mt-1.5"
               value={form.sku}
               disabled={mode === 'edit'}
               onChange={(e) => setForm({ ...form, sku: e.target.value })}
             />
           </div>
           <div>
-            <Label>اسلاگ</Label>
+            <Label className="admin-field-label">اسلاگ</Label>
             <Input
-              className="mt-1"
+              className="mt-1.5"
               value={form.slug}
               disabled={mode === 'edit'}
               onChange={(e) => setForm({ ...form, slug: e.target.value })}
               placeholder="خودکار از عنوان"
             />
           </div>
-          <div className="md:col-span-2">
-            <Label>عنوان *</Label>
+          <div className="md:col-span-2" data-span="full">
+            <Label className="admin-field-label">عنوان *</Label>
             <Input
-              className="mt-1"
+              className="mt-1.5"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2" data-span="full">
             <RichTextEditor
               mediaFolder="products"
               label="توضیحات"
@@ -332,35 +357,17 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
               hint="متن کامل محصول — تصاویر را با دکمه «تصویر» از کتابخانه درج کنید."
               value={form.description}
               onChange={(description) => setForm({ ...form, description })}
-              minHeight={200}
+              minHeight={220}
             />
           </div>
+        </AdminFormSection>
 
-          <ProductSeoFields
-            value={{
-              seoTitle: form.seoTitle,
-              seoDescription: form.seoDescription,
-              seoKeywords: form.seoKeywords,
-              ogImageUrl: form.ogImageUrl,
-              seoCanonicalPath: form.seoCanonicalPath,
-              seoNoIndex: form.seoNoIndex,
-            }}
-            onChange={(seo) =>
-              setForm({
-                ...form,
-                seoTitle: seo.seoTitle,
-                seoDescription: seo.seoDescription,
-                seoKeywords: seo.seoKeywords,
-                ogImageUrl: seo.ogImageUrl,
-                seoCanonicalPath: seo.seoCanonicalPath,
-                seoNoIndex: seo.seoNoIndex,
-              })
-            }
-            productTitle={form.title}
-            productSlug={form.slug}
-          />
+        <AdminFormSection
+          title="قیمت‌گذاری و دسته‌بندی"
+          description="عیار، وزن، اجرت، قیمت پایه و تخفیف"
+        >
           <div>
-            <Label>دسته</Label>
+            <Label className="admin-field-label">دسته</Label>
             <select
               className={selectFieldClass}
               value={form.category}
@@ -374,7 +381,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             </select>
           </div>
           <div>
-            <Label>عیار</Label>
+            <Label className="admin-field-label">عیار</Label>
             <select
               className={selectFieldClass}
               value={form.karat}
@@ -388,17 +395,17 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             </select>
           </div>
           <div>
-            <Label>وزن (گرم)</Label>
+            <Label className="admin-field-label">وزن (گرم)</Label>
             <Input
-              className="mt-1"
+              className="mt-1.5"
               value={form.weightGram}
               onChange={(e) => setForm({ ...form, weightGram: e.target.value })}
             />
           </div>
           <div>
-            <Label>اجرت (%)</Label>
+            <Label className="admin-field-label">اجرت (%)</Label>
             <Input
-              className="mt-1"
+              className="mt-1.5"
               value={form.makingFeePercent}
               onChange={(e) => setForm({ ...form, makingFeePercent: e.target.value })}
             />
@@ -411,9 +418,9 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           />
           {mode === 'create' ? (
             <div>
-              <Label>موجودی اولیه</Label>
+              <Label className="admin-field-label">موجودی اولیه</Label>
               <Input
-                className="mt-1"
+                className="mt-1.5"
                 type="number"
                 value={form.initialQuantity}
                 onChange={(e) => setForm({ ...form, initialQuantity: e.target.value })}
@@ -421,9 +428,9 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             </div>
           ) : null}
           <div>
-            <Label>تخفیف (%)</Label>
+            <Label className="admin-field-label">تخفیف (%)</Label>
             <Input
-              className="mt-1"
+              className="mt-1.5"
               type="number"
               min={0}
               max={100}
@@ -442,15 +449,20 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             value={form.discountEndsAt}
             onChange={(discountEndsAt) => setForm({ ...form, discountEndsAt })}
           />
-          <label className="flex items-center gap-2 text-sm md:col-span-2">
+          <label className="admin-checkbox-row md:col-span-2" data-span="full">
             <input
               type="checkbox"
               checked={form.featured}
               onChange={(e) => setForm({ ...form, featured: e.target.checked })}
             />
-            محصول ویژه
+            <span>محصول ویژه — نمایش در بخش‌های ویژه فروشگاه</span>
           </label>
+        </AdminFormSection>
 
+        <AdminFormSection
+          title="تصاویر و ویدیو"
+          description="تصویر شاخص، هاور، گالری و ویدیوهای معرفی"
+        >
           <ProductMediaFields
             imageUrl={form.imageUrl}
             onImageUrlChange={(value) => setForm({ ...form, imageUrl: value })}
@@ -461,29 +473,74 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             videos={videos}
             onVideosChange={setVideos}
           />
+        </AdminFormSection>
 
+        <AdminFormSection
+          title="گزینه‌های صفحه محصول"
+          description="مشخصات جدول، رنگ طلا، رنگ سنگ و خط‌کش سایز"
+          badge={pdpOptions.enableGoldColors || pdpOptions.enableStoneColors || pdpOptions.enableSizeRuler ? 'فعال' : undefined}
+        >
+          <ProductPdpOptionsFields
+            baseSku={form.sku}
+            basePriceToman={form.priceToman}
+            options={pdpOptions}
+            onChange={setPdpOptions}
+            onGenerateVariants={setVariants}
+          />
+        </AdminFormSection>
+
+        <AdminFormSection
+          title="واریانت‌ها"
+          description="قیمت، وزن و موجودی برای هر ترکیب رنگ و سایز"
+          badge={variants.length > 0 ? `${variants.length} واریانت` : undefined}
+        >
           <ProductVariantFields
             baseSku={form.sku}
             variants={variants}
             onChange={setVariants}
           />
-        </div>
+        </AdminFormSection>
 
-        <div className="mt-6 flex gap-3">
+        <AdminFormSection
+          title="سئو و متادیتا"
+          description="عنوان متا، توضیحات، کلمات کلیدی و Open Graph"
+          collapsible
+          defaultOpen={seoConfigured}
+          badge={seoConfigured ? 'تنظیم شده' : 'اختیاری'}
+        >
+          <ProductSeoFields
+            value={seoValues}
+            onChange={(seo) =>
+              setForm({
+                ...form,
+                seoTitle: seo.seoTitle,
+                seoDescription: seo.seoDescription,
+                seoKeywords: seo.seoKeywords,
+                ogImageUrl: seo.ogImageUrl,
+                seoCanonicalPath: seo.seoCanonicalPath,
+                seoNoIndex: seo.seoNoIndex,
+              })
+            }
+            productTitle={form.title}
+            productSlug={form.slug}
+          />
+        </AdminFormSection>
+
+        <div className="product-form-actions">
           <Button
-            className="h-10 px-4"
+            className="btn-luxury h-11 px-5"
             disabled={saveMutation.isPending}
             onClick={() => saveMutation.mutate()}
           >
             {mode === 'create' ? 'ایجاد محصول' : 'ذخیره تغییرات'}
           </Button>
           <Link href="/products">
-            <Button variant="outline" className="h-10 px-4">
+            <Button variant="outline" className="h-11 px-5">
               انصراف
             </Button>
           </Link>
         </div>
-      </Card>
+      </div>
     </CatalogPageShell>
   );
 }

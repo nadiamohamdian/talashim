@@ -194,17 +194,18 @@ export function ProductReviewsShowcase({
   };
 
   return (
-    <section className="product-details-review" aria-label="نظرات مشتریان">
-      <div
-        ref={frameRef}
-        className={`product-details-review-frame${hasMultiple ? ' has-carousel' : ''}`}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onMouseEnter={() => setAutoPlayPaused(true)}
-        onMouseLeave={() => setAutoPlayPaused(false)}
-        onFocus={() => setAutoPlayPaused(true)}
-        onBlur={() => setAutoPlayPaused(false)}
-      >
+    <div
+      ref={frameRef}
+      role="region"
+      aria-label="نظرات مشتریان"
+      className={`product-details-review-frame${hasMultiple ? ' has-carousel' : ''}`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseEnter={() => setAutoPlayPaused(true)}
+      onMouseLeave={() => setAutoPlayPaused(false)}
+      onFocus={() => setAutoPlayPaused(true)}
+      onBlur={() => setAutoPlayPaused(false)}
+    >
         <span className="product-details-review-line product-details-review-line-top" aria-hidden />
         <span className="product-details-review-line product-details-review-line-left" aria-hidden />
         <span className="product-details-review-line product-details-review-line-bottom" aria-hidden />
@@ -288,39 +289,14 @@ export function ProductReviewsShowcase({
             </div>
           </div>
 
-          <div className="product-details-review-footer">
-            {hasMultiple ? (
-              <div className="product-details-review-dots" role="tablist" aria-label="انتخاب نظر">
-                {reviews.map((item, index) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={index === activeIndex}
-                    aria-label={`نظر ${index + 1}`}
-                    className={
-                      index === activeIndex
-                        ? 'product-details-review-dot is-active'
-                        : 'product-details-review-dot'
-                    }
-                    onClick={() => goTo(index)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <span className="product-details-review-footer-spacer" aria-hidden />
-            )}
-
-            <button
-              type="button"
-              className="product-details-review-submit"
-              onClick={onSubmitReview}
-            >
-              ثبت نظر جدید
-            </button>
-          </div>
+          <button
+            type="button"
+            className="product-details-review-submit"
+            onClick={onSubmitReview}
+          >
+            ثبت نظر جدید
+          </button>
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

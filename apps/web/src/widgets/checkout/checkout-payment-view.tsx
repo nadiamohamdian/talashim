@@ -84,8 +84,16 @@ export function CheckoutPaymentView() {
   const { commerce } = useStorefrontSettings();
   const paymentProviders = getEnabledPaymentProviders(commerce);
 
-  const { items, total, isLoading, serverCartId } = useDisplayCart();
-  const { data: addresses, isLoading: addressesLoading } = useAddresses();
+  const {
+    items,
+    total,
+    isLoading,
+    serverCartId,
+    isServerCartUnavailable,
+    isRefetching,
+    refetchServerCart,
+  } = useDisplayCart();
+  const { data: addresses } = useAddresses();
   const checkoutMutation = useCheckoutMutation();
   const createAddressMutation = useCreateAddressMutation();
   const uploadReceiptMutation = useUploadPaymentReceiptMutation();
@@ -110,7 +118,7 @@ export function CheckoutPaymentView() {
   const shippingValidationError = useMemo(() => validateShippingForm(form), [form]);
 
   useEffect(() => {
-    if (isLoading || addressesLoading) {
+    if (isLoading) {
       return;
     }
     if (!items.length) {
@@ -121,7 +129,6 @@ export function CheckoutPaymentView() {
       router.replace('/checkout');
     }
   }, [
-    addressesLoading,
     deliverySlotId,
     isLoading,
     items.length,
@@ -156,7 +163,7 @@ export function CheckoutPaymentView() {
 
   const submitBlockers = (() => {
     const blockers: string[] = [];
-    if (!serverCartId) {
+    if (!serverCartId && isServerCartUnavailable) {
       blockers.push('سبد خرید سرور در دسترس نیست. لطفاً دوباره تلاش کنید.');
     }
     if (needsReceipt && !hasReceipt) {
@@ -177,6 +184,10 @@ export function CheckoutPaymentView() {
     !createAddressMutation.isPending &&
     !uploadReceiptMutation.isPending &&
     !belowMinOrder;
+
+  const handleRetryServerCart = async () => {
+    await refetchServerCart();
+  };
 
   const handleReceiptSelect = (file: File | undefined) => {
     if (!file) {
@@ -243,11 +254,18 @@ export function CheckoutPaymentView() {
     }
   };
 
-  if (isLoading || addressesLoading || shippingValidationError || !deliverySlotId) {
+  if (
+    (isLoading && items.length === 0) ||
+    shippingValidationError ||
+    !deliverySlotId
+  ) {
     return (
       <div className="checkout-page store-minimal-header">
         <div className="checkout-page-inner">
-          <p className="checkout-empty">در حال بارگذاری...</p>
+          <div className="checkout-loading-state" role="status" aria-live="polite">
+            <span className="checkout-loading-spinner" aria-hidden="true" />
+            <p className="checkout-empty checkout-loading-text">در حال بارگذاری...</p>
+          </div>
         </div>
       </div>
     );
@@ -408,11 +426,23 @@ export function CheckoutPaymentView() {
         </p>
 
         {!canSubmit && submitBlockers.length > 0 ? (
-          <ul className="checkout-blockers">
-            {submitBlockers.map((blocker) => (
-              <li key={blocker}>{blocker}</li>
-            ))}
-          </ul>
+          <>
+            <ul className="checkout-blockers">
+              {submitBlockers.map((blocker) => (
+                <li key={blocker}>{blocker}</li>
+              ))}
+            </ul>
+            {isServerCartUnavailable ? (
+              <button
+                type="button"
+                className="checkout-blockers-action"
+                onClick={() => void handleRetryServerCart()}
+                disabled={isRefetching}
+              >
+                {isRefetching ? 'در حال تلاش مجدد...' : 'تلاش مجدد'}
+              </button>
+            ) : null}
+          </>
         ) : null}
 
         {submitError || mutationError ? (

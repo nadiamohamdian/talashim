@@ -46,7 +46,10 @@ export default async function HomePage() {
       ) : null}
       {homepage.sections.showCategoryShowcase ? <BrandEditorialShowcase /> : null}
       {homepage.sections.showCategoryShowcase ? (
-        <LensSetsShowcase items={lensSetsItems} />
+        <LensSetsShowcase
+          items={lensSetsItems}
+          section={homepage.sections.lensSetsShowcase}
+        />
       ) : null}
       {homepage.sections.showCategoryShowcase ? (
         <LensShowcase items={lensCarouselItems} />

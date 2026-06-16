@@ -108,6 +108,9 @@ export function LensVideoPopup({
 
   if (!item) return null;
 
+  const popupPoster =
+    item.heroImageUrl?.trim() || item.thumbnailUrl || '';
+
   return (
     <div className="lens-video-popup" role="dialog" aria-modal="true" aria-label="لنز طلاشیم">
       <button
@@ -153,7 +156,7 @@ export function LensVideoPopup({
               ref={videoRef}
               className="lens-video-popup-video"
               src={item.videoUrl}
-              poster={item.thumbnailUrl}
+              poster={popupPoster}
               playsInline
               muted
               loop
@@ -163,7 +166,7 @@ export function LensVideoPopup({
             />
           ) : (
             <StoreImage
-              src={item.thumbnailUrl}
+              src={popupPoster}
               alt={item.title ?? 'پوستر لنز طلاشیم'}
               fill
               className="lens-video-popup-poster"

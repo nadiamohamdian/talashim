@@ -99,7 +99,10 @@ export function CheckoutConfirmationView() {
     return (
       <div className="checkout-page store-minimal-header">
         <div className="checkout-page-inner">
-          <p className="checkout-empty">در حال بارگذاری سفارش...</p>
+          <div className="checkout-loading-state" role="status" aria-live="polite">
+            <span className="checkout-loading-spinner" aria-hidden="true" />
+            <p className="checkout-empty checkout-loading-text">در حال بارگذاری سفارش...</p>
+          </div>
         </div>
       </div>
     );

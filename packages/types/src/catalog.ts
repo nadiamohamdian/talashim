@@ -76,6 +76,27 @@ export interface ProductVariant {
   isDefault: boolean;
 }
 
+export interface ProductPdpSpecRow {
+  label: string;
+  value: string;
+}
+
+export interface ProductPdpStoneSwatch {
+  id: string;
+  color: string;
+  label: string;
+}
+
+export type ProductPdpSizeKind = 'ring' | 'necklace' | 'bracelet';
+
+export interface ProductPdpConfig {
+  customSpecs?: ProductPdpSpecRow[];
+  goldColors?: string[];
+  stoneSwatches?: ProductPdpStoneSwatch[];
+  sizeKind?: ProductPdpSizeKind | null;
+  sizes?: number[];
+}
+
 export interface ProductVideo {
   id: string;
   title: string;
@@ -116,6 +137,7 @@ export interface ProductDetails extends ProductSummary {
   seoNoIndex?: boolean;
   color?: string;
   specifications?: Record<string, string>;
+  pdpConfig?: ProductPdpConfig | null;
   variants?: ProductVariant[];
   galleryUrls?: string[];
   videos?: ProductVideo[];

@@ -61,15 +61,12 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
   };
 
   return (
-    <div className="md:col-span-2 space-y-4 border-t border-border pt-6">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <Label>واریانت‌ها (رنگ / سایز)</Label>
-          <p className="mt-1 text-xs text-muted">
-            هر ترکیب رنگ و سایز می‌تواند قیمت، وزن، موجودی و تصویر جدا داشته باشد (حداکثر{' '}
-            {MAX_VARIANTS}).
-          </p>
-        </div>
+    <div className="space-y-4" data-span="full">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm text-[var(--muted-foreground)]">
+          هر ترکیب رنگ و سایز می‌تواند قیمت، وزن، موجودی و تصویر جدا داشته باشد (حداکثر{' '}
+          {MAX_VARIANTS}).
+        </p>
         <Button
           type="button"
           variant="outline"

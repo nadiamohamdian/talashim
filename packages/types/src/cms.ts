@@ -20,8 +20,20 @@ export interface PublicCmsLensVideo {
   title: string | null;
   videoUrl: string;
   thumbnailUrl: string | null;
+  heroImageUrl: string | null;
+  hotspots: CmsLensHotspot[];
   sortOrder: number;
   products: ProductSummary[];
+}
+
+export interface CmsLensHotspot {
+  id?: string;
+  top: string;
+  left: string;
+  chipTop?: string;
+  chipLeft?: string;
+  chipTranslateX?: string;
+  chipTranslateY?: string;
 }
 
 export interface CmsLensVideoDto {
@@ -29,6 +41,8 @@ export interface CmsLensVideoDto {
   title: string | null;
   videoUrl: string;
   thumbnailUrl: string | null;
+  heroImageUrl: string | null;
+  hotspots: CmsLensHotspot[];
   sortOrder: number;
   status: CmsBannerStatus;
   productIds: string[];
@@ -138,6 +152,12 @@ export interface CmsCategoryListingGalleryConfig {
   items: CmsCategoryListingGalleryItem[];
 }
 
+export interface CmsLensSetsShowcaseConfig {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
 export interface CmsHomepageSections {
   featuredTitle: string;
   featuredSubtitle: string;
@@ -150,6 +170,8 @@ export interface CmsHomepageSections {
   categoryShowcase?: CmsCategoryShowcaseConfig;
   /** Category product listing page hero galleries */
   categoryListingGallery?: CmsCategoryListingGalleryConfig;
+  /** Lens sets showcase section copy */
+  lensSetsShowcase?: CmsLensSetsShowcaseConfig;
   /** Homepage bestsellers carousel — 7–12 catalog product IDs */
   bestsellerProductIds?: string[];
   /** Homepage new arrivals carousel — 1–12 catalog product IDs */

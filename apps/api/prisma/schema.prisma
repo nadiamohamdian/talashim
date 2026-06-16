@@ -134,6 +134,7 @@ model Product {
   imageUrl          String
   hoverImageUrl     String
   featured          Boolean         @default(false)
+  pdpConfig         Json?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
   inventoryItem     InventoryItem?
@@ -485,6 +486,10 @@ model CmsLensVideo {
   title        String?
   videoUrl     String
   thumbnailUrl String?
+  /** Editorial hero image for the lens-sets showcase stage */
+  heroImageUrl String?
+  /** Hotspot positions for product chips on the hero image (max 3) */
+  hotspots     Json?
   sortOrder    Int                  @default(0)
   status       CmsBannerStatus      @default(DRAFT)
   createdAt    DateTime             @default(now())

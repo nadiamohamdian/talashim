@@ -10,6 +10,7 @@ import type {
   CmsBannerDto,
   CmsHomepageDto,
   CmsHomepageSections,
+  CmsLensHotspot,
   CmsLensVideoDto,
   CmsSeoSettingsDto,
   CmsStaticPageDto,
@@ -410,11 +411,14 @@ export class AdminCmsService {
     assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
 
     const productIds = await this.normalizeLensVideoProductIds(dto.productIds);
+    const media = this.resolveLensVideoMedia(dto);
 
     const video = await this.cmsRepository.createLensVideo({
       title: dto.title?.trim() || null,
-      videoUrl: requireLibraryImageUrl(dto.videoUrl, 'فایل ویدیو'),
+      videoUrl: media.videoUrl,
       thumbnailUrl: optionalLibraryImageUrl(dto.thumbnailUrl, 'تصویر بندانگشتی') ?? null,
+      heroImageUrl: media.heroImageUrl,
+      hotspots: media.hotspots as unknown as Prisma.InputJsonValue,
       sortOrder: dto.sortOrder ?? 0,
       status: dto.status ?? 'PUBLISHED',
     });
@@ -434,12 +438,20 @@ export class AdminCmsService {
       throw new NotFoundException('Lens video not found');
     }
 
+    const media = this.resolveLensVideoMedia(dto, existing);
+
     await this.cmsRepository.updateLensVideo(id, {
       title: dto.title !== undefined ? dto.title?.trim() || null : undefined,
-      videoUrl: dto.videoUrl ? requireLibraryImageUrl(dto.videoUrl, 'فایل ویدیو') : undefined,
+      videoUrl: dto.videoUrl !== undefined || dto.heroImageUrl !== undefined ? media.videoUrl : undefined,
       thumbnailUrl:
         dto.thumbnailUrl !== undefined
           ? (optionalLibraryImageUrl(dto.thumbnailUrl, 'تصویر بندانگشتی') ?? null)
+          : undefined,
+      heroImageUrl:
+        dto.heroImageUrl !== undefined ? media.heroImageUrl : undefined,
+      hotspots:
+        dto.hotspots !== undefined
+          ? (media.hotspots as unknown as Prisma.InputJsonValue)
           : undefined,
       sortOrder: dto.sortOrder,
       status: dto.status,
@@ -996,6 +1008,8 @@ export class AdminCmsService {
       title: video.title,
       videoUrl: video.videoUrl,
       thumbnailUrl: video.thumbnailUrl,
+      heroImageUrl: video.heroImageUrl,
+      hotspots: this.parseLensHotspots(video.hotspots),
       sortOrder: video.sortOrder,
       status: video.status,
       productIds: video.products.map((item) => item.productId),
@@ -1013,10 +1027,98 @@ export class AdminCmsService {
       title: video.title,
       videoUrl: video.videoUrl,
       thumbnailUrl: video.thumbnailUrl,
+      heroImageUrl: video.heroImageUrl,
+      hotspots: this.parseLensHotspots(video.hotspots),
       sortOrder: video.sortOrder,
       products: video.products
         .map((item) => productsById.get(item.productId))
         .filter((product): product is ProductSummary => product != null),
     };
+  }
+
+  private resolveLensVideoMedia(
+    dto: UpsertCmsLensVideoDto,
+    existing?: CmsLensVideoWithProducts,
+  ): { videoUrl: string; heroImageUrl: string | null; hotspots: CmsLensHotspot[] | null } {
+    const videoUrlInput = dto.videoUrl !== undefined ? dto.videoUrl?.trim() : existing?.videoUrl ?? '';
+    const heroImageUrlInput =
+      dto.heroImageUrl !== undefined
+        ? optionalLibraryImageUrl(dto.heroImageUrl, 'تصویر هیرو')
+        : existing?.heroImageUrl ?? null;
+
+    const videoUrl = videoUrlInput
+      ? requireLibraryImageUrl(videoUrlInput, 'فایل ویدیو')
+      : '';
+    const heroImageUrl = heroImageUrlInput ?? null;
+
+    if (!videoUrl && !heroImageUrl) {
+      throw new BadRequestException('حداقل یکی از تصویر هیرو یا فایل ویدیو الزامی است');
+    }
+
+    const hotspots =
+      dto.hotspots !== undefined ? this.normalizeLensHotspots(dto.hotspots) : this.parseLensHotspots(existing?.hotspots ?? null);
+
+    return { videoUrl, heroImageUrl, hotspots };
+  }
+
+  private normalizeLensHotspots(raw: Record<string, unknown>[] | undefined): CmsLensHotspot[] | null {
+    if (!raw || raw.length === 0) {
+      return null;
+    }
+
+    if (raw.length > 3) {
+      throw new BadRequestException('حداکثر ۳ نقطه محصول روی تصویر مجاز است');
+    }
+
+    const positionPattern = /^-?\d+(\.\d+)?(%|px)$/;
+
+    return raw.map((item, index) => {
+      const top = typeof item.top === 'string' ? item.top.trim() : '';
+      const left = typeof item.left === 'string' ? item.left.trim() : '';
+
+      if (!positionPattern.test(top) || !positionPattern.test(left)) {
+        throw new BadRequestException(`موقعیت نقطه ${index + 1} نامعتبر است`);
+      }
+
+      const hotspot: CmsLensHotspot = { top, left };
+
+      const optionalFields = ['id', 'chipTop', 'chipLeft', 'chipTranslateX', 'chipTranslateY'] as const;
+      for (const field of optionalFields) {
+        const value = item[field];
+        if (typeof value === 'string' && value.trim()) {
+          if (field === 'id') {
+            hotspot.id = value.trim();
+          } else if (field === 'chipTop') {
+            hotspot.chipTop = value.trim();
+          } else if (field === 'chipLeft') {
+            hotspot.chipLeft = value.trim();
+          } else if (field === 'chipTranslateX') {
+            hotspot.chipTranslateX = value.trim();
+          } else if (field === 'chipTranslateY') {
+            hotspot.chipTranslateY = value.trim();
+          }
+        }
+      }
+
+      return hotspot;
+    });
+  }
+
+  private parseLensHotspots(raw: unknown): CmsLensHotspot[] {
+    if (!Array.isArray(raw)) {
+      return [];
+    }
+
+    return raw
+      .filter((item): item is Record<string, unknown> => item != null && typeof item === 'object')
+      .map((item) => ({
+        id: typeof item.id === 'string' ? item.id : undefined,
+        top: typeof item.top === 'string' ? item.top : '50%',
+        left: typeof item.left === 'string' ? item.left : '50%',
+        chipTop: typeof item.chipTop === 'string' ? item.chipTop : undefined,
+        chipLeft: typeof item.chipLeft === 'string' ? item.chipLeft : undefined,
+        chipTranslateX: typeof item.chipTranslateX === 'string' ? item.chipTranslateX : undefined,
+        chipTranslateY: typeof item.chipTranslateY === 'string' ? item.chipTranslateY : undefined,
+      }));
   }
 }
