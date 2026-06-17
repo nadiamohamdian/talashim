@@ -241,6 +241,18 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     navOrder: 10,
   }),
   r({
+    id: 'coupons.list',
+    path: '/coupons',
+    label: 'تخفیف و کوپن',
+    sectionId: 'commerce',
+    sectionLabel: 'سفارش خرده',
+    template: 'list',
+    permission: ADMIN_PERMISSIONS.orders.read,
+    availability: 'live',
+    parentId: 'dashboard',
+    navOrder: 20,
+  }),
+  r({
     id: 'orders.detail',
     path: '/orders',
     label: 'جزئیات سفارش',

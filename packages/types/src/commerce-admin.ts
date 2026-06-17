@@ -1,5 +1,6 @@
 import type { ProductPdpConfig } from './catalog';
 import type { InventoryReportRow, InventoryReportSummary } from './reports';
+import type { DiscountType, ProductCategory } from './discounts';
 
 export interface AdminProductInventoryDto {
   quantity: number;
@@ -195,4 +196,32 @@ export interface AdminInventoryReportResponse {
   limit: number;
   total: number;
   items: InventoryReportRow[];
+}
+
+export interface AdminCouponDto {
+  id: string;
+  code: string;
+  title: string;
+  description?: string | null;
+  isActive: boolean;
+  startsAt?: string | null;
+  expiresAt?: string | null;
+  discountType: DiscountType;
+  discountValue: number;
+  minimumOrderAmount?: number | null;
+  maximumDiscountAmount?: number | null;
+  usageLimitTotal?: number | null;
+  usageLimitPerUser?: number | null;
+  usedCount: number;
+  isFirstPurchaseOnly: boolean;
+  allowWithOtherCoupons: boolean;
+  applicableCategories: ProductCategory[];
+  excludedCategories: ProductCategory[];
+  applicableProducts: string[];
+  excludedProducts: string[];
+  applicableUsers: string[];
+  excludedUsers: string[];
+  customerGroup?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }

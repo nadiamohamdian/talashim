@@ -31,4 +31,9 @@ export class CreateOrderDto {
   @IsOptional()
   @IsBoolean()
   isInsured?: boolean;
+
+  @ApiPropertyOptional({ description: 'Optional checkout coupon code' })
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
 }

@@ -40,6 +40,7 @@ import { ContactModule } from './modules/contact/contact.module';
 import { MediaModule } from './infrastructure/media/media.module';
 import { SiteModule } from './modules/site/site.module';
 import { CmsModule } from './modules/cms/cms.module';
+import { DiscountsModule } from './modules/discounts/discounts.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { CmsModule } from './modules/cms/cms.module';
     MediaModule,
     SiteModule,
     CmsModule,
+    DiscountsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -18,4 +18,5 @@ export type {
   AdminUserActivityItem,
   AdminUserDetailView,
   AdminUpdateUserContactPayload,
+  AdminCouponDto,
 } from '@sadafgold/types';

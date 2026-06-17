@@ -29,6 +29,7 @@ import {
 } from '@/infrastructure/media/media-storage.service';
 import { WalletService } from '@/modules/wallet/services/wallet.service';
 import { UsersService } from '@/modules/users/services/users.service';
+import { CouponsService } from '@/modules/discounts/services/coupons.service';
 import { OrdersRepository } from '../repositories/orders.repository';
 import type { CreateOrderDto } from '../dto/create-order.dto';
 import type { OrdersQueryDto } from '../dto/orders-query.dto';
@@ -63,6 +64,7 @@ export class OrdersService {
     private readonly walletService: WalletService,
     private readonly usersService: UsersService,
     private readonly pricingEngine: PricingEngineService,
+    private readonly couponsService: CouponsService,
   ) {}
 
   async checkout(payload: CreateOrderDto) {
@@ -119,18 +121,34 @@ export class OrdersService {
       throw new BadRequestException(`حداقل مبلغ سفارش ${minOrder.toLocaleString('fa-IR')} تومان است`);
     }
 
+    let discountToman = 0;
+    let couponId: string | undefined;
+    let couponCode: string | undefined;
+    if (payload.couponCode?.trim()) {
+      const couponValidation = await this.couponsService.validateForCheckout(
+        payload.couponCode,
+        cart.id,
+        userId,
+        { throwOnFailure: true },
+      );
+      discountToman = couponValidation.discountAmount;
+      couponId = couponValidation.couponId;
+      couponCode = couponValidation.couponCode;
+    }
+
+    const discountedSubtotalToman = Math.max(subtotalToman - discountToman, 0);
     const taxPercent = getPlatformSettings().commerce.defaultTaxPercent;
-    const taxToman = Math.round(subtotalToman * (taxPercent / 100));
+    const taxToman = Math.round(discountedSubtotalToman * (taxPercent / 100));
     const liveGold18 = await this.pricingEngine.getLivePrice('XAU-IRR', 18);
     const liveGoldPrice18PerGramToman = Number(liveGold18.pricePerGram);
-    const shippingToman = calculateShippingFeeToman(subtotalToman, getFreeShippingMinToman());
+    const shippingToman = calculateShippingFeeToman(discountedSubtotalToman, getFreeShippingMinToman());
     const isInsured = payload.isInsured === true;
     const insuranceFeeToman = calculateInsuranceFeeToman(
-      subtotalToman,
+      discountedSubtotalToman,
       isInsured,
       getShippingInsurancePercent(),
     );
-    const totalToman = subtotalToman + taxToman + shippingToman + insuranceFeeToman;
+    const totalToman = discountedSubtotalToman + taxToman + shippingToman + insuranceFeeToman;
     const provider = payload.paymentProvider as CheckoutPaymentProvider;
 
     const orderItems = await Promise.all(
@@ -167,7 +185,10 @@ export class OrdersService {
       paymentStatus: resolveInitialPaymentStatus(provider),
       isInsured,
       insuranceFeeToman: tomanNumberToBigInt(insuranceFeeToman),
-      subtotalToman: tomanNumberToBigInt(subtotalToman),
+      subtotalToman: tomanNumberToBigInt(discountedSubtotalToman),
+      discountToman: tomanNumberToBigInt(discountToman),
+      couponId,
+      couponCode,
       taxToman: tomanNumberToBigInt(taxToman),
       taxPercent,
       liveGoldPrice18PerGramToman: tomanNumberToBigInt(liveGoldPrice18PerGramToman),
@@ -379,6 +400,8 @@ export class OrdersService {
     status: OrderStatus;
     subtotalToman: bigint | number;
     taxToman: bigint | number;
+    discountToman?: bigint | number;
+    couponCode?: string | null;
     isInsured: boolean;
     insuranceFeeToman: bigint | number;
     totalToman: bigint | number;
@@ -396,6 +419,8 @@ export class OrdersService {
       paymentStatus: paymentStatus ? toApiPaymentStatus(paymentStatus) : null,
       subtotalToman: tomanBigIntToNumber(order.subtotalToman),
       taxToman: tomanBigIntToNumber(order.taxToman),
+      discountToman: tomanBigIntToNumber(order.discountToman ?? 0),
+      couponCode: order.couponCode ?? null,
       isInsured: order.isInsured,
       insuranceFeeToman: tomanBigIntToNumber(order.insuranceFeeToman),
       totalToman: tomanBigIntToNumber(order.totalToman),
@@ -493,6 +518,8 @@ export class OrdersService {
     status: OrderStatus;
     subtotalToman: bigint | number;
     taxToman: bigint | number;
+    discountToman?: bigint | number;
+    couponCode?: string | null;
     taxPercent?: number | null;
     liveGoldPrice18PerGramToman?: bigint | number | null;
     isInsured: boolean;
@@ -559,6 +586,8 @@ export class OrdersService {
     return {
       ...this.toSummary(order),
       taxPercent,
+      discountToman: tomanBigIntToNumber(order.discountToman ?? 0),
+      couponCode: order.couponCode ?? null,
       liveGoldPrice18PerGramToman: order.liveGoldPrice18PerGramToman
         ? tomanBigIntToNumber(order.liveGoldPrice18PerGramToman)
         : mappedItems[0]?.liveGoldPrice18PerGramToman ?? null,

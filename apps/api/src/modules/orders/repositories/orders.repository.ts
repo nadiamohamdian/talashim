@@ -19,6 +19,9 @@ export class OrdersRepository {
     isInsured: boolean;
     insuranceFeeToman: bigint;
     subtotalToman: bigint;
+    discountToman?: bigint;
+    couponId?: string;
+    couponCode?: string;
     taxToman: bigint;
     taxPercent?: number;
     liveGoldPrice18PerGramToman?: bigint;
@@ -43,6 +46,9 @@ export class OrdersRepository {
           isInsured: payload.isInsured,
           insuranceFeeToman: payload.insuranceFeeToman,
           subtotalToman: payload.subtotalToman,
+          discountToman: payload.discountToman ?? BigInt(0),
+          couponId: payload.couponId,
+          couponCode: payload.couponCode,
           taxToman: payload.taxToman,
           taxPercent: payload.taxPercent,
           liveGoldPrice18PerGramToman: payload.liveGoldPrice18PerGramToman,
@@ -94,6 +100,39 @@ export class OrdersRepository {
         where: { id: payload.cartId },
         data: { status: CartStatus.CHECKED_OUT },
       });
+
+      if (
+        payload.couponId &&
+        payload.couponCode &&
+        payload.userId &&
+        payload.discountToman &&
+        payload.discountToman > BigInt(0)
+      ) {
+        await tx.discountCoupon.update({
+          where: { id: payload.couponId },
+          data: { usedCount: { increment: 1 } },
+        });
+        await tx.couponUsage.create({
+          data: {
+            couponId: payload.couponId,
+            userId: payload.userId,
+            orderId: order.id,
+            discountAmount: payload.discountToman,
+          },
+        });
+        await tx.auditLog.create({
+          data: {
+            actorId: payload.userId,
+            action: 'coupon.redeemed',
+            context: {
+              couponId: payload.couponId,
+              code: payload.couponCode,
+              orderId: order.id,
+              discountAmount: Number(payload.discountToman),
+            },
+          },
+        });
+      }
 
       return order;
     });

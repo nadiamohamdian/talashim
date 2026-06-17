@@ -25,6 +25,17 @@ export interface CheckoutPayload {
   paymentProvider: CheckoutPaymentProvider;
   shippingAddressId: string;
   isInsured?: boolean;
+  couponCode?: string;
+}
+
+export interface CouponValidationResponse {
+  couponAccepted: boolean;
+  couponMessage: string;
+  discountAmount: number;
+  discountPercent: number | null;
+  finalTotal: number;
+  finalPayable: number;
+  couponCode?: string;
 }
 
 export const orderApi = {
@@ -63,6 +74,10 @@ export const orderApi = {
 
   checkout(payload: CheckoutPayload): Promise<OrderDetail> {
     return apiPost<OrderDetail>('/checkout', payload);
+  },
+
+  validateCoupon(payload: { code: string; cartId: string }): Promise<CouponValidationResponse> {
+    return apiPost<CouponValidationResponse>('/checkout/coupons/validate', payload);
   },
 
   uploadPaymentReceipt(orderId: string, paymentId: string, file: File): Promise<OrderDetail> {

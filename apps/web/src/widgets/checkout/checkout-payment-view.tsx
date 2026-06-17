@@ -105,6 +105,7 @@ export function CheckoutPaymentView() {
     deliverySlotLabel,
     deliveryFeeToman,
     isInsured,
+    couponCode,
     discountToman,
     paymentProvider,
     setPaymentProvider,
@@ -231,6 +232,7 @@ export function CheckoutPaymentView() {
         paymentProvider,
         shippingAddressId,
         isInsured,
+        couponCode: couponCode || undefined,
       });
 
       setOrder({ orderId: order.id, orderNumber: order.orderNumber });

@@ -483,7 +483,7 @@ body:has(.home-hero-fullscreen) .site-header-menu {
     --menu-brand-size: 20px;
     --menu-brand-lh: 31px;
     --menu-icon-slot: 24px;
-    --menu-action-gap: clamp(26px, 2.6vw, 38px);
+    --menu-action-gap: 15px;
     --menu-pad-inline: clamp(16px, 1.46vw, 21px);
     --menu-nav-gap: clamp(16px, 3.2vw, 46px);
     --menu-bg: transparent;
@@ -639,7 +639,7 @@ body:has(.home-hero-fullscreen) .site-header-menu {
   .site-header-menu {
     --menu-pad-inline: 21px;
     --menu-nav-gap: 46px;
-    --menu-action-gap: 38px;
+    --menu-action-gap: 15px;
   }
 }
 
@@ -11747,6 +11747,7 @@ body:has(.blog-post-page) main.container-store {
 .blog-post-review-quote-close {
   bottom: 8.83%;
   inset-inline-start: 7.44%;
+  transform: matrix(-1, 0, 0, 1, 0, 0) scaleX(-1);
 }
 
 .blog-post-review-content {

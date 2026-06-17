@@ -16,6 +16,7 @@ export {
   useSetInvoiceRecipientMutation,
   useUploadPaymentReceiptMutation,
   useUpsertCartItemMutation,
+  useValidateCouponMutation,
 } from './use-orders';
 export {
   useAddresses,

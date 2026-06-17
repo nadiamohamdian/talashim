@@ -41,6 +41,13 @@ export function useCheckoutMutation() {
   });
 }
 
+export function useValidateCouponMutation() {
+  return useMutation({
+    mutationFn: ({ code, cartId }: { code: string; cartId: string }) =>
+      orderApi.validateCoupon({ code, cartId }),
+  });
+}
+
 export function useCart(options?: { enabled?: boolean }) {
   const { isAuthenticated, hydrated } = useAuth();
   return useQuery({

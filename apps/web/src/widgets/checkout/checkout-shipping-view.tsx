@@ -13,6 +13,7 @@ import {
 import { useAddresses } from '@/features/account/hooks/use-addresses';
 import { useCheckoutSessionStore } from '@/features/checkout/model/checkout-session-store';
 import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
+import { useValidateCouponMutation, getApiErrorMessage } from '@/lib/api';
 import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { formatPrice } from '@/shared/lib/format-price';
 import {
@@ -64,7 +65,7 @@ export function CheckoutShippingView() {
   const { isAuthenticated } = useAuth();
   const { commerce } = useStorefrontSettings();
 
-  const { items, total, isLoading } = useDisplayCart();
+  const { items, total, isLoading, serverCartId } = useDisplayCart();
   const { data: addresses } = useAddresses();
 
   const {
@@ -73,12 +74,15 @@ export function CheckoutShippingView() {
     isInsured,
     couponCode,
     discountToman,
+    couponMessage,
+    couponValidationState,
     setForm,
     setDeliverySlot,
     setIsInsured,
-    setCouponCode,
-    setDiscountToman,
+    setCouponResult,
+    clearCoupon,
   } = useCheckoutSessionStore();
+  const validateCouponMutation = useValidateCouponMutation();
 
   const [couponInput, setCouponInput] = useState(couponCode);
   const [formError, setFormError] = useState<string | null>(null);
@@ -135,15 +139,55 @@ export function CheckoutShippingView() {
     });
   };
 
-  const handleApplyCoupon = () => {
-    const code = couponInput.trim();
-    setCouponCode(code);
-    if (code.toUpperCase() === 'SADAF') {
-      setDiscountToman(Math.min(1_500_000, total));
+  const handleApplyCoupon = async (rawCode?: string) => {
+    const code = (rawCode ?? couponInput).trim();
+    if (!serverCartId) {
       return;
     }
-    setDiscountToman(0);
+    if (!code) {
+      clearCoupon();
+      return;
+    }
+    setCouponResult({
+      couponCode: code.toUpperCase(),
+      discountToman: 0,
+      discountPercent: null,
+      couponMessage: 'در حال اعتبارسنجی کد تخفیف...',
+      couponAccepted: false,
+      state: 'loading',
+    });
+    try {
+      const result = await validateCouponMutation.mutateAsync({
+        code,
+        cartId: serverCartId,
+      });
+      setCouponResult({
+        couponCode: (result.couponCode ?? code).toUpperCase(),
+        discountToman: result.discountAmount,
+        discountPercent: result.discountPercent,
+        couponMessage: result.couponMessage,
+        couponAccepted: result.couponAccepted,
+        state: result.couponAccepted ? 'success' : 'error',
+      });
+    } catch (error) {
+      setCouponResult({
+        couponCode: code.toUpperCase(),
+        discountToman: 0,
+        discountPercent: null,
+        couponMessage: getApiErrorMessage(error, 'کد تخفیف قابل استفاده نیست.'),
+        couponAccepted: false,
+        state: 'error',
+      });
+    }
   };
+
+  useEffect(() => {
+    if (!couponCode || !items.length || !serverCartId) {
+      return;
+    }
+    void handleApplyCoupon(couponCode);
+    // Auto revalidate coupon whenever cart composition or subtotal changes.
+  }, [total, items.length, couponCode, serverCartId]);
 
   const handleContinue = () => {
     setFormError(null);
@@ -321,9 +365,10 @@ export function CheckoutShippingView() {
           <button
             type="button"
             className="checkout-coupon-apply"
-            onClick={handleApplyCoupon}
+            onClick={() => void handleApplyCoupon()}
+            disabled={validateCouponMutation.isPending}
           >
-            اعمال
+            {validateCouponMutation.isPending ? 'در حال بررسی...' : 'اعمال'}
           </button>
           <input
             type="text"
@@ -333,6 +378,15 @@ export function CheckoutShippingView() {
             onChange={(event) => setCouponInput(event.target.value)}
           />
         </div>
+        {couponMessage ? (
+          <p
+            className={
+              couponValidationState === 'success' ? 'checkout-success-message' : 'checkout-error'
+            }
+          >
+            {couponMessage}
+          </p>
+        ) : null}
 
         <CheckoutOrderSummary
           subtotalToman={total}

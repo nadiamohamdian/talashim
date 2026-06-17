@@ -61,6 +61,8 @@ export interface OrderSummary {
   status: OrderStatus;
   paymentStatus: PaymentStatus | null;
   subtotalToman: number;
+  discountToman: number;
+  couponCode?: string | null;
   taxToman: number;
   isInsured: boolean;
   insuranceFeeToman: number;

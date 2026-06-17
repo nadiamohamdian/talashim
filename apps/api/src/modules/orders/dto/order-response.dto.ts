@@ -20,6 +20,12 @@ export class OrderSummaryResponseDto {
   @ApiProperty({ description: 'Tax in Toman' })
   taxToman!: number;
 
+  @ApiProperty({ description: 'Coupon discount in Toman' })
+  discountToman!: number;
+
+  @ApiPropertyOptional({ nullable: true })
+  couponCode?: string | null;
+
   @ApiProperty({ description: 'Whether parcel insurance is enabled' })
   isInsured!: boolean;
 

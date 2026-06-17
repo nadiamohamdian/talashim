@@ -37,12 +37,12 @@ export function AdminLoginForm() {
   });
 
   return (
-    <div className="card-luxury w-full max-w-md p-6 sm:p-7">
+    <div className="card-luxury w-full max-w-md bg-[var(--card)] text-[var(--foreground)] p-6 sm:p-7">
       <p className="text-caption font-semibold uppercase tracking-wider text-[var(--primary)]">
         پنل مدیریت
       </p>
-      <h1 className="mt-2 text-display">ورود به پنل مدیریت طلاشیم</h1>
-      <p className="mt-3 text-sm leading-relaxed text-muted">
+      <h1 className="mt-2 text-display text-[var(--foreground)]">ورود به پنل مدیریت طلاشیم</h1>
+      <p className="mt-3 text-sm leading-relaxed text-[var(--muted-foreground)]">
         مدیریت محصولات، سفارش‌ها، معاملات طلا و عملیات پلتفرم.
       </p>
 
@@ -56,22 +56,37 @@ export function AdminLoginForm() {
 
       <form className="mt-6 space-y-5" onSubmit={(event) => void onSubmit(event)}>
         <div className="field-group">
-          <Label htmlFor="email">ایمیل</Label>
+          <Label htmlFor="email" className="text-[var(--foreground)]">
+            ایمیل
+          </Label>
           <Input
             id="email"
             type="email"
             placeholder="admin@talashim.local"
+            className="border-[var(--border)] bg-[var(--input-bg)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]"
             {...register('email')}
           />
           {errors.email ? <p className="field-error">{errors.email.message}</p> : null}
         </div>
         <div className="field-group">
-          <Label htmlFor="password">رمز عبور</Label>
-          <Input id="password" type="password" placeholder="••••••••" {...register('password')} />
+          <Label htmlFor="password" className="text-[var(--foreground)]">
+            رمز عبور
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            className="border-[var(--border)] bg-[var(--input-bg)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]"
+            {...register('password')}
+          />
           {errors.password ? <p className="field-error">{errors.password.message}</p> : null}
         </div>
         {errors.root ? <Alert variant="destructive">{errors.root.message}</Alert> : null}
-        <Button type="submit" className="w-full" loading={isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full bg-[var(--primary)] text-[var(--primary-foreground)] hover:opacity-95"
+          loading={isSubmitting}
+        >
           {isSubmitting ? 'در حال ورود…' : 'ورود به پنل'}
         </Button>
         <p className="text-center text-caption">

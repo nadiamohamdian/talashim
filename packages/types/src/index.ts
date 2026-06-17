@@ -16,3 +16,4 @@ export * from './trading-admin';
 export * from './commerce-admin';
 export * from './notifications-admin';
 export * from './staff-tickets';
+export * from './discounts';

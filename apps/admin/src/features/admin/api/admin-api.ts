@@ -19,6 +19,7 @@ import type {
   AdminUserDetailView,
   AdminUserActivityItem,
   AdminUpdateUserContactPayload,
+  AdminCouponDto,
 } from '../model/types';
 
 export function fetchAnalytics() {
@@ -199,4 +200,36 @@ export function fetchUserActivity(userId: string, params?: { page?: number }) {
   return axiosClient
     .get<AdminPaginated<AdminUserActivityItem>>(`/admin/users/${userId}/activity`, { params })
     .then((r) => r.data);
+}
+
+export function fetchCoupons(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  type?: 'PERCENT' | 'FIXED_AMOUNT';
+  isActive?: boolean;
+}) {
+  return axiosClient
+    .get<AdminPaginated<AdminCouponDto>>('/admin/coupons', { params })
+    .then((r) => r.data);
+}
+
+export function fetchCouponById(id: string) {
+  return axiosClient.get<AdminCouponDto>(`/admin/coupons/${id}`).then((r) => r.data);
+}
+
+export function createCoupon(payload: Partial<AdminCouponDto>) {
+  return axiosClient.post<AdminCouponDto>('/admin/coupons', payload).then((r) => r.data);
+}
+
+export function updateCoupon(id: string, payload: Partial<AdminCouponDto>) {
+  return axiosClient.patch<AdminCouponDto>(`/admin/coupons/${id}`, payload).then((r) => r.data);
+}
+
+export function toggleCoupon(id: string, isActive: boolean) {
+  return axiosClient.post<AdminCouponDto>(`/admin/coupons/${id}/toggle`, { isActive }).then((r) => r.data);
+}
+
+export function duplicateCoupon(id: string) {
+  return axiosClient.post<AdminCouponDto>(`/admin/coupons/${id}/duplicate`).then((r) => r.data);
 }

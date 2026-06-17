@@ -21,6 +21,10 @@ interface CheckoutSessionState {
   isInsured: boolean;
   couponCode: string;
   discountToman: number;
+  couponMessage: string | null;
+  couponAccepted: boolean;
+  discountPercent: number | null;
+  couponValidationState: 'idle' | 'loading' | 'success' | 'error';
   paymentProvider: CheckoutPaymentProvider;
   orderId: string | null;
   orderNumber: string | null;
@@ -33,7 +37,15 @@ interface CheckoutSessionState {
   }) => void;
   setIsInsured: (value: boolean) => void;
   setCouponCode: (code: string) => void;
-  setDiscountToman: (amount: number) => void;
+  setCouponResult: (payload: {
+    couponCode: string;
+    discountToman: number;
+    discountPercent: number | null;
+    couponMessage: string | null;
+    couponAccepted: boolean;
+    state: 'idle' | 'loading' | 'success' | 'error';
+  }) => void;
+  clearCoupon: () => void;
   setOrder: (payload: { orderId: string; orderNumber: string }) => void;
   reset: () => void;
 }
@@ -57,6 +69,10 @@ export const useCheckoutSessionStore = create<CheckoutSessionState>()(
       isInsured: false,
       couponCode: '',
       discountToman: 0,
+      couponMessage: null,
+      couponAccepted: false,
+      discountPercent: null,
+      couponValidationState: 'idle',
       paymentProvider: 'card_to_card',
       orderId: null,
       orderNumber: null,
@@ -73,7 +89,24 @@ export const useCheckoutSessionStore = create<CheckoutSessionState>()(
         }),
       setIsInsured: (value) => set({ isInsured: value }),
       setCouponCode: (code) => set({ couponCode: code }),
-      setDiscountToman: (amount) => set({ discountToman: amount }),
+      setCouponResult: (payload) =>
+        set({
+          couponCode: payload.couponCode,
+          discountToman: payload.discountToman,
+          discountPercent: payload.discountPercent,
+          couponMessage: payload.couponMessage,
+          couponAccepted: payload.couponAccepted,
+          couponValidationState: payload.state,
+        }),
+      clearCoupon: () =>
+        set({
+          couponCode: '',
+          discountToman: 0,
+          discountPercent: null,
+          couponAccepted: false,
+          couponMessage: null,
+          couponValidationState: 'idle',
+        }),
       setOrder: ({ orderId, orderNumber }) => set({ orderId, orderNumber }),
       reset: () =>
         set({
@@ -84,6 +117,10 @@ export const useCheckoutSessionStore = create<CheckoutSessionState>()(
           isInsured: false,
           couponCode: '',
           discountToman: 0,
+          couponMessage: null,
+          couponAccepted: false,
+          discountPercent: null,
+          couponValidationState: 'idle',
           paymentProvider: 'card_to_card',
           orderId: null,
           orderNumber: null,
@@ -100,6 +137,10 @@ export const useCheckoutSessionStore = create<CheckoutSessionState>()(
         isInsured: state.isInsured,
         couponCode: state.couponCode,
         discountToman: state.discountToman,
+        couponMessage: state.couponMessage,
+        couponAccepted: state.couponAccepted,
+        discountPercent: state.discountPercent,
+        couponValidationState: state.couponValidationState,
         paymentProvider: state.paymentProvider,
         orderId: state.orderId,
         orderNumber: state.orderNumber,
