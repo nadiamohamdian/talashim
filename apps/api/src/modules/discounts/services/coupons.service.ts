@@ -119,20 +119,24 @@ export class CouponsService {
 
     const itemProductIds = new Set(cart.items.map((item) => item.productId));
     const itemCategories = new Set(cart.items.map((item) => item.product.category));
-    if (coupon.excludedProducts.some((id) => itemProductIds.has(id))) {
+    if (coupon.excludedProducts.some((id: string) => itemProductIds.has(id))) {
       return fail('این کد برای برخی کالاهای سبد قابل استفاده نیست.');
     }
-    if (coupon.excludedCategories.some((cat) => itemCategories.has(cat))) {
+    if (coupon.excludedCategories.some((cat: ProductCategory) => itemCategories.has(cat))) {
       return fail('این کد برای برخی دسته‌بندی‌های سبد قابل استفاده نیست.');
     }
     if (coupon.applicableProducts.length > 0) {
-      const hasIncludedProduct = coupon.applicableProducts.some((id) => itemProductIds.has(id));
+      const hasIncludedProduct = coupon.applicableProducts.some((id: string) =>
+        itemProductIds.has(id),
+      );
       if (!hasIncludedProduct) {
         return fail('این کد برای کالاهای فعلی سبد شما قابل استفاده نیست.');
       }
     }
     if (coupon.applicableCategories.length > 0) {
-      const hasIncludedCategory = coupon.applicableCategories.some((cat) => itemCategories.has(cat));
+      const hasIncludedCategory = coupon.applicableCategories.some((cat: ProductCategory) =>
+        itemCategories.has(cat),
+      );
       if (!hasIncludedCategory) {
         return fail('این کد برای دسته‌بندی‌های فعلی سبد شما قابل استفاده نیست.');
       }

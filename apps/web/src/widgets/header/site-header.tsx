@@ -1,15 +1,11 @@
 'use client';
 
-import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { DesktopMenuBar } from '@/widgets/header/desktop-menu-bar';
 import { MobileMenuBar } from '@/widgets/header/mobile-menu-bar';
 
 export function SiteHeader() {
-  const { gold } = useStorefrontSettings();
-  const headerTopClass = gold.showGoldTickerInHeader ? 'top-10' : 'top-0';
-
   return (
-    <header className={`site-header-menu sticky z-40 ${headerTopClass}`}>
+    <header className="site-header-menu sticky top-0 z-40">
       <div className="site-header-menu-inner site-header-minimal-bar lg:hidden">
         <MobileMenuBar />
       </div>

@@ -7,7 +7,6 @@ import type { StorefrontSettings } from '@/shared/model/storefront-settings';
 import type { PublicCmsBanner, PublicCmsStaticPageSummary } from '@sadafgold/types';
 import { GlobalBannerBar } from '@/widgets/cms/global-banner-bar';
 import { SiteFooter } from '@/widgets/footer/site-footer';
-import { GoldPriceTicker } from '@/widgets/header/gold-price-ticker';
 import { SiteHeader } from '@/widgets/header/site-header';
 import { QueryProvider } from '@/shared/providers/query-provider';
 import { ScrollManager } from '@/shared/providers/scroll-manager';
@@ -34,7 +33,6 @@ export function ClientRoot({
             <ScrollManager />
             <div className="flex min-h-full flex-1 flex-col">
               <GlobalBannerBar banners={globalBanners} />
-              {settings.gold.showGoldTickerInHeader ? <GoldPriceTicker /> : null}
               <SiteHeader />
               <main className="container-store flex-1 py-6 md:py-10">{children}</main>
               <SiteFooter staticPages={staticPages} />
