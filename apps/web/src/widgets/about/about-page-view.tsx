@@ -35,6 +35,7 @@ export function AboutPageView() {
             <h1 id="about-page-title" className="about-page-title">
               {ABOUT_PAGE_COPY.heroTitle}
             </h1>
+            <p className="about-page-intro">{ABOUT_PAGE_COPY.intro}</p>
 
             <div className="about-values-grid">
               {ABOUT_PAGE_VALUES.map((value) => (

@@ -12127,7 +12127,7 @@ body:has(.about-page) main.container-store {
   box-sizing: border-box;
   width: 100%;
   margin-inline: auto;
-  padding: 32px 16px 48px;
+  padding: 70px 16px 48px;
   overflow-x: clip;
 }
 
@@ -12143,12 +12143,15 @@ body:has(.about-page) main.container-store {
   gap: 32px;
 }
 
-.about-page-story {
-  order: 2;
-}
-
-.about-page-values {
-  order: 1;
+.about-page-intro {
+  display: none;
+  margin: 0 0 20px;
+  font-family: var(--about-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1;
+  color: #000000;
+  text-align: center;
 }
 
 .about-page-title {
@@ -12275,7 +12278,7 @@ body:has(.about-page) main.container-store {
     width: min(351px, 26vw);
     height: min(468px, 35vw);
     max-width: none;
-    transform: translate(-50%, -50%) rotate(-90deg);
+    transform: translate(-50%, -50%) rotate(-90deg) scaleX(-1);
     opacity: 0.2;
     object-fit: cover;
   }
@@ -12331,6 +12334,7 @@ body:has(.about-page) main.container-store {
     margin: 0 0 76px;
     font-size: 32px;
     line-height: 50px;
+    color: var(--about-gold);
     text-align: right;
   }
 
@@ -12369,16 +12373,38 @@ body:has(.about-page) main.container-store {
 }
 
 @media (max-width: 1023px) {
-  .about-page-story {
-    order: 2;
+  .about-page-layout {
+    gap: 40px;
   }
 
-  .about-page-values {
-    order: 1;
+  .about-page-section-title,
+  .about-page-title {
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--about-dark);
+    text-align: right;
+  }
+
+  .about-page-body {
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 1;
+    text-align: justify;
+  }
+
+  .about-page-intro {
+    display: block;
+    margin-bottom: 20px;
   }
 
   .about-value-label {
     bottom: clamp(12px, 4vw, 24px);
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 1;
+    text-align: center;
   }
 }
 
