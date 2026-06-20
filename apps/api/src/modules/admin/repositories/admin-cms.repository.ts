@@ -5,6 +5,10 @@ import {
   DEFAULT_CMS_HERO,
   DEFAULT_CMS_SECTIONS,
   DEFAULT_CMS_SEO,
+  DEFAULT_CMS_ABOUT_COPY,
+  DEFAULT_CMS_ABOUT_DECOR_IMAGE,
+  DEFAULT_CMS_ABOUT_META,
+  DEFAULT_CMS_ABOUT_VALUES,
 } from '../cms/cms-defaults';
 
 export const CMS_BANNER_PRODUCTS_INCLUDE = {
@@ -399,6 +403,36 @@ export class AdminCmsRepository implements OnModuleInit {
         defaultOgImageUrl: DEFAULT_CMS_SEO.defaultOgImageUrl,
         robotsIndex: DEFAULT_CMS_SEO.robotsIndex,
       },
+      update: data,
+    });
+  }
+
+  async getOrCreateAboutPage() {
+    const existing = await this.prisma.cmsAboutPage.findUnique({ where: { id: 'default' } });
+    if (existing) {
+      return existing;
+    }
+
+    return this.prisma.cmsAboutPage.create({
+      data: {
+        id: 'default',
+        meta: DEFAULT_CMS_ABOUT_META as unknown as Prisma.InputJsonValue,
+        copy: DEFAULT_CMS_ABOUT_COPY as unknown as Prisma.InputJsonValue,
+        decorImageUrl: DEFAULT_CMS_ABOUT_DECOR_IMAGE,
+        values: DEFAULT_CMS_ABOUT_VALUES as unknown as Prisma.InputJsonValue,
+      },
+    });
+  }
+
+  updateAboutPage(data: {
+    meta: Prisma.InputJsonValue;
+    copy: Prisma.InputJsonValue;
+    decorImageUrl: string;
+    values: Prisma.InputJsonValue;
+  }) {
+    return this.prisma.cmsAboutPage.upsert({
+      where: { id: 'default' },
+      create: { id: 'default', ...data },
       update: data,
     });
   }

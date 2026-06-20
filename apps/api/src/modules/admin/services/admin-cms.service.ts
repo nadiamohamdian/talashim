@@ -7,6 +7,10 @@ import {
 import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
 import type {
   AdminBlogPostDto,
+  CmsAboutPageCopy,
+  CmsAboutPageDto,
+  CmsAboutPageMeta,
+  CmsAboutPageValue,
   CmsBannerDto,
   CmsHomepageDto,
   CmsHomepageSections,
@@ -16,6 +20,7 @@ import type {
   CmsStaticPageDto,
   MediaAssetDto,
   ProductSummary,
+  PublicCmsAboutPage,
   PublicCmsCollection,
   PublicCmsHomepage,
   PublicCmsLensVideo,
@@ -36,6 +41,7 @@ import type {
   AdminStaticPagesQueryDto,
   RegisterMediaAssetDto,
   UpdateCmsHomepageDto,
+  UpdateCmsAboutPageDto,
   UpdateCmsSeoDto,
   UpdateMediaAssetDto,
   UpsertBlogPostDto,
@@ -51,6 +57,7 @@ import {
   type UploadedImageFile,
 } from '@/infrastructure/media/media-storage.service';
 import {
+  revalidateStorefrontAboutPage,
   revalidateStorefrontBanners,
   revalidateStorefrontFaq,
   revalidateStorefrontHomepage,
@@ -58,6 +65,9 @@ import {
   revalidateStorefrontSeo,
   revalidateStorefrontStaticPages,
 } from '@/infrastructure/storefront/storefront-cache.util';
+import {
+  DEFAULT_CMS_ABOUT_VALUES,
+} from '../cms/cms-defaults';
 
 type BlogPostWithCategory = Prisma.BlogPostGetPayload<{ include: { category: true } }>;
 
@@ -288,6 +298,11 @@ export class AdminCmsService {
       bestsellerProducts,
       newArrivalsProducts,
     };
+  }
+
+  async getPublicAboutPage(): Promise<PublicCmsAboutPage> {
+    const row = await this.cmsRepository.getOrCreateAboutPage();
+    return this.mapPublicAboutPage(row);
   }
 
   async listBanners(query: AdminBannersQueryDto, actor: AuthenticatedUser) {
@@ -607,6 +622,32 @@ export class AdminCmsService {
     return this.mapSeo(row);
   }
 
+  async getAboutPage(actor: AuthenticatedUser): Promise<CmsAboutPageDto> {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.read);
+    const row = await this.cmsRepository.getOrCreateAboutPage();
+    return this.mapAboutPage(row);
+  }
+
+  async updateAboutPage(dto: UpdateCmsAboutPageDto, actor: AuthenticatedUser): Promise<CmsAboutPageDto> {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.cms.write);
+
+    const meta = this.normalizeAboutMeta(dto.meta);
+    const copy = this.normalizeAboutCopy(dto.copy);
+    const decorImageUrl = this.normalizeAboutDecorImageUrl(dto.decorImageUrl);
+    const values = this.normalizeAboutValues(dto.values as CmsAboutPageValue[]);
+
+    const row = await this.cmsRepository.updateAboutPage({
+      meta: meta as unknown as Prisma.InputJsonValue,
+      copy: copy as unknown as Prisma.InputJsonValue,
+      decorImageUrl,
+      values: values as unknown as Prisma.InputJsonValue,
+    });
+
+    void revalidateStorefrontAboutPage();
+
+    return this.mapAboutPage(row);
+  }
+
   async getPublicSeo(): Promise<PublicCmsSeo> {
     const row = await this.cmsRepository.getOrCreateSeo();
     return this.mapPublicSeo(row);
@@ -910,6 +951,97 @@ export class AdminCmsService {
       sections: row.sections as unknown as CmsHomepageDto['sections'],
       updatedAt: row.updatedAt.toISOString(),
     };
+  }
+
+  private mapAboutPage(row: Prisma.CmsAboutPageGetPayload<object>): CmsAboutPageDto {
+    return {
+      meta: row.meta as unknown as CmsAboutPageMeta,
+      copy: row.copy as unknown as CmsAboutPageCopy,
+      decorImageUrl: row.decorImageUrl,
+      values: row.values as unknown as CmsAboutPageValue[],
+      updatedAt: row.updatedAt.toISOString(),
+    };
+  }
+
+  private mapPublicAboutPage(row: Prisma.CmsAboutPageGetPayload<object>): PublicCmsAboutPage {
+    const mapped = this.mapAboutPage(row);
+    return {
+      meta: mapped.meta,
+      copy: mapped.copy,
+      decorImageUrl: mapped.decorImageUrl,
+      values: mapped.values,
+    };
+  }
+
+  private normalizeAboutMeta(input: Record<string, unknown>): CmsAboutPageMeta {
+    const title = typeof input.title === 'string' ? input.title.trim() : '';
+    const description = typeof input.description === 'string' ? input.description.trim() : '';
+
+    if (title.length < 2) {
+      throw new BadRequestException('عنوان SEO باید حداقل ۲ کاراکتر باشد');
+    }
+    if (description.length < 10) {
+      throw new BadRequestException('توضیحات SEO باید حداقل ۱۰ کاراکتر باشد');
+    }
+
+    return { title, description };
+  }
+
+  private normalizeAboutCopy(input: Record<string, unknown>): CmsAboutPageCopy {
+    const heroTitle = typeof input.heroTitle === 'string' ? input.heroTitle.trim() : '';
+    const intro = typeof input.intro === 'string' ? input.intro.trim() : '';
+    const storyTitle = typeof input.storyTitle === 'string' ? input.storyTitle.trim() : '';
+    const storyBody = typeof input.storyBody === 'string' ? input.storyBody.trim() : '';
+    const valuesTitle = typeof input.valuesTitle === 'string' ? input.valuesTitle.trim() : '';
+
+    if (heroTitle.length < 2) {
+      throw new BadRequestException('عنوان صفحه باید حداقل ۲ کاراکتر باشد');
+    }
+    if (intro.length < 10) {
+      throw new BadRequestException('متن معرفی باید حداقل ۱۰ کاراکتر باشد');
+    }
+    if (storyTitle.length < 2) {
+      throw new BadRequestException('عنوان داستان برند باید حداقل ۲ کاراکتر باشد');
+    }
+    if (storyBody.length < 20) {
+      throw new BadRequestException('متن داستان برند باید حداقل ۲۰ کاراکتر باشد');
+    }
+    if (valuesTitle.length < 2) {
+      throw new BadRequestException('عنوان بخش ارزش‌ها باید حداقل ۲ کاراکتر باشد');
+    }
+
+    return { heroTitle, intro, storyTitle, storyBody, valuesTitle };
+  }
+
+  private normalizeAboutDecorImageUrl(url: string): string {
+    const trimmed = url.trim();
+    if (!trimmed) {
+      throw new BadRequestException('تصویر دکور صفحه درباره ما الزامی است');
+    }
+    if (trimmed.startsWith('/images/')) {
+      return trimmed;
+    }
+    return requireLibraryImageUrl(trimmed, 'تصویر دکور');
+  }
+
+  private normalizeAboutValues(input: CmsAboutPageValue[]): CmsAboutPageValue[] {
+    const byKey = new Map(
+      (Array.isArray(input) ? input : []).map((value) => [value.key, value]),
+    );
+
+    return DEFAULT_CMS_ABOUT_VALUES.map((defaults) => {
+      const candidate = byKey.get(defaults.key);
+      const label = typeof candidate?.label === 'string' ? candidate.label.trim() : defaults.label;
+
+      if (label.length < 2) {
+        throw new BadRequestException(`عنوان ارزش «${defaults.key}» باید حداقل ۲ کاراکتر باشد`);
+      }
+
+      return {
+        ...defaults,
+        label,
+      };
+    });
   }
 
   private mapPublicStaticPageSummary(page: { slug: string; title: string }) {

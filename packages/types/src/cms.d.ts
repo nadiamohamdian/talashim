@@ -127,6 +127,33 @@ export interface CmsSeoSettingsDto {
     extraMeta: Record<string, string> | null;
     updatedAt: string;
 }
+export type CmsAboutValueKey = 'authenticity' | 'design' | 'trust' | 'satisfaction';
+export interface CmsAboutPageValue {
+    key: CmsAboutValueKey;
+    label: string;
+    icon: string;
+    iconWidth: number;
+    iconHeight: number;
+}
+export interface CmsAboutPageMeta {
+    title: string;
+    description: string;
+}
+export interface CmsAboutPageCopy {
+    heroTitle: string;
+    intro: string;
+    storyTitle: string;
+    storyBody: string;
+    valuesTitle: string;
+}
+export interface CmsAboutPageDto {
+    meta: CmsAboutPageMeta;
+    copy: CmsAboutPageCopy;
+    decorImageUrl: string;
+    values: CmsAboutPageValue[];
+    updatedAt: string;
+}
+export type PublicCmsAboutPage = Omit<CmsAboutPageDto, 'updatedAt'>;
 export interface MediaAssetDto {
     id: string;
     filename: string;

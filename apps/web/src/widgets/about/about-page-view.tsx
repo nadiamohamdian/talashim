@@ -1,19 +1,21 @@
 'use client';
 
 import Image from 'next/image';
-import {
-  ABOUT_PAGE_COPY,
-  ABOUT_PAGE_DECOR_IMAGE,
-  ABOUT_PAGE_VALUES,
-} from '@/shared/config/about-page';
+import type { PublicCmsAboutPage } from '@sadafgold/types';
 
-export function AboutPageView() {
+interface AboutPageViewProps {
+  content: PublicCmsAboutPage;
+}
+
+export function AboutPageView({ content }: AboutPageViewProps) {
+  const { copy, decorImageUrl, values } = content;
+
   return (
     <div className="about-page store-chrome-light store-minimal-header">
       <div className="about-page-inner">
         <div className="about-page-decor" aria-hidden>
           <Image
-            src={ABOUT_PAGE_DECOR_IMAGE}
+            src={decorImageUrl}
             alt=""
             width={351}
             height={468}
@@ -24,21 +26,23 @@ export function AboutPageView() {
         </div>
 
         <div className="about-page-layout">
-          <section className="about-page-story" aria-labelledby="about-story-title">
-            <h2 id="about-story-title" className="about-page-section-title">
-              {ABOUT_PAGE_COPY.storyTitle}
-            </h2>
-            <p className="about-page-body">{ABOUT_PAGE_COPY.storyBody}</p>
-          </section>
-
           <section className="about-page-values" aria-labelledby="about-page-title">
             <h1 id="about-page-title" className="about-page-title">
-              {ABOUT_PAGE_COPY.heroTitle}
+              {copy.heroTitle}
             </h1>
-            <p className="about-page-intro">{ABOUT_PAGE_COPY.intro}</p>
+            <p className="about-page-intro">{copy.intro}</p>
+
+            <h2 id="about-story-title" className="about-page-section-title">
+              {copy.storyTitle}
+            </h2>
+            <p className="about-page-body">{copy.storyBody}</p>
+
+            <h2 id="about-values-title" className="about-values-title">
+              {copy.valuesTitle}
+            </h2>
 
             <div className="about-values-grid">
-              {ABOUT_PAGE_VALUES.map((value) => (
+              {values.map((value) => (
                 <article key={value.key} className="about-value-card">
                   <span className={`about-value-icon-wrap about-value-icon-wrap--${value.key}`}>
                     <Image
@@ -50,7 +54,7 @@ export function AboutPageView() {
                       unoptimized
                     />
                   </span>
-                  <h2 className="about-value-label">{value.label}</h2>
+                  <h3 className="about-value-label">{value.label}</h3>
                 </article>
               ))}
             </div>

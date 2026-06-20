@@ -9,6 +9,7 @@ import {
   PublicCmsBannerResponseDto,
   PublicCmsCollectionResponseDto,
   PublicCmsHomepageResponseDto,
+  PublicCmsAboutPageResponseDto,
   PublicCmsLensVideoResponseDto,
   PublicCmsSeoResponseDto,
   PublicCmsStaticPageResponseDto,
@@ -70,6 +71,14 @@ export class CmsPublicController {
   @ApiOkResponse({ type: PublicCmsHomepageResponseDto })
   getHomepage() {
     return this.adminCmsService.getPublicHomepage();
+  }
+
+  @Get('about')
+  @HttpCache({ ttlSeconds: 120 })
+  @ApiOperation({ summary: 'Get storefront about page CMS config' })
+  @ApiOkResponse({ type: PublicCmsAboutPageResponseDto })
+  getAboutPage() {
+    return this.adminCmsService.getPublicAboutPage();
   }
 
   @Get('seo')

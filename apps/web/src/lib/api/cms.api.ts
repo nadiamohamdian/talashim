@@ -1,5 +1,6 @@
 import type {
   CmsBannerPlacement,
+  PublicCmsAboutPage,
   PublicCmsBanner,
   PublicCmsCollection,
   PublicCmsHomepage,
@@ -10,6 +11,12 @@ import type {
 } from '@sadafgold/types';
 import { platformConfig } from '@sadafgold/shared';
 import { getDefaultHeroImageUrl } from '@/shared/config/cms-hero';
+import {
+  ABOUT_PAGE_COPY,
+  ABOUT_PAGE_DECOR_IMAGE,
+  ABOUT_PAGE_META,
+  ABOUT_PAGE_VALUES,
+} from '@/shared/config/about-page';
 import {
   ApiClientError,
   isApiUnreachableError,
@@ -195,6 +202,35 @@ export async function getPublicSeo(): Promise<PublicCmsSeo> {
   } catch (error) {
     if (process.env.NODE_ENV === 'development' && isApiUnreachableError(error)) {
       return defaultPublicSeo();
+    }
+    throw error;
+  }
+}
+
+function defaultPublicAboutPage(): PublicCmsAboutPage {
+  return {
+    meta: { ...ABOUT_PAGE_META },
+    copy: { ...ABOUT_PAGE_COPY },
+    decorImageUrl: ABOUT_PAGE_DECOR_IMAGE,
+    values: ABOUT_PAGE_VALUES.map((value) => ({ ...value })),
+  };
+}
+
+export async function getPublicAboutPage(): Promise<PublicCmsAboutPage> {
+  try {
+    const result = await serverFetchCatalogDetail<PublicCmsAboutPage>('/cms/about', {
+      revalidate: 120,
+      tags: ['content:about'],
+    });
+
+    return result ?? defaultPublicAboutPage();
+  } catch (error) {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      (isApiUnreachableError(error) ||
+        (error instanceof ApiClientError && error.status >= 500))
+    ) {
+      return defaultPublicAboutPage();
     }
     throw error;
   }

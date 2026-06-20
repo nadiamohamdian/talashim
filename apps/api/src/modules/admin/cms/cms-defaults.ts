@@ -1,4 +1,7 @@
 import type {
+  CmsAboutPageCopy,
+  CmsAboutPageMeta,
+  CmsAboutPageValue,
   CmsCategoryListingGalleryItem,
   CmsCategoryShowcaseItem,
   CmsHeroConfig,
@@ -99,4 +102,52 @@ export const DEFAULT_CMS_SEO = {
   googleAnalyticsId: null as string | null,
   extraMeta: null as Record<string, string> | null,
 };
+
+export const DEFAULT_CMS_ABOUT_META: CmsAboutPageMeta = {
+  title: 'درباره طلاشیم',
+  description: 'آشنایی با داستان برند و ارزش‌های طلاشیم در خرید مطمئن طلا.',
+};
+
+export const DEFAULT_CMS_ABOUT_COPY: CmsAboutPageCopy = {
+  heroTitle: 'درباره طلاشیم',
+  intro: 'طلاشیم با هدف ارائه تجربه‌ای مطمئن، شفاف و لذت‌بخش از خرید طلا شکل گرفته است.',
+  valuesTitle: 'ارزش‌های ما',
+  storyTitle: 'داستان برند',
+  storyBody:
+    'صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ، و با صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت صنعت چاپ، و با استفاده از طراحان گرافیک است؟ صنعت چاپ،',
+};
+
+export const DEFAULT_CMS_ABOUT_DECOR_IMAGE =
+  '/images/about/53b5169aaf155ddbfca3e63cf9b3255a-removebg-preview%20(1)%201.png';
+
+export const DEFAULT_CMS_ABOUT_VALUES: CmsAboutPageValue[] = [
+  {
+    key: 'authenticity',
+    label: 'اصالت و کیفیت',
+    icon: '/images/about/value-authenticity.png',
+    iconWidth: 30,
+    iconHeight: 36,
+  },
+  {
+    key: 'design',
+    label: 'طراحی به‌روز',
+    icon: '/images/about/value-design.png',
+    iconWidth: 30,
+    iconHeight: 30,
+  },
+  {
+    key: 'trust',
+    label: 'تجربه خرید مطمئن',
+    icon: '/images/about/value-trust.png',
+    iconWidth: 30,
+    iconHeight: 27,
+  },
+  {
+    key: 'satisfaction',
+    label: 'رضایت مشتری',
+    icon: '/images/about/value-satisfaction.png',
+    iconWidth: 30,
+    iconHeight: 30,
+  },
+];
  

@@ -495,6 +495,39 @@ export class UpdateCmsSeoDto {
   extraMeta?: Record<string, string>;
 }
 
+export class PublicCmsAboutPageResponseDto {
+  @ApiProperty({ type: Object })
+  meta!: Record<string, unknown>;
+
+  @ApiProperty({ type: Object })
+  copy!: Record<string, unknown>;
+
+  @ApiProperty()
+  decorImageUrl!: string;
+
+  @ApiProperty({ type: Object, isArray: true })
+  values!: Record<string, unknown>[];
+}
+
+export class UpdateCmsAboutPageDto {
+  @ApiProperty({ type: Object })
+  @IsObject()
+  meta!: Record<string, unknown>;
+
+  @ApiProperty({ type: Object })
+  @IsObject()
+  copy!: Record<string, unknown>;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(1)
+  decorImageUrl!: string;
+
+  @ApiProperty({ type: Object, isArray: true })
+  @IsArray()
+  values!: Record<string, unknown>[];
+}
+
 export class AdminMediaQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional()
   @IsOptional()

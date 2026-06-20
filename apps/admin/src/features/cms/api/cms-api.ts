@@ -3,6 +3,7 @@ import type {
   AdminBlogCategoryDto,
   AdminBlogPostDto,
   CmsBannerDto,
+  CmsAboutPageDto,
   CmsHomepageDto,
   CmsLensVideoDto,
   CmsSeoSettingsDto,
@@ -139,6 +140,16 @@ export function fetchHomepageCms() {
 
 export function updateHomepageCms(payload: Pick<CmsHomepageDto, 'hero' | 'sections'>) {
   return axiosClient.patch<CmsHomepageDto>('/admin/cms/homepage', payload).then((r) => r.data);
+}
+
+export function fetchAboutPageCms() {
+  return axiosClient.get<CmsAboutPageDto>('/admin/cms/about').then((r) => r.data);
+}
+
+export type UpdateAboutPagePayload = Omit<CmsAboutPageDto, 'updatedAt'>;
+
+export function updateAboutPageCms(payload: UpdateAboutPagePayload) {
+  return axiosClient.patch<CmsAboutPageDto>('/admin/cms/about', payload).then((r) => r.data);
 }
 
 export function fetchBanners(params?: {

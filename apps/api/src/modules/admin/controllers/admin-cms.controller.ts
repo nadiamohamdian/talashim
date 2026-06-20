@@ -27,6 +27,7 @@ import {
   RegisterMediaAssetDto,
   UpdateMediaAssetDto,
   UpdateCmsHomepageDto,
+  UpdateCmsAboutPageDto,
   UpdateCmsSeoDto,
   UpsertBlogPostDto,
   UpsertCmsBannerDto,
@@ -123,6 +124,18 @@ export class AdminCmsController {
   @ApiOperation({ summary: 'Update homepage CMS config' })
   updateHomepage(@Body() dto: UpdateCmsHomepageDto, @CurrentUser() actor: AuthenticatedUser) {
     return this.adminCmsService.updateHomepage(dto, actor);
+  }
+
+  @Get('about')
+  @ApiOperation({ summary: 'Get about page CMS config' })
+  getAboutPage(@CurrentUser() actor: AuthenticatedUser) {
+    return this.adminCmsService.getAboutPage(actor);
+  }
+
+  @Patch('about')
+  @ApiOperation({ summary: 'Update about page CMS config' })
+  updateAboutPage(@Body() dto: UpdateCmsAboutPageDto, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminCmsService.updateAboutPage(dto, actor);
   }
 
   @Get('banners')

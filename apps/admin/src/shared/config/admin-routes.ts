@@ -601,6 +601,18 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     parentId: 'dashboard',
   }),
   r({
+    id: 'cms.about',
+    path: '/cms/about',
+    label: 'درباره ما',
+    sectionId: 'content',
+    sectionLabel: 'محتوا و رسانه',
+    template: 'settings',
+    permission: ADMIN_PERMISSIONS.cms.write,
+    availability: 'live',
+    parentId: 'dashboard',
+    description: 'ویرایش متن‌ها و ارزش‌های صفحه /about.',
+  }),
+  r({
     id: 'cms.pages',
     path: '/cms/pages',
     label: 'صفحات ثابت',

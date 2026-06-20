@@ -12127,7 +12127,7 @@ body:has(.about-page) main.container-store {
   box-sizing: border-box;
   width: 100%;
   margin-inline: auto;
-  padding: 70px 16px 48px;
+  padding: 70px 16px 4px;
   overflow-x: clip;
 }
 
@@ -12145,17 +12145,26 @@ body:has(.about-page) main.container-store {
 
 .about-page-intro {
   display: none;
-  margin: 0 0 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin: 20px 0 20px;
   font-family: var(--about-font);
   font-size: 12px;
   font-weight: 300;
   line-height: 1;
   color: #000000;
-  text-align: center;
+  text-align: justify;
+  text-wrap: pretty;
 }
 
 .about-page-title {
-  margin: 0 0 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin: 10px 0 20px;
   font-family: var(--about-font);
   font-size: clamp(24px, 6vw, 32px);
   font-weight: 400;
@@ -12174,14 +12183,35 @@ body:has(.about-page) main.container-store {
   text-align: right;
 }
 
+#about-story-title {
+  text-align: center;
+}
+
 .about-page-body {
+  padding-top: 10px;
+  padding-bottom: 10px;
   margin: 0;
-  font-family: var(--about-font);
+  font-family: 'Yekan Bakh', sans-serif;
   font-size: clamp(14px, 3.8vw, 18px);
   font-weight: 300;
   line-height: 1.5555555556;
   color: #000000;
   text-align: justify;
+  text-wrap: pretty;
+  vertical-align: middle;
+}
+
+.about-values-title {
+  margin: 0;
+  padding-top: 30px;
+  font-family: 'Yekan Bakh', var(--about-font);
+  font-size: 16px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 100%;
+  letter-spacing: 0;
+  color: rgba(86, 71, 57, 1);
+  text-align: center;
 }
 
 .about-values-grid {
@@ -12190,6 +12220,8 @@ body:has(.about-page) main.container-store {
   gap: clamp(10px, 3vw, 24px);
   width: 100%;
   max-width: 100%;
+  margin-top: 20px;
+  margin-bottom: 50px;
   direction: rtl;
 }
 
@@ -12197,8 +12229,9 @@ body:has(.about-page) main.container-store {
   position: relative;
   box-sizing: border-box;
   width: 100%;
-  aspect-ratio: 1;
-  min-height: 140px;
+  height: 150px;
+  min-height: 150px;
+  aspect-ratio: auto;
   background: var(--about-muted-bg);
 }
 
@@ -12242,7 +12275,7 @@ body:has(.about-page) main.container-store {
   right: 0;
   bottom: 32px;
   left: 0;
-  margin: 0;
+  margin: -30px 0 0;
   padding-inline: 8px;
   font-family: var(--about-font);
   font-size: clamp(14px, 3.5vw, 18px);
@@ -12331,7 +12364,7 @@ body:has(.about-page) main.container-store {
   }
 
   .about-page-title {
-    margin: 0 0 76px;
+    margin: 10px 0 76px;
     font-size: 32px;
     line-height: 50px;
     color: var(--about-gold);
@@ -12348,6 +12381,15 @@ body:has(.about-page) main.container-store {
   .about-page-body {
     font-size: 18px;
     line-height: 28px;
+  }
+
+  .about-page-intro {
+    display: block;
+    margin: 20px 0 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: justify;
+    text-wrap: pretty;
   }
 
   .about-values-grid {
@@ -12390,13 +12432,14 @@ body:has(.about-page) main.container-store {
   .about-page-body {
     font-size: 12px;
     font-weight: 300;
-    line-height: 1;
+    line-height: 15px;
     text-align: justify;
+    text-wrap: pretty;
   }
 
   .about-page-intro {
     display: block;
-    margin-bottom: 20px;
+    margin: 20px 0 20px;
   }
 
   .about-value-label {

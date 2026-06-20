@@ -1,12 +1,18 @@
 import type { Metadata } from 'next';
-import { ABOUT_PAGE_META } from '@/shared/config/about-page';
+import { getPublicAboutPage } from '@/lib/api/cms.api';
 import { AboutPageView } from '@/widgets/about/about-page-view';
 
-export const metadata: Metadata = {
-  title: ABOUT_PAGE_META.title,
-  description: ABOUT_PAGE_META.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const content = await getPublicAboutPage();
 
-export default function AboutPage() {
-  return <AboutPageView />;
+  return {
+    title: content.meta.title,
+    description: content.meta.description,
+  };
+}
+
+export default async function AboutPage() {
+  const content = await getPublicAboutPage();
+
+  return <AboutPageView content={content} />;
 }
