@@ -234,7 +234,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
       if (errors.length > 0) {
         setValidationErrors(errors);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        throw new ProductFormValidationError(errors[0]);
+        throw new ProductFormValidationError(errors[0] ?? 'Validation failed');
       }
       setValidationErrors([]);
       setSubmitError(null);
@@ -263,7 +263,13 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
       if (mode === 'create') {
         return createAdminProduct(body);
       }
-      return updateAdminProduct(detailQuery.data!.id, body);
+
+      const productId = detailQuery.data?.id;
+      if (!productId) {
+        throw new Error('Product data is not available');
+      }
+
+      return updateAdminProduct(productId, body);
     },
     onSuccess: (product) => {
       void queryClient.invalidateQueries({ queryKey: ['admin', 'commerce', 'products'] });
@@ -285,6 +291,22 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
     return (
       <CatalogPageShell routeId={routeId}>
         <Skeleton className="h-96 w-full rounded-xl" />
+      </CatalogPageShell>
+    );
+  }
+
+  if (mode === 'edit' && (detailQuery.isError || !detailQuery.data)) {
+    return (
+      <CatalogPageShell routeId={routeId}>
+        <div className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-6">
+          <p className="text-sm font-semibold text-[var(--error)]">بارگذاری محصول ناموفق بود.</p>
+          <Link
+            href="/products"
+            className="mt-4 inline-block text-sm font-medium text-[var(--primary)] hover:underline"
+          >
+            بازگشت به فهرست محصولات
+          </Link>
+        </div>
       </CatalogPageShell>
     );
   }

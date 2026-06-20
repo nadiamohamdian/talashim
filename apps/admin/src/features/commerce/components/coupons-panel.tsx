@@ -14,7 +14,7 @@ import { CommercePageShell } from './commerce-page-shell';
 const INITIAL_FORM = {
   code: '',
   title: '',
-  discountType: 'PERCENT' as const,
+  discountType: 'PERCENT' as 'PERCENT' | 'FIXED_AMOUNT',
   discountValue: 0,
   minimumOrderAmount: 0,
   maximumDiscountAmount: 0,

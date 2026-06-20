@@ -663,11 +663,12 @@ export class AdminRepository {
 
   listUserActivity(userId: string, skip: number, take: number) {
     const actorFilter = { actorId: userId };
+    const windowSize = skip + take;
     return Promise.all([
       this.prisma.auditLog.findMany({
         where: actorFilter,
-        skip,
-        take,
+        skip: 0,
+        take: windowSize,
         orderBy: { createdAt: 'desc' },
         select: { id: true, action: true, context: true, createdAt: true },
       }),
@@ -677,7 +678,7 @@ export class AdminRepository {
         this.prisma.walletAuditLog.findMany({
           where: actorFilter,
           skip: 0,
-          take: take + skip,
+          take: windowSize,
           orderBy: { createdAt: 'desc' },
           select: { id: true, action: true, context: true, createdAt: true },
         }),
@@ -687,7 +688,7 @@ export class AdminRepository {
         this.prisma.goldTradeAuditLog.findMany({
           where: actorFilter,
           skip: 0,
-          take: take + skip,
+          take: windowSize,
           orderBy: { createdAt: 'desc' },
           select: { id: true, action: true, context: true, createdAt: true },
         }),

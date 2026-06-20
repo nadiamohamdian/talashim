@@ -119,10 +119,16 @@ function validateSlideForm(form: UpsertLensVideoPayload): string | null {
 
 function normalizeHotspots(hotspots: CmsLensHotspot[] | undefined): CmsLensHotspot[] {
   const source = hotspots?.length ? hotspots : DEFAULT_HOTSPOTS;
-  return Array.from({ length: HOTSPOT_COUNT }, (_, index) => ({
-    ...DEFAULT_HOTSPOTS[index],
-    ...source[index],
-  }));
+  return Array.from({ length: HOTSPOT_COUNT }, (_, index) => {
+    const defaults = DEFAULT_HOTSPOTS[index]!;
+    const override = source[index];
+    return {
+      ...defaults,
+      ...override,
+      top: override?.top ?? defaults.top,
+      left: override?.left ?? defaults.left,
+    };
+  });
 }
 
 export function LensSetsShowcasePanel() {
@@ -259,7 +265,13 @@ export function LensSetsShowcasePanel() {
   const updateHotspot = (index: number, patch: Partial<CmsLensHotspot>) => {
     setForm((prev) => {
       const hotspots = normalizeHotspots(prev.hotspots);
-      hotspots[index] = { ...hotspots[index], ...patch };
+      const current = hotspots[index]!;
+      hotspots[index] = {
+        ...current,
+        ...patch,
+        top: patch.top ?? current.top,
+        left: patch.left ?? current.left,
+      };
       return { ...prev, hotspots };
     });
   };

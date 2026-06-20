@@ -3,9 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { calculateJewelryPricing } from '@sadafgold/shared';
+import { buildOrderLinePricingSnapshot } from '@sadafgold/shared';
 import type { Product } from '@/generated/prisma';
 import { tomanNumberToBigInt } from '@/common/finance/toman-amount';
+import { getPlatformSettings } from '@/common/platform-settings/platform-settings-runtime';
 import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
 import { CartRepository } from '../repositories/cart.repository';
 import { CatalogRepository } from '@/modules/catalog/repositories/catalog.repository';
@@ -81,13 +82,15 @@ export class CartService {
 
   private async resolveLiveUnitPrice(product: Product): Promise<number> {
     const live = await this.pricingEngine.getLivePrice('XAU-IRR', product.karat);
-    const pricing = calculateJewelryPricing({
+    const taxPercent = getPlatformSettings().commerce.defaultTaxPercent;
+    const snapshot = buildOrderLinePricingSnapshot({
       weightGram: Number(product.weightGram),
-      livePricePerGramToman: Number(live.pricePerGram),
       karat: product.karat,
       makingFeePercent: product.makingFeePercent,
+      livePricePerGramToman: Number(live.pricePerGram),
+      taxPercent,
     });
-    return pricing.finalPriceToman;
+    return snapshot.unitPriceToman;
   }
 
   private async toCartResponse(cart: {

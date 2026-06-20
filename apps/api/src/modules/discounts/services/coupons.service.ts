@@ -51,7 +51,7 @@ export class CouponsService {
     code: string,
     cartId: string,
     userId: string,
-    options?: { throwOnFailure?: boolean },
+    options?: { throwOnFailure?: boolean; subtotalToman?: number },
   ): Promise<CouponValidationResult> {
     const normalizedCode = this.normalizeCode(code);
     const cart = await this.cartRepository.findCartById(cartId);
@@ -62,7 +62,9 @@ export class CouponsService {
       throw new BadRequestException('سبد خرید متعلق به شما نیست');
     }
 
-    const subtotal = cart.items.reduce((sum, item) => sum + Number(item.unitPriceToman) * item.quantity, 0);
+    const subtotal =
+      options?.subtotalToman ??
+      cart.items.reduce((sum, item) => sum + Number(item.unitPriceToman) * item.quantity, 0);
     const invalid = (message: string): CouponValidationResult => ({
       couponAccepted: false,
       couponMessage: message,

@@ -98,6 +98,10 @@ export class TradingService {
       const detail = await this.tradingRepository.findById(order.id);
       return this.mapOrderDetail(detail!);
     } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
       const message = error instanceof Error ? error.message : 'Settlement failed';
       await this.tradingRepository.markFailed(order.id, message);
       await this.tradingRepository.createAuditLog(

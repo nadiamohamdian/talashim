@@ -183,7 +183,8 @@ export function validateProductForm(
   }
 
   const karat = Number(form.karat);
-  if (!STANDARD_PRODUCT_KARAT_VALUES.includes(String(karat))) {
+  const karatLabel = String(karat);
+  if (!(STANDARD_PRODUCT_KARAT_VALUES as readonly string[]).includes(karatLabel)) {
     errors.push('عیار طلا باید یکی از مقادیر استاندارد (۱۸، ۲۱، ۲۲ یا ۲۴) باشد.');
   }
 

@@ -47,7 +47,7 @@ const emptyForm = (): UpsertLensVideoPayload => ({
 });
 
 function validateForm(form: UpsertLensVideoPayload): string | null {
-  const videoError = validateLibraryImageUrl(form.videoUrl, 'فایل ویدیو');
+  const videoError = validateLibraryImageUrl(form.videoUrl?.trim() ?? '', 'فایل ویدیو');
   if (videoError) {
     return videoError;
   }

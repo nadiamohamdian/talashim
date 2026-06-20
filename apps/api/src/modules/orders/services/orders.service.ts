@@ -112,44 +112,7 @@ export class OrdersService {
       throw new ForbiddenException('برای تکمیل خرید، احراز هویت (KYC) باید تأیید شده باشد');
     }
 
-    const subtotalToman = cart.items.reduce(
-      (sum, item) => sum + item.quantity * tomanBigIntToNumber(item.unitPriceToman),
-      0,
-    );
-    const minOrder = getMinOrderToman();
-    if (subtotalToman < minOrder) {
-      throw new BadRequestException(`حداقل مبلغ سفارش ${minOrder.toLocaleString('fa-IR')} تومان است`);
-    }
-
-    let discountToman = 0;
-    let couponId: string | undefined;
-    let couponCode: string | undefined;
-    if (payload.couponCode?.trim()) {
-      const couponValidation = await this.couponsService.validateForCheckout(
-        payload.couponCode,
-        cart.id,
-        userId,
-        { throwOnFailure: true },
-      );
-      discountToman = couponValidation.discountAmount;
-      couponId = couponValidation.couponId;
-      couponCode = couponValidation.couponCode;
-    }
-
-    const discountedSubtotalToman = Math.max(subtotalToman - discountToman, 0);
     const taxPercent = getPlatformSettings().commerce.defaultTaxPercent;
-    const taxToman = Math.round(discountedSubtotalToman * (taxPercent / 100));
-    const liveGold18 = await this.pricingEngine.getLivePrice('XAU-IRR', 18);
-    const liveGoldPrice18PerGramToman = Number(liveGold18.pricePerGram);
-    const shippingToman = calculateShippingFeeToman(discountedSubtotalToman, getFreeShippingMinToman());
-    const isInsured = payload.isInsured === true;
-    const insuranceFeeToman = calculateInsuranceFeeToman(
-      discountedSubtotalToman,
-      isInsured,
-      getShippingInsurancePercent(),
-    );
-    const totalToman = discountedSubtotalToman + taxToman + shippingToman + insuranceFeeToman;
-    const provider = payload.paymentProvider as CheckoutPaymentProvider;
 
     const orderItems = await Promise.all(
       cart.items.map(async (item) => {
@@ -166,7 +129,7 @@ export class OrdersService {
         return {
           productId: item.productId,
           quantity: item.quantity,
-          unitPriceToman: item.unitPriceToman,
+          unitPriceToman: tomanNumberToBigInt(snapshot.unitPriceToman),
           weightGram: Number(product.weightGram),
           karat: product.karat,
           makingFeePercent: product.makingFeePercent,
@@ -176,6 +139,44 @@ export class OrdersService {
         };
       }),
     );
+
+    const subtotalToman = orderItems.reduce(
+      (sum, item) => sum + item.quantity * tomanBigIntToNumber(item.unitPriceToman),
+      0,
+    );
+    const minOrder = getMinOrderToman();
+    if (subtotalToman < minOrder) {
+      throw new BadRequestException(`حداقل مبلغ سفارش ${minOrder.toLocaleString('fa-IR')} تومان است`);
+    }
+
+    let discountToman = 0;
+    let couponId: string | undefined;
+    let couponCode: string | undefined;
+    if (payload.couponCode?.trim()) {
+      const couponValidation = await this.couponsService.validateForCheckout(
+        payload.couponCode,
+        cart.id,
+        userId,
+        { throwOnFailure: true, subtotalToman },
+      );
+      discountToman = couponValidation.discountAmount;
+      couponId = couponValidation.couponId;
+      couponCode = couponValidation.couponCode;
+    }
+
+    const discountedSubtotalToman = Math.max(subtotalToman - discountToman, 0);
+    const taxToman = Math.round(discountedSubtotalToman * (taxPercent / 100));
+    const liveGold18 = await this.pricingEngine.getLivePrice('XAU-IRR', 18);
+    const liveGoldPrice18PerGramToman = Number(liveGold18.pricePerGram);
+    const shippingToman = calculateShippingFeeToman(discountedSubtotalToman, getFreeShippingMinToman());
+    const isInsured = payload.isInsured === true;
+    const insuranceFeeToman = calculateInsuranceFeeToman(
+      discountedSubtotalToman,
+      isInsured,
+      getShippingInsurancePercent(),
+    );
+    const totalToman = discountedSubtotalToman + taxToman + shippingToman + insuranceFeeToman;
+    const provider = payload.paymentProvider as CheckoutPaymentProvider;
 
     const created = await this.ordersRepository.createFromCart({
       cartId: cart.id,

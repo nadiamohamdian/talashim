@@ -138,14 +138,19 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token is invalid');
     }
 
+    const user = await this.usersService.findById(decoded.sub);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
     await this.authRepository.revokeAllRefreshTokens(decoded.sub);
     await this.authRepository.createAuditLog('auth.refresh', decoded.sub);
 
     return this.issueSession(
-      decoded.sub,
-      decoded.email,
-      decoded.fullName,
-      decoded.role,
+      user.id,
+      user.email,
+      user.fullName,
+      user.role,
     );
   }
 

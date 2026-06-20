@@ -57,6 +57,7 @@ export function reviewKyc(
 
 export function fetchWalletTransactions(params: {
   page?: number;
+  limit?: number;
   type?: string;
   status?: string;
   hasReceipt?: boolean;
