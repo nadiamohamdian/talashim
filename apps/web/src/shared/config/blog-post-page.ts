@@ -1,4 +1,5 @@
 import type { ProductSummary } from '@sadafgold/types';
+import type { ProductReviewDemo } from '@/shared/config/product-detail-demo';
 import { DEFAULT_FEATURED_REVIEW } from '@/shared/config/product-detail-demo';
 import { HOME_MAGAZINE_COVER_IMAGE } from '@/shared/config/home-magazine-demo';
 
@@ -15,7 +16,16 @@ export const BLOG_POST_SECTION_TITLES = {
   reviews: 'نظرات کاربران',
   relatedArticles: 'مقالات مرتبط',
   relatedProducts: 'محصولات مرتبط',
+  relatedProductsDesktop: 'محصولات مشابه',
 } as const;
+
+export const BLOG_POST_DEMO_TOC_ITEMS = [
+  { id: 'bp-demo-0', label: 'خلاصه مطلب', href: '#bp-section-0' },
+  { id: 'bp-demo-1', label: 'مقدمه', href: '#bp-section-1' },
+  { id: 'bp-demo-2', label: 'عنوان محتوا', href: '#bp-section-2' },
+  { id: 'bp-demo-3', label: 'عنوان محتوا', href: '#bp-section-3' },
+  { id: 'bp-demo-4', label: 'جمع بندی', href: '#bp-section-4' },
+] as const;
 
 export const BLOG_POST_DEMO_TITLE = 'چگونه از جواهرات خود نگهداری کنیم؟';
 
@@ -25,11 +35,29 @@ export const BLOG_POST_DEMO_BODY =
 export const BLOG_POST_DEMO_BODY_SECOND =
   'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون گرافیک است، چاپگرها و متون بلکه روزنامه گرافیک است، چاپگرها و متون بلکه روزنامه سوم متن ساختگی با تولید سادگ لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت';
 
-export const BLOG_POST_FEATURED_REVIEW = {
+export const BLOG_POST_FEATURED_REVIEW: ProductReviewDemo = {
   ...DEFAULT_FEATURED_REVIEW,
   body:
     'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون گرافیک است، چاپگرها و متون بلکه روزنامه گرافیک است، چاپگرها و متون بلکه روزنامه سوم متن ساختگی با تولید سادگ',
 };
+
+export const BLOG_POST_DEMO_REVIEWS: ProductReviewDemo[] = [
+  BLOG_POST_FEATURED_REVIEW,
+  {
+    id: 'blog-review-2',
+    author: 'مریم حسینی',
+    rating: 4.5,
+    date: '',
+    body: 'مطلب بسیار کاربردی بود. نکات نگهداری جواهرات را به شکل ساده و قابل‌فهم توضیح داده بود.',
+  },
+  {
+    id: 'blog-review-3',
+    author: 'علی رضایی',
+    rating: 5,
+    date: '',
+    body: 'پس از خواندن این مقاله روش نگهداری انگشتر و دستبندم را تغییر دادم. ممنون از تیم طلاشیم.',
+  },
+];
 
 export const BLOG_POST_FALLBACK_COVER = HOME_MAGAZINE_COVER_IMAGE;
 

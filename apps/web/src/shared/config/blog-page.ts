@@ -9,7 +9,7 @@ export const BLOG_PAGE_META = {
   description: 'مقالات، راهنماها و نکات نگهداری جواهرات طلاشیم.',
 } as const;
 
-export const BLOG_ARCHIVE_PAGE_SIZE = 4;
+export const BLOG_ARCHIVE_PAGE_SIZE = 12;
 
 export const BLOG_ARCHIVE_READ_MORE_LABEL = HOME_MAGAZINE_READ_MORE_LABEL;
 
@@ -27,7 +27,7 @@ export interface BlogArchiveCardItem {
 
 /** Fallback cards when CMS posts are unavailable — matches Figma mobile layout. */
 export const BLOG_ARCHIVE_DEMO_ITEMS: BlogArchiveCardItem[] = Array.from(
-  { length: 4 },
+  { length: 12 },
   (_, index) => ({
     id: `blog-archive-demo-${index + 1}`,
     slug: '',

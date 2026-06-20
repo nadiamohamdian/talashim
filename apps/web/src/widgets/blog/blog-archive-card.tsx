@@ -33,15 +33,6 @@ export function BlogArchiveCard({ item }: BlogArchiveCardProps) {
   return (
     <article className="blog-archive-card">
       <Link href={href} className="blog-archive-card-link">
-        <div className="blog-archive-card-copy">
-          <h2 className="blog-archive-card-title">{item.title}</h2>
-          <p className="blog-archive-card-excerpt">{item.excerpt}</p>
-          <span className="blog-archive-card-read-more">
-            {BLOG_ARCHIVE_READ_MORE_LABEL}
-            <BlogArchiveReadMoreArrow />
-          </span>
-        </div>
-
         <div className="blog-archive-card-media">
           <StoreImage
             src={item.imageUrl}
@@ -49,8 +40,17 @@ export function BlogArchiveCard({ item }: BlogArchiveCardProps) {
             fill
             unoptimized
             className="blog-archive-card-image"
-            sizes="(min-width: 768px) 130px, 34vw"
+            sizes="(min-width: 1024px) 319px, (min-width: 768px) 130px, 34vw"
           />
+        </div>
+
+        <div className="blog-archive-card-copy">
+          <h2 className="blog-archive-card-title">{item.title}</h2>
+          <p className="blog-archive-card-excerpt">{item.excerpt}</p>
+          <span className="blog-archive-card-read-more">
+            {BLOG_ARCHIVE_READ_MORE_LABEL}
+            <BlogArchiveReadMoreArrow />
+          </span>
         </div>
       </Link>
     </article>
