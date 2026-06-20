@@ -14,8 +14,8 @@ export interface FaqPageItem {
   answer: string;
 }
 
-/** Fallback content when CMS FAQ posts are unavailable — matches Figma mobile layout. */
-export const DEMO_FAQ_ITEMS: FaqPageItem[] = Array.from({ length: 7 }, (_, index) => ({
+/** Fallback content when CMS FAQ posts are unavailable — matches Figma layout. */
+export const DEMO_FAQ_ITEMS: FaqPageItem[] = Array.from({ length: 12 }, (_, index) => ({
   id: `demo-faq-${index + 1}`,
   question: FIGMA_PLACEHOLDER_QUESTION,
   answer: FIGMA_PLACEHOLDER_ANSWER,

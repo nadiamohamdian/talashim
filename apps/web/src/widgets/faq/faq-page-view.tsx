@@ -25,7 +25,7 @@ export function FaqPageView({ posts }: FaqPageViewProps) {
     <div className="faq-page store-chrome-light store-minimal-header">
       <div className="faq-page-inner">
         <h1 className="faq-page-title">{FAQ_PAGE_META.title}</h1>
-        <FaqAccordion items={items} defaultOpenIndex={1} />
+        <FaqAccordion items={items} defaultOpenIndices={[2, 3]} />
       </div>
     </div>
   );

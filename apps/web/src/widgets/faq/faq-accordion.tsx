@@ -7,6 +7,7 @@ import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 interface FaqAccordionProps {
   items: FaqPageItem[];
   defaultOpenIndex?: number;
+  defaultOpenIndices?: number[];
 }
 
 function FaqAnswer({ answer }: { answer: string }) {
@@ -21,20 +22,44 @@ function FaqAnswer({ answer }: { answer: string }) {
   return <p className="faq-item-answer">{answer}</p>;
 }
 
-export function FaqAccordion({ items, defaultOpenIndex = 1 }: FaqAccordionProps) {
+export function FaqAccordion({
+  items,
+  defaultOpenIndex = 1,
+  defaultOpenIndices,
+}: FaqAccordionProps) {
   const baseId = useId();
   const safeDefault =
     items.length === 0 ? -1 : Math.min(Math.max(defaultOpenIndex, 0), items.length - 1);
-  const [openIndex, setOpenIndex] = useState(safeDefault);
+  const [openIndices, setOpenIndices] = useState<Set<number>>(() => {
+    if (defaultOpenIndices?.length) {
+      return new Set(
+        defaultOpenIndices.filter((index) => index >= 0 && index < items.length),
+      );
+    }
+
+    return safeDefault >= 0 ? new Set([safeDefault]) : new Set();
+  });
 
   if (items.length === 0) {
     return <p className="faq-page-empty">سوالی ثبت نشده است.</p>;
   }
 
+  const toggleItem = (index: number) => {
+    setOpenIndices((current) => {
+      const next = new Set(current);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="faq-accordion">
       {items.map((item, index) => {
-        const isOpen = openIndex === index;
+        const isOpen = openIndices.has(index);
         const panelId = `${baseId}-panel-${index}`;
         const triggerId = `${baseId}-trigger-${index}`;
 
@@ -49,7 +74,7 @@ export function FaqAccordion({ items, defaultOpenIndex = 1 }: FaqAccordionProps)
               className="faq-item-trigger"
               aria-expanded={isOpen}
               aria-controls={panelId}
-              onClick={() => setOpenIndex(isOpen ? -1 : index)}
+              onClick={() => toggleItem(index)}
             >
               <span className="faq-item-question">{item.question}</span>
               <span

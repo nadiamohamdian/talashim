@@ -11386,7 +11386,7 @@ body:has(.contact-page) main.container-store {
   }
 }
 
-/* FAQ page — Figma 2072:14333 */
+/* FAQ page — Figma 2072:14333 (mobile), 3659:5920 (desktop) */
 body:has(.faq-page) {
   background: #ffffff;
   overflow-x: clip;
@@ -11419,7 +11419,7 @@ body:has(.faq-page) main.container-store {
   width: 100%;
   max-width: 390px;
   margin-inline: auto;
-  padding: 32px 18px 56px;
+  padding: 100px 18px 56px;
 }
 
 .faq-page-title {
@@ -11559,14 +11559,29 @@ body:has(.faq-page) main.container-store {
 }
 
 @media (min-width: 1024px) {
+  .faq-page {
+    --faq-type-title-desktop: 400 32px / 1.5625 var(--faq-font);
+  }
+
   .faq-page-inner {
-    max-width: 390px;
-    padding-inline: 18px;
-    padding-block: clamp(40px, 5vw, 56px) clamp(56px, 6vw, 80px);
+    box-sizing: border-box;
+    max-width: 1440px;
+    padding: 50px 21px 64px;
   }
 
   .faq-page-title {
-    margin-bottom: 28px;
+    margin: 0 0 40px;
+    font: var(--faq-type-title-desktop);
+    color: var(--faq-gold);
+    text-align: right;
+  }
+
+  .faq-accordion {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 40px;
+    row-gap: 8px;
+    align-items: start;
   }
 }
 
