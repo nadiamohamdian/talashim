@@ -174,7 +174,7 @@ export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
   sku: 'DEMO-1',
   slug: 'demo',
   title: 'انگشتر زنانه لوکس بیضی',
-  category: 'RING',
+  category: 'ring',
   karat: 18,
   weightGram: 2.8,
   makingFeePercent: 24,

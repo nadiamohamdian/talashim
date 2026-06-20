@@ -1,4 +1,4 @@
-import { platformConfig } from '@talashim/shared';
+import { platformConfig } from '@sadafgold/shared';
 
 export type GeneralSettingsPayload = {
   storeName: string;

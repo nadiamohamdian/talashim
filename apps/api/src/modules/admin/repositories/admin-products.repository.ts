@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DEMO_PRODUCT_SKU_PREFIX, DEMO_PRODUCT_SLUG_PREFIX } from '@talashim/shared';
+import { DEMO_PRODUCT_SKU_PREFIX, DEMO_PRODUCT_SLUG_PREFIX } from '@sadafgold/shared';
 import { InventoryMovementType, Prisma, ProductCategory } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 

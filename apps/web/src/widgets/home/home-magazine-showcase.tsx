@@ -39,6 +39,9 @@ function ensureThreeMagazineItems(items: HomeMagazineArticleItem[]): HomeMagazin
 
   for (let index = items.length; index < 3; index += 1) {
     const fallback = HOME_MAGAZINE_DEMO_ITEMS[index] ?? HOME_MAGAZINE_DEMO_ITEMS[0];
+    if (!fallback) {
+      continue;
+    }
     padded.push({
       ...fallback,
       id: `${fallback.id}-fill-${index}`,

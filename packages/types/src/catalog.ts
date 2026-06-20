@@ -20,7 +20,7 @@ export type ProductCategorySlug =
   | 'wholesale';
 
 /** Legacy API category enum (migrate → ProductCategorySlug). */
-export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'coin' | 'wedding_ring';
+export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'earring' | 'coin' | 'wedding_ring';
 
 export type ProductStatus = 'draft' | 'active' | 'archived' | 'out_of_stock';
 

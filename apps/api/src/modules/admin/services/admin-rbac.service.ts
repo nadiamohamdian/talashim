@@ -11,7 +11,7 @@ import {
   mapStaffRoleToEnum,
   normalizeStaffRoleEnum,
   type AdminPermissionKey,
-} from '@talashim/shared/admin-rbac';
+} from '@sadafgold/shared/admin-rbac';
 import { Role } from '@/generated/prisma';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';

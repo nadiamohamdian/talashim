@@ -1,7 +1,7 @@
 import {
   resolvePermissionsForRole,
   type AdminPermissionKey,
-} from '@talashim/shared/admin-rbac';
+} from '@sadafgold/shared/admin-rbac';
 
 const rolePermissionsCache = new Map<string, AdminPermissionKey[]>();
 

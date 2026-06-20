@@ -6,6 +6,7 @@ import type { WalletRepository } from '@/modules/wallet/repositories/wallet.repo
 import type { LedgerRepository } from '@/modules/ledger/repositories/ledger.repository';
 import type { LedgerService } from '@/modules/ledger/services/ledger.service';
 import type { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
+import type { UsersService } from '@/modules/users/services/users.service';
 
 jest.mock('@/config/env', () => ({
   getApiEnv: () => ({
@@ -31,6 +32,7 @@ describe('TradingService', () => {
   let ledgerRepository: jest.Mocked<Pick<LedgerRepository, 'findAccountByCode' | 'calculateAccountBalance'>>;
   let ledgerService: jest.Mocked<Pick<LedgerService, 'postJournal'>>;
   let pricingEngine: jest.Mocked<Pick<PricingEngineService, 'getLivePrice'>>;
+  let usersService: jest.Mocked<Pick<UsersService, 'getProfile'>>;
 
   beforeEach(() => {
     tradingRepository = {
@@ -73,6 +75,14 @@ describe('TradingService', () => {
         recordedAt: new Date().toISOString(),
       }),
     };
+    usersService = {
+      getProfile: jest.fn().mockResolvedValue({
+        id: 'u1',
+        email: 'user@example.com',
+        fullName: 'Test User',
+        role: 'customer',
+      }),
+    };
 
     service = new TradingService(
       tradingRepository as unknown as TradingRepository,
@@ -80,6 +90,7 @@ describe('TradingService', () => {
       ledgerRepository as unknown as LedgerRepository,
       ledgerService as unknown as LedgerService,
       pricingEngine as unknown as PricingEngineService,
+      usersService as unknown as UsersService,
     );
 
     tradingRepository.findById.mockResolvedValue({

@@ -20,6 +20,7 @@ export function StoreProductCardMedia({
 }: StoreProductCardMediaProps) {
   const resolvedHoverUrl = hoverImageUrl?.trim();
   const showHoverLayer = Boolean(resolvedHoverUrl && resolvedHoverUrl !== imageUrl.trim());
+  const hoverImageSrc = showHoverLayer ? resolvedHoverUrl : null;
 
   return (
     <div className="store-product-card-media">
@@ -35,10 +36,10 @@ export function StoreProductCardMedia({
             sizes={sizes}
           />
         </div>
-        {showHoverLayer ? (
+        {hoverImageSrc ? (
           <div className="store-product-card-media-hover" aria-hidden>
             <StoreImage
-              src={resolvedHoverUrl}
+              src={hoverImageSrc}
               alt=""
               fill
               unoptimized

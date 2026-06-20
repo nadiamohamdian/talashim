@@ -13,12 +13,16 @@ export function ProductListingHeroCarousel({ slides }: ProductListingHeroCarouse
   if (slides.length === 0) {
     return null;
   }
+  const activeSlide = slides[activeIndex] ?? slides[0];
+  if (!activeSlide) {
+    return null;
+  }
 
   return (
     <section className="product-listing-carousel" aria-label="گالری دسته‌بندی">
       <div className="product-listing-carousel-frame">
         <StoreImage
-          src={slides[activeIndex] ?? slides[0]}
+          src={activeSlide}
           alt=""
           fill
           unoptimized

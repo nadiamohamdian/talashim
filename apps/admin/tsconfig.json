@@ -10,6 +10,8 @@
       "@talashim/ui/*": ["../../packages/ui/src/*"],
       "@sadafgold/types": ["../../packages/types/src/index.ts"],
       "@sadafgold/types/*": ["../../packages/types/src/*"],
+      "@talashim/types": ["../../packages/types/src/index.ts"],
+      "@talashim/types/*": ["../../packages/types/src/*"],
       "@sadafgold/shared": ["../../packages/shared/src/index.ts"],
       "@sadafgold/shared/*": ["../../packages/shared/src/*"],
       "@talashim/shared": ["../../packages/shared/src/index.ts"],

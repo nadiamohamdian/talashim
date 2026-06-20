@@ -4,7 +4,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { isStaffRoleEnum } from '@talashim/shared/admin-rbac';
+import { isStaffRoleEnum } from '@sadafgold/shared/admin-rbac';
 
 @Injectable()
 export class StaffRoleGuard implements CanActivate {

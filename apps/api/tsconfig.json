@@ -1,7 +1,7 @@
 {
   "extends": "../../packages/tsconfig/nestjs.json",
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "../..",
     "module": "commonjs",
     "moduleResolution": "node",
     "resolvePackageJsonExports": false,
@@ -18,14 +18,14 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "@sadafgold/shared": ["../../packages/shared/dist/index"],
-      "@sadafgold/shared/*": ["../../packages/shared/dist/*"],
-      "@sadafgold/types": ["../../packages/types/dist/index"],
-      "@sadafgold/types/*": ["../../packages/types/dist/*"],
-      "@talashim/shared": ["../../packages/shared/dist/index"],
-      "@talashim/shared/*": ["../../packages/shared/dist/*"],
-      "@talashim/types": ["../../packages/types/dist/index"],
-      "@talashim/types/*": ["../../packages/types/dist/*"]
+      "@sadafgold/shared": ["../../packages/shared/src/index.ts"],
+      "@sadafgold/shared/*": ["../../packages/shared/src/*"],
+      "@sadafgold/types": ["../../packages/types/src/index.ts"],
+      "@sadafgold/types/*": ["../../packages/types/src/*"],
+      "@talashim/shared": ["../../packages/shared/src/index.ts"],
+      "@talashim/shared/*": ["../../packages/shared/src/*"],
+      "@talashim/types": ["../../packages/types/src/index.ts"],
+      "@talashim/types/*": ["../../packages/types/src/*"]
     },
     "types": ["node", "jest"],
     "incremental": true,

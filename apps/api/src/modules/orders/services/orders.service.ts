@@ -38,7 +38,7 @@ import {
   tomanBigIntToNumber,
   tomanNumberToBigInt,
 } from '@/common/finance/toman-amount';
-import type { OrderDetail, PaymentStatus as ApiPaymentStatus } from '@talashim/types';
+import type { OrderDetail, PaymentStatus as ApiPaymentStatus } from '@sadafgold/types';
 
 function toApiPaymentStatus(status: PaymentStatus): ApiPaymentStatus {
   return status.toLowerCase() as ApiPaymentStatus;

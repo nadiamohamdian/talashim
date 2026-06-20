@@ -91,7 +91,6 @@ export function PaymentReceiptsPanel() {
     queryFn: () =>
       fetchWalletTransactions({
         page: 1,
-        limit: 100,
         type: 'DEPOSIT',
         status: walletStatus || undefined,
         hasReceipt: true,

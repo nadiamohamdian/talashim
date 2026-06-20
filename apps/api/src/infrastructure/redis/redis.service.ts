@@ -6,6 +6,7 @@ import { getApiEnv } from '@/config/env';
 export class RedisService implements OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
   private readonly client: Redis;
+  private connecting: Promise<void> | null = null;
 
   constructor() {
     const env = getApiEnv();
@@ -24,7 +25,15 @@ export class RedisService implements OnModuleDestroy {
 
   async connect() {
     if (this.client.status === 'ready') return;
-    await this.client.connect();
+    if (this.client.status === 'connect' || this.client.status === 'connecting') {
+      if (this.connecting) await this.connecting;
+      return;
+    }
+
+    this.connecting = this.client.connect().finally(() => {
+      this.connecting = null;
+    });
+    await this.connecting;
   }
 
   async get(key: string) {

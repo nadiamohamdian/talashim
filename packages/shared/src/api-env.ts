@@ -11,6 +11,8 @@ export function apiVersionUri(version: string): string {
   return `v${normalizeApiVersionSegment(version)}`;
 }
 
+const emptyStringToUndefined = (value: unknown) => (value === '' ? undefined : value);
+
 export const apiEnvSchema = sharedEnvSchema.extend({
   API_PORT: z.coerce.number().int().positive().default(4000),
   API_PREFIX: z.string().min(1).default('api'),
@@ -26,10 +28,10 @@ export const apiEnvSchema = sharedEnvSchema.extend({
   DATABASE_URL: z.string().min(1),
   DIRECT_DATABASE_URL: z.string().min(1).optional(),
   REDIS_URL: z.string().url().default('redis://localhost:6379'),
-  BRS_API_KEY: z.string().min(1).optional(),
+  BRS_API_KEY: z.preprocess(emptyStringToUndefined, z.string().min(1).optional()),
   BRS_API_URL: z.string().url().default('https://api.brsapi.ir/Market/Gold_Currency.php'),
   /** Optional base host; full endpoint is derived when BRS_API_URL is unset. */
-  BRS_BASE_URL: z.string().url().optional(),
+  BRS_BASE_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
   BRS_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(8_000),
   BRS_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
   MARKET_SYNC_INTERVAL_MS: z.coerce.number().int().positive().default(30_000),
@@ -41,7 +43,7 @@ export const apiEnvSchema = sharedEnvSchema.extend({
   MARKET_CURRENCY_CACHE_TTL_SECONDS: z.coerce.number().int().positive().optional(),
   /** Distributed sync lock TTL (should be < MARKET_SYNC_INTERVAL_MS). */
   MARKET_SYNC_LOCK_TTL_SECONDS: z.coerce.number().int().positive().default(25),
-  GOLD_PRICE_PRIMARY_URL: z.string().url().optional(),
+  GOLD_PRICE_PRIMARY_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
   GOLD_PRICE_REFRESH_MS: z.coerce.number().int().positive().default(30_000),
   GOLD_PRICE_CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(60),
   GOLD_SPREAD_PERCENT: z.coerce.number().positive().default(1.5),

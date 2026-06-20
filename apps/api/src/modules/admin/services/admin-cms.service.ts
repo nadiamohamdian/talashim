@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
 import type {
   AdminBlogPostDto,
   CmsBannerDto,
@@ -20,7 +20,7 @@ import type {
   PublicCmsHomepage,
   PublicCmsLensVideo,
   PublicCmsSeo,
-} from '@talashim/types';
+} from '@sadafgold/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import {
   optionalLibraryImageUrl,

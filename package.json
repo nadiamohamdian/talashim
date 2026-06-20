@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "turbo run dev --parallel --continue",
-    "dev:infra": "docker compose up postgres redis minio -d",
+    "dev:infra": "docker compose up postgres redis -d",
     "dev:db": "pnpm --filter @sadafgold/api prisma:migrate:deploy && pnpm --filter @sadafgold/api prisma:seed",
     "dev:web": "pnpm --filter @talashim/web dev",
     "dev:store": "pnpm --filter @talashim/web dev",

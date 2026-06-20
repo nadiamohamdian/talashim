@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
-import type { AdminOrderDetailDto, AdminOrderListItemDto, OrderDetail } from '@talashim/types';
+import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import type { AdminOrderDetailDto, AdminOrderListItemDto, OrderDetail } from '@sadafgold/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import { tomanBigIntToNumber } from '@/common/finance/toman-amount';

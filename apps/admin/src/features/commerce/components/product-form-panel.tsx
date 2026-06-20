@@ -234,7 +234,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
       if (errors.length > 0) {
         setValidationErrors(errors);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        throw new ProductFormValidationError(errors[0]);
+        throw new ProductFormValidationError(errors[0] ?? 'اطلاعات محصول نامعتبر است.');
       }
       setValidationErrors([]);
       setSubmitError(null);

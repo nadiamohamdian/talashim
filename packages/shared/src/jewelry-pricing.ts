@@ -1,4 +1,11 @@
-import type { ProductPricing } from '@sadafgold/types';
+export interface ProductPricing {
+  livePriceToman: number;
+  wagePercent: number;
+  wageFixedToman?: number;
+  taxPercent: number;
+  finalPriceToman: number;
+  pricedAt: string;
+}
 
 export interface JewelryPricingInput {
   weightGram: number;

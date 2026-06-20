@@ -2,7 +2,20 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
-    "rootDir": "./src"
+    "incremental": false,
+    "rootDir": "./src",
+    "paths": {
+      "@/*": ["src/*"],
+      "@sadafgold/shared": ["../../packages/shared/dist/index"],
+      "@sadafgold/shared/*": ["../../packages/shared/dist/*"],
+      "@sadafgold/types": ["../../packages/types/dist/index"],
+      "@sadafgold/types/*": ["../../packages/types/dist/*"],
+      "@talashim/shared": ["../../packages/shared/dist/index"],
+      "@talashim/shared/*": ["../../packages/shared/dist/*"],
+      "@talashim/types": ["../../packages/types/dist/index"],
+      "@talashim/types/*": ["../../packages/types/dist/*"]
+    }
   },
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "test", "dist", "prisma", "prisma.config.ts", "**/*spec.ts"]
 }

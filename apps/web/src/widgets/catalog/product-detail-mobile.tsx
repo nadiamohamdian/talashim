@@ -39,7 +39,7 @@ function pickDefaultSize(sizes: number[], preferred: number): number {
   if (sizes.includes(preferred)) {
     return preferred;
   }
-  return sizes[Math.floor(sizes.length / 2)] ?? sizes[0];
+  return sizes[Math.floor(sizes.length / 2)] ?? sizes[0] ?? preferred;
 }
 
 const RELATED_PRODUCTS_DESKTOP_LIMIT = 4;
