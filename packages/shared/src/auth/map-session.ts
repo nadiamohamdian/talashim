@@ -1,5 +1,17 @@
 import { mapStaffRoleToSlug } from '../admin-rbac/roles';
-import type { AuthSession, UserProfile } from '@talashim/types';
+import type { UserRoleSlug } from '../admin-rbac/roles';
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRoleSlug;
+}
+
+export interface AuthSession {
+  user: UserProfile;
+  tokens: { accessToken: string; refreshToken: string };
+}
 
 export interface ApiAuthUserDto {
   id: string;

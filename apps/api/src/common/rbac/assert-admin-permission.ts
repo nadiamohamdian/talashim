@@ -2,7 +2,7 @@ import { ForbiddenException } from '@nestjs/common';
 import {
   hasAdminPermission,
   type AdminPermissionKey,
-} from '@talashim/shared/admin-rbac';
+} from '@sadafgold/shared/admin-rbac';
 import { getRuntimePermissionsForRole } from './admin-rbac-runtime';
 
 export function assertAdminPermission(

@@ -45,7 +45,7 @@ export async function getPublishedLensVideos(): Promise<PublicCmsLensVideo[]> {
     if (
       process.env.NODE_ENV === 'development' &&
       (isApiUnreachableError(error) ||
-        (error instanceof ApiClientError && error.status >= 500))
+        (error instanceof ApiClientError && (error.status ?? 0) >= 500))
     ) {
       return [];
     }
@@ -148,7 +148,7 @@ export async function getPublicHomepage(): Promise<PublicCmsHomepage> {
     if (
       process.env.NODE_ENV === 'development' &&
       (isApiUnreachableError(error) ||
-        (error instanceof ApiClientError && error.status >= 500))
+        (error instanceof ApiClientError && (error.status ?? 0) >= 500))
     ) {
       return defaultPublicHomepage();
     }

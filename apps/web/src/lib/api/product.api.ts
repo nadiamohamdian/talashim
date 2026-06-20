@@ -121,7 +121,7 @@ export const productApi = {
     const path = `/catalog?${params}`;
     const hasPriceFilter = priceFilter.minPrice != null || priceFilter.maxPrice != null;
     const hasCategory = Boolean(category);
-    const raw = await serverFetchCatalogList<unknown>(path, {
+    const raw = await serverFetchCatalogList<unknown[]>(path, {
       cache: sale || hasPriceFilter || hasCategory ? 'no-store' : undefined,
       revalidate: sale || hasPriceFilter || hasCategory ? undefined : 60,
       tags: sale ? ['catalog:sale'] : ['catalog:products'],

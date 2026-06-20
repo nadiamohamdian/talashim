@@ -1,7 +1,15 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "noEmit": false
+    "noEmit": false,
+    "rootDir": "src",
+    "paths": {
+      "@/*": ["src/*"],
+      "@sadafgold/shared": ["../../packages/shared/dist/index"],
+      "@sadafgold/shared/*": ["../../packages/shared/dist/*"],
+      "@sadafgold/types": ["../../packages/types/dist/index"],
+      "@sadafgold/types/*": ["../../packages/types/dist/*"]
+    }
   },
   "exclude": ["node_modules", "test", "dist"]
 }

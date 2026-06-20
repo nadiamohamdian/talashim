@@ -8,7 +8,7 @@
   "scripts": {
     "build": "prisma generate && node scripts/sync-prisma-dist.cjs && nest build && tsc-alias -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"prisma/**/*.ts\"",
-    "dev": "prisma generate && node scripts/sync-prisma-dist.cjs && pnpm --filter @sadafgold/types build && pnpm --filter @talashim/shared build && nest start --watch",
+    "dev": "pnpm --filter @sadafgold/types build && pnpm --filter @sadafgold/shared build && prisma generate && rimraf dist tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json && node scripts/sync-prisma-dist.cjs && tsc-alias -p tsconfig.build.json && node dist/main.js",
     "prisma:sync-dist": "node scripts/sync-prisma-dist.cjs",
     "start": "nest start",
     "start:dev": "nest start --watch",

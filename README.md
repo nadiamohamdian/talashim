@@ -52,7 +52,7 @@ Internet → Nginx (:80/:443) → retail / wholesale / admin / api subdomains
                 ↓
          api | web | admin | worker
                 ↓
-         postgres | redis | minio
+         postgres | redis
 ```
 
 | Subdomain | Service |
@@ -106,7 +106,7 @@ Renewal: certbot sidecar (12h) or `./scripts/ssl-renew.sh`.
 
 ### Docker services
 
-- `postgres`, `redis`, `minio` — infrastructure with persistent volumes and healthchecks
+- `postgres`, `redis` — infrastructure with persistent volumes and healthchecks
 - `api`, `web`, `admin`, `worker` — application images (`restart: unless-stopped`, log rotation 20m×5)
 - `nginx` — reverse proxy with subdomain templates
 - `certbot` — renewal when SSL compose is active

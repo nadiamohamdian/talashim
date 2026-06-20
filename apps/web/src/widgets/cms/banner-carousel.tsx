@@ -30,6 +30,9 @@ export function BannerCarousel({ banners, autoRotateMs = 6000 }: BannerCarouselP
   }
 
   const active = banners[activeIndex] ?? banners[0];
+  if (!active) {
+    return null;
+  }
 
   const content = (
     <article className="relative overflow-hidden rounded-2xl border border-nude-200 bg-nude-50/60 shadow-[var(--shadow-soft)]">

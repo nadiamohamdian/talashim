@@ -40,7 +40,7 @@ export class PrismaService
             `PostgreSQL connection failed after ${maxAttempts} attempt(s): ${message}`,
           );
           this.logger.error(
-            'Start infrastructure: pnpm dev:infra (Docker: postgres, redis, minio)',
+            'Start infrastructure: pnpm dev:infra (Docker: postgres, redis)',
           );
           throw error;
         }

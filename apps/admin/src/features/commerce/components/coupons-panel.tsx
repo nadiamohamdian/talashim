@@ -11,10 +11,22 @@ import {
 } from '@/features/admin/api/admin-api';
 import { CommercePageShell } from './commerce-page-shell';
 
-const INITIAL_FORM = {
+type CouponFormState = {
+  code: string;
+  title: string;
+  discountType: 'PERCENT' | 'FIXED_AMOUNT';
+  discountValue: number;
+  minimumOrderAmount: number;
+  maximumDiscountAmount: number;
+  usageLimitTotal: number;
+  usageLimitPerUser: number;
+  isFirstPurchaseOnly: boolean;
+};
+
+const INITIAL_FORM: CouponFormState = {
   code: '',
   title: '',
-  discountType: 'PERCENT' as 'PERCENT' | 'FIXED_AMOUNT',
+  discountType: 'PERCENT',
   discountValue: 0,
   minimumOrderAmount: 0,
   maximumDiscountAmount: 0,

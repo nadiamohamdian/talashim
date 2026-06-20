@@ -159,6 +159,7 @@ export function resolveDefaultVariant(variants: ProductVariant[]): ProductVarian
 
 export function applyVariantToProduct<T extends {
   sku: string;
+  color?: string | null;
   weightGram: number;
   makingFeePercent: number;
   priceToman: number;

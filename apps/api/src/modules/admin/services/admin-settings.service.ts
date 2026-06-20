@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import { setPlatformSettingsCache } from '@/common/platform-settings/platform-settings-runtime';

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';

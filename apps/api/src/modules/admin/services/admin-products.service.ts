@@ -4,15 +4,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
-import { calculateJewelryPricing } from '@talashim/shared';
+import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
+import { calculateJewelryPricing } from '@sadafgold/shared';
 import type {
   AdminProductDetailDto,
   AdminProductDto,
   AdminProductImageDto,
   AdminProductVariantDto,
   AdminProductVideoDto,
-} from '@talashim/types';
+} from '@sadafgold/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { optionalLibraryImageUrl, requireLibraryImageUrl } from '@/common/media/require-library-image-url';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';

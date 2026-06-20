@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ProductReviewStatus } from '@/generated/prisma';
-import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac/permissions';
+import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import { ProductReviewsRepository } from '@/modules/catalog/repositories/product-reviews.repository';

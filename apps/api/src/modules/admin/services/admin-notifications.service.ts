@@ -3,14 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ADMIN_PERMISSIONS } from '@talashim/shared/admin-rbac';
+import { ADMIN_PERMISSIONS } from '@sadafgold/shared/admin-rbac';
 import { Role } from '@/generated/prisma';
 import type {
   NotificationDeliveryDto,
   NotificationRuleDto,
   NotificationTemplateDto,
   StaffNotificationDto,
-} from '@talashim/types';
+} from '@sadafgold/types';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
 import type {

@@ -77,6 +77,14 @@ const DEFAULT_HOTSPOTS: CmsLensHotspot[] = [
   },
 ];
 
+function defaultHotspot(index: number): CmsLensHotspot {
+  return DEFAULT_HOTSPOTS[index] ?? {
+    id: `hotspot-${index + 1}`,
+    top: '50%',
+    left: '50%',
+  };
+}
+
 const emptySlideForm = (): UpsertLensVideoPayload => ({
   title: '',
   videoUrl: '',
@@ -120,13 +128,10 @@ function validateSlideForm(form: UpsertLensVideoPayload): string | null {
 function normalizeHotspots(hotspots: CmsLensHotspot[] | undefined): CmsLensHotspot[] {
   const source = hotspots?.length ? hotspots : DEFAULT_HOTSPOTS;
   return Array.from({ length: HOTSPOT_COUNT }, (_, index) => {
-    const defaults = DEFAULT_HOTSPOTS[index]!;
-    const override = source[index];
+    const fallback = defaultHotspot(index);
     return {
-      ...defaults,
-      ...override,
-      top: override?.top ?? defaults.top,
-      left: override?.left ?? defaults.left,
+      ...fallback,
+      ...(source[index] ?? {}),
     };
   });
 }
@@ -265,13 +270,7 @@ export function LensSetsShowcasePanel() {
   const updateHotspot = (index: number, patch: Partial<CmsLensHotspot>) => {
     setForm((prev) => {
       const hotspots = normalizeHotspots(prev.hotspots);
-      const current = hotspots[index]!;
-      hotspots[index] = {
-        ...current,
-        ...patch,
-        top: patch.top ?? current.top,
-        left: patch.left ?? current.left,
-      };
+      hotspots[index] = { ...(hotspots[index] ?? defaultHotspot(index)), ...patch };
       return { ...prev, hotspots };
     });
   };

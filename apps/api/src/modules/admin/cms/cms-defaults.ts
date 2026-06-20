@@ -6,7 +6,7 @@ import type {
   CmsCategoryShowcaseItem,
   CmsHeroConfig,
   CmsHomepageSections,
-} from '@talashim/types';
+} from '@sadafgold/types';
 import { getApiEnv } from '@/config/env';
 
 export const CMS_HERO_MEDIA_FILE = 'a5b565d2-4979-4a17-9538-66f5d01d5397.png';

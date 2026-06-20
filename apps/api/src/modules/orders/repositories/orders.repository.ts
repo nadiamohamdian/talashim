@@ -47,7 +47,6 @@ export class OrdersRepository {
           insuranceFeeToman: payload.insuranceFeeToman,
           subtotalToman: payload.subtotalToman,
           discountToman: payload.discountToman ?? BigInt(0),
-          couponId: payload.couponId,
           couponCode: payload.couponCode,
           taxToman: payload.taxToman,
           taxPercent: payload.taxPercent,
@@ -58,6 +57,9 @@ export class OrdersRepository {
             : {}),
           ...(payload.shippingAddressId
             ? { shippingAddress: { connect: { id: payload.shippingAddressId } } }
+            : {}),
+          ...(payload.couponId
+            ? { coupon: { connect: { id: payload.couponId } } }
             : {}),
           items: {
             create: payload.items.map((item) => ({

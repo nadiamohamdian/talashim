@@ -8,7 +8,7 @@ import * as argon2 from 'argon2';
 import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 import {
   ADMIN_PERMISSIONS,
-} from '@talashim/shared/admin-rbac';
+} from '@sadafgold/shared/admin-rbac';
 import { KycStatus, Role } from '@/generated/prisma';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';

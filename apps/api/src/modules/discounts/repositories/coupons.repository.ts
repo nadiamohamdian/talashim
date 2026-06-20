@@ -46,11 +46,11 @@ export class CouponsRepository {
     ]);
   }
 
-  createCoupon(data: Prisma.DiscountCouponCreateInput) {
+  createCoupon(data: Prisma.DiscountCouponUncheckedCreateInput) {
     return this.prisma.discountCoupon.create({ data });
   }
 
-  updateCoupon(id: string, data: Prisma.DiscountCouponUpdateInput) {
+  updateCoupon(id: string, data: Prisma.DiscountCouponUncheckedUpdateInput) {
     return this.prisma.discountCoupon.update({ where: { id }, data });
   }
 

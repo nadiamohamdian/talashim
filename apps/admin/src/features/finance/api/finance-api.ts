@@ -6,7 +6,8 @@ import type {
   LedgerEntryRow,
   PaginatedResponse,
 } from '@talashim/types';
-import type { AdminPaginated, AdminTradeOrder, AdminWalletRow, AdminWalletTransaction, AdminPaymentReceiptItem } from '@talashim/types';
+import type { AdminPaginated, AdminTradeOrder, AdminWalletRow, AdminWalletTransaction } from '@talashim/types';
+import type { AdminPaymentReceiptItem } from '@talashim/types';
 
 export function fetchLedgerEntries(params?: {
   page?: number;

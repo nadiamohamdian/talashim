@@ -27,7 +27,7 @@ export function LensVideoPopup({
     visible: boolean;
   }>({ height: 0, top: 0, visible: false });
   const [scrollbarReady, setScrollbarReady] = useState(false);
-  const item = items[activeIndex];
+  const item = items[activeIndex] ?? items[0];
   const hasPrev = activeIndex > 0;
   const hasNext = activeIndex < items.length - 1;
 
@@ -60,9 +60,9 @@ export function LensVideoPopup({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || !item.videoUrl) return;
+    if (!video || !item?.videoUrl) return;
     void video.play().catch(() => undefined);
-  }, [item.videoUrl, activeIndex]);
+  }, [item?.videoUrl, activeIndex]);
 
   const updateScrollbar = useCallback(() => {
     const scrollEl = scrollRef.current;
@@ -104,7 +104,7 @@ export function LensVideoPopup({
       scrollEl.removeEventListener('scroll', updateScrollbar);
       resizeObserver.disconnect();
     };
-  }, [activeIndex, item.products, updateScrollbar]);
+  }, [activeIndex, item?.products, updateScrollbar]);
 
   if (!item) return null;
 

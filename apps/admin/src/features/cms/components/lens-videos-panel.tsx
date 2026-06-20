@@ -47,7 +47,7 @@ const emptyForm = (): UpsertLensVideoPayload => ({
 });
 
 function validateForm(form: UpsertLensVideoPayload): string | null {
-  const videoError = validateLibraryImageUrl(form.videoUrl?.trim() ?? '', 'فایل ویدیو');
+  const videoError = validateLibraryImageUrl(form.videoUrl ?? '', 'فایل ویدیو');
   if (videoError) {
     return videoError;
   }
@@ -137,7 +137,7 @@ export function LensVideosPanel() {
     setEditingId(video.id);
     setForm({
       title: video.title ?? '',
-      videoUrl: video.videoUrl,
+      videoUrl: video.videoUrl ?? '',
       thumbnailUrl: video.thumbnailUrl ?? '',
       heroImageUrl: video.heroImageUrl ?? '',
       hotspots: video.hotspots,

@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { randomInt } from 'node:crypto';
 import { getApiEnv } from '@/config/env';
-import { isStaffRoleEnum } from '@talashim/shared/admin-rbac';
+import { isStaffRoleEnum } from '@sadafgold/shared/admin-rbac';
 import { RedisService } from '@/infrastructure/redis/redis.service';
 import { assertFeatureEnabled } from '@/common/platform-settings/platform-settings-helpers';
 import { KycRepository } from '@/modules/kyc/repositories/kyc.repository';
