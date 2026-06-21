@@ -22,10 +22,11 @@ export interface UserProfile {
 }
 
 export interface UpdateProfilePayload {
-  firstName: string;
-  lastName: string;
-  nationalId: string;
-  phone: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  nationalId?: string;
+  phone?: string;
 }
 
 export type KycStatusResponse = KycVerification | { status: 'none' };

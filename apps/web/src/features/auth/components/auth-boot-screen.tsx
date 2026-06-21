@@ -12,7 +12,7 @@ export function AuthBootScreen({
   }
 
   return (
-    <div className="auth-page store-minimal-header">
+    <div className="auth-page store-no-chrome">
       <div className="auth-page-inner">
         <div className="auth-card auth-card--loading">{content}</div>
       </div>

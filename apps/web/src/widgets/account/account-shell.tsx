@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import type { PropsWithChildren } from 'react';
 import { MemberLoginPrompt } from '@/features/auth/components/member-login-prompt';
 import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
+import { AccountSidebar } from '@/widgets/account/account-sidebar';
 
 const BASE_NAV_ITEMS = [
   { href: '/dashboard', label: 'پیشخوان' },
@@ -19,9 +20,18 @@ interface AccountShellProps extends PropsWithChildren {
   title: string;
   description?: string;
   returnPath: string;
+  hideMainHeader?: boolean;
+  alignMainWithSidebarProfile?: boolean;
 }
 
-export function AccountShell({ title, description, returnPath, children }: AccountShellProps) {
+export function AccountShell({
+  title,
+  description,
+  returnPath,
+  hideMainHeader = false,
+  alignMainWithSidebarProfile = false,
+  children,
+}: AccountShellProps) {
   const pathname = usePathname();
   const wishlistEnabled = useFeatureFlag('enableWishlist');
   const navItems = wishlistEnabled
@@ -53,29 +63,24 @@ export function AccountShell({ title, description, returnPath, children }: Accou
           </nav>
 
           <div className="account-page-layout">
-            <aside className="account-page-sidebar" aria-label="پنل کاربری">
-              <p className="account-page-sidebar-label">پنل کاربری</p>
-              <nav className="account-page-sidebar-nav">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`account-page-sidebar-link${isActive(item.href) ? ' is-active' : ''}`}
-                    aria-current={isActive(item.href) ? 'page' : undefined}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </aside>
+            <AccountSidebar />
 
-            <div className="account-page-main">
-              <header className="account-page-header">
-                <h1 className="account-page-title">{title}</h1>
-                {description ? (
-                  <p className="account-page-description">{description}</p>
-                ) : null}
-              </header>
+            <div
+              className={[
+                'account-page-main',
+                alignMainWithSidebarProfile ? 'account-page-main--profile-aligned' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              {hideMainHeader ? null : (
+                <header className="account-page-header">
+                  <h1 className="account-page-title">{title}</h1>
+                  {description ? (
+                    <p className="account-page-description">{description}</p>
+                  ) : null}
+                </header>
+              )}
               {children}
             </div>
           </div>

@@ -5,8 +5,9 @@ export default function ProfilePage() {
   return (
     <AccountShell
       title="اطلاعات حساب"
-      description="مشخصات شخصی، تماس و تنظیمات حساب کاربری"
       returnPath="/profile"
+      hideMainHeader
+      alignMainWithSidebarProfile
     >
       <ProfileContent />
     </AccountShell>

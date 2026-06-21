@@ -14,7 +14,7 @@ export function AuthPageShell({
   children,
 }: AuthPageShellProps) {
   return (
-    <div className="auth-page store-chrome-light store-minimal-header">
+    <div className="auth-page store-chrome-light store-no-chrome">
       <AuthBackButton />
 
       <div className="auth-page-frame">
