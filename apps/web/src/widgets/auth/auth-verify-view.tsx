@@ -9,8 +9,8 @@ export function AuthVerifyView() {
       <Suspense fallback={null}>
         <AuthSessionRedirect />
       </Suspense>
-      <AuthPageShell sectionTitle="ورود">
-        <Suspense fallback={<p className="auth-loading">در حال بارگذاری...</p>}>
+      <AuthPageShell sectionTitle="">
+        <Suspense fallback={null}>
           <OtpVerifyForm />
         </Suspense>
       </AuthPageShell>

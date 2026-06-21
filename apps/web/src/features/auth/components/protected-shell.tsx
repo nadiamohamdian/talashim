@@ -9,7 +9,6 @@ import { useAuthHydrated } from '@/features/auth/hooks/use-auth-hydrated';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useSessionRestoreStatus } from '@/features/auth/context/session-restore-context';
 import { syncAuthCookieFromStore, useAuthStore } from '@/features/auth/model/auth-store';
-import { AuthBootScreen } from './auth-boot-screen';
 
 /**
  * Client-side safety net when the session expires while on a protected page.
@@ -48,7 +47,7 @@ export function ProtectedShell({ children }: PropsWithChildren) {
   }, [isAuthenticated, hydrated, restoring, pathname, router]);
 
   if (!hydrated || restoring || !isAuthenticated) {
-    return <AuthBootScreen fullPage />;
+    return null;
   }
 
   return <>{children}</>;

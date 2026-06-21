@@ -10,7 +10,6 @@ import {
 } from '@/features/auth/context/session-restore-context';
 import { syncAuthCookieFromStore } from '@/features/auth/model/auth-store';
 import { resolvePostLoginPath } from '@/shared/routing/safe-redirect';
-import { AuthBootScreen } from './auth-boot-screen';
 
 /**
  * On /login: wait for session restore, then either show the form or redirect if signed in.
@@ -37,11 +36,11 @@ export function LoginSessionGuard({ children }: PropsWithChildren) {
   }, [hydrated, restoring, shouldRedirect, next]);
 
   if (!hydrated || restoring) {
-    return <AuthBootScreen message="در حال بررسی وضعیت ورود..." />;
+    return null;
   }
 
   if (shouldRedirect) {
-    return <AuthBootScreen message="در حال انتقال..." />;
+    return null;
   }
 
   return <>{children}</>;

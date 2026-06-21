@@ -2,43 +2,29 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidIranMobile } from '@sadafgold/shared';
-import { Skeleton } from '@sadafgold/ui';
 import { Controller, useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { z } from 'zod';
 import { AuthAlert } from '@/features/auth/components/auth-alert';
+import { AuthFloatingInput } from '@/features/auth/components/auth-floating-input';
 import { AuthSubmitButton } from '@/features/auth/components/auth-submit-button';
-import { ProfileOutlinedInput } from '@/features/account/components/profile-outlined-input';
 import { useAddresses } from '@/features/account/hooks/use-addresses';
-import { resolveProfileDisplayName, resolveProfilePhone } from '@/features/account/lib/profile-display';
-import { getApiErrorMessage } from '@/lib/api';
+import {
+  resolveProfileDisplayName,
+  resolveProfilePhone,
+} from '@/features/account/lib/profile-display';
 import { useProfile, useUpdateProfileMutation } from '@/features/account/hooks/use-profile';
+import { getApiErrorMessage } from '@/lib/api';
 
 const profileSchema = z.object({
-  fullName: z.string().min(2, 'نام و نام خانوادگی باید حداقل ۲ کاراکتر باشد'),
+  fullName: z.string().trim().min(2, 'نام باید حداقل ۲ کاراکتر باشد'),
   phone: z
     .string()
-    .regex(/^09\d{9}$/, 'شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد')
-    .refine(isValidIranMobile, 'شماره موبایل معتبر نیست'),
+    .trim()
+    .refine((value) => value === '' || isValidIranMobile(value), 'شماره موبایل معتبر نیست'),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
-
-function splitFullName(fullName: string): { firstName: string; lastName: string } {
-  const trimmed = fullName.trim();
-  if (!trimmed) {
-    return { firstName: '', lastName: '' };
-  }
-
-  const spaceIndex = trimmed.indexOf(' ');
-  if (spaceIndex === -1) {
-    return { firstName: trimmed, lastName: trimmed };
-  }
-
-  return {
-    firstName: trimmed.slice(0, spaceIndex),
-    lastName: trimmed.slice(spaceIndex + 1).trim(),
-  };
-}
 
 function formatAddressLine(
   addresses: Array<{ line1: string; city: string }> | undefined,
@@ -51,39 +37,66 @@ function formatAddressLine(
   return [address.line1, address.city].filter(Boolean).join('، ');
 }
 
+function resolveKycBadgeClass(status: string | undefined): string {
+  switch (status) {
+    case 'approved':
+      return 'profile-badge profile-badge--approved';
+    case 'rejected':
+      return 'profile-badge profile-badge--rejected';
+    default:
+      return 'profile-badge profile-badge--pending';
+  }
+}
+
+function resolveKycLabel(status: string | undefined): string {
+  switch (status) {
+    case 'approved':
+      return 'احراز هویت تأیید شده';
+    case 'rejected':
+      return 'احراز هویت رد شده';
+    case 'pending':
+      return 'در انتظار احراز هویت';
+    default:
+      return 'احراز هویت ثبت نشده';
+  }
+}
+
 export function ProfileContent() {
-  const { data, isLoading, isError, refetch } = useProfile();
+  const { data: profile, isLoading, isError, refetch } = useProfile();
   const { data: addresses } = useAddresses();
   const mutation = useUpdateProfileMutation();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      fullName: '',
-      phone: '',
-    },
-    values: data
-      ? {
-          fullName: resolveProfileDisplayName(data),
-          phone: resolveProfilePhone(data) ?? '',
-        }
-      : undefined,
+    defaultValues: { fullName: '', phone: '' },
     mode: 'onChange',
   });
 
+  useEffect(() => {
+    if (!profile) {
+      return;
+    }
+
+    form.reset({
+      fullName: resolveProfileDisplayName(profile),
+      phone: resolveProfilePhone(profile) ?? '',
+    });
+  }, [profile, form]);
+
   if (isLoading) {
     return (
-      <div className="profile-figma-content">
-        <Skeleton className="profile-skeleton profile-skeleton--figma-form" />
+      <div className="profile-page-content" aria-busy="true">
+        <div className="profile-skeleton profile-skeleton--hero" />
+        <div className="profile-skeleton profile-skeleton--form" />
       </div>
     );
   }
 
-  if (isError || !data) {
+  if (isError || !profile) {
     return (
-      <div className="profile-figma-content">
+      <div className="profile-page-content">
         <div className="profile-error-card">
-          <p>بارگذاری پروفایل ناموفق بود.</p>
+          بارگذاری اطلاعات حساب ناموفق بود.
           <button type="button" className="profile-error-retry" onClick={() => refetch()}>
             تلاش مجدد
           </button>
@@ -92,93 +105,115 @@ export function ProfileContent() {
     );
   }
 
-  const error =
+  const addressLine = formatAddressLine(addresses);
+  const apiError =
     mutation.error &&
-    getApiErrorMessage(mutation.error, 'به‌روزرسانی پروفایل ناموفق بود');
+    getApiErrorMessage(mutation.error, 'به‌روزرسانی اطلاعات حساب ناموفق بود');
 
-  const emailValue = data.email ?? '';
-  const addressValue = formatAddressLine(addresses);
+  const onSubmit = form.handleSubmit((values) => {
+    mutation.mutate(
+      {
+        fullName: values.fullName.trim(),
+        phone: values.phone.trim() || undefined,
+      },
+      {
+        onSuccess: (updatedProfile) => {
+          form.reset({
+            fullName: resolveProfileDisplayName(updatedProfile),
+            phone: resolveProfilePhone(updatedProfile) ?? '',
+          });
+        },
+      },
+    );
+  });
 
   return (
-    <div className="profile-figma-content">
-      <form
-        className="profile-figma-form"
-        onSubmit={form.handleSubmit((values) => {
-          const { firstName, lastName } = splitFullName(values.fullName);
-          mutation.mutate({
-            firstName,
-            lastName,
-            phone: values.phone,
-            ...(data.nationalId ? { nationalId: data.nationalId } : {}),
-          });
-        })}
-      >
-        <div className="profile-figma-grid">
-          <Controller
-            control={form.control}
-            name="fullName"
-            render={({ field, fieldState }) => (
-              <ProfileOutlinedInput
-                id="profile-fullName"
-                placeholder="نام و نام خانوادگی کاربر"
-                value={field.value}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-                autoComplete="name"
-                error={fieldState.error?.message}
-              />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="phone"
-            render={({ field, fieldState }) => (
-              <ProfileOutlinedInput
-                id="profile-phone"
-                placeholder="تلفن همراه"
-                type="tel"
-                inputMode="tel"
-                value={field.value}
-                onChange={(value) => field.onChange(value.replace(/\D/g, '').slice(0, 11))}
-                onBlur={field.onBlur}
-                autoComplete="tel"
-                numeric
-                maxLength={11}
-                error={fieldState.error?.message}
-              />
-            )}
-          />
-          <ProfileOutlinedInput
-            id="profile-email"
-            placeholder="ایمیل (اختیاری)"
-            type="email"
-            inputMode="email"
-            value={emailValue}
-            readOnly
-          />
-          <ProfileOutlinedInput
-            id="profile-address"
-            placeholder="آدرس"
-            value={addressValue}
-            readOnly
-          />
+    <div className="profile-page-content">
+      <section className="profile-hero" aria-label="خلاصه حساب کاربری">
+        <div className="profile-hero-copy">
+          <p className="profile-hero-eyebrow">حساب کاربری</p>
+          <h2 className="profile-hero-name">{resolveProfileDisplayName(profile)}</h2>
+          {resolveProfilePhone(profile) ? (
+            <p className="profile-hero-meta">{resolveProfilePhone(profile)}</p>
+          ) : null}
         </div>
-
-        <div className="profile-figma-actions">
-          <AuthSubmitButton
-            isEnabled={form.formState.isValid}
-            isPending={mutation.isPending}
-            pendingLabel="در حال ذخیره"
-          >
-            ویرایش اطلاعات
-          </AuthSubmitButton>
+        <div className="profile-badges">
+          <span className={resolveKycBadgeClass(profile.kycStatus)}>
+            {resolveKycLabel(profile.kycStatus)}
+          </span>
         </div>
+      </section>
 
-        {mutation.isSuccess ? (
-          <AuthAlert variant="success">پروفایل با موفقیت به‌روزرسانی شد.</AuthAlert>
-        ) : null}
-        {error ? <AuthAlert variant="error">{error}</AuthAlert> : null}
-      </form>
+      <section className="profile-form" aria-label="ویرایش اطلاعات حساب">
+        <header className="profile-form-header">
+          <h2 className="profile-form-title">اطلاعات تماس</h2>
+          <p className="profile-form-lead">برای تحویل سفارش و ارتباط با شما از این اطلاعات استفاده می‌شود.</p>
+        </header>
+
+        <form onSubmit={onSubmit}>
+          <div className="profile-form-grid">
+            <Controller
+              name="fullName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <AuthFloatingInput
+                  label="نام و نام خانوادگی"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  autoComplete="name"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+            <Controller
+              name="phone"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <AuthFloatingInput
+                  label="شماره موبایل"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  maxLength={11}
+                  numeric
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+          </div>
+
+          <div className="profile-form-grid profile-form-grid--single">
+            <AuthFloatingInput
+              label="آدرس"
+              value={addressLine}
+              onChange={() => undefined}
+              readOnly
+            />
+            {!addressLine ? (
+              <p className="profile-field-note">برای ثبت آدرس به بخش «آدرس» در پنل کاربری بروید.</p>
+            ) : null}
+          </div>
+
+          {mutation.isSuccess ? (
+            <AuthAlert variant="success">اطلاعات با موفقیت ذخیره شد.</AuthAlert>
+          ) : null}
+          {apiError ? <AuthAlert variant="error">{apiError}</AuthAlert> : null}
+
+          <div className="profile-form-actions">
+            <AuthSubmitButton
+              isEnabled={form.formState.isDirty && form.formState.isValid}
+              isPending={mutation.isPending}
+              pendingLabel="در حال ذخیره"
+            >
+              ذخیره تغییرات
+            </AuthSubmitButton>
+          </div>
+        </form>
+      </section>
     </div>
   );
 }

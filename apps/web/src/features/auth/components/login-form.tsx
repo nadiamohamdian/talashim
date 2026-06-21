@@ -87,8 +87,6 @@ export function LoginForm({ next }: LoginFormProps) {
             }),
           )}
         >
-          <p className="auth-form-hint">شماره موبایل خود را وارد نمائید</p>
-
           <Controller
             control={otpForm.control}
             name="identifier"
@@ -132,7 +130,7 @@ export function LoginForm({ next }: LoginFormProps) {
           className="auth-form"
           onSubmit={passwordForm.handleSubmit((values) => loginMutation.mutate(values))}
         >
-          <p className="auth-form-hint">ایمیل و رمز عبور خود را وارد نمائید</p>
+          <p className="auth-form-hint">اطلاعات زیر را وارد نمائید</p>
 
           <Controller
             control={passwordForm.control}
@@ -140,7 +138,7 @@ export function LoginForm({ next }: LoginFormProps) {
             render={({ field, fieldState }) => (
               <AuthFloatingInput
                 id="email"
-                label="ایمیل"
+                label="تلفن همراه"
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
@@ -168,6 +166,12 @@ export function LoginForm({ next }: LoginFormProps) {
               />
             )}
           />
+
+          <div className="auth-forgot-password-row">
+            <Link href="/contact" className="auth-forgot-password">
+              فراموشی رمزعبور
+            </Link>
+          </div>
 
           <p className="auth-terms">
             ورود به منزله قبول{' '}

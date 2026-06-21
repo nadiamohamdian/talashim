@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { AccountLogoutDialog } from '@/features/auth/components/account-logout-dialog';
 import { useAuth, useLogoutMutation } from '@/features/auth/hooks/use-auth';
 import { resolveProfileDisplayName, resolveProfilePhone } from '@/features/account/lib/profile-display';
 import { useProfile } from '@/features/account/hooks/use-profile';
@@ -42,6 +44,7 @@ export function AccountSidebar() {
   const { user } = useAuth();
   const { data: profile } = useProfile();
   const logoutMutation = useLogoutMutation();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const displayName =
     resolveProfileDisplayName(profile) || user?.fullName || 'نام و نام خانوادگی کاربر';
@@ -69,7 +72,7 @@ export function AccountSidebar() {
 
           return (
             <div key={item.label} className="account-page-sidebar-nav-group">
-              {index > 0 ? <span className="account-page-sidebar-divider" aria-hidden="true" /> : null}
+              {index > 1 ? <span className="account-page-sidebar-divider" aria-hidden="true" /> : null}
               <Link
                 href={item.href}
                 className={`account-page-sidebar-link${active ? ' is-active' : ''}`}
@@ -88,14 +91,21 @@ export function AccountSidebar() {
           type="button"
           className="account-page-sidebar-logout"
           disabled={logoutMutation.isPending}
-          onClick={() => logoutMutation.mutate()}
+          onClick={() => setLogoutDialogOpen(true)}
         >
           <IconAccountSidebarLogout className="account-page-sidebar-link-icon" />
-          <span className="account-page-sidebar-link-label">
-            {logoutMutation.isPending ? 'در حال خروج...' : 'خروج از حساب کاربری'}
-          </span>
+          <span className="account-page-sidebar-link-label">خروج از حساب کاربری</span>
         </button>
       </nav>
+
+      <AccountLogoutDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={() => {
+          setLogoutDialogOpen(false);
+          logoutMutation.mutate();
+        }}
+      />
     </aside>
   );
 }

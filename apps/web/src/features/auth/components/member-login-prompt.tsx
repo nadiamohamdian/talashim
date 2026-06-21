@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import { useAuth } from '@/features/auth/hooks/use-auth';
+import { useAuthHydrated } from '@/features/auth/hooks/use-auth-hydrated';
 
 interface MemberLoginPromptProps {
   title: string;
@@ -18,7 +19,12 @@ export function MemberLoginPrompt({
   returnPath,
   children,
 }: MemberLoginPromptProps) {
+  const hydrated = useAuthHydrated();
   const { isAuthenticated } = useAuth();
+
+  if (!hydrated) {
+    return null;
+  }
 
   if (isAuthenticated) {
     return <>{children}</>;

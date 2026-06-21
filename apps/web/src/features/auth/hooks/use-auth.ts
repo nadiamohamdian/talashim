@@ -16,6 +16,7 @@ import type { AuthSession } from '@sadafgold/types';
 import { useCartStore } from '@/features/cart/model/cart-store';
 import { syncGuestCartToServer } from '@/features/cart/lib/sync-guest-cart';
 import { resolvePostLoginPath } from '@/shared/routing/safe-redirect';
+import { storeOtpExpiry } from '@/features/auth/hooks/use-otp-countdown';
 
 async function redirectAfterSession(session: AuthSession, next?: string | null) {
   persistAuthSessionSync(session);
@@ -77,7 +78,8 @@ export function useOtpRequestMutation(next?: string | null) {
 
   return useMutation({
     mutationFn: (values: OtpRequestValues) => requestOtp(values),
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      storeOtpExpiry(variables.identifier, data.expiresInSeconds);
       setOtpIdentifier(variables.identifier);
       const params = new URLSearchParams({ identifier: variables.identifier });
       if (next) params.set('next', next);
@@ -97,14 +99,12 @@ export function useOtpVerifyMutation(next?: string | null) {
 
 export function useLogoutMutation() {
   const clearSession = useAuthStore((s) => s.clearSession);
-  const router = useRouter();
 
   return useMutation({
     mutationFn: logout,
     onSettled: () => {
       clearSession();
-      router.push('/');
-      router.refresh();
+      window.location.replace('/');
     },
   });
 }

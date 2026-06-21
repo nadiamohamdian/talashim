@@ -10,7 +10,7 @@ interface AuthLoginViewProps {
 export function AuthLoginView({ next }: AuthLoginViewProps) {
   return (
     <AuthPageShell showSignupFooter>
-      <Suspense fallback={<p className="auth-loading">در حال بارگذاری...</p>}>
+      <Suspense fallback={null}>
         <LoginSessionGuard>
           <LoginForm next={next ?? null} />
         </LoginSessionGuard>
