@@ -634,7 +634,7 @@ export class AdminCmsService {
     const meta = this.normalizeAboutMeta(dto.meta);
     const copy = this.normalizeAboutCopy(dto.copy);
     const decorImageUrl = this.normalizeAboutDecorImageUrl(dto.decorImageUrl);
-    const values = this.normalizeAboutValues(dto.values as CmsAboutPageValue[]);
+    const values = this.normalizeAboutValues(dto.values as unknown as CmsAboutPageValue[]);
 
     const row = await this.cmsRepository.updateAboutPage({
       meta: meta as unknown as Prisma.InputJsonValue,

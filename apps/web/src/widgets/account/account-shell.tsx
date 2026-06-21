@@ -28,42 +28,57 @@ export function AccountShell({ title, description, returnPath, children }: Accou
     ? [...BASE_NAV_ITEMS, { href: '/wishlist', label: 'علاقه‌مندی' } as const]
     : BASE_NAV_ITEMS;
 
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
+
   return (
     <MemberLoginPrompt
       title={title}
       description={description ?? 'برای دسترسی به این بخش وارد حساب کاربری شوید.'}
       returnPath={returnPath}
     >
-      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8">
-        <aside className="card-luxury h-fit p-3">
-          <p className="px-3 py-2 text-xs font-semibold text-muted">پنل کاربری</p>
-          <nav className="space-y-1">
-            {navItems.map((item) => {
-              const active =
-                pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`block rounded-lg px-3 py-2.5 text-sm transition ${
-                    active
-                      ? 'bg-gold-dark/10 font-semibold text-gold-dark'
-                      : 'text-foreground hover:bg-nude-50'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+      <div className="account-page store-chrome-light store-minimal-header">
+        <div className="account-page-inner">
+          <nav className="account-page-nav-mobile" aria-label="پنل کاربری">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`account-page-nav-link${isActive(item.href) ? ' is-active' : ''}`}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
-        </aside>
 
-        <div className="space-y-4">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{title}</h1>
-            {description ? <p className="mt-2 text-sm text-muted">{description}</p> : null}
+          <div className="account-page-layout">
+            <aside className="account-page-sidebar" aria-label="پنل کاربری">
+              <p className="account-page-sidebar-label">پنل کاربری</p>
+              <nav className="account-page-sidebar-nav">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`account-page-sidebar-link${isActive(item.href) ? ' is-active' : ''}`}
+                    aria-current={isActive(item.href) ? 'page' : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </aside>
+
+            <div className="account-page-main">
+              <header className="account-page-header">
+                <h1 className="account-page-title">{title}</h1>
+                {description ? (
+                  <p className="account-page-description">{description}</p>
+                ) : null}
+              </header>
+              {children}
+            </div>
           </div>
-          {children}
         </div>
       </div>
     </MemberLoginPrompt>

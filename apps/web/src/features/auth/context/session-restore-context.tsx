@@ -3,23 +3,30 @@
 import { createContext, useContext, type PropsWithChildren } from 'react';
 import {
   useRestoreSession,
+  type SessionRestoreState,
   type SessionRestoreStatus,
 } from '@/features/auth/hooks/use-restore-session';
 import { useMergeGuestCart } from '@/features/cart/hooks/use-merge-guest-cart';
 
-const SessionRestoreContext = createContext<SessionRestoreStatus>('idle');
+const defaultRestoreState: SessionRestoreState = { status: 'idle', verified: false };
+
+const SessionRestoreContext = createContext<SessionRestoreState>(defaultRestoreState);
 
 export function useSessionRestoreStatus(): SessionRestoreStatus {
-  return useContext(SessionRestoreContext);
+  return useContext(SessionRestoreContext).status;
+}
+
+export function useSessionVerified(): boolean {
+  return useContext(SessionRestoreContext).verified;
 }
 
 /** Restores auth from cookie and merges guest cart after login. */
 export function SessionBootstrap({ children }: PropsWithChildren) {
-  const restoreStatus = useRestoreSession();
+  const restoreState = useRestoreSession();
   useMergeGuestCart();
 
   return (
-    <SessionRestoreContext.Provider value={restoreStatus}>
+    <SessionRestoreContext.Provider value={restoreState}>
       {children}
     </SessionRestoreContext.Provider>
   );

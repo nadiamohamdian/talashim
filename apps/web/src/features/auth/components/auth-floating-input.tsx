@@ -35,7 +35,8 @@ export function AuthFloatingInput({
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const [focused, setFocused] = useState(false);
-  const isActive = focused || value.length > 0;
+  const safeValue = value ?? '';
+  const isActive = focused || safeValue.length > 0;
 
   return (
     <div className="auth-floating-field">
@@ -73,7 +74,7 @@ export function AuthFloatingInput({
           autoComplete={autoComplete}
           maxLength={maxLength}
           readOnly={readOnly}
-          value={value}
+          value={safeValue}
           onChange={(event) => onChange(event.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => {

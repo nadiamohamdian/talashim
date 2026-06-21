@@ -4,7 +4,10 @@ import { useEffect, type PropsWithChildren } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuthHydrated } from '@/features/auth/hooks/use-auth-hydrated';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-import { useSessionRestoreStatus } from '@/features/auth/context/session-restore-context';
+import {
+  useSessionRestoreStatus,
+  useSessionVerified,
+} from '@/features/auth/context/session-restore-context';
 import { syncAuthCookieFromStore } from '@/features/auth/model/auth-store';
 import { resolvePostLoginPath } from '@/shared/routing/safe-redirect';
 import { AuthBootScreen } from './auth-boot-screen';
@@ -17,25 +20,27 @@ export function LoginSessionGuard({ children }: PropsWithChildren) {
   const next = searchParams.get('next');
   const hydrated = useAuthHydrated();
   const restoreStatus = useSessionRestoreStatus();
+  const sessionVerified = useSessionVerified();
   const { isAuthenticated } = useAuth();
   const restoring = restoreStatus === 'restoring';
+  const shouldRedirect = isAuthenticated && sessionVerified;
 
   useEffect(() => {
     if (!hydrated || restoring) {
       return;
     }
 
-    if (isAuthenticated) {
+    if (shouldRedirect) {
       syncAuthCookieFromStore();
       window.location.replace(resolvePostLoginPath(next));
     }
-  }, [hydrated, restoring, isAuthenticated, next]);
+  }, [hydrated, restoring, shouldRedirect, next]);
 
   if (!hydrated || restoring) {
     return <AuthBootScreen message="در حال بررسی وضعیت ورود..." />;
   }
 
-  if (isAuthenticated) {
+  if (shouldRedirect) {
     return <AuthBootScreen message="در حال انتقال..." />;
   }
 

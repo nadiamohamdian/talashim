@@ -3,9 +3,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidIranMobile, isValidIranNationalId } from '@sadafgold/shared';
 import { getRoleLabelFa } from '@sadafgold/shared/admin-rbac';
-import { Badge, Button, Input, Label, Skeleton } from '@sadafgold/ui';
-import { useForm } from 'react-hook-form';
+import { Skeleton } from '@sadafgold/ui';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { AuthAlert } from '@/features/auth/components/auth-alert';
+import { AuthFloatingInput } from '@/features/auth/components/auth-floating-input';
+import { AuthSubmitButton } from '@/features/auth/components/auth-submit-button';
 import { useLogoutMutation } from '@/features/auth/hooks/use-auth';
 import { getApiErrorMessage } from '@/lib/api';
 import { useProfile, useUpdateProfileMutation } from '@/features/account/hooks/use-profile';
@@ -50,6 +53,19 @@ function splitFullName(fullName: string): { firstName: string; lastName: string 
   };
 }
 
+function kycBadgeClass(status: string | undefined): string {
+  switch (status) {
+    case 'approved':
+      return 'profile-badge profile-badge--approved';
+    case 'pending':
+      return 'profile-badge profile-badge--pending';
+    case 'rejected':
+      return 'profile-badge profile-badge--rejected';
+    default:
+      return 'profile-badge';
+  }
+}
+
 export function ProfileContent() {
   const { data, isLoading, isError, refetch } = useProfile();
   const mutation = useUpdateProfileMutation();
@@ -57,6 +73,12 @@ export function ProfileContent() {
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      nationalId: '',
+      phone: '',
+    },
     values: data
       ? {
           firstName: data.firstName ?? splitFullName(data.fullName).firstName,
@@ -65,19 +87,27 @@ export function ProfileContent() {
           phone: data.phone ?? '',
         }
       : undefined,
+    mode: 'onChange',
   });
 
   if (isLoading) {
-    return <Skeleton className="h-96 w-full rounded-2xl" />;
+    return (
+      <div className="profile-page-content">
+        <Skeleton className="profile-skeleton profile-skeleton--hero" />
+        <Skeleton className="profile-skeleton profile-skeleton--form" />
+      </div>
+    );
   }
 
   if (isError || !data) {
     return (
-      <div className="card-luxury p-6 text-sm text-rose-600">
-        بارگذاری پروفایل ناموفق بود.{' '}
-        <button type="button" className="underline" onClick={() => refetch()}>
-          تلاش مجدد
-        </button>
+      <div className="profile-page-content">
+        <div className="profile-error-card">
+          <p>بارگذاری پروفایل ناموفق بود.</p>
+          <button type="button" className="profile-error-retry" onClick={() => refetch()}>
+            تلاش مجدد
+          </button>
+        </div>
       </div>
     );
   }
@@ -86,113 +116,146 @@ export function ProfileContent() {
     mutation.error &&
     getApiErrorMessage(mutation.error, 'به‌روزرسانی پروفایل ناموفق بود');
 
+  const kycStatus = data.kycStatus ?? 'none';
+
   return (
-    <div className="space-y-6">
-      <div className="card-luxury flex flex-wrap items-center justify-between gap-4 p-6">
-        <div>
-          <p className="text-sm text-muted">خوش آمدید</p>
-          <h2 className="mt-1 text-xl font-bold text-foreground">{data.fullName}</h2>
-          <p className="mt-2 text-xs text-muted">
-            عضویت از {formatPersianDate(data.createdAt)}
-          </p>
+    <div className="profile-page-content">
+      <section className="profile-hero" aria-label="خلاصه حساب">
+        <div className="profile-hero-copy">
+          <p className="profile-hero-eyebrow">خوش آمدید</p>
+          <h2 className="profile-hero-name">{data.fullName}</h2>
+          <p className="profile-hero-meta">عضویت از {formatPersianDate(data.createdAt)}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">{getRoleLabelFa(data.role)}</Badge>
-          <Badge>
-            احراز هویت: {KYC_STATUS_LABELS[data.kycStatus ?? 'none'] ?? data.kycStatus}
-          </Badge>
+        <div className="profile-badges">
+          <span className="profile-badge">{getRoleLabelFa(data.role)}</span>
+          <span className={kycBadgeClass(kycStatus)}>
+            احراز هویت: {KYC_STATUS_LABELS[kycStatus] ?? kycStatus}
+          </span>
         </div>
-      </div>
+      </section>
 
       <form
-        className="card-luxury space-y-6 p-6"
+        className="profile-form"
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
       >
-        <div>
-          <h3 className="font-semibold text-foreground">اطلاعات شخصی</h3>
-          <p className="mt-1 text-sm text-muted">
+        <header className="profile-form-header">
+          <h3 className="profile-form-title">اطلاعات شخصی</h3>
+          <p className="profile-form-lead">
             این اطلاعات در فاکتور رسمی و پیگیری سفارش استفاده می‌شود.
           </p>
+        </header>
+
+        <div className="profile-form-grid">
+          <Controller
+            control={form.control}
+            name="firstName"
+            render={({ field, fieldState }) => (
+              <AuthFloatingInput
+                id="profile-firstName"
+                label="نام"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                autoComplete="given-name"
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="lastName"
+            render={({ field, fieldState }) => (
+              <AuthFloatingInput
+                id="profile-lastName"
+                label="نام خانوادگی"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                autoComplete="family-name"
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="nationalId"
+            render={({ field, fieldState }) => (
+              <AuthFloatingInput
+                id="profile-nationalId"
+                label="کد ملی"
+                value={field.value}
+                onChange={(value) => field.onChange(value.replace(/\D/g, '').slice(0, 10))}
+                onBlur={field.onBlur}
+                inputMode="numeric"
+                numeric
+                maxLength={10}
+                error={fieldState.error?.message}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="phone"
+            render={({ field, fieldState }) => (
+              <AuthFloatingInput
+                id="profile-phone"
+                label="شماره موبایل"
+                type="tel"
+                inputMode="tel"
+                value={field.value}
+                onChange={(value) => field.onChange(value.replace(/\D/g, '').slice(0, 11))}
+                onBlur={field.onBlur}
+                autoComplete="tel"
+                numeric
+                maxLength={11}
+                error={fieldState.error?.message}
+              />
+            )}
+          />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="firstName">نام</Label>
-            <Input id="firstName" {...form.register('firstName')} />
-            {form.formState.errors.firstName ? (
-              <p className="text-sm text-red-600">{form.formState.errors.firstName.message}</p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">نام خانوادگی</Label>
-            <Input id="lastName" {...form.register('lastName')} />
-            {form.formState.errors.lastName ? (
-              <p className="text-sm text-red-600">{form.formState.errors.lastName.message}</p>
-            ) : null}
-          </div>
+        <div className="profile-form-grid profile-form-grid--single">
+          <AuthFloatingInput
+            id="profile-email"
+            label="ایمیل"
+            type="email"
+            value={data.email ?? ''}
+            onChange={() => undefined}
+            readOnly
+          />
+          <p className="profile-field-note">ایمیل حساب قابل تغییر نیست.</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="nationalId">کد ملی</Label>
-            <Input
-              id="nationalId"
-              dir="ltr"
-              inputMode="numeric"
-              maxLength={10}
-              {...form.register('nationalId')}
-            />
-            {form.formState.errors.nationalId ? (
-              <p className="text-sm text-red-600">{form.formState.errors.nationalId.message}</p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">شماره موبایل</Label>
-            <Input
-              id="phone"
-              dir="ltr"
-              inputMode="tel"
-              maxLength={11}
-              placeholder="09121234567"
-              {...form.register('phone')}
-            />
-            {form.formState.errors.phone ? (
-              <p className="text-sm text-red-600">{form.formState.errors.phone.message}</p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>ایمیل</Label>
-          <Input value={data.email} disabled dir="ltr" />
-          <p className="text-xs text-muted">ایمیل حساب قابل تغییر نیست.</p>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
-          </Button>
+        <div className="profile-form-actions">
+          <AuthSubmitButton
+            isEnabled={form.formState.isValid}
+            isPending={mutation.isPending}
+            pendingLabel="در حال ذخیره"
+          >
+            ذخیره تغییرات
+          </AuthSubmitButton>
         </div>
 
         {mutation.isSuccess ? (
-          <p className="text-sm text-emerald-600">پروفایل با موفقیت به‌روزرسانی شد.</p>
+          <AuthAlert variant="success">پروفایل با موفقیت به‌روزرسانی شد.</AuthAlert>
         ) : null}
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <AuthAlert variant="error">{error}</AuthAlert> : null}
       </form>
 
-      <div className="card-luxury flex flex-wrap items-center justify-between gap-4 p-6">
-        <div>
-          <h3 className="font-semibold text-foreground">خروج از حساب</h3>
-          <p className="mt-1 text-sm text-muted">از همه دستگاه‌های فعال خارج می‌شوید.</p>
+      <section className="profile-logout-card">
+        <div className="profile-logout-copy">
+          <h3 className="profile-logout-title">خروج از حساب</h3>
+          <p className="profile-logout-lead">از همه دستگاه‌های فعال خارج می‌شوید.</p>
         </div>
-        <Button
-          variant="secondary"
+        <button
+          type="button"
+          className="profile-logout-button"
           disabled={logoutMutation.isPending}
           onClick={() => logoutMutation.mutate()}
         >
           {logoutMutation.isPending ? 'در حال خروج...' : 'خروج از حساب'}
-        </Button>
-      </div>
+        </button>
+      </section>
     </div>
   );
 }
