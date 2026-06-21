@@ -12026,6 +12026,10 @@ body:has(.blog-post-page) main.container-store {
   width: 100%;
 }
 
+.blog-post-section--reviews {
+  padding-inline: var(--bp-px);
+}
+
 .blog-post-section-title {
   margin: 0 0 clamp(18px, 6.15vw, 24px);
   font-family: var(--bp-font);
@@ -12039,6 +12043,8 @@ body:has(.blog-post-page) main.container-store {
 /* Review — Figma Group 314 (390×317) */
 .blog-post-review-frame {
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
   position: relative;
   box-sizing: border-box;
   width: calc(100% + 2 * var(--bp-px));
@@ -12049,6 +12055,36 @@ body:has(.blog-post-page) main.container-store {
   background: none;
   background-color: var(--bp-bg);
   overflow: hidden;
+}
+
+.blog-post-review-track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: clamp(16px, 4vw, 24px);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  margin-inline: calc(-1 * var(--bp-px));
+  padding-inline: var(--bp-px);
+  padding-bottom: 4px;
+  direction: rtl;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background-color: var(--bp-bg);
+}
+
+.blog-post-review-track::-webkit-scrollbar {
+  display: none;
+}
+
+.blog-post-review-track .blog-post-review-frame {
+  flex: 0 0 min(390px, calc(100vw - 2 * var(--bp-px) - 24px));
+  width: min(390px, calc(100vw - 2 * var(--bp-px) - 24px));
+  max-width: 100%;
+  margin-inline: 0;
+  scroll-snap-align: start;
 }
 
 .blog-post-review-line {
@@ -12122,7 +12158,10 @@ body:has(.blog-post-page) main.container-store {
   position: relative;
   z-index: 3;
   box-sizing: border-box;
-  width: auto;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  width: 100%;
   max-width: none;
   margin: 0;
   background: none;
@@ -12132,6 +12171,10 @@ body:has(.blog-post-page) main.container-store {
     clamp(16px, 12.56vw, 49px)
     clamp(20px, 7vw, 28px)
     clamp(16px, 12.56vw, 49px);
+}
+
+.blog-post-review-content.has-toolbar {
+  padding-top: clamp(56px, 19.5vw, 76px);
 }
 
 .blog-post-review-body {
@@ -12330,7 +12373,7 @@ body:has(.blog-post-page) main.container-store {
   width: 32px;
   height: 32px;
   padding: 0;
-  border: 1.5px solid var(--bp-gold);
+  border: 0;
   border-radius: 0;
   background: transparent;
   font-family: var(--bp-font);
@@ -12342,6 +12385,10 @@ body:has(.blog-post-page) main.container-store {
 
 .blog-post-carousel-nav-btn:hover {
   background: rgb(109 89 69 / 0.06);
+}
+
+.blog-post-carousel-nav-icon--next {
+  transform: scaleX(-1);
 }
 
 /* Related articles — Figma latest article-mobile 350×86 */
@@ -12577,6 +12624,7 @@ body:has(.blog-post-page) main.container-store {
 
   .blog-post-section--reviews {
     margin-top: clamp(64px, 8vw, 108px);
+    padding-inline: 0;
   }
 
   .blog-post-section--products {
@@ -12622,11 +12670,15 @@ body:has(.blog-post-page) main.container-store {
 
   .blog-post-review-track {
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 35px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
+    margin-inline: 0;
+    padding-inline: 0;
     padding-bottom: 8px;
     direction: rtl;
     scrollbar-width: none;
@@ -12640,9 +12692,11 @@ body:has(.blog-post-page) main.container-store {
   }
 
   .blog-post-review-track .blog-post-review-frame {
-    flex: 0 0 min(571px, calc(100vw - 120px));
-    width: min(571px, calc(100vw - 120px));
+    flex: 0 0 571px;
+    width: 571px;
+    height: 464px;
     min-height: 464px;
+    margin-inline: 0;
     scroll-snap-align: start;
     background: none;
     background-color: var(--bp-bg);
@@ -12656,20 +12710,26 @@ body:has(.blog-post-page) main.container-store {
     background-color: var(--bp-bg);
   }
 
+  .blog-post-review-quote {
+    width: 31px;
+    height: 23px;
+  }
+
   .blog-post-review-content {
+    flex: 1 1 auto;
+    width: min(359px, calc(100% - 94px));
     max-width: 359px;
     margin-inline: auto;
+    padding: 100px 0 32px;
     background: none;
     background-color: var(--bp-bg);
-    padding:
-      68px
-      clamp(40px, 5vw, 49px)
-      28px
-      clamp(40px, 5vw, 49px);
   }
 
   .blog-post-review-body {
+    flex: 1 1 auto;
+    min-height: 0;
     font-size: 16px;
+    font-weight: 300;
     line-height: 1.97;
   }
 
@@ -12687,16 +12747,20 @@ body:has(.blog-post-page) main.container-store {
     width: 18px;
     height: 18px;
     font-size: 18px;
+    line-height: 1;
+    color: #ffb900;
   }
 
   .blog-post-review-submit {
-    margin-top: 24px;
+    margin-top: 38px;
     font-size: 16px;
     line-height: 25px;
+    color: #cba670;
   }
 
   .blog-post-review-meta {
-    margin-top: 20px;
+    flex-shrink: 0;
+    margin-top: 29px;
     padding-top: 16px;
     border-top: 0.6px solid rgb(109 89 69 / 0.14);
   }

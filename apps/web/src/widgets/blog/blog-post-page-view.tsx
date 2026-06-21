@@ -26,8 +26,22 @@ function stripHtml(value: string): string {
 }
 
 function hasRenderableContent(content: string): boolean {
+  return stripHtml(content).length > 0;
+}
+
+function resolveContentHtml(content: string): string {
+  if (!hasRenderableContent(content)) {
+    return `<p>${BLOG_POST_DEMO_BODY}</p><h2>${BLOG_POST_DEMO_TITLE}</h2><p>${BLOG_POST_DEMO_BODY_SECOND}</p>`;
+  }
+
   const text = stripHtml(content);
-  return text.length > 0;
+  const baseHtml = content.includes('<') ? content : `<p>${content.trim()}</p>`;
+
+  if (text.length < 280) {
+    return `${baseHtml}<p>${BLOG_POST_DEMO_BODY_SECOND}</p>`;
+  }
+
+  return baseHtml;
 }
 
 function resolveCoverImage(coverImageUrl: string | undefined): string {
@@ -70,9 +84,7 @@ export function BlogPostPageView({
   relatedProducts,
 }: BlogPostPageViewProps) {
   const coverImage = resolveCoverImage(post.coverImageUrl);
-  const rawContentHtml = hasRenderableContent(post.content)
-    ? post.content
-    : `<p>${BLOG_POST_DEMO_BODY}</p><h2>${BLOG_POST_DEMO_TITLE}</h2><p>${BLOG_POST_DEMO_BODY_SECOND}</p>`;
+  const rawContentHtml = resolveContentHtml(post.content);
 
   const { html: contentHtml, items: tocItems } = injectHeadingIds(rawContentHtml);
   const resolvedTocItems = tocItems.length > 0 ? tocItems : [...BLOG_POST_DEMO_TOC_ITEMS];

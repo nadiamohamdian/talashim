@@ -6,6 +6,7 @@ import {
   BLOG_POST_DEMO_RELATED_PRODUCTS,
   mapProductToBlogRelatedItem,
 } from '@/shared/config/blog-post-page';
+import { BlogPostCarouselArrow } from '@/widgets/blog/blog-post-carousel-arrow';
 import { BlogPostRelatedProductCard } from '@/widgets/blog/blog-post-related-product-card';
 
 interface BlogPostRelatedProductsProps {
@@ -38,18 +39,18 @@ export function BlogPostRelatedProducts({ products, title }: BlogPostRelatedProd
           <button
             type="button"
             className="blog-post-carousel-nav-btn"
-            onClick={() => scrollByCard(1)}
-            aria-label="بعدی"
+            onClick={() => scrollByCard(-1)}
+            aria-label="قبلی"
           >
-            <span aria-hidden>›</span>
+            <BlogPostCarouselArrow direction="prev" />
           </button>
           <button
             type="button"
             className="blog-post-carousel-nav-btn"
-            onClick={() => scrollByCard(-1)}
-            aria-label="قبلی"
+            onClick={() => scrollByCard(1)}
+            aria-label="بعدی"
           >
-            <span aria-hidden>‹</span>
+            <BlogPostCarouselArrow direction="next" />
           </button>
         </div>
       </div>

@@ -160,11 +160,7 @@ export function BlogPostReviewSection() {
 
   return (
     <>
-      <div
-        className="blog-post-review-mobile"
-        role="region"
-        aria-label="نظرات کاربران"
-      >
+      <div className="blog-post-review-mobile" role="region" aria-label="نظرات کاربران">
         <div
           ref={frameRef}
           className={`blog-post-review-mobile-shell${hasMultiple ? ' has-carousel' : ''}`}
