@@ -7,6 +7,7 @@ import {
   IconAccountSidebarAddresses,
   IconAccountSidebarInvoices,
   IconAccountSidebarOrders,
+  IconAccountSidebarPassword,
   IconAccountSidebarProfile,
   IconAccountSidebarTracking,
   IconAccountSidebarWishlist,
@@ -63,9 +64,15 @@ export function buildAccountSidebarNavItems(wishlistEnabled: boolean): AccountSi
     label: 'اطلاعات کاربری',
     icon: IconAccountSidebarProfile,
     isActive: (pathname) =>
-      pathname === '/profile/info' ||
-      pathname.startsWith('/profile/info') ||
-      pathname === '/profile/password',
+      pathname === '/profile/info' || pathname.startsWith('/profile/info/'),
+  });
+
+  items.push({
+    href: '/profile/password',
+    label: 'رمز عبور',
+    icon: IconAccountSidebarPassword,
+    isActive: (pathname) =>
+      pathname === '/profile/password' || pathname.startsWith('/profile/password/'),
   });
 
   return items;

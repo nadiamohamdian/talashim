@@ -16,10 +16,6 @@ export function AuthBackButton({ fallbackHref = '/', className }: AuthBackButton
       className={className ? `auth-back-button ${className}` : 'auth-back-button'}
       aria-label="بازگشت"
       onClick={() => {
-        if (typeof window !== 'undefined' && window.history.length > 1) {
-          router.back();
-          return;
-        }
         router.push(fallbackHref);
       }}
     >

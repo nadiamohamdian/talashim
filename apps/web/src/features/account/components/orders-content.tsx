@@ -27,18 +27,47 @@ import {
   paymentStatusBadgeClass,
 } from '../lib/order-labels';
 
+const ORDERS_LIST_LIMIT = 50;
+
+function OrdersLoadError({
+  onRetry,
+  isRetrying,
+}: {
+  onRetry: () => void;
+  isRetrying: boolean;
+}) {
+  return (
+    <div className="account-orders-state">
+      <div className="card-luxury account-orders-error-card p-6 text-sm text-rose-600">
+        بارگذاری سفارش‌ها ناموفق بود.{' '}
+        <button
+          type="button"
+          className="account-orders-error-retry"
+          onClick={onRetry}
+          disabled={isRetrying}
+        >
+          {isRetrying ? 'در حال تلاش…' : 'تلاش مجدد'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function OrdersContent() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, refetch } = useOrders({ page });
+  const { data, isLoading, isError, isFetching, refetch } = useOrders({
+    page,
+    limit: ORDERS_LIST_LIMIT,
+  });
 
   if (isLoading) {
     return (
       <>
         <div className="account-orders-desktop">
-          <Skeleton className="h-64 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-[0.6px]" />
         </div>
         <div className="account-orders-mobile-wrap">
-          <OrdersMobileContent />
+          <OrdersMobileContent items={[]} isLoading />
         </div>
       </>
     );
@@ -46,32 +75,15 @@ export function OrdersContent() {
 
   if (isError) {
     return (
-      <>
-        <div className="account-orders-desktop">
-          <div className="card-luxury p-6 text-sm text-rose-600">
-            بارگذاری سفارش‌ها ناموفق بود.{' '}
-            <button type="button" className="underline" onClick={() => refetch()}>
-              تلاش مجدد
-            </button>
-          </div>
-        </div>
-        <div className="account-orders-mobile-wrap">
-          <OrdersMobileContent />
-        </div>
-      </>
+      <OrdersLoadError onRetry={() => void refetch()} isRetrying={isFetching} />
     );
   }
 
   if (!data?.items.length) {
     return (
-      <>
-        <div className="account-orders-desktop">
-          <div className="card-luxury p-6 text-sm text-muted">هنوز سفارشی ثبت نشده است.</div>
-        </div>
-        <div className="account-orders-mobile-wrap">
-          <OrdersMobileContent />
-        </div>
-      </>
+      <div className="account-orders-state">
+        <div className="card-luxury p-6 text-sm text-muted">هنوز سفارشی ثبت نشده است.</div>
+      </div>
     );
   }
 
@@ -159,7 +171,7 @@ export function OrdersContent() {
       </div>
 
       <div className="account-orders-mobile-wrap">
-        <OrdersMobileContent />
+        <OrdersMobileContent items={data.items} />
       </div>
     </>
   );

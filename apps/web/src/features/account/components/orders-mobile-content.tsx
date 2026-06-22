@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { formatPersianDate } from '@/shared/lib/persian-date';
 import { formatPrice } from '@/shared/lib/format-price';
-import { useOrders } from '@/lib/api';
 import type { OrderStatus, OrderSummary } from '@sadafgold/types';
 import { isOrderInvoiceReady } from '@/features/account/lib/order-invoice';
 import { InvoiceAccessLink } from '@/features/account/components/invoice-access-link';
@@ -16,6 +15,11 @@ const TAB_LABELS: Record<OrdersTab, string> = {
   completed: 'تکمیل شده',
   cancelled: 'لغو شده',
 };
+
+interface OrdersMobileContentProps {
+  items: OrderSummary[];
+  isLoading?: boolean;
+}
 
 function resolveTab(status: OrderStatus): OrdersTab {
   if (status === 'cancelled') {
@@ -54,9 +58,7 @@ function resolveStatusClass(status: OrderStatus): string {
 
 function OrdersMobileCard({ order }: { order: OrderSummary }) {
   const productLabel =
-    order.itemCount > 1
-      ? `${order.itemCount} کالا در سفارش`
-      : 'محصول سفارش';
+    order.itemCount > 1 ? `${order.itemCount} کالا در سفارش` : 'محصول سفارش';
 
   return (
     <article className="account-orders-card">
@@ -116,9 +118,8 @@ function OrdersMobileDetail({ order }: { order: OrderSummary }) {
   );
 }
 
-export function OrdersMobileContent() {
+export function OrdersMobileContent({ items, isLoading = false }: OrdersMobileContentProps) {
   const [activeTab, setActiveTab] = useState<OrdersTab>('in_progress');
-  const { data, isLoading, isError, refetch } = useOrders({ limit: 50 });
 
   const grouped = useMemo(() => {
     const buckets: Record<OrdersTab, OrderSummary[]> = {
@@ -127,12 +128,12 @@ export function OrdersMobileContent() {
       cancelled: [],
     };
 
-    for (const order of data?.items ?? []) {
+    for (const order of items) {
       buckets[resolveTab(order.status)].push(order);
     }
 
     return buckets;
-  }, [data?.items]);
+  }, [items]);
 
   const activeOrders = grouped[activeTab];
   const featuredOrder = activeTab === 'in_progress' ? activeOrders[0] : undefined;
@@ -142,19 +143,6 @@ export function OrdersMobileContent() {
       <div className="account-orders-mobile" aria-busy="true">
         <div className="profile-skeleton profile-skeleton--hero" />
         <div className="profile-skeleton profile-skeleton--form" />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="account-orders-mobile">
-        <div className="profile-error-card">
-          بارگذاری سفارش‌ها ناموفق بود.
-          <button type="button" className="profile-error-retry" onClick={() => refetch()}>
-            تلاش مجدد
-          </button>
-        </div>
       </div>
     );
   }

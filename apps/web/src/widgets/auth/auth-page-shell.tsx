@@ -24,7 +24,7 @@ export function AuthPageShell({
       className={`auth-page store-chrome-light store-no-chrome${isVerify ? ' auth-page--verify' : ''}`}
     >
       <div className="auth-page-frame">
-        {!isVerify ? <AuthBackButton /> : null}
+        <AuthBackButton fallbackHref={isVerify ? '/login' : '/'} />
 
         <div className="auth-page-visual" aria-hidden>
           <Image
@@ -38,8 +38,6 @@ export function AuthPageShell({
         </div>
 
         <div className="auth-page-inner">
-          {isVerify ? <AuthBackButton className="auth-back-button--inner" /> : null}
-
           <header className="auth-page-header">
             <p className="auth-brand" aria-label="طلاشیم">
               Talashim

@@ -7,7 +7,14 @@ const iconStroke = '0.8';
 
 export function IconAccountSidebarAvatar(props: IconProps) {
   return (
-    <svg viewBox="0 0 60 60" fill="none" aria-hidden="true" {...props}>
+    <svg
+      viewBox="0 0 60 60"
+      width={30}
+      height={30}
+      fill="none"
+      aria-hidden="true"
+      {...props}
+    >
       <circle cx="30" cy="21" r="7.5" stroke={stroke} strokeWidth="1.2" />
       <path
         d="M15 46c2.8-9.5 24.2-9.5 30 0"
@@ -19,10 +26,12 @@ export function IconAccountSidebarAvatar(props: IconProps) {
   );
 }
 
+const navIconSize = { width: 20, height: 24 } as const;
+
 /** Figma account hub — shopping bag */
 export function IconAccountSidebarOrders(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
       <rect x="5.5" y="8.5" width="13" height="12" rx="1.2" stroke={stroke} strokeWidth={iconStroke} />
       <path
         d="M8.5 8.5V5.8C8.5 4.1 10 2.8 12 2.8C14 2.8 15.5 4.1 15.5 5.8V8.5"
@@ -44,7 +53,7 @@ export function IconAccountSidebarOrders(props: IconProps) {
 /** Figma account hub — package / tracking */
 export function IconAccountSidebarTracking(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
       <path
         d="M12 3.5L4.5 7.8V16.2L12 20.5L19.5 16.2V7.8L12 3.5Z"
         stroke={stroke}
@@ -61,7 +70,7 @@ export function IconAccountSidebarTracking(props: IconProps) {
 /** Figma account hub — invoices */
 export function IconAccountSidebarInvoices(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
       <rect x="5.5" y="3.5" width="13" height="17" rx="1" stroke={stroke} strokeWidth={iconStroke} />
       <path d="M8.5 8.5H15.5" stroke={stroke} strokeWidth={iconStroke} strokeLinecap="round" />
       <path d="M8.5 12H15.5" stroke={stroke} strokeWidth={iconStroke} strokeLinecap="round" />
@@ -73,7 +82,7 @@ export function IconAccountSidebarInvoices(props: IconProps) {
 /** Figma account hub — addresses */
 export function IconAccountSidebarAddresses(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
       <path
         d="M12 20.5C12 20.5 18 14.8 18 10.5C18 7.46 15.54 5 12 5C8.46 5 6 7.46 6 10.5C6 14.8 12 20.5 12 20.5Z"
         stroke={stroke}
@@ -88,7 +97,7 @@ export function IconAccountSidebarAddresses(props: IconProps) {
 /** Figma account hub — wishlist */
 export function IconAccountSidebarWishlist(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
       <path
         d="M12 19.8C12 19.8 5.5 14.9 5.5 9.9C5.5 7.4 7.5 5.5 10 5.5C11.2 5.5 12.3 6 13 6.9C13.7 6 14.8 5.5 16 5.5C18.5 5.5 20.5 7.4 20.5 9.9C20.5 14.9 12 19.8 12 19.8Z"
         stroke={stroke}
@@ -102,7 +111,7 @@ export function IconAccountSidebarWishlist(props: IconProps) {
 /** Figma account hub — profile with corner brackets */
 export function IconAccountSidebarProfile(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
       <path d="M8 5.5H5.5V8" stroke={stroke} strokeWidth={iconStroke} strokeLinecap="round" />
       <path d="M16 5.5H18.5V8" stroke={stroke} strokeWidth={iconStroke} strokeLinecap="round" />
       <path d="M8 18.5H5.5V16" stroke={stroke} strokeWidth={iconStroke} strokeLinecap="round" />
@@ -118,9 +127,27 @@ export function IconAccountSidebarProfile(props: IconProps) {
   );
 }
 
+/** Figma account hub — password / lock */
+export function IconAccountSidebarPassword(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
+      <rect x="6.5" y="10.5" width="11" height="9" rx="1.2" stroke={stroke} strokeWidth={iconStroke} />
+      <path
+        d="M8.5 10.5V8.2C8.5 6.2 10 4.8 12 4.8C14 4.8 15.5 6.2 15.5 8.2V10.5"
+        stroke={stroke}
+        strokeWidth={iconStroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="14.8" r="1.2" fill={stroke} />
+      <path d="M12 16v1.5" stroke={stroke} strokeWidth={iconStroke} strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function IconAccountSidebarLogout(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...navIconSize} {...props}>
       <path
         d="M9 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19H9"
         stroke={stroke}

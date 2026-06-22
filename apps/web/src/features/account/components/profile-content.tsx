@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidIranMobile, isValidIranNationalId } from '@sadafgold/shared';
 import { Controller, useForm } from 'react-hook-form';
@@ -264,22 +263,6 @@ export function ProfileContent() {
             </AuthSubmitButton>
           </div>
         </form>
-      </section>
-
-      <section className="profile-form" aria-label="مدیریت رمز عبور">
-        <header className="profile-form-header">
-          <h2 className="profile-form-title">رمز عبور</h2>
-          <p className="profile-form-lead">
-            {profile.requiresPasswordSetup
-              ? 'هنوز رمز عبور تعیین نکرده‌اید. برای ورود با رمز عبور، یک رمز امن انتخاب کنید.'
-              : 'رمز عبور خود را می‌توانید از بخش مدیریت رمز عبور تغییر دهید.'}
-          </p>
-        </header>
-        <div className="profile-form-actions">
-          <Link href="/profile/password" className="auth-submit auth-submit--active">
-            {profile.requiresPasswordSetup ? 'تعیین رمز عبور' : 'تغییر رمز عبور'}
-          </Link>
-        </div>
       </section>
     </div>
   );

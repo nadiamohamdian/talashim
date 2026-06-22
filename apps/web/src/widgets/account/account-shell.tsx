@@ -11,8 +11,6 @@ interface AccountShellProps extends PropsWithChildren {
   title: string;
   description?: string;
   returnPath: string;
-  hideMainHeader?: boolean;
-  alignMainWithSidebarProfile?: boolean;
   pageClassName?: string;
 }
 
@@ -20,8 +18,6 @@ export function AccountShell({
   title,
   description,
   returnPath,
-  hideMainHeader = false,
-  alignMainWithSidebarProfile = false,
   pageClassName,
   children,
 }: AccountShellProps) {
@@ -62,22 +58,7 @@ export function AccountShell({
           <div className="account-page-layout">
             <AccountSidebar />
 
-            <div
-              className={[
-                'account-page-main',
-                alignMainWithSidebarProfile ? 'account-page-main--profile-aligned' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              {hideMainHeader ? null : (
-                <header className="account-page-header">
-                  <h1 className="account-page-title">{title}</h1>
-                  {description ? (
-                    <p className="account-page-description">{description}</p>
-                  ) : null}
-                </header>
-              )}
+            <div className="account-page-main">
               {children}
             </div>
           </div>
