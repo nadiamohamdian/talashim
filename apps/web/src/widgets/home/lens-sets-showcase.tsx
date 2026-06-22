@@ -25,7 +25,7 @@ interface LensSetsShowcaseProps {
 function resolveHotspots(item: LensShowcaseDemoItem | undefined): readonly LensHotspot[] {
   if (item?.hotspots?.length) {
     return item.hotspots.map((spot, index) => {
-      const fallback = LENS_EDITORIAL_HOTSPOTS[index];
+      const fallback = LENS_EDITORIAL_HOTSPOTS[index] as LensHotspot | undefined;
       if (!fallback) {
         return spot;
       }

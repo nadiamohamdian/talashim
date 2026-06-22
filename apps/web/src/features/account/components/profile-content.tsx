@@ -39,7 +39,7 @@ function formatAddressLine(
   }
 
   const address = addresses[0];
-  return [address.line1, address.city].filter(Boolean).join('، ');
+  return [address?.line1, address?.city].filter(Boolean).join('، ');
 }
 
 function resolveKycBadgeClass(status: string | undefined): string {

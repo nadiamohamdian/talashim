@@ -228,7 +228,7 @@ export async function getPublicAboutPage(): Promise<PublicCmsAboutPage> {
     if (
       process.env.NODE_ENV === 'development' &&
       (isApiUnreachableError(error) ||
-        (error instanceof ApiClientError && error.status >= 500))
+        (error instanceof ApiClientError && (error.status ?? 0) >= 500))
     ) {
       return defaultPublicAboutPage();
     }
