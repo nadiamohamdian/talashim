@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isValidIranMobile } from '@sadafgold/shared';
+import { isValidIranMobile, isValidIranNationalId } from '@sadafgold/shared';
 import { Controller, useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { z } from 'zod';
@@ -17,11 +18,16 @@ import { useProfile, useUpdateProfileMutation } from '@/features/account/hooks/u
 import { getApiErrorMessage } from '@/lib/api';
 
 const profileSchema = z.object({
-  fullName: z.string().trim().min(2, 'نام باید حداقل ۲ کاراکتر باشد'),
+  firstName: z.string().trim().min(2, 'نام باید حداقل ۲ کاراکتر باشد'),
+  lastName: z.string().trim().min(2, 'نام خانوادگی باید حداقل ۲ کاراکتر باشد'),
+  nationalId: z
+    .string()
+    .regex(/^\d{10}$/, 'کد ملی باید ۱۰ رقم باشد')
+    .refine(isValidIranNationalId, 'کد ملی معتبر نیست'),
   phone: z
     .string()
-    .trim()
-    .refine((value) => value === '' || isValidIranMobile(value), 'شماره موبایل معتبر نیست'),
+    .regex(/^09\d{9}$/, 'شماره موبایل باید با ۰۹ شروع شود و ۱۱ رقم باشد')
+    .refine(isValidIranMobile, 'شماره موبایل معتبر نیست'),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -66,9 +72,17 @@ export function ProfileContent() {
   const { data: addresses } = useAddresses();
   const mutation = useUpdateProfileMutation();
 
+  function splitFullName(fullName: string): { firstName: string; lastName: string } {
+    const parts = fullName.trim().split(/\s+/);
+    return {
+      firstName: parts[0] ?? '',
+      lastName: parts.slice(1).join(' ') ?? '',
+    };
+  }
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { fullName: '', phone: '' },
+    defaultValues: { firstName: '', lastName: '', nationalId: '', phone: '' },
     mode: 'onChange',
   });
 
@@ -77,8 +91,11 @@ export function ProfileContent() {
       return;
     }
 
+    const split = splitFullName(resolveProfileDisplayName(profile));
     form.reset({
-      fullName: resolveProfileDisplayName(profile),
+      firstName: profile.firstName ?? split.firstName,
+      lastName: profile.lastName ?? split.lastName,
+      nationalId: profile.nationalId ?? '',
       phone: resolveProfilePhone(profile) ?? '',
     });
   }, [profile, form]);
@@ -113,13 +130,18 @@ export function ProfileContent() {
   const onSubmit = form.handleSubmit((values) => {
     mutation.mutate(
       {
-        fullName: values.fullName.trim(),
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        nationalId: values.nationalId.trim(),
         phone: values.phone.trim() || undefined,
       },
       {
         onSuccess: (updatedProfile) => {
+          const split = splitFullName(resolveProfileDisplayName(updatedProfile));
           form.reset({
-            fullName: resolveProfileDisplayName(updatedProfile),
+            firstName: updatedProfile.firstName ?? split.firstName,
+            lastName: updatedProfile.lastName ?? split.lastName,
+            nationalId: updatedProfile.nationalId ?? '',
             phone: resolveProfilePhone(updatedProfile) ?? '',
           });
         },
@@ -153,15 +175,44 @@ export function ProfileContent() {
         <form onSubmit={onSubmit}>
           <div className="profile-form-grid">
             <Controller
-              name="fullName"
+              name="firstName"
               control={form.control}
               render={({ field, fieldState }) => (
                 <AuthFloatingInput
-                  label="نام و نام خانوادگی"
+                  label="نام"
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
-                  autoComplete="name"
+                  autoComplete="given-name"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+            <Controller
+              name="lastName"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <AuthFloatingInput
+                  label="نام خانوادگی"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  autoComplete="family-name"
+                  error={fieldState.error?.message}
+                />
+              )}
+            />
+            <Controller
+              name="nationalId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <AuthFloatingInput
+                  label="کد ملی"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  maxLength={10}
+                  numeric
                   error={fieldState.error?.message}
                 />
               )}
@@ -213,6 +264,22 @@ export function ProfileContent() {
             </AuthSubmitButton>
           </div>
         </form>
+      </section>
+
+      <section className="profile-form" aria-label="مدیریت رمز عبور">
+        <header className="profile-form-header">
+          <h2 className="profile-form-title">رمز عبور</h2>
+          <p className="profile-form-lead">
+            {profile.requiresPasswordSetup
+              ? 'هنوز رمز عبور تعیین نکرده‌اید. برای ورود با رمز عبور، یک رمز امن انتخاب کنید.'
+              : 'رمز عبور خود را می‌توانید از بخش مدیریت رمز عبور تغییر دهید.'}
+          </p>
+        </header>
+        <div className="profile-form-actions">
+          <Link href="/profile/password" className="auth-submit auth-submit--active">
+            {profile.requiresPasswordSetup ? 'تعیین رمز عبور' : 'تغییر رمز عبور'}
+          </Link>
+        </div>
       </section>
     </div>
   );

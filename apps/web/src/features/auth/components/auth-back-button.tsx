@@ -4,15 +4,16 @@ import { useRouter } from 'next/navigation';
 
 interface AuthBackButtonProps {
   fallbackHref?: string;
+  className?: string;
 }
 
-export function AuthBackButton({ fallbackHref = '/' }: AuthBackButtonProps) {
+export function AuthBackButton({ fallbackHref = '/', className }: AuthBackButtonProps) {
   const router = useRouter();
 
   return (
     <button
       type="button"
-      className="auth-back-button"
+      className={className ? `auth-back-button ${className}` : 'auth-back-button'}
       aria-label="بازگشت"
       onClick={() => {
         if (typeof window !== 'undefined' && window.history.length > 1) {

@@ -1214,7 +1214,15 @@ export class AdminCmsService {
 
       const hotspot: CmsLensHotspot = { top, left };
 
-      const optionalFields = ['id', 'chipTop', 'chipLeft', 'chipTranslateX', 'chipTranslateY'] as const;
+      const optionalFields = [
+        'id',
+        'chipTop',
+        'chipLeft',
+        'chipTopMobile',
+        'chipLeftMobile',
+        'chipTranslateX',
+        'chipTranslateY',
+      ] as const;
       for (const field of optionalFields) {
         const value = item[field];
         if (typeof value === 'string' && value.trim()) {
@@ -1224,6 +1232,10 @@ export class AdminCmsService {
             hotspot.chipTop = value.trim();
           } else if (field === 'chipLeft') {
             hotspot.chipLeft = value.trim();
+          } else if (field === 'chipTopMobile') {
+            hotspot.chipTopMobile = value.trim();
+          } else if (field === 'chipLeftMobile') {
+            hotspot.chipLeftMobile = value.trim();
           } else if (field === 'chipTranslateX') {
             hotspot.chipTranslateX = value.trim();
           } else if (field === 'chipTranslateY') {
@@ -1249,6 +1261,8 @@ export class AdminCmsService {
         left: typeof item.left === 'string' ? item.left : '50%',
         chipTop: typeof item.chipTop === 'string' ? item.chipTop : undefined,
         chipLeft: typeof item.chipLeft === 'string' ? item.chipLeft : undefined,
+        chipTopMobile: typeof item.chipTopMobile === 'string' ? item.chipTopMobile : undefined,
+        chipLeftMobile: typeof item.chipLeftMobile === 'string' ? item.chipLeftMobile : undefined,
         chipTranslateX: typeof item.chipTranslateX === 'string' ? item.chipTranslateX : undefined,
         chipTranslateY: typeof item.chipTranslateY === 'string' ? item.chipTranslateY : undefined,
       }));

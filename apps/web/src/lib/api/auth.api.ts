@@ -6,7 +6,7 @@ import {
 } from '@/lib/api/client';
 
 export interface LoginPayload {
-  email: string;
+  identifier: string;
   password: string;
 }
 

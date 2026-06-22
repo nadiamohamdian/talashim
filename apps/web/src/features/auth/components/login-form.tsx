@@ -16,9 +16,9 @@ import { isValidIranMobile, normalizeIranPhone } from '@/features/auth/lib/phone
 import { useFeatureFlag } from '@/shared/providers/storefront-settings-provider';
 import {
   otpRequestSchema,
-  passwordLoginSchema,
+  phonePasswordLoginSchema,
   type OtpRequestValues,
-  type PasswordLoginValues,
+  type PhonePasswordLoginValues,
 } from '@/features/auth/model/schemas';
 
 interface LoginFormProps {
@@ -37,13 +37,14 @@ export function LoginForm({ next }: LoginFormProps) {
     mode: 'onChange',
   });
 
-  const passwordForm = useForm<PasswordLoginValues>({
-    resolver: zodResolver(passwordLoginSchema),
-    defaultValues: { email: '', password: '' },
+  const passwordForm = useForm<PhonePasswordLoginValues>({
+    resolver: zodResolver(phonePasswordLoginSchema),
+    defaultValues: { phone: '', password: '' },
     mode: 'onChange',
   });
 
   const otpIdentifier = otpForm.watch('identifier');
+  const passwordPhone = passwordForm.watch('phone');
 
   const otpError =
     otpMutation.error && getApiErrorMessage(otpMutation.error, 'ارسال کد تأیید ناموفق بود');
@@ -51,7 +52,8 @@ export function LoginForm({ next }: LoginFormProps) {
     loginMutation.error && getApiErrorMessage(loginMutation.error, 'ورود ناموفق بود');
 
   const otpCanSubmit = isValidIranMobile(otpIdentifier);
-  const passwordCanSubmit = passwordForm.formState.isValid;
+  const passwordCanSubmit =
+    isValidIranMobile(passwordPhone) && passwordForm.formState.isValid;
 
   return (
     <div className="auth-form-wrap">
@@ -128,23 +130,30 @@ export function LoginForm({ next }: LoginFormProps) {
       ) : (
         <form
           className="auth-form"
-          onSubmit={passwordForm.handleSubmit((values) => loginMutation.mutate(values))}
+          onSubmit={passwordForm.handleSubmit((values) =>
+            loginMutation.mutate({
+              phone: normalizeIranPhone(values.phone),
+              password: values.password,
+            }),
+          )}
         >
           <p className="auth-form-hint">اطلاعات زیر را وارد نمائید</p>
 
           <Controller
             control={passwordForm.control}
-            name="email"
+            name="phone"
             render={({ field, fieldState }) => (
               <AuthFloatingInput
-                id="email"
+                id="phone"
                 label="تلفن همراه"
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(value) => field.onChange(normalizeIranPhone(value).slice(0, 11))}
                 onBlur={field.onBlur}
-                type="email"
-                inputMode="email"
-                autoComplete="email"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                maxLength={11}
+                numeric
                 error={fieldState.error?.message}
               />
             )}

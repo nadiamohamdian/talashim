@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
-import { randomInt } from 'node:crypto';
+import { randomBytes, randomInt } from 'node:crypto';
 import { getApiEnv } from '@/config/env';
 import { isStaffRoleEnum } from '@sadafgold/shared/admin-rbac';
 import { RedisService } from '@/infrastructure/redis/redis.service';
@@ -46,6 +46,7 @@ export class AuthService {
       email: payload.email,
       fullName: payload.fullName,
       passwordHash,
+      requiresPasswordSetup: false,
     });
 
     await this.authRepository.createAuditLog('auth.register', user.id);
@@ -54,12 +55,12 @@ export class AuthService {
   }
 
   async login(payload: LoginDto) {
-    const normalizedEmail = payload.email.trim().toLowerCase();
+    const identifier = payload.identifier.trim().toLowerCase();
     const devCustomerBypass = this.isDevCustomerLoginEnabled();
     const devStaffLogin = this.isDevStaffLoginEnabled();
-    const staffSeed = DEV_STAFF_ACCOUNTS[normalizedEmail];
+    const staffSeed = identifier.includes('@') ? DEV_STAFF_ACCOUNTS[identifier] : undefined;
 
-    let user = await this.usersService.findByEmail(normalizedEmail);
+    let user = await this.resolveUserByIdentifier(identifier);
 
     if (staffSeed && devStaffLogin) {
       if (!user) {
@@ -67,7 +68,7 @@ export class AuthService {
           payload.password || staffSeed.defaultPassword,
         );
         user = await this.usersService.createUser({
-          email: normalizedEmail,
+          email: identifier,
           fullName: staffSeed.fullName,
           passwordHash,
           role: staffSeed.role,
@@ -79,12 +80,7 @@ export class AuthService {
         });
       }
     } else if (!user && devCustomerBypass) {
-      const passwordHash = await argon2.hash(payload.password || 'Dev12345!');
-      user = await this.usersService.createUser({
-        email: normalizedEmail,
-        fullName: payload.email.split('@')[0] || 'کاربر تست',
-        passwordHash,
-      });
+      user = await this.resolveOrCreateOtpUser(identifier);
     }
 
     if (!user) {
@@ -170,12 +166,9 @@ export class AuthService {
 
   async requestOtp(identifier: string) {
     assertFeatureEnabled('enableOtpLogin', 'ورود با OTP غیرفعال است');
-    const devCustomerBypass = this.isDevCustomerLoginEnabled();
-    const user = devCustomerBypass
-      ? await this.resolveOrCreateDevOtpUser(identifier)
-      : await this.resolveUserByIdentifier(identifier);
-    if (!user) {
-      throw new BadRequestException('Account not found for this identifier');
+    const normalized = this.normalizeIdentifier(identifier);
+    if (!normalized) {
+      throw new BadRequestException('شماره موبایل معتبر وارد کنید');
     }
 
     const code = String(randomInt(100000, 999999));
@@ -183,13 +176,13 @@ export class AuthService {
     await this.redisService.set(key, await argon2.hash(code), OTP_TTL_SECONDS);
 
     if (this.env.NODE_ENV !== 'production') {
-      this.logger.log(`OTP for ${identifier}: ${code}`);
+      this.logger.log(`OTP for ${normalized}: ${code}`);
     }
 
-    await this.authRepository.createAuditLog(
-      devCustomerBypass ? 'auth.otp_requested.dev' : 'auth.otp_requested',
-      user.id,
-    );
+    const existingUser = await this.resolveUserByIdentifier(normalized);
+    if (existingUser) {
+      await this.authRepository.createAuditLog('auth.otp_requested', existingUser.id);
+    }
 
     return { success: true, expiresInSeconds: OTP_TTL_SECONDS };
   }
@@ -197,7 +190,7 @@ export class AuthService {
   async verifyOtp(identifier: string, code: string) {
     assertFeatureEnabled('enableOtpLogin', 'ورود با OTP غیرفعال است');
     if (this.isDevCustomerLoginEnabled()) {
-      const user = await this.resolveOrCreateDevOtpUser(identifier);
+      const user = await this.resolveOrCreateOtpUser(identifier);
       if (!user) {
         throw new UnauthorizedException('Account not found');
       }
@@ -213,7 +206,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
 
-    const user = await this.resolveUserByIdentifier(identifier);
+    const user = await this.resolveOrCreateOtpUser(identifier);
     if (!user) {
       throw new UnauthorizedException('Account not found');
     }
@@ -225,7 +218,26 @@ export class AuthService {
   }
 
   private otpKey(identifier: string) {
-    return `${OTP_KEY_PREFIX}${identifier.trim().toLowerCase()}`;
+    const normalized = this.normalizeIdentifier(identifier);
+    return `${OTP_KEY_PREFIX}${normalized ?? identifier.trim().toLowerCase()}`;
+  }
+
+  private normalizeIdentifier(identifier: string): string | null {
+    const trimmed = identifier.trim().toLowerCase();
+    if (trimmed.includes('@')) {
+      return trimmed;
+    }
+
+    const phone = trimmed.replace(/\D/g, '');
+    if (/^09\d{9}$/.test(phone)) {
+      return phone;
+    }
+
+    return null;
+  }
+
+  private phoneToCustomerEmail(phone: string) {
+    return `${phone}@phone.talashim.local`;
   }
 
   private async resolveUserByIdentifier(identifier: string) {
@@ -233,34 +245,58 @@ export class AuthService {
     if (normalized.includes('@')) {
       return this.usersService.findByEmail(normalized);
     }
-    const kyc = await this.kycRepository.findByPhone(normalized);
+
+    const phone = normalized.replace(/\D/g, '');
+    const byUserPhone = await this.usersService.findByPhone(phone);
+    if (byUserPhone) {
+      return byUserPhone;
+    }
+
+    const kyc = await this.kycRepository.findByPhone(phone);
     if (!kyc) {
       return null;
     }
     return this.usersService.findById(kyc.userId);
   }
 
-  private async resolveOrCreateDevOtpUser(identifier: string) {
-    const normalized = identifier.trim().toLowerCase();
-    const asEmail = normalized.includes('@')
-      ? normalized
-      : `${normalized.replace(/[^0-9a-z]/g, '') || 'test-user'}@dev.local`;
+  private async resolveOrCreateOtpUser(identifier: string) {
+    const normalized = this.normalizeIdentifier(identifier);
+    if (!normalized) {
+      return null;
+    }
 
-    const existing = await this.usersService.findByEmail(asEmail);
+    const existing = await this.resolveUserByIdentifier(normalized);
     if (existing) {
       return existing;
     }
 
-    const passwordHash = await argon2.hash('Dev12345!');
-    const fullName = normalized.includes('@')
-      ? normalized.split('@')[0] || 'کاربر تست'
-      : `کاربر ${normalized}`;
+    const isEmail = normalized.includes('@');
+    const phone = isEmail ? undefined : normalized;
+    const email = isEmail ? normalized : this.phoneToCustomerEmail(phone!);
+    const byEmail = await this.usersService.findByEmail(email);
+    if (byEmail) {
+      if (!byEmail.phone && phone) {
+        await this.usersService.updateProfile(byEmail.id, { phone });
+        return this.usersService.findById(byEmail.id);
+      }
+      return byEmail;
+    }
 
-    return this.usersService.createUser({
-      email: asEmail,
+    const passwordHash = await argon2.hash(randomBytes(32).toString('hex'));
+    const fullName = phone
+      ? `کاربر ${phone}`
+      : normalized.split('@')[0] || 'کاربر جدید';
+
+    const user = await this.usersService.createUser({
+      email,
       fullName,
       passwordHash,
+      phone,
+      requiresPasswordSetup: true,
     });
+
+    await this.authRepository.createAuditLog('auth.user_created.otp', user.id);
+    return user;
   }
 
   private async issueSession(

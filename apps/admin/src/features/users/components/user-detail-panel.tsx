@@ -72,6 +72,11 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]" dir="ltr">
                   {data.user.email}
                 </p>
+                {data.user.phone ? (
+                  <p className="mt-1 text-sm text-[var(--muted-foreground)]" dir="ltr">
+                    {data.user.phone}
+                  </p>
+                ) : null}
                 <p className="mt-2 text-xs text-muted">
                   ثبت‌نام: {formatPersianDateTime(data.user.createdAt)}
                 </p>

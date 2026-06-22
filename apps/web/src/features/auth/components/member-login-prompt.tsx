@@ -1,9 +1,11 @@
 'use client';
 
-import Link from 'next/link';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useAuthHydrated } from '@/features/auth/hooks/use-auth-hydrated';
+import { useSessionRestoreStatus } from '@/features/auth/context/session-restore-context';
 
 interface MemberLoginPromptProps {
   title: string;
@@ -12,44 +14,28 @@ interface MemberLoginPromptProps {
   children?: React.ReactNode;
 }
 
-/** Shows children when signed in; otherwise a login CTA (no redirect). */
+/** Renders children when signed in; otherwise redirects to login. */
 export function MemberLoginPrompt({
-  title,
-  description,
   returnPath,
   children,
 }: MemberLoginPromptProps) {
+  const router = useRouter();
   const hydrated = useAuthHydrated();
+  const restoreStatus = useSessionRestoreStatus();
   const { isAuthenticated } = useAuth();
+  const restoring = restoreStatus === 'restoring';
 
-  if (!hydrated) {
+  useEffect(() => {
+    if (!hydrated || restoring || isAuthenticated) {
+      return;
+    }
+
+    router.replace(buildLoginHref(returnPath));
+  }, [hydrated, restoring, isAuthenticated, returnPath, router]);
+
+  if (!hydrated || restoring || !isAuthenticated) {
     return null;
   }
 
-  if (isAuthenticated) {
-    return <>{children}</>;
-  }
-
-  return (
-    <div className="store-login-prompt">
-      <div className="auth-card store-login-prompt-card">
-        <header className="auth-card-header store-login-prompt-header">
-          <p className="auth-eyebrow">حساب کاربری</p>
-          <h2 className="auth-title" aria-label={title}>
-            {title}
-          </h2>
-          <p className="auth-description">{description}</p>
-        </header>
-
-        <div className="store-login-prompt-actions auth-card-body">
-          <Link href={buildLoginHref(returnPath)} className="auth-submit auth-submit--active">
-            ورود
-          </Link>
-          <Link href="/products" className="store-login-prompt-secondary">
-            مشاهده محصولات
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }

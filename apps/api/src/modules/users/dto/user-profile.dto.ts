@@ -23,6 +23,9 @@ export class UserProfileDto {
   phone?: string | null;
 
   @ApiProperty()
+  requiresPasswordSetup!: boolean;
+
+  @ApiProperty()
   role!: string;
 
   @ApiProperty()

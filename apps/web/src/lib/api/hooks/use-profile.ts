@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { userApi, type UpdateProfilePayload } from '@/lib/api/user.api';
+import { userApi, type ChangePasswordPayload, type UpdateProfilePayload } from '@/lib/api/user.api';
 import { queryKeys } from '@/lib/api/query-keys';
 import type { CreateAddressPayload, SubmitKycPayload, UpdateAddressPayload } from '@sadafgold/types';
 
@@ -16,6 +16,16 @@ export function useUpdateProfileMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: UpdateProfilePayload) => userApi.updateProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() });
+    },
+  });
+}
+
+export function useChangePasswordMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: ChangePasswordPayload) => userApi.changePassword(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() });
     },

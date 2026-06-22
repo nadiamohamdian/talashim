@@ -1,23 +1,31 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { AuthBackButton } from '@/features/auth/components/auth-back-button';
 
 interface AuthPageShellProps extends PropsWithChildren {
   sectionTitle?: string;
   showSignupFooter?: boolean;
+  variant?: 'login' | 'verify';
+  verifyAlert?: ReactNode;
 }
 
 export function AuthPageShell({
   sectionTitle = 'ورود',
   showSignupFooter = false,
+  variant = 'login',
+  verifyAlert,
   children,
 }: AuthPageShellProps) {
-  return (
-    <div className="auth-page store-chrome-light store-no-chrome">
-      <AuthBackButton />
+  const isVerify = variant === 'verify';
 
+  return (
+    <div
+      className={`auth-page store-chrome-light store-no-chrome${isVerify ? ' auth-page--verify' : ''}`}
+    >
       <div className="auth-page-frame">
+        {!isVerify ? <AuthBackButton /> : null}
+
         <div className="auth-page-visual" aria-hidden>
           <Image
             src="/images/auth/1095b6ad420fd4c9f2835cf20045deaf 1.png"
@@ -30,6 +38,8 @@ export function AuthPageShell({
         </div>
 
         <div className="auth-page-inner">
+          {isVerify ? <AuthBackButton className="auth-back-button--inner" /> : null}
+
           <header className="auth-page-header">
             <p className="auth-brand" aria-label="طلاشیم">
               Talashim
@@ -38,7 +48,11 @@ export function AuthPageShell({
             <p className="auth-brand-sub">گالری طلاشیم</p>
           </header>
 
-          <h1 className="auth-section-title">{sectionTitle}</h1>
+          {isVerify ? verifyAlert : null}
+
+          {sectionTitle && !isVerify ? (
+            <h1 className="auth-section-title">{sectionTitle}</h1>
+          ) : null}
 
           <div className="auth-page-body">{children}</div>
 

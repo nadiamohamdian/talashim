@@ -48,6 +48,7 @@ export class AdminRepository {
         ? [
             { email: { contains: search, mode: 'insensitive' } },
             { fullName: { contains: search, mode: 'insensitive' } },
+            { phone: { contains: search, mode: 'insensitive' } },
           ]
         : undefined,
     };
@@ -62,6 +63,7 @@ export class AdminRepository {
           id: true,
           email: true,
           fullName: true,
+          phone: true,
           role: true,
           createdAt: true,
           kycVerification: { select: { status: true } },
@@ -531,6 +533,7 @@ export class AdminRepository {
         id: true,
         email: true,
         fullName: true,
+        phone: true,
         role: true,
         createdAt: true,
         addresses: {

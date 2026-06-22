@@ -5,7 +5,10 @@ import type { AuthSession } from '@talashim/types';
 import type { PasswordLoginValues } from '@talashim/shared/validation/auth';
 
 export async function adminLogin(payload: PasswordLoginValues): Promise<AuthSession> {
-  const { data } = await axiosClient.post<ApiAuthSessionDto>('/auth/login', payload);
+  const { data } = await axiosClient.post<ApiAuthSessionDto>('/auth/login', {
+    identifier: payload.email,
+    password: payload.password,
+  });
   const session = mapApiAuthSession(data);
   if (!isStaffRoleSlug(session.user.role)) {
     throw new Error(

@@ -15,7 +15,8 @@ const BASE_MENU_ITEMS = [
   { href: '/orders', label: 'سفارش‌ها' },
   { href: '/invoices', label: 'فاکتورها' },
   { href: '/addresses', label: 'آدرس' },
-  { href: '/profile', label: 'اطلاعات حساب' },
+  { href: '/profile/info', label: 'اطلاعات حساب' },
+  { href: '/profile/password', label: 'رمز عبور' },
 ] as const;
 
 interface UserAccountDropdownProps {
@@ -117,9 +118,9 @@ export function UserAccountDropdown({ variant = 'default', surface = 'mobile' }:
       {open ? (
         <div
           role="menu"
-          className="absolute left-0 top-[calc(100%+0.5rem)] z-50 min-w-[220px] overflow-hidden rounded-xl border border-nude-200 bg-white py-2 shadow-lg"
+          className="absolute left-0 top-[calc(100%+0.5rem)] z-50 min-w-[220px] overflow-hidden rounded-xl border border-nude-200 bg-white py-2 shadow-lg text-black"
         >
-          <div className="border-b border-nude-100 px-4 py-2 text-xs text-muted">
+          <div className="border-b border-nude-100 px-4 py-2 text-xs text-black">
             {user?.email}
           </div>
           {menuItems.map((item) => (

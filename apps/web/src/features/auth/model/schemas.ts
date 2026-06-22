@@ -1,8 +1,8 @@
 export {
   otpRequestSchema,
   otpVerifySchema,
-  passwordLoginSchema,
+  phonePasswordLoginSchema,
   type OtpRequestValues,
   type OtpVerifyValues,
-  type PasswordLoginValues,
+  type PhonePasswordLoginValues,
 } from '@sadafgold/shared/validation/auth';

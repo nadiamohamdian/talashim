@@ -10,6 +10,7 @@ const profileSelect = {
   lastName: true,
   nationalId: true,
   phone: true,
+  requiresPasswordSetup: true,
   role: true,
   createdAt: true,
   kycVerification: { select: { status: true } },
@@ -23,6 +24,7 @@ function mapProfile(user: {
   lastName: string | null;
   nationalId: string | null;
   phone: string | null;
+  requiresPasswordSetup: boolean;
   role: Role;
   createdAt: Date;
   kycVerification: { status: string } | null;
@@ -35,6 +37,7 @@ function mapProfile(user: {
     lastName: user.lastName,
     nationalId: user.nationalId,
     phone: user.phone,
+    requiresPasswordSetup: user.requiresPasswordSetup,
     role: user.role.toLowerCase(),
     createdAt: user.createdAt.toISOString(),
     kycStatus: user.kycVerification?.status.toLowerCase() ?? 'none',
@@ -49,16 +52,29 @@ export class UsersRepository {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
+  findByPhone(phone: string) {
+    return this.prisma.user.findFirst({ where: { phone } });
+  }
+
   findById(id: string) {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
-  create(data: { email: string; fullName: string; passwordHash: string; role?: Role }) {
+  create(data: {
+    email: string;
+    fullName: string;
+    passwordHash: string;
+    phone?: string;
+    requiresPasswordSetup?: boolean;
+    role?: Role;
+  }) {
     return this.prisma.user.create({
       data: {
         email: data.email,
         fullName: data.fullName,
         passwordHash: data.passwordHash,
+        phone: data.phone,
+        requiresPasswordSetup: data.requiresPasswordSetup ?? false,
         role: data.role ?? Role.CUSTOMER,
       },
     });
@@ -100,5 +116,12 @@ export class UsersRepository {
         select: profileSelect,
       })
       .then(mapProfile);
+  }
+
+  updatePassword(id: string, passwordHash: string, requiresPasswordSetup: boolean) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { passwordHash, requiresPasswordSetup },
+    });
   }
 }

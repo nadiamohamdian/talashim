@@ -46,7 +46,7 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @ApiOperation({ summary: 'Login with email and password' })
+  @ApiOperation({ summary: 'Login with mobile number or email and password' })
   @ApiOkResponse({ type: AuthSessionResponseDto, description: 'Session issued' })
   @ApiPublicErrors()
   async login(
@@ -101,13 +101,7 @@ export class AuthController {
       await this.authService.logout(refreshToken);
     }
 
-    response.clearCookie('refreshToken', {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: this.env.NODE_ENV === 'production',
-      domain: this.env.COOKIE_DOMAIN,
-      path: '/',
-    });
+    response.clearCookie('refreshToken', this.refreshCookieOptions(0));
 
     return { success: true };
   }
@@ -136,13 +130,30 @@ export class AuthController {
   }
 
   private attachRefreshCookie(response: Response, refreshToken: string) {
-    response.cookie('refreshToken', refreshToken, {
+    response.cookie('refreshToken', refreshToken, this.refreshCookieOptions(7 * 24 * 60 * 60 * 1000));
+  }
+
+  private refreshCookieOptions(maxAgeMs: number) {
+    const options: {
+      httpOnly: true;
+      sameSite: 'lax';
+      secure: boolean;
+      path: '/';
+      maxAge: number;
+      domain?: string;
+    } = {
       httpOnly: true,
       sameSite: 'lax',
       secure: this.env.NODE_ENV === 'production',
-      domain: this.env.COOKIE_DOMAIN,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
-    });
+      maxAge: maxAgeMs,
+    };
+
+    const domain = this.env.COOKIE_DOMAIN?.trim();
+    if (domain && domain !== 'localhost') {
+      options.domain = domain;
+    }
+
+    return options;
   }
 }

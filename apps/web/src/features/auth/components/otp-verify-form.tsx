@@ -17,6 +17,17 @@ import { useOtpCountdown } from '@/features/auth/hooks/use-otp-countdown';
 import { otpVerifySchema, type OtpVerifyValues } from '@/features/auth/model/schemas';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
 
+export function OtpVerifySuccessAlert() {
+  const searchParams = useSearchParams();
+  const identifier = searchParams.get('identifier') ?? '';
+
+  if (!identifier) {
+    return null;
+  }
+
+  return <AuthAlert variant="success">کد تائید ارسال شد</AuthAlert>;
+}
+
 export function OtpVerifyForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get('next');
@@ -69,8 +80,6 @@ export function OtpVerifyForm() {
       className="auth-form auth-otp-verify-form"
       onSubmit={form.handleSubmit((values) => verifyMutation.mutate(values))}
     >
-      {identifier ? <AuthAlert variant="success">کد تائید ارسال شد</AuthAlert> : null}
-
       <h2 className="auth-section-title auth-otp-verify-heading">کد تائید</h2>
 
       <p className="auth-otp-verify-lead">
@@ -121,17 +130,19 @@ export function OtpVerifyForm() {
         )}
       />
 
-      <div className="auth-otp-resend-row">
-        <button
-          type="button"
-          className="auth-otp-resend"
-          disabled={!canResend || resendMutation.isPending || !identifier}
-          onClick={handleResend}
-        >
-          <IconAuthResend className="auth-otp-resend-icon" />
-          <span>{resendMutation.isPending ? 'در حال ارسال...' : 'ارسال مجدد'}</span>
-        </button>
-      </div>
+      {canResend || resendMutation.isPending ? (
+        <div className="auth-otp-resend-row">
+          <button
+            type="button"
+            className="auth-otp-resend"
+            disabled={!canResend || resendMutation.isPending || !identifier}
+            onClick={handleResend}
+          >
+            <IconAuthResend className="auth-otp-resend-icon" />
+            <span>{resendMutation.isPending ? 'در حال ارسال...' : 'ارسال مجدد'}</span>
+          </button>
+        </div>
+      ) : null}
 
       <AuthSubmitButton
         isEnabled={canSubmit}

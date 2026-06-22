@@ -1,7 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import argon2 from 'argon2';
 import { isValidIranNationalId } from '@sadafgold/shared';
 import { Role } from '@/generated/prisma';
 import { UsersRepository } from '../repositories/users.repository';
+import type { ChangePasswordDto } from '../dto/change-password.dto';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 
 @Injectable()
@@ -12,11 +14,22 @@ export class UsersService {
     return this.usersRepository.findByEmail(email);
   }
 
+  findByPhone(phone: string) {
+    return this.usersRepository.findByPhone(phone);
+  }
+
   findById(id: string) {
     return this.usersRepository.findById(id);
   }
 
-  createUser(data: { email: string; fullName: string; passwordHash: string; role?: Role }) {
+  createUser(data: {
+    email: string;
+    fullName: string;
+    passwordHash: string;
+    phone?: string;
+    requiresPasswordSetup?: boolean;
+    role?: Role;
+  }) {
     return this.usersRepository.create(data);
   }
 
@@ -77,5 +90,28 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+
+  async changePassword(userId: string, payload: ChangePasswordDto) {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.requiresPasswordSetup) {
+      if (!payload.currentPassword) {
+        throw new BadRequestException('Current password is required');
+      }
+
+      const passwordMatches = await argon2.verify(user.passwordHash, payload.currentPassword);
+      if (!passwordMatches) {
+        throw new UnauthorizedException('Current password is incorrect');
+      }
+    }
+
+    const passwordHash = await argon2.hash(payload.newPassword);
+    await this.usersRepository.updatePassword(userId, passwordHash, false);
+
+    return { success: true };
   }
 }

@@ -34,8 +34,27 @@ export interface LensHotspot {
   left: string;
   chipTop?: string;
   chipLeft?: string;
+  chipTopMobile?: string;
+  chipLeftMobile?: string;
   chipTranslateX?: string;
   chipTranslateY?: string;
+}
+
+export function resolveLensChipPosition(
+  spot: LensHotspot,
+  isMobile: boolean,
+): { top: string; left: string } {
+  if (isMobile) {
+    return {
+      top: spot.chipTopMobile ?? spot.chipTop ?? spot.top,
+      left: spot.chipLeftMobile ?? spot.chipLeft ?? spot.left,
+    };
+  }
+
+  return {
+    top: spot.chipTop ?? spot.top,
+    left: spot.chipLeft ?? spot.left,
+  };
 }
 
 const DEMO_LENS_PRODUCTS: LensShowcaseProductVariant[] = [
@@ -99,8 +118,10 @@ export const LENS_EDITORIAL_HOTSPOTS = [
     id: 'hotspot-bracelet',
     top: '72%',
     left: '40%',
-    chipTop: '234px',
-    chipLeft: '40px',
+    chipTop: '245px',
+    chipLeft: '48px',
+    chipTopMobile: '93.2%',
+    chipLeftMobile: '6.95%',
     chipTranslateX: '-20%',
     chipTranslateY: 'calc(-100% - 8px)',
   },

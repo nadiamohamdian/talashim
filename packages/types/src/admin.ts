@@ -17,6 +17,7 @@ export interface AdminUser {
   id: string;
   email: string;
   fullName: string;
+  phone?: string | null;
   role: StaffRoleSlug | 'customer';
   createdAt: string;
   kycVerification?: { status: string } | null;

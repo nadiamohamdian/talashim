@@ -185,6 +185,8 @@ export type UpsertLensVideoPayload = {
     left: string;
     chipTop?: string;
     chipLeft?: string;
+    chipTopMobile?: string;
+    chipLeftMobile?: string;
     chipTranslateX?: string;
     chipTranslateY?: string;
   }>;

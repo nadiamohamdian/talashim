@@ -2,11 +2,15 @@
 
 import Link from 'next/link';
 import { Card } from '@sadafgold/ui';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import { useCartStore } from '../model/cart-store';
 import { formatPrice } from '@/shared/lib/format-price';
 
 export function CartDrawer() {
+  const { isAuthenticated } = useAuth();
   const items = useCartStore((s) => s.items);
+  const checkoutHref = isAuthenticated ? '/checkout' : buildLoginHref('/checkout');
   const total = useCartStore((s) =>
     s.items.reduce((sum, line) => sum + line.quantity * line.priceToman, 0),
   );
@@ -39,7 +43,7 @@ export function CartDrawer() {
         </p>
       </div>
       <Link
-        href="/checkout"
+        href={checkoutHref}
         className="mt-4 block w-full rounded-full bg-stone-900 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-stone-800 dark:bg-zinc-100 dark:text-zinc-950"
       >
         تکمیل سفارش

@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import type { ProductSummary } from '@sadafgold/types';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useDisplayCart } from '@/features/cart/hooks/use-display-cart';
+import { buildLoginHref } from '@/shared/routing/safe-redirect';
 import { useCartStore } from '@/features/cart/model/cart-store';
 import { useRemoveCartItemMutation, useUpsertCartItemMutation } from '@/lib/api';
 import { CART_GUARANTEE_ITEMS, CART_DEFAULT_SWATCH_COLORS } from '@/shared/config/cart-page';
@@ -14,6 +16,7 @@ interface CartPageViewProps {
 }
 
 export function CartPageView({ similarProducts }: CartPageViewProps) {
+  const { isAuthenticated } = useAuth();
   const { items, isLoading, useServer } = useDisplayCart();
   const removeLocalItem = useCartStore((s) => s.removeItem);
   const updateLocalQuantity = useCartStore((s) => s.updateQuantity);
@@ -41,7 +44,7 @@ export function CartPageView({ similarProducts }: CartPageViewProps) {
     updateLocalQuantity(productId, quantity);
   };
 
-  const checkoutHref = '/checkout';
+  const checkoutHref = isAuthenticated ? '/checkout' : buildLoginHref('/checkout');
   const hasItems = items.length > 0;
 
   return (

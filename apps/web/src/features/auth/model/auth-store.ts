@@ -1,7 +1,6 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { AuthSession, UserProfile } from '@sadafgold/types';
 import { clearAuthCookie, syncAuthCookie } from '@/features/auth/api/auth-api';
 
@@ -10,6 +9,8 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   otpIdentifier: string | null;
+  /** True after a fresh login/verify response — until the next full reload. */
+  sessionTrusted: boolean;
   setSession: (session: AuthSession) => void;
   setOtpIdentifier: (identifier: string) => void;
   clearOtpIdentifier: () => void;
@@ -17,47 +18,48 @@ interface AuthState {
   isAuthenticated: () => boolean;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
+const LEGACY_AUTH_STORAGE_KEY = 'sadafgold-auth';
+
+if (typeof window !== 'undefined') {
+  try {
+    localStorage.removeItem(LEGACY_AUTH_STORAGE_KEY);
+  } catch {
+    // Ignore quota / private mode errors.
+  }
+}
+
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  accessToken: null,
+  refreshToken: null,
+  otpIdentifier: null,
+  sessionTrusted: false,
+  setSession: (session) => {
+    syncAuthCookie(session.tokens.accessToken);
+    set({
+      user: session.user,
+      accessToken: session.tokens.accessToken,
+      refreshToken: session.tokens.refreshToken,
+      otpIdentifier: null,
+      sessionTrusted: true,
+    });
+  },
+  setOtpIdentifier: (identifier) => set({ otpIdentifier: identifier }),
+  clearOtpIdentifier: () => set({ otpIdentifier: null }),
+  clearSession: () => {
+    clearAuthCookie();
+    set({
       user: null,
       accessToken: null,
       refreshToken: null,
       otpIdentifier: null,
-      setSession: (session) => {
-        syncAuthCookie(session.tokens.accessToken);
-        set({
-          user: session.user,
-          accessToken: session.tokens.accessToken,
-          refreshToken: session.tokens.refreshToken,
-          otpIdentifier: null,
-        });
-      },
-      setOtpIdentifier: (identifier) => set({ otpIdentifier: identifier }),
-      clearOtpIdentifier: () => set({ otpIdentifier: null }),
-      clearSession: () => {
-        clearAuthCookie();
-        set({ user: null, accessToken: null, refreshToken: null, otpIdentifier: null });
-      },
-      isAuthenticated: () => Boolean(get().accessToken && get().user),
-    }),
-    {
-      name: 'sadafgold-auth',
-      partialize: (state) => ({
-        user: state.user,
-        accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
-      }),
-      onRehydrateStorage: () => (state) => {
-        if (state?.accessToken) {
-          syncAuthCookie(state.accessToken);
-        }
-      },
-    },
-  ),
-);
+      sessionTrusted: false,
+    });
+  },
+  isAuthenticated: () => Boolean(get().accessToken && get().user),
+}));
 
-/** Sync HTTP cookie for middleware — call after persist rehydration or before navigation. */
+/** Sync HTTP cookie for middleware — call before navigation when session exists in memory. */
 export function syncAuthCookieFromStore(): void {
   const token = useAuthStore.getState().accessToken;
   if (token) {

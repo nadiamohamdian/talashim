@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { AuthSessionRedirect } from '@/features/auth/components/auth-session-redirect';
-import { OtpVerifyForm } from '@/features/auth/components/otp-verify-form';
+import { OtpVerifyForm, OtpVerifySuccessAlert } from '@/features/auth/components/otp-verify-form';
 import { AuthPageShell } from '@/widgets/auth/auth-page-shell';
 
 export function AuthVerifyView() {
@@ -9,7 +9,14 @@ export function AuthVerifyView() {
       <Suspense fallback={null}>
         <AuthSessionRedirect />
       </Suspense>
-      <AuthPageShell sectionTitle="">
+      <AuthPageShell
+        variant="verify"
+        verifyAlert={
+          <Suspense fallback={null}>
+            <OtpVerifySuccessAlert />
+          </Suspense>
+        }
+      >
         <Suspense fallback={null}>
           <OtpVerifyForm />
         </Suspense>

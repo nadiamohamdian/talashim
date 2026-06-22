@@ -9,16 +9,25 @@ import {
   verifyOtp,
 } from '@/features/auth/api/auth-api';
 import { useAuthStore } from '@/features/auth/model/auth-store';
-import type { OtpRequestValues, OtpVerifyValues, PasswordLoginValues } from '@/features/auth/model/schemas';
+import type { OtpRequestValues, OtpVerifyValues, PhonePasswordLoginValues } from '@/features/auth/model/schemas';
 import { persistAuthSessionSync } from '@/features/auth/lib/persist-auth-session';
+import { normalizeIranPhone } from '@/features/auth/lib/phone';
 import { useAuthHydrated } from '@/features/auth/hooks/use-auth-hydrated';
+import {
+  useSessionRestoreStatus,
+  useSessionVerified,
+} from '@/features/auth/context/session-restore-context';
 import type { AuthSession } from '@sadafgold/types';
 import { useCartStore } from '@/features/cart/model/cart-store';
 import { syncGuestCartToServer } from '@/features/cart/lib/sync-guest-cart';
 import { resolvePostLoginPath } from '@/shared/routing/safe-redirect';
 import { storeOtpExpiry } from '@/features/auth/hooks/use-otp-countdown';
 
-async function redirectAfterSession(session: AuthSession, next?: string | null) {
+async function redirectAfterSession(
+  session: AuthSession,
+  next: string | null | undefined,
+  navigate: (path: string) => void,
+) {
   persistAuthSessionSync(session);
 
   const guestItems = useCartStore.getState().items;
@@ -37,19 +46,24 @@ async function redirectAfterSession(session: AuthSession, next?: string | null) 
     }
   }
 
-  const path = resolvePostLoginPath(next);
-  window.location.assign(path);
+  navigate(resolvePostLoginPath(next));
 }
 
 export function useAuth() {
   const hydrated = useAuthHydrated();
+  const restoreStatus = useSessionRestoreStatus();
+  const sessionVerified = useSessionVerified();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionTrusted = useAuthStore((s) => s.sessionTrusted);
   const otpIdentifier = useAuthStore((s) => s.otpIdentifier);
   const setSession = useAuthStore((s) => s.setSession);
   const setOtpIdentifier = useAuthStore((s) => s.setOtpIdentifier);
   const clearSession = useAuthStore((s) => s.clearSession);
-  const isAuthenticated = hydrated && Boolean(accessToken && user);
+  const restoring = restoreStatus === 'restoring';
+  const hasSession = Boolean(accessToken && user);
+  const isAuthenticated =
+    hydrated && !restoring && hasSession && (sessionVerified || sessionTrusted);
 
   return {
     user,
@@ -64,10 +78,16 @@ export function useAuth() {
 }
 
 export function usePasswordLoginMutation(next?: string | null) {
+  const router = useRouter();
+
   return useMutation({
-    mutationFn: (values: PasswordLoginValues) => login(values),
+    mutationFn: (values: PhonePasswordLoginValues) =>
+      login({
+        identifier: normalizeIranPhone(values.phone),
+        password: values.password,
+      }),
     onSuccess: (session) => {
-      void redirectAfterSession(session, next);
+      void redirectAfterSession(session, next, router.push);
     },
   });
 }
@@ -89,10 +109,12 @@ export function useOtpRequestMutation(next?: string | null) {
 }
 
 export function useOtpVerifyMutation(next?: string | null) {
+  const router = useRouter();
+
   return useMutation({
     mutationFn: (values: OtpVerifyValues) => verifyOtp(values),
     onSuccess: (session) => {
-      void redirectAfterSession(session, next);
+      void redirectAfterSession(session, next, router.push);
     },
   });
 }

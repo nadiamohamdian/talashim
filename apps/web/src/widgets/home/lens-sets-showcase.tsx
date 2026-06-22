@@ -9,6 +9,7 @@ import {
   LENS_EDITORIAL_HOTSPOTS,
   LENS_EDITORIAL_META,
   getLensProductPageHref,
+  resolveLensChipPosition,
   type LensHotspot,
   type LensShowcaseDemoItem,
 } from '@/shared/config/lens-showcase-demo';
@@ -23,7 +24,18 @@ interface LensSetsShowcaseProps {
 
 function resolveHotspots(item: LensShowcaseDemoItem | undefined): readonly LensHotspot[] {
   if (item?.hotspots?.length) {
-    return item.hotspots;
+    return item.hotspots.map((spot, index) => {
+      const fallback = LENS_EDITORIAL_HOTSPOTS[index];
+      if (!fallback) {
+        return spot;
+      }
+
+      return {
+        ...spot,
+        chipTopMobile: spot.chipTopMobile ?? fallback.chipTopMobile,
+        chipLeftMobile: spot.chipLeftMobile ?? fallback.chipLeftMobile,
+      };
+    });
   }
   return LENS_EDITORIAL_HOTSPOTS;
 }
@@ -37,6 +49,7 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [popupOpen, setPopupOpen] = useState(false);
   const [openChips, setOpenChips] = useState<Set<number>>(() => new Set([0]));
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   const slideCount = items.length;
   const activeItem = items[activeIndex] ?? items[0];
@@ -61,6 +74,15 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
   useEffect(() => {
     setOpenChips(createDefaultOpenChips(activeHotspots.length));
   }, [activeIndex, activeHotspots.length]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1023.98px)');
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    syncViewport();
+    mediaQuery.addEventListener('change', syncViewport);
+    return () => mediaQuery.removeEventListener('change', syncViewport);
+  }, []);
 
   const toggleChip = (index: number, event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -136,6 +158,7 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
               {spotlightProducts.map((product, index) => {
                 const isOpen = openChips.has(index);
                 const spot = activeHotspots[index];
+                const chipPosition = spot ? resolveLensChipPosition(spot, isMobileViewport) : null;
 
                 return (
                   <Link
@@ -146,12 +169,12 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
                       isOpen ? ' lens-sets-showcase-product-chip--open' : ''
                     }`}
                     style={
-                      spot
+                      chipPosition
                         ? ({
-                            '--lens-chip-top': spot.chipTop ?? spot.top,
-                            '--lens-chip-left': spot.chipLeft ?? spot.left,
-                            '--lens-chip-tx': spot.chipTranslateX ?? '-50%',
-                            '--lens-chip-ty': spot.chipTranslateY ?? 'calc(-100% - 8px)',
+                            '--lens-chip-top': chipPosition.top,
+                            '--lens-chip-left': chipPosition.left,
+                            '--lens-chip-tx': spot?.chipTranslateX ?? '-50%',
+                            '--lens-chip-ty': spot?.chipTranslateY ?? 'calc(-100% - 8px)',
                           } as CSSProperties)
                         : undefined
                     }

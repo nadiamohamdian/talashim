@@ -220,7 +220,7 @@ export function UsersListPanel() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            placeholder="ایمیل یا نام"
+            placeholder="ایمیل، نام یا موبایل"
           />
         </div>
         <div>
@@ -253,6 +253,7 @@ export function UsersListPanel() {
               <TableRow>
                 <TableHead>نام</TableHead>
                 <TableHead>ایمیل</TableHead>
+                <TableHead>موبایل</TableHead>
                 <TableHead>نقش</TableHead>
                 <TableHead>KYC</TableHead>
                 <TableHead>ثبت‌نام</TableHead>
@@ -262,7 +263,7 @@ export function UsersListPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-8 text-center text-muted">
+                  <TableCell colSpan={7} className="py-8 text-center text-muted">
                     کاربری یافت نشد.
                   </TableCell>
                 </TableRow>
@@ -274,6 +275,9 @@ export function UsersListPanel() {
                       <TableCell className="font-medium">{user.fullName}</TableCell>
                       <TableCell className="text-sm text-[var(--muted-foreground)]" dir="ltr">
                         {user.email}
+                      </TableCell>
+                      <TableCell className="text-sm text-[var(--muted-foreground)]" dir="ltr">
+                        {user.phone ?? '—'}
                       </TableCell>
                       <TableCell>{getRoleLabelFa(String(user.role).toLowerCase())}</TableCell>
                       <TableCell>

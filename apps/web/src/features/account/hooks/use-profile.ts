@@ -3,4 +3,5 @@
 export {
   useProfile,
   useUpdateProfileMutation,
+  useChangePasswordMutation,
 } from '@/lib/api/hooks/use-profile';

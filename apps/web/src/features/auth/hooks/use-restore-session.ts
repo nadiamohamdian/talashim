@@ -3,8 +3,6 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { refreshSession } from '@/features/auth/api/auth-api';
-import { hasValidAuthCookie } from '@/features/auth/lib/auth-cookie';
-import { useAuthHydrated } from '@/features/auth/hooks/use-auth-hydrated';
 import { useAuthStore } from '@/features/auth/model/auth-store';
 
 export type SessionRestoreStatus = 'idle' | 'restoring' | 'done';
@@ -28,29 +26,14 @@ function isSessionRefreshNetworkError(error: unknown): boolean {
 }
 
 /**
- * Restores Zustand session via /auth/refresh when cookie or persist hints exist.
+ * Restores session via HttpOnly refresh cookie. Guests stay logged out until refresh succeeds.
  */
 export function useRestoreSession(): SessionRestoreState {
-  const hydrated = useAuthHydrated();
   const attemptedRef = useRef(false);
   const [status, setStatus] = useState<SessionRestoreStatus>('idle');
   const [verified, setVerified] = useState(false);
 
   useEffect(() => {
-    if (!hydrated) {
-      return;
-    }
-
-    const { user, accessToken } = useAuthStore.getState();
-    const hasPersistedSession = Boolean(user && accessToken);
-    const hasCookie = hasValidAuthCookie();
-
-    if (!hasPersistedSession && !hasCookie) {
-      setStatus('done');
-      setVerified(false);
-      return;
-    }
-
     if (attemptedRef.current) {
       return;
     }
@@ -65,7 +48,6 @@ export function useRestoreSession(): SessionRestoreState {
       })
       .catch((error: unknown) => {
         if (isSessionRefreshNetworkError(error)) {
-          // Keep local session; login page must not redirect until refresh succeeds.
           setVerified(false);
           return;
         }
@@ -76,11 +58,7 @@ export function useRestoreSession(): SessionRestoreState {
       .finally(() => {
         setStatus('done');
       });
-  }, [hydrated]);
-
-  if (!hydrated) {
-    return { status: 'idle', verified: false };
-  }
+  }, []);
 
   return { status, verified };
 }

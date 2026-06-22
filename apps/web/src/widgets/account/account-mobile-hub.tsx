@@ -8,10 +8,10 @@ import { useAuth, useLogoutMutation } from '@/features/auth/hooks/use-auth';
 import { resolveProfileDisplayName, resolveProfilePhone } from '@/features/account/lib/profile-display';
 import { useProfile } from '@/features/account/hooks/use-profile';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
-import { IconAccountSidebarAvatar, IconAccountSidebarLogout } from '@/widgets/account/account-sidebar-icons';
+import { IconAccountSidebarLogout } from '@/widgets/account/account-sidebar-icons';
 import { useAccountSidebarNavItems } from '@/widgets/account/account-sidebar-nav';
 
-export function AccountSidebar() {
+export function AccountMobileHub() {
   const pathname = usePathname();
   const navItems = useAccountSidebarNavItems();
   const { user } = useAuth();
@@ -25,49 +25,57 @@ export function AccountSidebar() {
   const displayPhone = phone ? toPersianDigits(phone) : null;
 
   return (
-    <aside className="account-page-sidebar" aria-label="حساب کاربری">
-      <h2 className="account-page-sidebar-title">حساب کاربری</h2>
+    <div className="account-mobile-hub">
+      <h1 className="account-mobile-hub-title">حساب کاربری</h1>
 
-      <div className="account-page-sidebar-profile">
-        <div className="account-page-sidebar-avatar" aria-hidden="true">
-          <IconAccountSidebarAvatar className="account-page-sidebar-avatar-icon" />
+      <div className="account-mobile-hub-profile">
+        <div className="account-mobile-hub-avatar" aria-hidden="true">
+          <svg viewBox="0 0 50 50" fill="none" aria-hidden="true">
+            <circle cx="25" cy="18" r="6.5" stroke="currentColor" strokeWidth="1" />
+            <path
+              d="M12 40c2.4-8.2 20.6-8.2 26 0"
+              stroke="currentColor"
+              strokeWidth="1"
+              strokeLinecap="round"
+            />
+          </svg>
         </div>
-        <div className="account-page-sidebar-profile-copy">
-          <p className="account-page-sidebar-name">{displayName}</p>
-          {displayPhone ? <p className="account-page-sidebar-phone">{displayPhone}</p> : null}
+        <div className="account-mobile-hub-profile-copy">
+          <p className="account-mobile-hub-name">{displayName}</p>
+          {displayPhone ? <p className="account-mobile-hub-phone">{displayPhone}</p> : null}
         </div>
       </div>
 
-      <nav className="account-page-sidebar-nav" aria-label="منوی حساب کاربری">
+      <nav className="account-mobile-hub-nav" aria-label="منوی حساب کاربری">
         {navItems.map((item) => {
           const active = item.isActive(pathname);
           const Icon = item.icon;
 
           return (
-            <div key={item.label} className="account-page-sidebar-nav-group">
-              <span className="account-page-sidebar-divider" aria-hidden="true" />
+            <div key={item.label} className="account-mobile-hub-nav-group">
+              <span className="account-mobile-hub-divider" aria-hidden="true" />
               <Link
                 href={item.href}
-                className={`account-page-sidebar-link${active ? ' is-active' : ''}`}
+                className={`account-mobile-hub-link${active ? ' is-active' : ''}`}
                 aria-current={active ? 'page' : undefined}
               >
-                <Icon className="account-page-sidebar-link-icon" />
-                <span className="account-page-sidebar-link-label">{item.label}</span>
+                <Icon className="account-mobile-hub-link-icon" />
+                <span>{item.label}</span>
               </Link>
             </div>
           );
         })}
 
-        <span className="account-page-sidebar-divider" aria-hidden="true" />
+        <span className="account-mobile-hub-divider" aria-hidden="true" />
 
         <button
           type="button"
-          className="account-page-sidebar-logout"
+          className="account-mobile-hub-logout"
           disabled={logoutMutation.isPending}
           onClick={() => setLogoutDialogOpen(true)}
         >
-          <IconAccountSidebarLogout className="account-page-sidebar-link-icon" />
-          <span className="account-page-sidebar-link-label">خروج از حساب کاربری</span>
+          <IconAccountSidebarLogout className="account-mobile-hub-link-icon" />
+          <span>خروج از حساب کاربری</span>
         </button>
       </nav>
 
@@ -77,6 +85,7 @@ export function AccountSidebar() {
         onClose={() => setLogoutDialogOpen(false)}
         onConfirm={() => logoutMutation.mutate()}
       />
-    </aside>
+    </div>
   );
+
 }
