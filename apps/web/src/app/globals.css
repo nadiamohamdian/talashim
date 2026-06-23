@@ -7361,7 +7361,7 @@ body:has(.product-detail-page) main.container-store {
 }
 
 .product-details-specs-review-row .product-details-review-frame {
-  margin-top: 109px;
+  margin-top: clamp(40px, 28cqw, 109px);
 }
 
 .product-details-price-tooltip-wrap {
@@ -7451,7 +7451,7 @@ body:has(.product-detail-page) main.container-store {
   margin-inline: calc(-1 * var(--pd-px));
   overflow-x: clip;
   background: #ffffff;
-  min-height: clamp(260px, 81.3cqw, 317px);
+  min-height: clamp(240px, 72cqw, 317px);
   direction: rtl;
   container-type: inline-size;
   container-name: product-review;
@@ -7552,14 +7552,16 @@ body:has(.product-detail-page) main.container-store {
   z-index: 3;
   box-sizing: border-box;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   align-items: flex-start;
   width: 62.82%;
-  margin-top: 80px;
+  margin-top: clamp(32px, 9.2cqw, 48px);
   margin-left: 16.41%;
   margin-right: 20.77%;
-  padding-top: clamp(48px, 17.4cqw, 68px);
-  padding-bottom: clamp(20px, 7cqw, 28px);
+  padding-top: clamp(16px, 4.6cqw, 28px);
+  padding-bottom: clamp(8px, 2.5cqw, 16px);
+  min-height: clamp(160px, 46.5cqw, 200px);
 }
 
 .product-details-review-content.has-toolbar {
@@ -7569,7 +7571,11 @@ body:has(.product-detail-page) main.container-store {
 .product-details-review-body {
   margin: 0;
   width: 100%;
-  min-height: clamp(52px, 14cqw, 72px);
+  min-height: clamp(40px, 11.5cqw, 56px);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
   font-family: var(--pd-font);
   font-size: 12px;
   font-weight: 300;
@@ -7584,7 +7590,7 @@ body:has(.product-detail-page) main.container-store {
   align-items: flex-start;
   gap: 6px;
   width: 100%;
-  margin-top: clamp(16px, 4.6cqw, 20px);
+  margin-top: clamp(10px, 3cqw, 16px);
   padding-top: 0;
   border-top: 0;
 }
@@ -7634,7 +7640,7 @@ body:has(.product-detail-page) main.container-store {
   position: relative;
   display: inline-block;
   width: fit-content;
-  margin: clamp(14px, 5.1cqw, 20px) 0 0;
+  margin: clamp(8px, 2.5cqw, 14px) 0 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -7659,12 +7665,13 @@ body:has(.product-detail-page) main.container-store {
 .product-details-review-dots {
   position: relative;
   z-index: 3;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 140px;
-  padding-bottom: 0;
+  margin-top: clamp(8px, 2.5cqw, 16px);
+  padding-bottom: clamp(8px, 2.5cqw, 12px);
 }
 
 .product-details-review-dot {
@@ -8087,6 +8094,47 @@ body:has(.product-detail-page) main.container-store {
   }
 }
 
+@container product-review (min-width: 300px) {
+  .product-details-review-content {
+    margin-top: clamp(36px, 10.5cqw, 52px);
+    padding-top: clamp(20px, 5.8cqw, 32px);
+    min-height: clamp(168px, 48.8cqw, 200px);
+  }
+
+  .product-details-review-dots {
+    margin-top: clamp(10px, 3cqw, 20px);
+  }
+}
+
+@container product-review (min-width: 480px) {
+  .product-details-review-content {
+    margin-top: clamp(44px, 9cqw, 64px);
+    padding-top: clamp(28px, 6cqw, 48px);
+    padding-bottom: clamp(16px, 3.5cqw, 24px);
+    min-height: clamp(180px, 38cqw, 240px);
+  }
+
+  .product-details-review-body {
+    min-height: clamp(48px, 10cqw, 72px);
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  .product-details-review-meta {
+    margin-top: clamp(14px, 3cqw, 20px);
+  }
+
+  .product-details-review-submit {
+    margin-top: clamp(12px, 2.8cqw, 18px);
+  }
+
+  .product-details-review-dots {
+    margin-top: clamp(12px, 2.5cqw, 24px);
+    padding-bottom: clamp(10px, 2cqw, 16px);
+  }
+}
+
 @container product-details (max-width: 340px) {
   .product-details-glass-row {
     flex-wrap: wrap;
@@ -8491,14 +8539,41 @@ body:has(.product-detail-page) main.container-store {
     box-sizing: border-box;
     width: 100%;
     max-width: none;
-    height: 464px;
-    min-height: 464px;
-    margin-top: 108px;
+    height: auto;
+    min-height: clamp(360px, 32vw, 464px);
+    margin-top: clamp(48px, 5.5vw, 108px);
     margin-bottom: 0;
     margin-inline: 0;
     padding-top: 0;
     justify-self: stretch;
     align-self: start;
+  }
+
+  .product-detail-page .product-details-review-content {
+    margin-top: clamp(48px, 5vw, 72px);
+    padding-top: clamp(32px, 3.5vw, 52px);
+    padding-bottom: clamp(16px, 2vw, 28px);
+    min-height: clamp(200px, 22vw, 280px);
+  }
+
+  .product-detail-page .product-details-review-body {
+    min-height: clamp(56px, 6vw, 80px);
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  .product-detail-page .product-details-review-meta {
+    margin-top: clamp(16px, 1.8vw, 24px);
+  }
+
+  .product-detail-page .product-details-review-submit {
+    margin-top: clamp(14px, 1.6vw, 20px);
+  }
+
+  .product-detail-page .product-details-review-dots {
+    margin-top: clamp(16px, 2vw, 28px);
+    padding-bottom: clamp(12px, 1.5vw, 20px);
   }
 
   .product-detail-page .product-details-review-frame.has-carousel::after {
