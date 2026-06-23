@@ -259,7 +259,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 2.8,
     imageUrl: '/images/home/lens-product-ring.png',
     hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-    href: '/products?category=rings',
+    href: '/products/demo',
   },
   {
     id: 'demo-carousel-necklace',
@@ -268,7 +268,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 3.5,
     imageUrl: '/images/home/new-arrival-necklace.png',
     hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-    href: '/products?category=necklaces',
+    href: '/products/demo-necklace',
   },
   {
     id: 'demo-carousel-earrings',
@@ -277,7 +277,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 3.2,
     imageUrl: '/images/home/hero-carousel-necklace.png',
     hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-    href: '/products?category=earrings',
+    href: '/products/demo-earring',
   },
   {
     id: 'demo-carousel-bracelet',
@@ -286,7 +286,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 4.1,
     imageUrl: '/images/home/hero-carousel-bracelet.png',
     hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-    href: '/products?category=bracelets',
+    href: '/products/demo-bracelet',
   },
   {
     id: 'demo-carousel-set',
@@ -295,7 +295,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 5.6,
     imageUrl: '/images/home/hero-carousel-ring.png',
     hoverImageUrl: DEMO_CAROUSEL_HOVER_LIFESTYLE,
-    href: '/products?category=sets',
+    href: '/products/demo-half-set-minimal',
   },
   {
     id: 'demo-carousel-vintage-bracelet',
@@ -304,7 +304,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 3.9,
     imageUrl: '/images/home/VintageKnotAdjustableBracelet1_720x 2.png',
     hoverImageUrl: DEMO_CAROUSEL_HOVER_LIFESTYLE,
-    href: '/products?category=bracelets',
+    href: '/products/demo-bracelet',
   },
   {
     id: 'demo-carousel-wedding-ring',
@@ -313,7 +313,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 4.4,
     imageUrl: '/images/home/wedding-ring.png',
     hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-    href: '/products?category=rings',
+    href: '/products/demo-engagement-ring',
   },
   {
     id: 'demo-carousel-pendant',
@@ -322,7 +322,7 @@ const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
     weightGram: 2.4,
     imageUrl: '/images/home/a3eb1243002467eaa8beb1676880561c 2.png',
     hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-    href: '/products?category=necklaces',
+    href: '/products/demo-necklace',
   },
 ];
 

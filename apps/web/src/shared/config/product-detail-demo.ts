@@ -54,6 +54,7 @@ export interface StoneColorSwatch {
 export interface ProductDetailDemo extends ProductDetails {
   gallery: string[];
   heroImageUrl: string;
+  cardImageUrl?: string;
   displayPriceToman: number;
   ringSizes: number[];
   necklaceSizes?: number[];
@@ -74,7 +75,7 @@ const DEMO_PRODUCT_VIDEOS: ProductVideo[] = [
     id: 'demo-product-video',
     title: 'ویدیو معرفی محصول',
     videoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm',
-    thumbnailUrl: '/images/products/pdp-hero.png',
+    thumbnailUrl: '/images/product-detail/pdp-lifestyle-hero.png',
     sortOrder: 0,
   },
 ];
@@ -88,7 +89,7 @@ const DEMO_VARIANTS: ProductVariant[] = [
     priceToman: 17_548_000,
     weightGram: 2.8,
     makingFeePercent: 24,
-    imageUrl: '/images/home/new-arrival-lifestyle.png',
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
     quantity: 3,
     isDefault: true,
   },
@@ -100,7 +101,7 @@ const DEMO_VARIANTS: ProductVariant[] = [
     priceToman: 17_548_000,
     weightGram: 2.8,
     makingFeePercent: 24,
-    imageUrl: '/images/home/new-arrival-lifestyle.png',
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
     quantity: 2,
     isDefault: false,
   },
@@ -112,7 +113,7 @@ const DEMO_VARIANTS: ProductVariant[] = [
     priceToman: 17_800_000,
     weightGram: 2.8,
     makingFeePercent: 24,
-    imageUrl: '/images/home/new-arrival-lifestyle.png',
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
     quantity: 1,
     isDefault: false,
   },
@@ -184,9 +185,10 @@ export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
   discountPercent: null,
   discountStartsAt: null,
   discountEndsAt: null,
-  imageUrl: '/images/home/new-arrival-lifestyle.png',
-  hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-  heroImageUrl: '/images/products/pdp-hero.png',
+  imageUrl: '/images/product-detail/pdp-ring-cutout.png',
+  hoverImageUrl: '/images/product-detail/pdp-ring-cutout.png',
+  heroImageUrl: '/images/product-detail/pdp-lifestyle-hero.png',
+  cardImageUrl: '/images/product-detail/pdp-ring-cutout.png',
   inventory: 3,
   featured: true,
   description:
@@ -195,13 +197,13 @@ export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
   specifications: {},
   variants: DEMO_VARIANTS,
   gallery: [
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
   ],
-  ringSizes: [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+  ringSizes: [48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66],
   goldColors: ['طلایی', 'رزگلد', 'سفید'],
   stoneSwatches: DEMO_STONE_SWATCHES,
   specRows: DEMO_SPEC_ROWS,
@@ -311,7 +313,7 @@ export function resolveProductDetailDemo(slug: string): ProductDetailDemo | null
   return null;
 }
 
-const DEFAULT_RING_SIZES = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63];
+const DEFAULT_RING_SIZES = [48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66];
 const DEFAULT_NECKLACE_SIZES = [40, 42, 45, 48, 50, 55];
 const DEFAULT_BRACELET_SIZES = [16, 17, 18, 19, 20, 21];
 
@@ -391,6 +393,7 @@ export interface ProductDetailMobileProps {
   product: ProductDetails;
   gallery?: string[];
   heroImageUrl?: string;
+  cardImageUrl?: string;
   displayPriceToman?: number;
   ringSizes?: number[];
   necklaceSizes?: number[];
@@ -456,6 +459,7 @@ export function enrichProductDetailProps(
     product,
     gallery,
     heroImageUrl: demo.heroImageUrl,
+    cardImageUrl: demo.cardImageUrl,
     displayPriceToman: demo.displayPriceToman,
     ringSizes: demo.ringSizes,
     necklaceSizes: demo.necklaceSizes,
