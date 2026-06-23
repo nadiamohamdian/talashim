@@ -7007,7 +7007,7 @@ body:has(.product-detail-page) main.container-store {
 
 .product-details-section-size {
   padding-top: clamp(24px, 7.7cqw, 32px);
-  overflow-x: visible;
+  overflow-x: clip;
 }
 
 .product-details-section-size .product-details-section-head {
@@ -7061,11 +7061,11 @@ body:has(.product-detail-page) main.container-store {
   min-height: var(--ruler-h, 41px);
   margin-inline: calc(-1 * var(--pd-px));
   padding-inline: 0;
-  overflow: visible;
+  overflow-x: clip;
 }
 
 .product-details-ruler {
-  --ruler-slot: clamp(26px, 7.69cqw, 30px);
+  --ruler-slot: clamp(28px, calc(100cqw / 8.5), 44px);
   --ruler-label-offset: 6px;
   --ruler-label-h: 15px;
   --ruler-gap: 3px;
@@ -7102,6 +7102,7 @@ body:has(.product-detail-page) main.container-store {
 
 .product-details-ruler-track {
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   height: var(--ruler-h);
   box-sizing: border-box;
@@ -7139,6 +7140,7 @@ body:has(.product-detail-page) main.container-store {
   position: relative;
   height: var(--ruler-h);
   flex-shrink: 0;
+  min-width: max-content;
 }
 
 .product-details-ruler-ticks {
@@ -7255,7 +7257,8 @@ body:has(.product-detail-page) main.container-store {
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-top: 76px;
+  margin-top: clamp(28px, 8cqw, 48px);
+  padding-top: 0;
 }
 
 .product-details-gold-stone-row .product-details-section-gold,
@@ -7342,9 +7345,11 @@ body:has(.product-detail-page) main.container-store {
 }
 
 .product-details-specs-section .product-details-section-head {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
@@ -7366,6 +7371,11 @@ body:has(.product-detail-page) main.container-store {
 
 .product-details-price-tooltip-wrap {
   position: relative;
+  align-self: flex-end;
+}
+
+.product-details-price-tooltip-wrap .product-details-link {
+  text-align: left;
 }
 
 .product-details-price-tooltip {
@@ -7404,14 +7414,16 @@ body:has(.product-detail-page) main.container-store {
 }
 
 .product-details-spec-row {
-  height: 40px;
+  height: auto;
 }
 
 .product-details-spec-label,
 .product-details-spec-value {
   box-sizing: border-box;
-  height: 40px;
-  padding: 0 12px;
+  min-width: 0;
+  height: auto;
+  min-height: 40px;
+  padding: 10px 12px;
   border: 0;
   border-radius: 0;
   background: #faf9f8;
@@ -7421,22 +7433,25 @@ body:has(.product-detail-page) main.container-store {
   letter-spacing: 0;
   color: #6d5945;
   vertical-align: middle;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .product-details-spec-label {
-  width: 90px;
+  width: 40%;
   font-family: var(--pd-font);
   font-weight: 300;
   text-align: right;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .product-details-spec-value {
-  width: auto;
+  width: 60%;
   font-family: 'IRANSansXFaNum', var(--font-sans);
   font-weight: 200;
   line-height: 18px;
   text-align: right;
+  overflow-wrap: anywhere;
 }
 
 /* Featured review — Figma Group 167 / node 3552:2512 (390×317) */
@@ -8070,11 +8085,101 @@ body:has(.product-detail-page) main.container-store {
   }
 }
 
+/* Product detail — size ruler mobile / tablet (desktop proportions, scaled) */
+@media (max-width: 1023.98px) {
+  .product-detail-page .product-details-section-size {
+    --ruler-slot: clamp(52px, calc(100cqw / 6), 79px);
+    --ruler-compact-scale: 0.92;
+    --ruler-label-offset: 0;
+    --ruler-label-h: calc(var(--ruler-slot) * 29 / 79 * var(--ruler-compact-scale));
+    --ruler-gap: calc(var(--ruler-slot) * 8 / 79 * var(--ruler-compact-scale));
+    --ruler-tick-top: calc(var(--ruler-label-offset) + var(--ruler-label-h) + var(--ruler-gap));
+    --ruler-track-pad: calc(var(--ruler-slot) * 12 / 79 * var(--ruler-compact-scale));
+    --ruler-major-h: calc(var(--ruler-slot) * 58 / 79 * var(--ruler-compact-scale));
+    --ruler-medium-h: calc(var(--ruler-slot) * 30 / 79 * var(--ruler-compact-scale));
+    --ruler-small-h: calc(var(--ruler-slot) * 18 / 79 * var(--ruler-compact-scale));
+    --ruler-active-major-h: calc(var(--ruler-slot) * 84 / 79 * var(--ruler-compact-scale));
+    --ruler-active-major-lift: calc(var(--ruler-slot) * 26 / 79 * var(--ruler-compact-scale));
+    --ruler-h: calc(
+      var(--ruler-track-pad) + var(--ruler-tick-top) - var(--ruler-active-major-lift) +
+        var(--ruler-active-major-h)
+    );
+    overflow-x: clip;
+  }
+
+  .product-detail-page .product-details-section-size .product-details-ruler-wrap {
+    width: calc(100% + 2 * var(--pd-px));
+    margin-inline: calc(-1 * var(--pd-px));
+    overflow-x: clip;
+    min-height: var(--ruler-h);
+  }
+
+  .product-detail-page .product-details-ruler {
+    width: 100%;
+    max-width: 100%;
+    height: var(--ruler-h);
+  }
+
+  .product-detail-page .product-details-ruler-pointer {
+    border-width: calc(var(--ruler-slot) * 10 / 79 * var(--ruler-compact-scale));
+  }
+
+  .product-detail-page .product-details-ruler-track {
+    width: 100%;
+    max-width: 100%;
+    height: var(--ruler-h);
+    padding-top: var(--ruler-track-pad);
+    padding-inline: calc(50% - var(--ruler-slot) / 2);
+    scroll-padding-inline: calc(50% - var(--ruler-slot) / 2);
+  }
+
+  .product-detail-page .product-details-ruler-strip {
+    height: calc(var(--ruler-h) - var(--ruler-track-pad));
+    min-width: max-content;
+  }
+
+  .product-detail-page .product-details-ruler-ticks {
+    inset: 0;
+    height: auto;
+    margin: 0;
+    transform: scaleY(-1);
+  }
+
+  .product-detail-page .product-details-ruler-labels {
+    padding-top: 0;
+    height: calc(var(--ruler-label-offset) + var(--ruler-label-h));
+  }
+
+  .product-detail-page .product-details-ruler-item {
+    margin-top: var(--ruler-label-offset);
+    height: var(--ruler-label-h);
+  }
+
+  .product-detail-page .product-details-ruler-num {
+    font-size: calc(var(--ruler-slot) * 24 / 79 * var(--ruler-compact-scale));
+    font-weight: 200;
+    line-height: calc(var(--ruler-slot) * 29 / 79 * var(--ruler-compact-scale));
+    color: #6d5945;
+  }
+
+  .product-detail-page .product-details-ruler-item.is-active .product-details-ruler-num {
+    margin-top: calc(var(--ruler-slot) * -6 / 79 * var(--ruler-compact-scale));
+    font-weight: 500;
+    color: #cba670;
+  }
+}
+
 /* Narrow phones — container queries on .product-details */
 @container product-details (max-width: 374px) {
   .product-details-section-head {
     flex-wrap: wrap;
     row-gap: 8px;
+  }
+
+  .product-details-specs-section .product-details-section-head {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .product-details-section-size .product-details-section-head {
@@ -8584,8 +8689,26 @@ body:has(.product-detail-page) main.container-store {
     display: none;
   }
 
+  .product-detail-page .product-details-specs-section .product-details-section-head {
+    justify-content: space-between;
+    gap: clamp(12px, 2vw, 24px);
+  }
+
+  .product-detail-page .product-details-specs-section .product-details-price-tooltip-wrap {
+    flex-shrink: 0;
+    max-width: min(100%, 220px);
+  }
+
+  .product-detail-page .product-details-specs-section .product-details-link {
+    white-space: normal;
+    text-align: left;
+  }
+
   .product-detail-page .product-details-specs-table {
+    width: 100%;
+    max-width: 100%;
     border-spacing: 7px;
+    table-layout: fixed;
   }
 
   .product-detail-page .product-details-spec-label,
@@ -8597,14 +8720,16 @@ body:has(.product-detail-page) main.container-store {
   }
 
   .product-detail-page .product-details-spec-label {
-    width: 28%;
+    width: 42%;
     height: auto;
     font-weight: 400;
+    white-space: normal;
   }
 
   .product-detail-page .product-details-spec-value {
-    width: auto;
+    width: 58%;
     font-weight: 300;
+    overflow-wrap: anywhere;
   }
 
   .product-detail-page .product-details-price-tooltip {
@@ -8686,7 +8811,7 @@ body:has(.product-detail-page) main.container-store {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: clamp(20px, 2.5vw, 32px);
     align-items: start;
-    margin-top: clamp(24px, 4cqw, 50px);
+    margin-top: 100px;
     direction: rtl;
   }
 
@@ -9011,22 +9136,115 @@ body:has(.jewelry-size-guide-page) main.container-store {
   text-align: center;
 }
 
-/* Ring diagram — Figma Group 317 */
+/* Ring diagram — Figma Group 317 (mobile) + Group 614 (desktop) */
 .jewelry-size-guide-diagram-slot {
   margin-top: 56px;
 }
 
+.jewelry-size-guide-ring-diagram--desktop {
+  display: none;
+}
+
+.jewelry-size-guide-ring-diagram--mobile {
+  display: block;
+}
+
 .jewelry-size-guide-ring-diagram {
-  width: clamp(145px, 22vw + 72px, 320px);
-  max-width: 100%;
+  width: min(100%, 789px);
   margin-inline: auto;
 }
 
-.jewelry-size-guide-ring-diagram-image {
+/* Mobile — Figma node 3552:4207 Group 317 */
+.jewelry-size-guide-ring-diagram-mobile {
+  position: relative;
+  width: 145px;
+  height: 247px;
+  margin-inline: auto;
+  direction: ltr;
+}
+
+.jewelry-size-guide-ring-diagram-mobile-circles {
+  position: relative;
+  width: 145px;
+  height: 145px;
+}
+
+.jewelry-size-guide-ring-diagram-mobile-circle {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid #000000;
+  border-radius: 50%;
+}
+
+.jewelry-size-guide-ring-diagram-mobile-markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.jewelry-size-guide-ring-diagram-mobile-marker {
+  position: absolute;
+  inset: 0;
+}
+
+.jewelry-size-guide-ring-diagram-mobile-line {
+  position: absolute;
+  top: var(--marker-top);
+  left: var(--marker-left);
   display: block;
+  width: 1px;
+  height: var(--marker-line-h);
+  background: var(--jsg-gold);
+  transform: translateX(-50%);
+}
+
+.jewelry-size-guide-ring-diagram-mobile-label {
+  position: absolute;
+  top: var(--label-top);
+  left: var(--marker-left);
+  margin: 0;
+  font-family: var(--jsg-font);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 19px;
+  color: var(--jsg-gold);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.jewelry-size-guide-ring-diagram-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  direction: ltr;
+}
+
+.jewelry-size-guide-ring-diagram-item {
+  display: flex;
+  flex: 0 0 var(--ring-item-width);
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2.5vw, 18px);
+  min-width: 0;
+}
+
+.jewelry-size-guide-ring-diagram-circle {
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  border: 1px solid #000000;
+  border-radius: 50%;
+}
+
+.jewelry-size-guide-ring-diagram-label {
+  font-family: var(--jsg-font);
+  font-size: clamp(14px, 2.8vw, 20px);
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--jsg-gold);
+  white-space: nowrap;
 }
 
 .jewelry-size-guide-info-block {
@@ -9067,13 +9285,107 @@ body:has(.jewelry-size-guide-page) main.container-store {
   text-align: right;
 }
 
-.jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap,
+.jewelry-size-guide-table-wrap--desktop {
+  display: none;
+}
+
 .jewelry-size-guide-page--bracelet .jewelry-size-guide-table-wrap {
   margin-top: 24px;
 }
 
-.jewelry-size-guide-page--ring .jewelry-size-guide-table-wrap {
+.jewelry-size-guide-page--necklace .jewelry-size-guide-info-block {
+  margin-top: 56px;
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-info-subtitle {
+  font-weight: 400;
+  color: var(--jsg-gold-dark);
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-info-body {
+  margin-top: 18px;
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap {
   margin-top: 24px;
+  min-height: 295px;
+  padding: 32px 12px 24px;
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-section-title {
+  margin-bottom: 39px;
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-footnote {
+  display: none;
+}
+
+.jewelry-size-guide-page--necklace .jewelry-size-guide-return-btn {
+  margin-top: 56px;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-inner {
+  padding-bottom: 200px;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-table-wrap {
+  margin-top: 18px;
+  min-height: 219px;
+  padding: 32px 12px 20px;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-table thead th,
+.jewelry-size-guide-page--ring .jewelry-size-guide-table tbody td {
+  text-align: center;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-table thead th:last-child,
+.jewelry-size-guide-page--ring .jewelry-size-guide-table tbody td:last-child {
+  padding-left: 0;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-chart-heading {
+  margin-top: 56px;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 10px;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 0;
+  height: 195px;
+  margin-top: 56px;
+  text-align: right;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-section-title {
+  margin-bottom: 0;
+  padding-bottom: 70px;
+  color: var(--jsg-text);
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: calc(100% - 36px);
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-tips li + li {
+  margin-top: 22px;
+}
+
+.jewelry-size-guide-page--ring .jewelry-size-guide-return-btn {
+  margin-top: 49px;
 }
 
 .jewelry-size-guide-table-wrap {
@@ -9081,10 +9393,6 @@ body:has(.jewelry-size-guide-page) main.container-store {
   width: 100%;
   padding: 32px 12px 20px;
   background: var(--jsg-cell-bg);
-}
-
-.jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap {
-  padding-bottom: 24px;
 }
 
 .jewelry-size-guide-table {
@@ -9204,6 +9512,22 @@ body:has(.jewelry-size-guide-page) main.container-store {
 
 .jewelry-size-guide-return-btn:hover {
   background: #5c4b3a;
+}
+
+.jewelry-size-guide-panels {
+  display: contents;
+}
+
+.jewelry-size-guide-aside {
+  display: contents;
+}
+
+.jewelry-size-guide-lead--desktop {
+  display: none;
+}
+
+.jewelry-size-guide-footnote {
+  display: none;
 }
 
 /* Product listing — Figma node 1752:6679 */
@@ -15342,6 +15666,32 @@ body:has(.categories-page) main.container-store {
   .checkout-payment-option {
     padding: clamp(16px, 1.8vw, 20px);
   }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-inner {
+    max-width: min(100%, 960px);
+    padding-inline: clamp(24px, 4vw, 40px);
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-title {
+    font-size: clamp(22px, 3.2vw, 28px);
+    line-height: 1.45;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-lead--mobile {
+    display: none;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-lead--desktop {
+    display: block;
+    max-width: min(100%, 960px);
+    margin-top: clamp(28px, 4vw, 40px);
+    font-size: clamp(15px, 1.8vw, 17px);
+    line-height: 1.55;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-diagram-slot {
+    margin-top: clamp(40px, 5vw, 56px);
+  }
 }
 
 @media (min-width: 1024px) {
@@ -15539,8 +15889,316 @@ body:has(.categories-page) main.container-store {
     padding-top: clamp(48px, 5vw, 64px);
   }
 
-  .jewelry-size-guide-page--ring .jewelry-size-guide-ring-diagram {
-    width: clamp(240px, 28vw, 380px);
+  /* Ring size guide desktop — Figma node 3626:2863 */
+  .jewelry-size-guide-page--ring .jewelry-size-guide-inner {
+    max-width: min(1332px, 100%);
+    padding: 96px clamp(24px, 4vw, 56px) 259px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-hero {
+    margin-top: 0;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-title {
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 50px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-lead--mobile {
+    display: none;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-lead--desktop {
+    display: block;
+    max-width: 1332px;
+    margin-top: 54px;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-diagram-slot {
+    margin-top: 64px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-ring-diagram--mobile {
+    display: none;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-ring-diagram--desktop {
+    display: block;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-ring-diagram-label {
+    font-size: 20px;
+    line-height: 31px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-panels {
+    display: grid;
+    grid-template-columns: minmax(0, 576px) minmax(0, 654px);
+    justify-content: space-between;
+    gap: clamp(24px, 4vw, 48px);
+    margin-top: 122px;
+    margin-bottom: 70px;
+    align-items: start;
+    direction: rtl;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-aside {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100%;
+    padding-top: 10px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-chart-heading {
+    display: none;
+    margin-top: 0;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-table-wrap {
+    margin-top: 0;
+    min-height: 404px;
+    padding: 45px 20px 32px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 0;
+    margin-top: 0;
+    text-align: right;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-tips {
+    width: 100%;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-section-title {
+    margin-bottom: 0;
+    padding-bottom: 70px;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 37px;
+    color: var(--jsg-gold-dark);
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-tips li {
+    padding-right: 22px;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-tips li::before {
+    top: 8px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-tips li + li {
+    margin-top: 38px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-table thead th {
+    padding-bottom: 18px;
+    font-size: 20px;
+    line-height: 31px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-table thead th:first-child,
+  .jewelry-size-guide-page--ring .jewelry-size-guide-table tbody td:first-child {
+    text-align: right;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-table thead th:last-child {
+    text-align: center;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-table tbody td {
+    height: auto;
+    padding: 16px 0;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-table tbody td:last-child {
+    text-align: center;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-footnote {
+    display: block;
+    margin: 58px 0 0;
+    font-family: var(--jsg-font);
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 28px;
+    color: var(--jsg-text);
+    text-align: right;
+  }
+
+  .jewelry-size-guide-page--ring .jewelry-size-guide-return-btn {
+    width: 100%;
+    height: 72px;
+    margin-top: 150px;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 31px;
+  }
+
+  /* Necklace size guide desktop — Figma node 3619:3532 */
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-inner {
+    max-width: min(1332px, 100%);
+    padding: 96px clamp(24px, 4vw, 56px) 80px;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-hero {
+    margin-top: 0;
+    text-align: center;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-title {
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 50px;
+    color: var(--jsg-gold-dark);
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-lead--mobile {
+    display: none;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-lead--desktop {
+    display: block;
+    max-width: 1332px;
+    margin: 54px auto 0;
+    font-size: 18px;
+    line-height: 28px;
+    text-align: center;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-info-block {
+    display: none;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-panels {
+    display: grid;
+    grid-template-columns: minmax(0, 576px) minmax(0, 654px);
+    justify-content: space-between;
+    gap: clamp(24px, 4vw, 48px);
+    margin-top: 159px;
+    align-items: stretch;
+    direction: ltr;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-aside {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    direction: rtl;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table-section {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    direction: rtl;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap--mobile {
+    display: none;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap--desktop {
+    display: block;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table-wrap {
+    margin-top: 0;
+    min-height: 582px;
+    padding: 41px 20px 32px;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-section {
+    margin-top: 0;
+    flex: 1;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-section-title {
+    margin-bottom: 58px;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 37px;
+    color: var(--jsg-gold-dark);
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-tips li {
+    padding-right: 22px;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-tips li::before {
+    top: 8px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-tips li + li {
+    margin-top: 38px;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table thead th {
+    padding-bottom: 18px;
+    font-size: 20px;
+    line-height: 31px;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table thead th:first-child {
+    text-align: right;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table thead th:last-child {
+    text-align: center;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table tbody td {
+    height: auto;
+    padding: 16px 0;
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table tbody td:first-child {
+    text-align: right;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-table tbody td:last-child {
+    text-align: center;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-footnote {
+    display: block;
+    margin: 54px 0 0;
+    font-size: 18px;
+    font-weight: 300;
+    line-height: 28px;
+    text-align: justify;
+  }
+
+  .jewelry-size-guide-page--necklace .jewelry-size-guide-return-btn {
+    width: 100%;
+    height: 72px;
+    margin-top: auto;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 31px;
   }
 
   .product-listing-grid {

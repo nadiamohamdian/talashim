@@ -307,7 +307,7 @@ export const JEWELRY_SET_DEMO: ProductDetailDemo = {
     JEWELRY_SET_IMAGE,
   ],
   ringSizes: [50, 51, 52, 53, 54, 55, 56, 57, 58],
-  necklaceSizes: [40, 42, 45, 48, 50, 55],
+  necklaceSizes: [40, 45, 50, 55, 60, 65, 70, 80],
   braceletSizes: [16, 17, 18, 19, 20, 21],
   goldColors: ['طلایی', 'رزگلد', 'سفید'],
   stoneSwatches: DEMO_STONE_SWATCHES,
@@ -343,7 +343,7 @@ export function resolveProductDetailDemo(slug: string): ProductDetailDemo | null
 }
 
 const DEFAULT_RING_SIZES = [48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66];
-const DEFAULT_NECKLACE_SIZES = [40, 42, 45, 48, 50, 55];
+const DEFAULT_NECKLACE_SIZES = [40, 45, 50, 55, 60, 65, 70, 80];
 const DEFAULT_BRACELET_SIZES = [16, 17, 18, 19, 20, 21];
 
 function buildSetSpecRows(setPartsLabel: string): ProductSpecRow[] {
@@ -370,6 +370,7 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
   const isRingProduct =
     resolveProductJewelrySizeKind(source.category) === 'ring' ||
     resolveProductJewelrySizeKind(source.category) === 'wedding_ring';
+  const isNecklaceProduct = resolveProductJewelrySizeKind(source.category) === 'necklace';
   const template = isSet ? JEWELRY_SET_DEMO : PRODUCT_DETAIL_DEMO;
   const description = catalog?.description
     ? `<p>${catalog.description}</p>`
@@ -401,7 +402,10 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     gallery: template.gallery.map((image, index) => (index === 0 ? source.imageUrl : image)),
     ringSizes:
       (isSet || isRingProduct) && sizeKinds.includes('ring') ? DEFAULT_RING_SIZES : undefined,
-    necklaceSizes: isSet && sizeKinds.includes('necklace') ? DEFAULT_NECKLACE_SIZES : undefined,
+    necklaceSizes:
+      (isSet || isNecklaceProduct) && sizeKinds.includes('necklace')
+        ? DEFAULT_NECKLACE_SIZES
+        : undefined,
     braceletSizes: isSet && sizeKinds.includes('bracelet') ? DEFAULT_BRACELET_SIZES : undefined,
     specRows:
       isSet && catalog?.setPartsLabel
@@ -465,6 +469,7 @@ export function enrichProductDetailProps(
     const isRingProduct =
       resolveProductJewelrySizeKind(product.category) === 'ring' ||
       resolveProductJewelrySizeKind(product.category) === 'wedding_ring';
+    const isNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
     const pdpSections = resolvePdpSections(product);
     const hasPdpConfig = Boolean(product.pdpConfig);
 
@@ -481,7 +486,7 @@ export function enrichProductDetailProps(
           ? pdpSections.ringSizes
           : undefined,
       necklaceSizes:
-        showSizes && isSet && sizeKinds.includes('necklace')
+        showSizes && (isSet || isNecklaceProduct) && sizeKinds.includes('necklace')
           ? pdpSections.necklaceSizes
           : undefined,
       braceletSizes:
@@ -515,6 +520,7 @@ export function enrichProductDetailProps(
   const demoIsRingProduct =
     resolveProductJewelrySizeKind(product.category) === 'ring' ||
     resolveProductJewelrySizeKind(product.category) === 'wedding_ring';
+  const demoIsNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
 
   return {
     product,
@@ -527,7 +533,7 @@ export function enrichProductDetailProps(
         ? demo.ringSizes
         : undefined,
     necklaceSizes:
-      demoShowSizes && demoIsSet && demoSizeKinds.includes('necklace')
+      demoShowSizes && (demoIsSet || demoIsNecklaceProduct) && demoSizeKinds.includes('necklace')
         ? demo.necklaceSizes
         : undefined,
     braceletSizes:

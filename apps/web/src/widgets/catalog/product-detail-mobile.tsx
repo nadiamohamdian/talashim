@@ -30,7 +30,7 @@ import {
 export type { ProductDetailMobileProps };
 
 const DEFAULT_RING_SIZES = [48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66];
-const DEFAULT_NECKLACE_SIZES = [40, 42, 45, 48, 50, 55];
+const DEFAULT_NECKLACE_SIZES = [40, 45, 50, 55, 60, 65, 70, 80];
 const DEFAULT_BRACELET_SIZES = [16, 17, 18, 19, 20, 21];
 
 function pickDefaultSize(sizes: number[], preferred: number): number {

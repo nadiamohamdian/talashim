@@ -292,7 +292,12 @@ export function ProductSizeRulerSection({
           >
             <div
               className="product-details-ruler-strip"
-              style={{ width: `calc(${Math.max(sizes.length, 1)} * var(--ruler-slot))` }}
+              style={
+                {
+                  '--ruler-size-count': Math.max(sizes.length, 1),
+                  width: 'calc(var(--ruler-size-count) * var(--ruler-slot))',
+                } as React.CSSProperties
+              }
             >
               <div className="product-details-ruler-ticks" aria-hidden>
                 {rulerTicks.map((tick) => (

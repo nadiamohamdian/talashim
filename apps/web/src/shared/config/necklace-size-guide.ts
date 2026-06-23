@@ -3,8 +3,20 @@ export interface NecklaceSizeChartRow {
   placement: string;
 }
 
-/** Figma node 1752:7163 */
+/** Figma node 3552:4262 — mobile size chart */
 export const NECKLACE_SIZE_CHART_ROWS: NecklaceSizeChartRow[] = [
+  { lengthLabel: '49 میلی‌متر', placement: 'کاملاً چسبیده به گردن' },
+  { lengthLabel: '51 میلی‌متر', placement: 'روی خط گردن می‌نشیند' },
+  { lengthLabel: '54 میلی‌متر', placement: 'روی استخوان ترقوه' },
+  { lengthLabel: '56 میلی‌متر', placement: 'کمی پایین‌تر از ترقوه (استاندارد)' },
+  { lengthLabel: '58 میلی‌متر', placement: 'روی بالای سینه' },
+  { lengthLabel: '54 میلی‌متر', placement: 'وسط سینه' },
+  { lengthLabel: '56 میلی‌متر', placement: 'زیر سینه (استایل لایه‌ای)' },
+  { lengthLabel: '58 میلی‌متر', placement: 'برای استایل‌های چندلایه یا آویزدار' },
+];
+
+/** Figma node 3619:3532 — desktop size chart (same lengths as mobile, larger typography via CSS) */
+export const NECKLACE_SIZE_CHART_ROWS_DESKTOP: NecklaceSizeChartRow[] = [
   { lengthLabel: '49 میلی‌متر', placement: 'کاملاً چسبیده به گردن' },
   { lengthLabel: '51 میلی‌متر', placement: 'روی خط گردن می‌نشیند' },
   { lengthLabel: '54 میلی‌متر', placement: 'روی استخوان ترقوه' },
@@ -19,6 +31,13 @@ export const NECKLACE_SIZE_GUIDE_INFO = {
   subtitle: 'راهنمای طول و نحوه قرارگیری گردنبند',
   body: 'این سایزبندی بر اساس گردن استاندارد (دور گردن حدود ۳۳ تا ۳۶ سانتی‌متر) طراحی شده است.',
 };
+
+/** Figma node 3619:3532 — desktop hero copy */
+export const NECKLACE_SIZE_GUIDE_LEAD_DESKTOP =
+  'اگر درباره انتخاب طول مناسب مطمئن نیستید، یک نخ یا متر را دور گردن خود قرار دهید و آن را تا محل دلخواه قرارگیری گردنبند تنظیم کنید. سپس طول به‌دست‌آمده را اندازه بگیرید و با گزینه‌های موجود در راهنمای سایزبندی مقایسه کنید تا انتخابی متناسب با استایل و سلیقه خود داشته باشید.';
+
+export const NECKLACE_SIZE_GUIDE_FOOTNOTE =
+  'سایزبندی بر اساس گردن استاندارد (دور گردن ۳۳ تا ۳۶ سانتی‌متر) طراحی شده است.';
 
 export const NECKLACE_SIZE_GUIDE_TIPS: string[] = [
   'طول گردنبندها ممکن است روی بدن افراد مختلف کمی متفاوت دیده شود (بسته به فرم گردن و شانه).',

@@ -189,14 +189,19 @@ export function resolveProductJewelrySizeKind(
   }
 }
 
-/** Whether the PDP size ruler should appear (rings and jewelry sets only). */
+/** Whether the PDP size ruler should appear (rings, necklaces, bracelets, and jewelry sets). */
 export function shouldShowProductSizeRulers(product: ProductJewelrySizeSource): boolean {
   if (isJewelrySetOrHalfSetProduct(product)) {
     return true;
   }
 
   const kind = resolveProductJewelrySizeKind(product.category);
-  return kind === 'ring' || kind === 'wedding_ring';
+  return (
+    kind === 'ring' ||
+    kind === 'wedding_ring' ||
+    kind === 'necklace' ||
+    kind === 'bracelet'
+  );
 }
 
 /** Returns all jewelry size selectors needed for a product (multi-select for sets). */
