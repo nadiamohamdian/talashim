@@ -311,7 +311,7 @@ export function ProductSizeRulerSection({
               </div>
 
               <div className="product-details-ruler-labels">
-                {sizes.map((size) => (
+                {sizes.map((size, index) => (
                   <button
                     key={size}
                     ref={(element) => {
@@ -330,6 +330,7 @@ export function ProductSizeRulerSection({
                         ? 'product-details-ruler-item is-active'
                         : 'product-details-ruler-item'
                     }
+                    style={{ left: `calc((${index} + 0.5) * var(--ruler-slot))` }}
                     onClick={() => handleItemClick(size)}
                   >
                     <span className="product-details-ruler-num">{size}</span>

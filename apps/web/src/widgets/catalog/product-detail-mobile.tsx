@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { ProductVariant } from '@sadafgold/types';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
@@ -14,6 +14,7 @@ import {
 import { ProductReviewWizard } from '@/features/catalog/components/product-review-wizard';
 import { ProductVideoModal } from '@/features/catalog/components/product-video-modal';
 import { ProductReviewsShowcase } from '@/widgets/catalog/product-reviews-showcase';
+import { ProductDetailScrollArrow } from '@/widgets/catalog/product-detail-scroll-arrow';
 import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide';
 import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
 import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
@@ -42,7 +43,7 @@ function pickDefaultSize(sizes: number[], preferred: number): number {
   return sizes[Math.floor(sizes.length / 2)] ?? sizes[0] ?? preferred;
 }
 
-const RELATED_PRODUCTS_DESKTOP_LIMIT = 4;
+const RELATED_PRODUCTS_DESKTOP_LIMIT = 7;
 
 const PRICE_TOOLTIP_TEXT =
   'وزن طلا × (قیمت روز طلا + اجرت) + ۷٪ سود + متعلقات + ۱۰٪ مالیات از سود و اجرت';
@@ -64,6 +65,7 @@ export function ProductDetailMobile({
   videos = [],
   reviews = [],
 }: ProductDetailMobileProps) {
+  const relatedTrackRef = useRef<HTMLDivElement | null>(null);
   const images = gallery?.length ? gallery : [heroImageUrl ?? product.imageUrl];
   const heroBackgroundSrc = heroImageUrl ?? images[0] ?? product.imageUrl;
   const [activeProductSlide, setActiveProductSlide] = useState(0);
@@ -217,6 +219,19 @@ export function ProductDetailMobile({
 
   const goToNextImage = () => {
     setActiveProductSlide((index) => (index + 1) % productSlideImages.length);
+  };
+
+  const scrollRelatedProducts = (direction: 'prev' | 'next') => {
+    const track = relatedTrackRef.current;
+    if (!track) {
+      return;
+    }
+
+    const delta = Math.max(track.clientWidth * 0.82, 260);
+    track.scrollBy({
+      left: direction === 'prev' ? -delta : delta,
+      behavior: 'smooth',
+    });
   };
 
   const specs = useMemo(() => {
@@ -508,12 +523,27 @@ export function ProductDetailMobile({
                 محصولات مشابه
               </h2>
             </div>
-            <Link href="/products" className="product-details-related-view-all">
-              نمایش همه
-            </Link>
+            <div className="product-details-related-controls" aria-label="ناوبری محصولات مشابه">
+              <button
+                type="button"
+                className="product-details-related-scroll-btn"
+                onClick={() => scrollRelatedProducts('prev')}
+                aria-label="اسکرول به محصول قبلی"
+              >
+                <ProductDetailScrollArrow direction="prev" />
+              </button>
+              <button
+                type="button"
+                className="product-details-related-scroll-btn"
+                onClick={() => scrollRelatedProducts('next')}
+                aria-label="اسکرول به محصول بعدی"
+              >
+                <ProductDetailScrollArrow direction="next" />
+              </button>
+            </div>
           </div>
 
-          <div className="product-details-related-track" role="list">
+          <div ref={relatedTrackRef} className="product-details-related-track" role="list">
             {relatedItems.map((item) => (
               <article key={item.id} className="product-details-related-card" role="listitem">
                 <Link href={item.href ?? '/products'} className="product-details-related-link">
