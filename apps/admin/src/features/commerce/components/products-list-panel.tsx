@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '@sadafgold/ui';
-import { fetchAdminProducts, deleteAdminProduct } from '../api/commerce-api';
+import { fetchAdminProducts, deleteAdminProduct, syncCatalogDemoProducts } from '../api/commerce-api';
 import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
@@ -33,7 +33,7 @@ export function ProductsListPanel() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [lowStock, setLowStock] = useState(false);
-  const [demoOnly, setDemoOnly] = useState(false);
+  const [demoOnly, setDemoOnly] = useState(true);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: adminQueryKeys.commerce.products(page, search, category, lowStock, demoOnly),
@@ -52,13 +52,29 @@ export function ProductsListPanel() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'commerce'] }),
   });
 
+  const syncDemoMutation = useMutation({
+    mutationFn: syncCatalogDemoProducts,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'commerce'] }),
+  });
+
   return (
     <CatalogPageShell
       routeId="products.list"
       actions={
-        <Link href="/products/new">
-          <Button className="h-10 px-4">محصول جدید</Button>
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 px-4"
+            disabled={syncDemoMutation.isPending}
+            onClick={() => syncDemoMutation.mutate()}
+          >
+            {syncDemoMutation.isPending ? 'در حال همگام‌سازی…' : 'همگام‌سازی محصولات تستی'}
+          </Button>
+          <Link href="/products/new">
+            <Button className="h-10 px-4">محصول جدید</Button>
+          </Link>
+        </div>
       }
     >
       <AdminSubnavLinks
@@ -150,8 +166,19 @@ export function ProductsListPanel() {
             <TableBody>
               {data?.items.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-muted">
-                    محصولی یافت نشد.
+                  <TableCell colSpan={7} className="space-y-3 py-8 text-center text-muted">
+                    <p>محصول تستی یافت نشد.</p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-9"
+                      disabled={syncDemoMutation.isPending}
+                      onClick={() => syncDemoMutation.mutate()}
+                    >
+                      {syncDemoMutation.isPending
+                        ? 'در حال همگام‌سازی…'
+                        : 'بارگذاری محصولات تستی فروشگاه'}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ) : (

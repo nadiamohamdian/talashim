@@ -333,7 +333,9 @@ export function ProductSizeRulerSection({
                     style={{ left: `calc((${index} + 0.5) * var(--ruler-slot))` }}
                     onClick={() => handleItemClick(size)}
                   >
-                    <span className="product-details-ruler-num">{size}</span>
+                    <span className="product-details-ruler-num" dir="ltr" lang="en">
+                      {size}
+                    </span>
                   </button>
                 ))}
               </div>

@@ -48,6 +48,12 @@ export function deleteAdminProduct(id: string) {
   return axiosClient.delete(`/admin/products/${id}`).then((r) => r.data);
 }
 
+export function syncCatalogDemoProducts() {
+  return axiosClient
+    .post<{ synced: number; slugs: string[] }>('/admin/products/sync-demo-catalog')
+    .then((r) => r.data);
+}
+
 export function fetchProductVideos(params?: {
   page?: number;
   search?: string;

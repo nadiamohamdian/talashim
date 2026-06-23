@@ -233,8 +233,8 @@ export function ProductReviewsShowcase({
             >
               <svg
                 className="product-details-review-star"
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 12 12"
                 fill="none"
                 aria-hidden

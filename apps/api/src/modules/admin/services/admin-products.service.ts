@@ -28,6 +28,8 @@ import type {
 import { parseProductPdpConfig } from '../lib/product-pdp-config.util';
 import { AdminProductsRepository } from '../repositories/admin-products.repository';
 import { revalidateStorefrontProducts } from '../../../infrastructure/storefront/storefront-cache.util';
+import { PrismaService } from '@/infrastructure/database/prisma.service';
+import { syncCatalogDemoProducts } from '@/modules/catalog/lib/sync-catalog-demo-products';
 
 type ProductRow = NonNullable<
   Awaited<ReturnType<AdminProductsRepository['findProductById']>>
@@ -42,6 +44,7 @@ export class AdminProductsService {
   constructor(
     private readonly productsRepository: AdminProductsRepository,
     private readonly pricingEngine: PricingEngineService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async listProducts(query: AdminProductsQueryDto, actor: AuthenticatedUser) {
@@ -65,6 +68,15 @@ export class AdminProductsService {
       total,
       items: items.map((p) => this.mapProduct(p)),
     };
+  }
+
+  async syncCatalogDemoProducts(actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.write);
+
+    const result = await syncCatalogDemoProducts(this.prisma);
+    await revalidateStorefrontProducts(...result.slugs);
+
+    return result;
   }
 
   async getProductBySlug(slug: string, actor: AuthenticatedUser): Promise<AdminProductDetailDto> {

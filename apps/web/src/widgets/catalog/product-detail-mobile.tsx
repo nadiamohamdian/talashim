@@ -294,39 +294,39 @@ export function ProductDetailMobile({
                   {toPersianDigits(displayWeightGram)} گرم (طلای {toPersianDigits(product.karat)} عیار)
                 </span>
               </div>
+            </div>
 
-              <hr className="product-details-glass-divider" />
+            <hr className="product-details-glass-divider" />
 
-              <div className="product-details-glass-actions">
-                <button
-                  type="button"
-                  className="product-details-action product-details-action-video"
-                  disabled={!primaryVideo}
-                  aria-disabled={!primaryVideo}
-                  onClick={() => {
-                    if (primaryVideo) {
-                      setVideoModalOpen(true);
-                    }
-                  }}
-                >
-                  <ProductDetailVideoIcon />
-                  <span className="product-details-action-video-label">مشاهده ویدئو محصول</span>
-                </button>
-                <AddToCartButton
-                  productId={product.id}
-                  slug={product.slug}
-                  title={product.title}
-                  priceToman={priceToman}
-                  imageUrl={selectedVariant?.imageUrl ?? product.imageUrl}
-                  weightGram={displayWeightGram}
-                  quantity={1}
-                  disabled={displayInventory <= 0}
-                  variant="product-detail"
-                  className="product-details-action product-details-action-cart"
-                  label="افزودن به سبد خرید"
-                  addedLabel="به سبد اضافه شد"
-                />
-              </div>
+            <div className="product-details-glass-actions">
+              <button
+                type="button"
+                className="product-details-action product-details-action-video"
+                disabled={!primaryVideo}
+                aria-disabled={!primaryVideo}
+                onClick={() => {
+                  if (primaryVideo) {
+                    setVideoModalOpen(true);
+                  }
+                }}
+              >
+                <span className="product-details-action-video-label">مشاهده ویدئو محصول</span>
+                <ProductDetailVideoIcon />
+              </button>
+              <AddToCartButton
+                productId={product.id}
+                slug={product.slug}
+                title={product.title}
+                priceToman={priceToman}
+                imageUrl={selectedVariant?.imageUrl ?? product.imageUrl}
+                weightGram={displayWeightGram}
+                quantity={1}
+                disabled={displayInventory <= 0}
+                variant="product-detail"
+                className="product-details-action product-details-action-cart"
+                label="افزودن به سبد خرید"
+                addedLabel="به سبد اضافه شد"
+              />
             </div>
           </div>
 
@@ -579,6 +579,8 @@ export function ProductDetailMobile({
       <ProductVideoModal
         open={videoModalOpen}
         video={primaryVideo}
+        videos={videos}
+        relatedProducts={relatedItems}
         onClose={() => setVideoModalOpen(false)}
       />
     </article>
