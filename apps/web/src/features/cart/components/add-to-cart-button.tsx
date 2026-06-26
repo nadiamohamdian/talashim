@@ -168,8 +168,8 @@ export function AddToCartButton({
     >
       {isProductDetail ? (
         <>
-          <ProductDetailCartIcon />
           <span className="product-details-action-cart-label">{buttonLabel}</span>
+          <ProductDetailCartIcon />
         </>
       ) : (
         buttonLabel

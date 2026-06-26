@@ -70,6 +70,12 @@ export class AdminProductsController {
     return this.adminProductsService.deleteVideo(videoId, actor);
   }
 
+  @Post('sync-demo-catalog')
+  @ApiOperation({ summary: 'Upsert storefront demo catalog products into the database' })
+  syncDemoCatalog(@CurrentUser() actor: AuthenticatedUser) {
+    return this.adminProductsService.syncCatalogDemoProducts(actor);
+  }
+
   @Get('by-slug/:slug')
   @ApiOperation({ summary: 'Get product by slug' })
   getBySlug(@Param('slug') slug: string, @CurrentUser() actor: AuthenticatedUser) {

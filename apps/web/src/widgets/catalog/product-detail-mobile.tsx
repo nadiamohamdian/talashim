@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { ProductVariant } from '@sadafgold/types';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
@@ -14,6 +14,7 @@ import {
 import { ProductReviewWizard } from '@/features/catalog/components/product-review-wizard';
 import { ProductVideoModal } from '@/features/catalog/components/product-video-modal';
 import { ProductReviewsShowcase } from '@/widgets/catalog/product-reviews-showcase';
+import { ProductDetailScrollArrow } from '@/widgets/catalog/product-detail-scroll-arrow';
 import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide';
 import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
 import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
@@ -28,8 +29,8 @@ import {
 
 export type { ProductDetailMobileProps };
 
-const DEFAULT_RING_SIZES = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63];
-const DEFAULT_NECKLACE_SIZES = [40, 42, 45, 48, 50, 55];
+const DEFAULT_RING_SIZES = [48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66];
+const DEFAULT_NECKLACE_SIZES = [40, 45, 50, 55, 60, 65, 70, 80];
 const DEFAULT_BRACELET_SIZES = [16, 17, 18, 19, 20, 21];
 
 function pickDefaultSize(sizes: number[], preferred: number): number {
@@ -42,7 +43,7 @@ function pickDefaultSize(sizes: number[], preferred: number): number {
   return sizes[Math.floor(sizes.length / 2)] ?? sizes[0] ?? preferred;
 }
 
-const RELATED_PRODUCTS_DESKTOP_LIMIT = 4;
+const RELATED_PRODUCTS_DESKTOP_LIMIT = 7;
 
 const PRICE_TOOLTIP_TEXT =
   'وزن طلا × (قیمت روز طلا + اجرت) + ۷٪ سود + متعلقات + ۱۰٪ مالیات از سود و اجرت';
@@ -51,6 +52,7 @@ export function ProductDetailMobile({
   product,
   gallery,
   heroImageUrl,
+  cardImageUrl,
   displayPriceToman,
   ringSizes,
   necklaceSizes,
@@ -63,8 +65,11 @@ export function ProductDetailMobile({
   videos = [],
   reviews = [],
 }: ProductDetailMobileProps) {
+  const relatedTrackRef = useRef<HTMLDivElement | null>(null);
   const images = gallery?.length ? gallery : [heroImageUrl ?? product.imageUrl];
-  const [activeImage, setActiveImage] = useState(() =>
+  const heroBackgroundSrc = heroImageUrl ?? images[0] ?? product.imageUrl;
+  const [activeProductSlide, setActiveProductSlide] = useState(0);
+  const [activeMobileSlide, setActiveMobileSlide] = useState(() =>
     images.length >= 5 ? 4 : 0,
   );
   const [selectedRingSize, setSelectedRingSize] = useState(57);
@@ -88,6 +93,27 @@ export function ProductDetailMobile({
   }, [videos]);
 
   const variants = product.variants ?? [];
+
+  const productSlideImages = useMemo(() => {
+    const urls = [
+      cardImageUrl,
+      product.imageUrl,
+      ...variants.map((variant) => variant.imageUrl),
+      ...images.filter((url) => url !== heroBackgroundSrc),
+    ].filter((url): url is string => typeof url === 'string' && url.length > 0);
+
+    const unique = [...new Set(urls)];
+    return unique.length > 0 ? unique : [heroBackgroundSrc];
+  }, [cardImageUrl, heroBackgroundSrc, images, product.imageUrl, variants]);
+
+  useEffect(() => {
+    setActiveProductSlide((index) => {
+      if (productSlideImages.length === 0) {
+        return 0;
+      }
+      return Math.min(index, productSlideImages.length - 1);
+    });
+  }, [productSlideImages.length]);
   const showRingSize = Boolean(ringSizes && ringSizes.length > 0);
   const showNecklaceSize = Boolean(necklaceSizes && necklaceSizes.length > 0);
   const showBraceletSize = Boolean(braceletSizes && braceletSizes.length > 0);
@@ -174,11 +200,39 @@ export function ProductDetailMobile({
   const priceToman = displayPriceToman ?? pricedProduct.priceToman;
   const displayWeightGram = pricedProduct.weightGram;
   const displayInventory = selectedVariant ? selectedVariant.quantity : product.inventory;
-  const heroSrc = images[activeImage] ?? heroImageUrl ?? product.imageUrl;
+  const mobileHeroSrc = images[activeMobileSlide % images.length] ?? heroBackgroundSrc;
+  const glassProductSrc =
+    productSlideImages[activeProductSlide % productSlideImages.length] ??
+    cardImageUrl ??
+    product.imageUrl ??
+    heroBackgroundSrc;
   const relatedItems = useMemo(() => {
     const items = relatedProducts.length > 0 ? relatedProducts : DEFAULT_RELATED_PRODUCTS;
     return items.slice(0, RELATED_PRODUCTS_DESKTOP_LIMIT);
   }, [relatedProducts]);
+
+  const goToPrevImage = () => {
+    setActiveProductSlide(
+      (index) => (index - 1 + productSlideImages.length) % productSlideImages.length,
+    );
+  };
+
+  const goToNextImage = () => {
+    setActiveProductSlide((index) => (index + 1) % productSlideImages.length);
+  };
+
+  const scrollRelatedProducts = (direction: 'prev' | 'next') => {
+    const track = relatedTrackRef.current;
+    if (!track) {
+      return;
+    }
+
+    const delta = Math.max(track.clientWidth * 0.82, 260);
+    track.scrollBy({
+      left: direction === 'prev' ? -delta : delta,
+      behavior: 'smooth',
+    });
+  };
 
   const specs = useMemo(() => {
     const rows =
@@ -200,27 +254,46 @@ export function ProductDetailMobile({
   return (
     <article className="product-details">
       <section className="product-details-hero" aria-label="تصاویر محصول">
+        <div className="product-details-hero-stage" aria-hidden>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={heroBackgroundSrc} alt="" className="product-details-hero-lifestyle-blur" />
+          <div className="product-details-hero-focus-zone">
+            <div className="product-details-hero-focus-brackets" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={heroBackgroundSrc} alt="" className="product-details-hero-lifestyle-sharp" />
+          </div>
+        </div>
+
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={heroSrc} alt={product.title} className="product-details-hero-image" />
+        <img src={mobileHeroSrc} alt={product.title} className="product-details-hero-image" />
 
         <div className="product-details-hero-ui">
-          <div className="product-details-hero-focus" aria-hidden />
-
           <div className="product-details-glass">
-            <h1 className="product-details-glass-title">{product.title}</h1>
-
-            <div className="product-details-glass-row">
-              <span className="product-details-glass-row-value">
-                {formatPrice(priceToman)} تومان
-              </span>
-              <span className="product-details-glass-row-label">قیمت</span>
+            <div className="product-details-glass-media" aria-hidden>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={glassProductSrc}
+                alt=""
+                className="product-details-glass-product-image"
+              />
             </div>
 
-            <div className="product-details-glass-row">
-              <span className="product-details-glass-row-value">
-                {toPersianDigits(displayWeightGram)} گرم (طلای {toPersianDigits(product.karat)} عیار)
-              </span>
-              <span className="product-details-glass-row-label">وزن</span>
+            <div className="product-details-glass-content">
+              <h1 className="product-details-glass-title">{product.title}</h1>
+
+              <div className="product-details-glass-row">
+                <span className="product-details-glass-row-label">قیمت</span>
+                <span className="product-details-glass-row-value">
+                  {formatPrice(priceToman)} تومان
+                </span>
+              </div>
+
+              <div className="product-details-glass-row">
+                <span className="product-details-glass-row-label">وزن</span>
+                <span className="product-details-glass-row-value">
+                  {toPersianDigits(displayWeightGram)} گرم (طلای {toPersianDigits(product.karat)} عیار)
+                </span>
+              </div>
             </div>
 
             <hr className="product-details-glass-divider" />
@@ -237,8 +310,8 @@ export function ProductDetailMobile({
                   }
                 }}
               >
-                <ProductDetailVideoIcon />
                 <span className="product-details-action-video-label">مشاهده ویدئو محصول</span>
+                <ProductDetailVideoIcon />
               </button>
               <AddToCartButton
                 productId={product.id}
@@ -257,17 +330,41 @@ export function ProductDetailMobile({
             </div>
           </div>
 
+          <nav className="product-details-hero-nav" aria-label="اسلایدهای محصول">
+            <button
+              type="button"
+              className="product-details-hero-nav-btn"
+              onClick={goToPrevImage}
+              aria-label="اسلاید قبلی"
+            >
+              <span className="product-details-hero-nav-icon product-details-hero-nav-icon--prev" />
+            </button>
+            <span className="product-details-hero-nav-index">
+              {toPersianDigits(
+                String((activeProductSlide % productSlideImages.length) + 1).padStart(2, '0'),
+              )}
+            </span>
+            <button
+              type="button"
+              className="product-details-hero-nav-btn"
+              onClick={goToNextImage}
+              aria-label="اسلاید بعدی"
+            >
+              <span className="product-details-hero-nav-icon product-details-hero-nav-icon--next" />
+            </button>
+          </nav>
+
           <div className="product-details-dots" role="tablist" aria-label="اسلایدهای محصول">
             {images.map((_, index) => (
               <button
                 key={index}
                 type="button"
                 role="tab"
-                aria-selected={index === activeImage}
+                aria-selected={index === activeMobileSlide}
                 className={
-                  index === activeImage ? 'product-details-dot is-active' : 'product-details-dot'
+                  index === activeMobileSlide ? 'product-details-dot is-active' : 'product-details-dot'
                 }
-                onClick={() => setActiveImage(index)}
+                onClick={() => setActiveMobileSlide(index)}
                 aria-label={`اسلاید ${index + 1}`}
               />
             ))}
@@ -312,6 +409,8 @@ export function ProductDetailMobile({
           />
         ) : null}
 
+        {(showGoldSection || showStoneSection) ? (
+        <div className="product-details-gold-stone-row">
         {showGoldSection ? (
         <section
           className="product-details-section product-details-section-gold"
@@ -366,7 +465,10 @@ export function ProductDetailMobile({
           </div>
         </section>
         ) : null}
+        </div>
+        ) : null}
 
+        <div className="product-details-specs-review-row">
         <section className="product-details-section product-details-specs-section" aria-labelledby="pdp-specs-title">
           <div className="product-details-section-head">
             <h2 id="pdp-specs-title" className="product-details-section-title">
@@ -409,6 +511,7 @@ export function ProductDetailMobile({
           featuredReview={featuredReview}
           onSubmitReview={() => setReviewWizardOpen(true)}
         />
+        </div>
 
         <section className="product-details-related" aria-labelledby="pdp-related-title">
           <div className="product-details-related-header">
@@ -420,12 +523,27 @@ export function ProductDetailMobile({
                 محصولات مشابه
               </h2>
             </div>
-            <Link href="/products" className="product-details-related-view-all">
-              نمایش همه
-            </Link>
+            <div className="product-details-related-controls" aria-label="ناوبری محصولات مشابه">
+              <button
+                type="button"
+                className="product-details-related-scroll-btn"
+                onClick={() => scrollRelatedProducts('prev')}
+                aria-label="اسکرول به محصول قبلی"
+              >
+                <ProductDetailScrollArrow direction="prev" />
+              </button>
+              <button
+                type="button"
+                className="product-details-related-scroll-btn"
+                onClick={() => scrollRelatedProducts('next')}
+                aria-label="اسکرول به محصول بعدی"
+              >
+                <ProductDetailScrollArrow direction="next" />
+              </button>
+            </div>
           </div>
 
-          <div className="product-details-related-track" role="list">
+          <div ref={relatedTrackRef} className="product-details-related-track" role="list">
             {relatedItems.map((item) => (
               <article key={item.id} className="product-details-related-card" role="listitem">
                 <Link href={item.href ?? '/products'} className="product-details-related-link">
@@ -461,6 +579,8 @@ export function ProductDetailMobile({
       <ProductVideoModal
         open={videoModalOpen}
         video={primaryVideo}
+        videos={videos}
+        relatedProducts={relatedItems}
         onClose={() => setVideoModalOpen(false)}
       />
     </article>

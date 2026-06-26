@@ -3,7 +3,12 @@ import type { HomeProductCarouselItem } from '@/shared/config/storefront-ia';
 import { CATEGORY_FALLBACK_IMAGES } from '@/shared/config/images';
 import { PRODUCT_LISTING_DEMO_PRODUCTS } from '@/shared/config/product-listing-demo';
 import { findCatalogDemoProduct } from '@talashim/shared/constants/demo-products';
-import { resolveProductJewelrySizeKinds } from '@/shared/lib/catalog-category';
+import {
+  isJewelrySetOrHalfSetProduct,
+  resolveProductJewelrySizeKind,
+  resolveProductJewelrySizeKinds,
+  shouldShowProductSizeRulers,
+} from '@/shared/lib/catalog-category';
 import { resolvePdpSections } from '@/shared/lib/resolve-product-pdp-config';
 
 export interface ProductReviewDemo {
@@ -54,6 +59,7 @@ export interface StoneColorSwatch {
 export interface ProductDetailDemo extends ProductDetails {
   gallery: string[];
   heroImageUrl: string;
+  cardImageUrl?: string;
   displayPriceToman: number;
   ringSizes: number[];
   necklaceSizes?: number[];
@@ -74,7 +80,7 @@ const DEMO_PRODUCT_VIDEOS: ProductVideo[] = [
     id: 'demo-product-video',
     title: 'ویدیو معرفی محصول',
     videoUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm',
-    thumbnailUrl: '/images/products/pdp-hero.png',
+    thumbnailUrl: '/images/product-detail/pdp-lifestyle-hero.png',
     sortOrder: 0,
   },
 ];
@@ -88,7 +94,7 @@ const DEMO_VARIANTS: ProductVariant[] = [
     priceToman: 17_548_000,
     weightGram: 2.8,
     makingFeePercent: 24,
-    imageUrl: '/images/home/new-arrival-lifestyle.png',
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
     quantity: 3,
     isDefault: true,
   },
@@ -100,7 +106,7 @@ const DEMO_VARIANTS: ProductVariant[] = [
     priceToman: 17_548_000,
     weightGram: 2.8,
     makingFeePercent: 24,
-    imageUrl: '/images/home/new-arrival-lifestyle.png',
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
     quantity: 2,
     isDefault: false,
   },
@@ -112,17 +118,17 @@ const DEMO_VARIANTS: ProductVariant[] = [
     priceToman: 17_800_000,
     weightGram: 2.8,
     makingFeePercent: 24,
-    imageUrl: '/images/home/new-arrival-lifestyle.png',
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
     quantity: 1,
     isDefault: false,
   },
 ];
 
 const DEMO_STONE_SWATCHES: StoneColorSwatch[] = [
-  { id: 'pink', color: '#F2D4D9', label: 'صورتی' },
-  { id: 'purple', color: '#D8CCE8', label: 'بنفش' },
-  { id: 'blue', color: '#C8D9ED', label: 'آبی' },
-  { id: 'gray', color: '#D9D9D9', label: 'خاکستری' },
+  { id: 'pink', color: '#FDCEF3', label: 'صورتی' },
+  { id: 'purple', color: '#B88FFF', label: 'بنفش' },
+  { id: 'blue', color: '#B7DEFF', label: 'آبی' },
+  { id: 'gray', color: '#E5E5E5', label: 'خاکستری' },
 ];
 
 const DEMO_SPEC_ROWS: ProductSpecRow[] = [
@@ -167,6 +173,30 @@ export const DEFAULT_RELATED_PRODUCTS: HomeProductCarouselItem[] = [
     imageUrl: CATEGORY_FALLBACK_IMAGES.necklaces,
     href: '/products/demo-necklace',
   },
+  {
+    id: 'related-5',
+    title: 'دستبند طلای مینیمال',
+    priceToman: 10_400_000,
+    weightGram: 3.6,
+    imageUrl: CATEGORY_FALLBACK_IMAGES.bracelets,
+    href: '/products/demo-bracelet',
+  },
+  {
+    id: 'related-6',
+    title: 'انگشتر ظریف طلایی',
+    priceToman: 7_900_000,
+    weightGram: 2.5,
+    imageUrl: CATEGORY_FALLBACK_IMAGES.rings,
+    href: '/products/demo',
+  },
+  {
+    id: 'related-7',
+    title: 'ست گوشواره و گردنبند',
+    priceToman: 18_200_000,
+    weightGram: 5.8,
+    imageUrl: '/images/products/jewelry-set-lifestyle.png',
+    href: '/products/demo-jewelry-set',
+  },
 ];
 
 export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
@@ -184,9 +214,10 @@ export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
   discountPercent: null,
   discountStartsAt: null,
   discountEndsAt: null,
-  imageUrl: '/images/home/new-arrival-lifestyle.png',
-  hoverImageUrl: '/images/home/new-arrival-lifestyle.png',
-  heroImageUrl: '/images/products/pdp-hero.png',
+  imageUrl: '/images/product-detail/pdp-ring-cutout.png',
+  hoverImageUrl: '/images/product-detail/pdp-ring-cutout.png',
+  heroImageUrl: '/images/product-detail/pdp-lifestyle-hero.png',
+  cardImageUrl: '/images/product-detail/pdp-ring-cutout.png',
   inventory: 3,
   featured: true,
   description:
@@ -195,13 +226,13 @@ export const PRODUCT_DETAIL_DEMO: ProductDetailDemo = {
   specifications: {},
   variants: DEMO_VARIANTS,
   gallery: [
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
-    '/images/products/pdp-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
+    '/images/product-detail/pdp-lifestyle-hero.png',
   ],
-  ringSizes: [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63],
+  ringSizes: [48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66],
   goldColors: ['طلایی', 'رزگلد', 'سفید'],
   stoneSwatches: DEMO_STONE_SWATCHES,
   specRows: DEMO_SPEC_ROWS,
@@ -276,7 +307,7 @@ export const JEWELRY_SET_DEMO: ProductDetailDemo = {
     JEWELRY_SET_IMAGE,
   ],
   ringSizes: [50, 51, 52, 53, 54, 55, 56, 57, 58],
-  necklaceSizes: [40, 42, 45, 48, 50, 55],
+  necklaceSizes: [40, 45, 50, 55, 60, 65, 70, 80],
   braceletSizes: [16, 17, 18, 19, 20, 21],
   goldColors: ['طلایی', 'رزگلد', 'سفید'],
   stoneSwatches: DEMO_STONE_SWATCHES,
@@ -311,8 +342,8 @@ export function resolveProductDetailDemo(slug: string): ProductDetailDemo | null
   return null;
 }
 
-const DEFAULT_RING_SIZES = [50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63];
-const DEFAULT_NECKLACE_SIZES = [40, 42, 45, 48, 50, 55];
+const DEFAULT_RING_SIZES = [48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 65, 66];
+const DEFAULT_NECKLACE_SIZES = [40, 45, 50, 55, 60, 65, 70, 80];
 const DEFAULT_BRACELET_SIZES = [16, 17, 18, 19, 20, 21];
 
 function buildSetSpecRows(setPartsLabel: string): ProductSpecRow[] {
@@ -336,6 +367,10 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     specifications: {},
   });
   const isSet = sizeKinds.length > 1;
+  const isRingProduct =
+    resolveProductJewelrySizeKind(source.category) === 'ring' ||
+    resolveProductJewelrySizeKind(source.category) === 'wedding_ring';
+  const isNecklaceProduct = resolveProductJewelrySizeKind(source.category) === 'necklace';
   const template = isSet ? JEWELRY_SET_DEMO : PRODUCT_DETAIL_DEMO;
   const description = catalog?.description
     ? `<p>${catalog.description}</p>`
@@ -365,9 +400,13 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     description,
     seoDescription: catalog?.seoDescription ?? source.title,
     gallery: template.gallery.map((image, index) => (index === 0 ? source.imageUrl : image)),
-    ringSizes: DEFAULT_RING_SIZES,
-    necklaceSizes: sizeKinds.includes('necklace') ? DEFAULT_NECKLACE_SIZES : undefined,
-    braceletSizes: sizeKinds.includes('bracelet') ? DEFAULT_BRACELET_SIZES : undefined,
+    ringSizes:
+      (isSet || isRingProduct) && sizeKinds.includes('ring') ? DEFAULT_RING_SIZES : undefined,
+    necklaceSizes:
+      (isSet || isNecklaceProduct) && sizeKinds.includes('necklace')
+        ? DEFAULT_NECKLACE_SIZES
+        : undefined,
+    braceletSizes: isSet && sizeKinds.includes('bracelet') ? DEFAULT_BRACELET_SIZES : undefined,
     specRows:
       isSet && catalog?.setPartsLabel
         ? buildSetSpecRows(catalog.setPartsLabel)
@@ -391,6 +430,7 @@ export interface ProductDetailMobileProps {
   product: ProductDetails;
   gallery?: string[];
   heroImageUrl?: string;
+  cardImageUrl?: string;
   displayPriceToman?: number;
   ringSizes?: number[];
   necklaceSizes?: number[];
@@ -416,14 +456,20 @@ export function enrichProductDetailProps(
 
   if (!demo) {
     const catalog = findCatalogDemoProduct(product.slug);
-    const sizeKinds = resolveProductJewelrySizeKinds({
+    const jewelrySource = {
       title: product.title,
       slug: product.slug,
       category: product.category,
       description: product.description,
       specifications: product.specifications,
-    });
-    const isSet = sizeKinds.length > 1;
+    };
+    const sizeKinds = resolveProductJewelrySizeKinds(jewelrySource);
+    const isSet = isJewelrySetOrHalfSetProduct(jewelrySource);
+    const showSizes = shouldShowProductSizeRulers(jewelrySource);
+    const isRingProduct =
+      resolveProductJewelrySizeKind(product.category) === 'ring' ||
+      resolveProductJewelrySizeKind(product.category) === 'wedding_ring';
+    const isNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
     const pdpSections = resolvePdpSections(product);
     const hasPdpConfig = Boolean(product.pdpConfig);
 
@@ -435,9 +481,18 @@ export function enrichProductDetailProps(
       reviews,
       featuredReview: DEFAULT_FEATURED_REVIEW,
       relatedProducts: DEFAULT_RELATED_PRODUCTS,
-      ringSizes: pdpSections.ringSizes,
-      necklaceSizes: pdpSections.necklaceSizes,
-      braceletSizes: pdpSections.braceletSizes,
+      ringSizes:
+        showSizes && (isSet || isRingProduct) && sizeKinds.includes('ring')
+          ? pdpSections.ringSizes
+          : undefined,
+      necklaceSizes:
+        showSizes && (isSet || isNecklaceProduct) && sizeKinds.includes('necklace')
+          ? pdpSections.necklaceSizes
+          : undefined,
+      braceletSizes:
+        showSizes && isSet && sizeKinds.includes('bracelet')
+          ? pdpSections.braceletSizes
+          : undefined,
       goldColors: pdpSections.goldColors ?? (catalog && !hasPdpConfig ? PRODUCT_DETAIL_DEMO.goldColors : undefined),
       stoneSwatches:
         pdpSections.stoneSwatches ??
@@ -452,14 +507,39 @@ export function enrichProductDetailProps(
     };
   }
 
+  const jewelrySource = {
+    title: product.title,
+    slug: product.slug,
+    category: product.category,
+    description: product.description,
+    specifications: product.specifications,
+  };
+  const demoSizeKinds = resolveProductJewelrySizeKinds(jewelrySource);
+  const demoIsSet = isJewelrySetOrHalfSetProduct(jewelrySource);
+  const demoShowSizes = shouldShowProductSizeRulers(jewelrySource);
+  const demoIsRingProduct =
+    resolveProductJewelrySizeKind(product.category) === 'ring' ||
+    resolveProductJewelrySizeKind(product.category) === 'wedding_ring';
+  const demoIsNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
+
   return {
     product,
     gallery,
     heroImageUrl: demo.heroImageUrl,
+    cardImageUrl: demo.cardImageUrl,
     displayPriceToman: demo.displayPriceToman,
-    ringSizes: demo.ringSizes,
-    necklaceSizes: demo.necklaceSizes,
-    braceletSizes: demo.braceletSizes,
+    ringSizes:
+      demoShowSizes && (demoIsSet || demoIsRingProduct) && demoSizeKinds.includes('ring')
+        ? demo.ringSizes
+        : undefined,
+    necklaceSizes:
+      demoShowSizes && (demoIsSet || demoIsNecklaceProduct) && demoSizeKinds.includes('necklace')
+        ? demo.necklaceSizes
+        : undefined,
+    braceletSizes:
+      demoShowSizes && demoIsSet && demoSizeKinds.includes('bracelet')
+        ? demo.braceletSizes
+        : undefined,
     goldColors: demo.goldColors,
     stoneSwatches: demo.stoneSwatches,
     specRows: demo.specRows,

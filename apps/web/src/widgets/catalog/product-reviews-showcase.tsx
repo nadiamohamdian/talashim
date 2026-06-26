@@ -213,53 +213,12 @@ export function ProductReviewsShowcase({
         <span className="product-details-quote product-details-quote-open" aria-hidden />
         <span className="product-details-quote product-details-quote-close" aria-hidden />
 
-        {hasMultiple ? (
-          <div className="product-details-review-toolbar" aria-label="کنترل نظرات">
-            <button
-              type="button"
-              className="product-details-review-toolbar-btn"
-              onClick={goPrev}
-              aria-label="نظر قبلی"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-                <path
-                  d="M8.75 2.625L4.375 7L8.75 11.375"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <span className="product-details-review-counter" aria-live="polite">
-              {toPersianDigits(activeIndex + 1)} از {toPersianDigits(reviews.length)}
-            </span>
-            <button
-              type="button"
-              className="product-details-review-toolbar-btn"
-              onClick={goNext}
-              aria-label="نظر بعدی"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-                <path
-                  d="M5.25 2.625L9.625 7L5.25 11.375"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-        ) : null}
-
         <div
           key={review.id}
           className={[
             'product-details-review-content',
             animating ? 'is-animating' : '',
             animating ? `is-from-${slideDirection}` : '',
-            hasMultiple ? 'has-toolbar' : '',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -274,8 +233,8 @@ export function ProductReviewsShowcase({
             >
               <svg
                 className="product-details-review-star"
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 12 12"
                 fill="none"
                 aria-hidden
@@ -297,6 +256,22 @@ export function ProductReviewsShowcase({
             ثبت نظر جدید
           </button>
         </div>
+
+        {hasMultiple ? (
+          <div className="product-details-review-dots" role="tablist" aria-label="کنترل نظرات">
+            {reviews.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                className={`product-details-review-dot${index === activeIndex ? ' is-active' : ''}`}
+                onClick={() => goTo(index)}
+                aria-label={`نظر ${toPersianDigits(index + 1)}`}
+                aria-selected={index === activeIndex}
+              />
+            ))}
+          </div>
+        ) : null}
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { toPersianDigits } from '@/shared/lib/to-persian-digits';
 
 interface ProductSizeRulerSectionProps {
   id: string;
@@ -14,11 +13,11 @@ interface ProductSizeRulerSectionProps {
   className?: string;
 }
 
-const SUB_TICK_OFFSETS: ReadonlyArray<{ offset: number; kind: 'medium' | 'small' }> = [
-  { offset: 6, kind: 'medium' },
-  { offset: 12, kind: 'small' },
-  { offset: 18, kind: 'small' },
-  { offset: 24, kind: 'medium' },
+const SUB_TICK_FRACTIONS: ReadonlyArray<{ fraction: number; kind: 'medium' | 'small' }> = [
+  { fraction: 0.2, kind: 'medium' },
+  { fraction: 0.4, kind: 'small' },
+  { fraction: 0.6, kind: 'small' },
+  { fraction: 0.8, kind: 'medium' },
 ];
 
 function getItemCenterInScrollContent(track: HTMLDivElement, item: HTMLElement): number {
@@ -97,10 +96,10 @@ export function ProductSizeRulerSection({
       });
 
       if (index < sizes.length - 1) {
-        SUB_TICK_OFFSETS.forEach(({ offset, kind }) => {
+        SUB_TICK_FRACTIONS.forEach(({ fraction, kind }) => {
           ticks.push({
-            key: `sub-${index}-${offset}`,
-            index: index + offset / 30,
+            key: `sub-${index}-${fraction}`,
+            index: index + fraction,
             kind,
             isActiveMajor: false,
           });
@@ -293,7 +292,12 @@ export function ProductSizeRulerSection({
           >
             <div
               className="product-details-ruler-strip"
-              style={{ width: `calc(${Math.max(sizes.length, 1)} * var(--ruler-slot))` }}
+              style={
+                {
+                  '--ruler-size-count': Math.max(sizes.length, 1),
+                  width: 'calc(var(--ruler-size-count) * var(--ruler-slot))',
+                } as React.CSSProperties
+              }
             >
               <div className="product-details-ruler-ticks" aria-hidden>
                 {rulerTicks.map((tick) => (
@@ -312,7 +316,7 @@ export function ProductSizeRulerSection({
               </div>
 
               <div className="product-details-ruler-labels">
-                {sizes.map((size) => (
+                {sizes.map((size, index) => (
                   <button
                     key={size}
                     ref={(element) => {
@@ -331,9 +335,12 @@ export function ProductSizeRulerSection({
                         ? 'product-details-ruler-item is-active'
                         : 'product-details-ruler-item'
                     }
+                    style={{ left: `calc((${index} + 0.5) * var(--ruler-slot))` }}
                     onClick={() => handleItemClick(size)}
                   >
-                    <span className="product-details-ruler-num">{toPersianDigits(size)}</span>
+                    <span className="product-details-ruler-num" dir="ltr" lang="en">
+                      {size}
+                    </span>
                   </button>
                 ))}
               </div>
