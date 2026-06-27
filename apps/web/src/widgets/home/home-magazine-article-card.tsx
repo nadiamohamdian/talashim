@@ -30,16 +30,7 @@ function MagazineReadMoreArrow() {
 export function HomeMagazineArticleCard({ item }: HomeMagazineArticleCardProps) {
   return (
     <article className="home-magazine-article-card" role="listitem">
-      <Link href={item.href} className="home-magazine-article-card-link">
-        <div className="home-magazine-article-card-copy">
-          <h3 className="home-magazine-article-card-title">{item.title}</h3>
-          <p className="home-magazine-article-card-excerpt">{item.excerpt}</p>
-          <span className="home-magazine-article-card-read-more">
-            {HOME_MAGAZINE_READ_MORE_LABEL}
-            <MagazineReadMoreArrow />
-          </span>
-        </div>
-
+      <Link href={item.href} className="home-magazine-article-card-link" draggable={false}>
         <div className="home-magazine-article-card-media">
           <StoreImage
             src={item.imageUrl}
@@ -53,6 +44,15 @@ export function HomeMagazineArticleCard({ item }: HomeMagazineArticleCardProps) 
 
         <span className="home-magazine-article-card-overlay" aria-hidden />
         <span className="home-magazine-article-card-frame" aria-hidden />
+
+        <div className="home-magazine-article-card-copy">
+          <h3 className="home-magazine-article-card-title">{item.title}</h3>
+          <p className="home-magazine-article-card-excerpt">{item.excerpt}</p>
+          <span className="home-magazine-article-card-read-more">
+            {HOME_MAGAZINE_READ_MORE_LABEL}
+            <MagazineReadMoreArrow />
+          </span>
+        </div>
       </Link>
     </article>
   );

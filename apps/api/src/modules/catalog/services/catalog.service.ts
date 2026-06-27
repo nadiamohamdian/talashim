@@ -9,7 +9,7 @@ import type { ProductPricing } from '@sadafgold/types';
 import { ProductCategory, type Product } from '@/generated/prisma';
 import { CacheService } from '@/infrastructure/cache/cache.service';
 import { PricingEngineService } from '@/modules/pricing/services/pricing-engine.service';
-import { CatalogRepository } from '../repositories/catalog.repository';
+import { CatalogRepository, type CatalogSort } from '../repositories/catalog.repository';
 import type { CatalogQueryDto } from '../dto/catalog-query.dto';
 import { parseProductPdpConfig } from '@/modules/admin/lib/product-pdp-config.util';
 
@@ -27,6 +27,12 @@ type ProductWithInventory = Product & {
     quantity: number;
     isDefault: boolean;
   }>;
+};
+
+type ResolvedCatalogSort = {
+  field: 'createdAt' | 'priceToman' | 'sales';
+  direction: 'asc' | 'desc';
+  discountOnly?: boolean;
 };
 
 @Injectable()
@@ -78,23 +84,63 @@ export class CatalogService {
     const page = query.page ?? 1;
     const skip = (page - 1) * limit;
     const search = query.search?.trim() || undefined;
-    const onSale = query.sale === true;
+    const onSale = query.sale === true || query.sort === 'discounts';
     const hasPriceFilter = query.minPrice != null || query.maxPrice != null;
-    const wantsPaginated = query.page !== undefined || Boolean(search);
+    const hasWeightFilter = query.minWeight != null || query.maxWeight != null;
+    const weight = { minWeight: query.minWeight, maxWeight: query.maxWeight };
+    const sort = this.resolveSort(query.sort);
+    const wantsPaginated =
+      query.page !== undefined || Boolean(search) || hasPriceFilter || hasWeightFilter || Boolean(query.sort);
 
-    if (onSale || hasPriceFilter) {
-      const products = await this.catalogRepository.findAll(200, category, search, 0, onSale);
+    const needsInMemoryProcessing =
+      onSale || hasPriceFilter || sort?.field === 'sales' || sort?.discountOnly;
+
+    if (needsInMemoryProcessing) {
+      const products =
+        sort?.field === 'sales'
+          ? await this.catalogRepository.findAllForSalesSort(
+              category,
+              search,
+              onSale,
+              weight,
+              300,
+            )
+          : await this.catalogRepository.findAll(
+              300,
+              category,
+              search,
+              0,
+              onSale,
+              weight,
+              sort?.discountOnly ? { field: 'createdAt', direction: 'desc' } : this.toRepositorySort(sort),
+            );
+
       let summaries = await Promise.all(
         products.map((product) => this.toProductSummary(product)),
       );
 
-      if (onSale) {
+      if (onSale || sort?.discountOnly) {
         summaries = summaries.filter((item) => isProductDiscountActive(item));
+        summaries.sort((a, b) => {
+          const discountDelta = (b.discountPercent ?? 0) - (a.discountPercent ?? 0);
+          if (discountDelta !== 0) {
+            return discountDelta;
+          }
+          return a.title.localeCompare(b.title, 'fa');
+        });
       }
 
       if (hasPriceFilter) {
         summaries = summaries.filter((item) =>
           this.matchesPriceFilter(item.priceToman, query.minPrice, query.maxPrice),
+        );
+      }
+
+      if (sort && sort.field === 'priceToman') {
+        summaries.sort((a, b) =>
+          sort.direction === 'asc'
+            ? a.priceToman - b.priceToman
+            : b.priceToman - a.priceToman,
         );
       }
 
@@ -110,10 +156,10 @@ export class CatalogService {
       return summaries.slice(0, limit);
     }
 
-    if (query.page !== undefined || search) {
+    if (wantsPaginated) {
       const [products, total] = await Promise.all([
-        this.catalogRepository.findAll(limit, category, search, skip, false),
-        this.catalogRepository.countAll(category, search, false),
+        this.catalogRepository.findAll(limit, category, search, skip, false, weight, this.toRepositorySort(sort)),
+        this.catalogRepository.countAll(category, search, false, weight),
       ]);
       const items = await Promise.all(
         products.map((product) => this.toProductSummary(product)),
@@ -121,8 +167,41 @@ export class CatalogService {
       return { page, limit, total, items };
     }
 
-    const products = await this.catalogRepository.findAll(limit, category, search, 0, false);
+    const products = await this.catalogRepository.findAll(
+      limit,
+      category,
+      search,
+      0,
+      false,
+      weight,
+      this.toRepositorySort(sort),
+    );
     return Promise.all(products.map((product) => this.toProductSummary(product)));
+  }
+
+  private toRepositorySort(sort?: ResolvedCatalogSort): CatalogSort | undefined {
+    if (!sort || sort.field === 'sales') {
+      return undefined;
+    }
+
+    return { field: sort.field, direction: sort.direction };
+  }
+
+  private resolveSort(raw?: string): ResolvedCatalogSort | undefined {
+    switch (raw) {
+      case 'best-selling':
+        return { field: 'sales', direction: 'desc' };
+      case 'discounts':
+        return { field: 'createdAt', direction: 'desc', discountOnly: true };
+      case 'price-desc':
+        return { field: 'priceToman', direction: 'desc' };
+      case 'price-asc':
+        return { field: 'priceToman', direction: 'asc' };
+      case 'new-collection':
+        return { field: 'createdAt', direction: 'desc' };
+      default:
+        return undefined;
+    }
   }
 
   private resolveCategory(raw?: string): ProductCategory | undefined {

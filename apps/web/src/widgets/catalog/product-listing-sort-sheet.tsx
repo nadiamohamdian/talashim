@@ -1,21 +1,23 @@
 'use client';
 
 import { useEffect } from 'react';
+import type { CatalogCategorySortOption } from '@sadafgold/types';
 import {
   PRODUCT_LISTING_SORT_OPTIONS,
-  type ProductListingSortOptionId,
 } from '@/shared/config/product-listing-filters';
 
 interface ProductListingSortSheetProps {
   open: boolean;
-  selected: ProductListingSortOptionId | null;
-  onSelect: (id: ProductListingSortOptionId) => void;
+  selected: string | null;
+  sortOptions?: CatalogCategorySortOption[];
+  onSelect: (id: string) => void;
   onClose: () => void;
 }
 
 export function ProductListingSortSheet({
   open,
   selected,
+  sortOptions,
   onSelect,
   onClose,
 }: ProductListingSortSheetProps) {
@@ -43,6 +45,15 @@ export function ProductListingSortSheet({
     return null;
   }
 
+  const options =
+    sortOptions ??
+    PRODUCT_LISTING_SORT_OPTIONS.map((option) => ({
+      id: option.id,
+      label: option.label,
+      field: 'createdAt' as const,
+      direction: 'desc' as const,
+    }));
+
   return (
     <div className="product-listing-sheet-root" role="presentation">
       <button
@@ -62,7 +73,7 @@ export function ProductListingSortSheet({
         </h2>
 
         <ul className="product-listing-sheet-options">
-          {PRODUCT_LISTING_SORT_OPTIONS.map((option) => {
+          {options.map((option) => {
             const isChecked = selected === option.id;
 
             return (

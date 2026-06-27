@@ -8,7 +8,7 @@ interface ProductListingHeroCarouselProps {
 }
 
 export function ProductListingHeroCarousel({ slides }: ProductListingHeroCarouselProps) {
-  const [activeIndex, setActiveIndex] = useState(slides.length > 0 ? slides.length - 1 : 0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   if (slides.length === 0) {
     return null;
@@ -27,7 +27,7 @@ export function ProductListingHeroCarousel({ slides }: ProductListingHeroCarouse
           fill
           unoptimized
           className="product-listing-carousel-image"
-          sizes="(min-width: 1024px) 560px, 370px"
+          sizes="100vw"
           priority
         />
       </div>

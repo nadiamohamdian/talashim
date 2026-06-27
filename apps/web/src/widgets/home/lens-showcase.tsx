@@ -85,6 +85,7 @@ function LensShowcaseCard({
           preload="metadata"
           tabIndex={-1}
           aria-hidden
+          draggable={false}
         />
       ) : hasPoster ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -94,6 +95,7 @@ function LensShowcaseCard({
           className="lens-showcase-poster"
           loading="lazy"
           decoding="async"
+          draggable={false}
         />
       ) : null}
     </button>

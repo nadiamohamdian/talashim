@@ -1,6 +1,16 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+
+export const CATALOG_SORT_KEYS = [
+  'best-selling',
+  'discounts',
+  'price-desc',
+  'price-asc',
+  'new-collection',
+] as const;
+
+export type CatalogSortKey = (typeof CATALOG_SORT_KEYS)[number];
 
 export class CatalogQueryDto {
   @IsOptional()
@@ -52,4 +62,25 @@ export class CatalogQueryDto {
   @IsInt()
   @Min(0)
   maxPrice?: number;
+
+  @ApiPropertyOptional({ description: 'Minimum weight in grams (inclusive)' })
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  minWeight?: number;
+
+  @ApiPropertyOptional({ description: 'Maximum weight in grams (inclusive)' })
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  maxWeight?: number;
+
+  @ApiPropertyOptional({
+    description: 'Sort key: best-selling | discounts | price-desc | price-asc | new-collection',
+    enum: CATALOG_SORT_KEYS,
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(CATALOG_SORT_KEYS)
+  sort?: CatalogSortKey;
 }

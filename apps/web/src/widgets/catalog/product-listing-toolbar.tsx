@@ -9,12 +9,12 @@ export function ProductListingToolbar({ onSortOpen, onFilterOpen }: ProductListi
   return (
     <div className="product-listing-toolbar">
       <div className="product-listing-toolbar-inner">
-        <button type="button" className="product-listing-toolbar-action" onClick={onSortOpen}>
+        <button type="button" className="product-listing-toolbar-action" onClick={onFilterOpen}>
           فیلتر
         </button>
         <span className="product-listing-toolbar-divider" aria-hidden />
-        <button type="button" className="product-listing-toolbar-action" onClick={onFilterOpen}>
-          دسته بندی
+        <button type="button" className="product-listing-toolbar-action" onClick={onSortOpen}>
+          مرتب‌سازی
         </button>
       </div>
     </div>

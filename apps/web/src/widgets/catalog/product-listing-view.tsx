@@ -1,128 +1,166 @@
 'use client';
 
 import { useCallback, useState, type PropsWithChildren } from 'react';
-import type { ProductSummary } from '@sadafgold/types';
+import type { ProductSummary, PublicCatalogCategoryPage } from '@sadafgold/types';
 import {
   PRODUCT_LISTING_CAROUSEL_SLIDES,
   PRODUCT_LISTING_PAGE,
   type ProductListingPageMeta,
 } from '@/shared/config/product-listing-meta';
-import type {
-  ProductListingGoldColorId,
-  ProductListingSortOptionId,
-} from '@/shared/config/product-listing-filters';
+import type { ProductListingQueryState } from '@/shared/lib/product-listing-query';
 import { ProductListingCard } from '@/widgets/catalog/product-listing-card';
 import { ProductListingFilterSheet } from '@/widgets/catalog/product-listing-filter-sheet';
 import { ProductListingHeroCarousel } from '@/widgets/catalog/product-listing-hero-carousel';
+import { ProductListingPagination } from '@/widgets/catalog/product-listing-pagination';
+import { ProductListingSidebar } from '@/widgets/catalog/product-listing-sidebar';
 import { ProductListingSortSheet } from '@/widgets/catalog/product-listing-sort-sheet';
 import { ProductListingToolbar } from '@/widgets/catalog/product-listing-toolbar';
 
 interface ProductListingViewProps extends PropsWithChildren {
   products: ProductSummary[];
   meta?: ProductListingPageMeta;
+  categoryPage?: PublicCatalogCategoryPage | null;
   gallerySlides?: readonly string[];
   showDefaultHero?: boolean;
   emptyMessage?: string;
   isLoading?: boolean;
   loadingMessage?: string;
+  queryState?: ProductListingQueryState;
+  currentPage?: number;
+  totalPages?: number;
+  onSortChange?: (sortId: string) => void;
+  onToggleFilter?: (optionId: string, checked: boolean) => void;
+  onClearFilters?: () => void;
+  onPageChange?: (page: number) => void;
 }
 
 export function ProductListingView({
   products,
   meta = PRODUCT_LISTING_PAGE,
+  categoryPage,
   children,
   gallerySlides,
   showDefaultHero = true,
   emptyMessage = 'محصولی یافت نشد.',
   isLoading = false,
   loadingMessage = 'در حال بارگذاری...',
+  queryState,
+  currentPage = 1,
+  totalPages = 1,
+  onSortChange,
+  onToggleFilter,
+  onClearFilters,
+  onPageChange,
 }: ProductListingViewProps) {
   const [sortOpen, setSortOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedSort, setSelectedSort] = useState<ProductListingSortOptionId | null>(null);
-  const [selectedFilters, setSelectedFilters] = useState<Set<string>>(new Set());
-  const [selectedGoldColors, setSelectedGoldColors] = useState<Set<ProductListingGoldColorId>>(
-    new Set(),
-  );
-
-  const toggleFilter = useCallback((id: string) => {
-    setSelectedFilters((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const toggleGoldColor = useCallback((id: ProductListingGoldColorId) => {
-    setSelectedGoldColors((current) => {
-      const next = new Set(current);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const clearAllFilters = useCallback(() => {
-    setSelectedFilters(new Set());
-    setSelectedGoldColors(new Set());
-  }, []);
 
   const resolvedGallerySlides =
-    gallerySlides ?? (showDefaultHero ? PRODUCT_LISTING_CAROUSEL_SLIDES : undefined);
+    gallerySlides ??
+    (categoryPage?.heroImageUrls.length ? categoryPage.heroImageUrls : undefined) ??
+    (showDefaultHero ? PRODUCT_LISTING_CAROUSEL_SLIDES : undefined);
+
+  const handleSortChange = useCallback(
+    (sortId: string) => {
+      onSortChange?.(sortId);
+      setSortOpen(false);
+    },
+    [onSortChange],
+  );
+
+  const handleToggleFilter = useCallback(
+    (optionId: string, checked: boolean) => {
+      onToggleFilter?.(optionId, checked);
+    },
+    [onToggleFilter],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    onClearFilters?.();
+    setFilterOpen(false);
+  }, [onClearFilters]);
+
+  const resolvedQueryState =
+    queryState ??
+    ({
+      sort: null,
+      filterIds: [],
+      page: currentPage,
+    } satisfies ProductListingQueryState);
 
   return (
     <div className="product-listing-page store-chrome-light store-minimal-header">
-      <div className="product-listing-inner">
-        <header className="product-listing-header">
-          <h1 className="product-listing-title">{meta.title}</h1>
-          {meta.subtitle ? <p className="product-listing-subtitle">{meta.subtitle}</p> : null}
-        </header>
+      <div className="product-listing-top">
+        <div className="product-listing-inner product-listing-inner--top">
+          <div className="product-listing-top-layout">
+            <header className="product-listing-header">
+              <h1 className="product-listing-title">{meta.title}</h1>
+              {meta.subtitle ? <p className="product-listing-subtitle">{meta.subtitle}</p> : null}
+            </header>
 
-        {children ??
-          (resolvedGallerySlides && resolvedGallerySlides.length > 0 ? (
-            <ProductListingHeroCarousel slides={resolvedGallerySlides} />
-          ) : null)}
-
-        <ProductListingToolbar
-          onSortOpen={() => setSortOpen(true)}
-          onFilterOpen={() => setFilterOpen(true)}
-        />
-
-        {isLoading ? (
-          <p className="product-listing-empty">{loadingMessage}</p>
-        ) : products.length === 0 ? (
-          <p className="product-listing-empty">{emptyMessage}</p>
-        ) : (
-          <div className="product-listing-grid">
-            {products.map((product) => (
-              <ProductListingCard key={product.id} product={product} />
-            ))}
+            {children ??
+              (resolvedGallerySlides && resolvedGallerySlides.length > 0 ? (
+                <div className="product-listing-hero-band">
+                  <ProductListingHeroCarousel slides={resolvedGallerySlides} />
+                </div>
+              ) : null)}
           </div>
-        )}
+        </div>
+      </div>
 
+      <div className="product-listing-inner product-listing-inner--body">
+        <div className="product-listing-body">
+          {categoryPage?.filterConfig ? (
+            <ProductListingSidebar
+              filterConfig={categoryPage.filterConfig}
+              queryState={resolvedQueryState}
+              onSortChange={handleSortChange}
+              onToggleFilter={handleToggleFilter}
+              onClearFilters={handleClearFilters}
+            />
+          ) : null}
+
+          <div className="product-listing-main">
+            <ProductListingToolbar
+              onSortOpen={() => setSortOpen(true)}
+              onFilterOpen={() => setFilterOpen(true)}
+            />
+
+            {isLoading ? (
+              <p className="product-listing-empty">{loadingMessage}</p>
+            ) : products.length === 0 ? (
+              <p className="product-listing-empty">{emptyMessage}</p>
+            ) : (
+              <div className="product-listing-grid">
+                {products.map((product) => (
+                  <ProductListingCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+
+            <ProductListingPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={onPageChange}
+            />
+          </div>
+        </div>
       </div>
 
       <ProductListingSortSheet
         open={sortOpen}
-        selected={selectedSort}
-        onSelect={setSelectedSort}
+        selected={resolvedQueryState.sort}
+        sortOptions={categoryPage?.filterConfig.sortOptions}
+        onSelect={handleSortChange}
         onClose={() => setSortOpen(false)}
       />
 
       <ProductListingFilterSheet
         open={filterOpen}
-        selectedFilters={selectedFilters}
-        selectedGoldColors={selectedGoldColors}
-        onToggleFilter={toggleFilter}
-        onToggleGoldColor={toggleGoldColor}
-        onClearAll={clearAllFilters}
+        filterConfig={categoryPage?.filterConfig}
+        queryState={resolvedQueryState}
+        onToggleFilter={handleToggleFilter}
+        onClearAll={handleClearFilters}
         onClose={() => setFilterOpen(false)}
       />
     </div>

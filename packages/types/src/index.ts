@@ -2,6 +2,7 @@ export * from './auth';
 export * from './roles';
 export * from './blog';
 export * from './catalog';
+export * from './catalog-category-page';
 export * from './pagination';
 export * from './trading';
 export * from './admin';

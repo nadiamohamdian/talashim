@@ -6,6 +6,7 @@ import { Public } from '@/common/decorators/public.decorator';
 import { ApiPublicErrors } from '@/swagger/decorators/api-protected.decorator';
 import { CatalogQueryDto } from '../dto/catalog-query.dto';
 import { CatalogService } from '../services/catalog.service';
+import { CatalogCategoryPageService } from '../services/catalog-category-page.service';
 
 @ApiTags('catalog')
 @ApiPublicErrors()
@@ -13,7 +14,10 @@ import { CatalogService } from '../services/catalog.service';
 @SkipThrottle()
 @Controller('catalog')
 export class CatalogController {
-  constructor(private readonly catalogService: CatalogService) {}
+  constructor(
+    private readonly catalogService: CatalogService,
+    private readonly catalogCategoryPageService: CatalogCategoryPageService,
+  ) {}
 
   /** No HTTP cache — live pricing and filter query params must stay fresh. */
   @Get()
@@ -25,6 +29,17 @@ export class CatalogController {
   @HttpCache({ key: 'catalog:categories', ttlSeconds: 300 })
   findCategories() {
     return this.catalogService.findCategories();
+  }
+
+  @Get('categories/pages')
+  @HttpCache({ key: 'catalog:category-pages', ttlSeconds: 120 })
+  findCategoryPages() {
+    return this.catalogCategoryPageService.listPublic();
+  }
+
+  @Get('categories/pages/:slug')
+  findCategoryPageBySlug(@Param('slug') slug: string) {
+    return this.catalogCategoryPageService.findPublicBySlug(slug);
   }
 
   @Get('bestsellers')

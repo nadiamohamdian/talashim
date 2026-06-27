@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { HomeProductCarouselItem } from '@/shared/config/storefront-ia';
+import { useHorizontalScrollDrag } from '@/shared/lib/horizontal-scroll-drag';
 import { HomeProductCarouselCard } from '@/widgets/home/home-product-carousel-card';
 
 export interface HomeProductCarouselProps {
@@ -226,6 +227,12 @@ export function HomeProductCarousel({
     [items.length, normalizeLoopPosition],
   );
 
+  useHorizontalScrollDrag(trackRef, {
+    onDragEnd: () => {
+      normalizeLoopPosition();
+    },
+  });
+
   if (items.length === 0) {
     return null;
   }
@@ -251,6 +258,7 @@ export function HomeProductCarousel({
                 onClick={() => scrollTrack('prev')}
                 aria-label="محصولات قبلی"
                 disabled={!canLoop}
+                data-carousel-control
               >
                 <IconCarouselArrow direction="prev" />
               </button>
@@ -260,6 +268,7 @@ export function HomeProductCarousel({
                 onClick={() => scrollTrack('next')}
                 aria-label="محصولات بعدی"
                 disabled={!canLoop}
+                data-carousel-control
               >
                 <IconCarouselArrow direction="next" />
               </button>
@@ -271,11 +280,15 @@ export function HomeProductCarousel({
           </div>
         </div>
 
-        <div ref={trackRef} className="home-product-carousel-track" role="list">
+        <div
+          ref={trackRef}
+          className="home-product-carousel-track store-carousel-scroll"
+          role="list"
+        >
           {trackItems.map(({ item, loopKey }) => (
             <article key={loopKey} className="store-product-card home-product-carousel-card" role="listitem">
               {item.href ? (
-                <Link href={item.href} className="home-product-carousel-card-link">
+                <Link href={item.href} className="home-product-carousel-card-link" draggable={false}>
                   <HomeProductCarouselCard item={item} />
                 </Link>
               ) : (
@@ -300,6 +313,7 @@ function IconCarouselArrow({ direction }: { direction: 'prev' | 'next' }) {
       aria-hidden
       className={`home-product-carousel-nav-icon home-product-carousel-nav-icon--${direction}`}
       decoding="async"
+      draggable={false}
     />
   );
 }

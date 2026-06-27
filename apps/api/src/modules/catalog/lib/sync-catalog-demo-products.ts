@@ -4,6 +4,8 @@ import {
 } from '@sadafgold/shared';
 import { ProductCategory, type PrismaClient } from '@/generated/prisma';
 
+const DEFAULT_PRODUCT_IMAGE_URL = '/images/placeholder-media.svg';
+
 const PRISMA_CATEGORY_MAP: Record<
   ReturnType<typeof mapCatalogDemoCategoryToPrisma>,
   ProductCategory
@@ -30,7 +32,10 @@ export async function syncCatalogDemoProducts(
   for (const item of CATALOG_DEMO_PRODUCTS) {
     const prismaCategoryKey = mapCatalogDemoCategoryToPrisma(item.category);
     const category = PRISMA_CATEGORY_MAP[prismaCategoryKey];
-    const imageUrl = item.storefrontImagePath || options?.fallbackImageUrl || null;
+    const imageUrl =
+      item.storefrontImagePath ||
+      options?.fallbackImageUrl ||
+      DEFAULT_PRODUCT_IMAGE_URL;
 
     const product = await prisma.product.upsert({
       where: { slug: item.slug },

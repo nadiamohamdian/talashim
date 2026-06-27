@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useHorizontalScrollDrag } from '@/shared/lib/horizontal-scroll-drag';
 
 export const HORIZONTAL_LOOP_COPY_COUNT = 3;
 
@@ -65,29 +66,6 @@ export function setNormalizedScrollLeft(
   track.scrollTo({ left: maxScroll - position, behavior });
 }
 
-function applyNormalizedScrollLeft(track: HTMLDivElement, position: number): void {
-  if (!isRtlScrollElement(track)) {
-    track.scrollLeft = position;
-    return;
-  }
-
-  if (track.scrollLeft <= 0) {
-    track.scrollLeft = -position;
-    return;
-  }
-
-  const maxScroll = track.scrollWidth - track.clientWidth;
-  track.scrollLeft = maxScroll - position;
-}
-
-function isInteractiveDragTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof Element)) {
-    return false;
-  }
-
-  return Boolean(target.closest('button, a, input, textarea, select, [role="button"]'));
-}
-
 export function jumpNormalizedScrollLeft(track: HTMLDivElement, position: number): void {
   const previousSnap = track.style.scrollSnapType;
   track.style.scrollSnapType = 'none';
@@ -127,8 +105,6 @@ export function useHorizontalLoopCarousel<T extends { id: string }>({
   const trackRef = useRef<HTMLDivElement>(null);
   const isJumpingRef = useRef(false);
   const isDraggingRef = useRef(false);
-  const dragStartXRef = useRef(0);
-  const dragStartNormalizedRef = useRef(0);
   const canLoop = items.length > 1;
 
   const trackItems = useMemo(() => {
@@ -199,73 +175,15 @@ export function useHorizontalLoopCarousel<T extends { id: string }>({
     return () => track.removeEventListener('scroll', onScroll);
   }, [canLoop, normalizeLoopPosition]);
 
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) {
-      return;
-    }
-
-    const finishDrag = (event: PointerEvent) => {
-      if (!isDraggingRef.current) {
-        return;
-      }
-
-      isDraggingRef.current = false;
-      if (track.hasPointerCapture(event.pointerId)) {
-        track.releasePointerCapture(event.pointerId);
-      }
-      track.classList.remove('is-dragging');
-      track.style.scrollSnapType = '';
-      requestAnimationFrame(normalizeLoopPosition);
-    };
-
-    const onPointerDown = (event: PointerEvent) => {
-      if (event.pointerType === 'mouse' && event.button !== 0) {
-        return;
-      }
-
-      if (isInteractiveDragTarget(event.target)) {
-        return;
-      }
-
+  useHorizontalScrollDrag(trackRef, {
+    onDragStart: () => {
       isDraggingRef.current = true;
-      dragStartXRef.current = event.clientX;
-      dragStartNormalizedRef.current = getNormalizedScrollLeft(track);
-      track.setPointerCapture(event.pointerId);
-      track.classList.add('is-dragging');
-      track.style.scrollSnapType = 'none';
-    };
-
-    const onPointerMove = (event: PointerEvent) => {
-      if (!isDraggingRef.current) {
-        return;
-      }
-
-      event.preventDefault();
-      const delta = event.clientX - dragStartXRef.current;
-      applyNormalizedScrollLeft(track, dragStartNormalizedRef.current + delta);
-    };
-
-    const onPointerUp = (event: PointerEvent) => {
-      finishDrag(event);
-    };
-
-    const onPointerCancel = (event: PointerEvent) => {
-      finishDrag(event);
-    };
-
-    track.addEventListener('pointerdown', onPointerDown);
-    track.addEventListener('pointermove', onPointerMove);
-    track.addEventListener('pointerup', onPointerUp);
-    track.addEventListener('pointercancel', onPointerCancel);
-
-    return () => {
-      track.removeEventListener('pointerdown', onPointerDown);
-      track.removeEventListener('pointermove', onPointerMove);
-      track.removeEventListener('pointerup', onPointerUp);
-      track.removeEventListener('pointercancel', onPointerCancel);
-    };
-  }, [normalizeLoopPosition]);
+    },
+    onDragEnd: () => {
+      isDraggingRef.current = false;
+      requestAnimationFrame(normalizeLoopPosition);
+    },
+  });
 
   const scrollTrack = useCallback(
     (direction: 'prev' | 'next') => {

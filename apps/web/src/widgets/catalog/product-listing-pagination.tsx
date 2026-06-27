@@ -3,6 +3,7 @@ import { toPersianDigits } from '@/shared/lib/to-persian-digits';
 interface ProductListingPaginationProps {
   currentPage: number;
   totalPages: number;
+  onPageChange?: (page: number) => void;
 }
 
 function buildPageItems(currentPage: number, totalPages: number): Array<number | 'ellipsis'> {
@@ -24,6 +25,7 @@ function buildPageItems(currentPage: number, totalPages: number): Array<number |
 export function ProductListingPagination({
   currentPage,
   totalPages,
+  onPageChange,
 }: ProductListingPaginationProps) {
   if (totalPages <= 1) {
     return null;
@@ -54,6 +56,7 @@ export function ProductListingPagination({
                 : 'product-listing-pagination-item'
             }
             aria-current={isActive ? 'page' : undefined}
+            onClick={() => onPageChange?.(page)}
           >
             {toPersianDigits(page)}
           </button>

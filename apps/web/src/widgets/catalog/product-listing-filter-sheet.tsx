@@ -1,29 +1,31 @@
 'use client';
 
 import { useEffect } from 'react';
+import type { CatalogCategoryFilterConfig } from '@sadafgold/types';
 import {
   PRODUCT_LISTING_FILTER_SECTIONS,
   PRODUCT_LISTING_GOLD_COLOR_OPTIONS,
   PRODUCT_LISTING_GOLD_COLOR_SECTION_TITLE,
-  type ProductListingGoldColorId,
 } from '@/shared/config/product-listing-filters';
+import {
+  resolveActiveFilterIds,
+  type ProductListingQueryState,
+} from '@/shared/lib/product-listing-query';
 
 interface ProductListingFilterSheetProps {
   open: boolean;
-  selectedFilters: ReadonlySet<string>;
-  selectedGoldColors: ReadonlySet<ProductListingGoldColorId>;
-  onToggleFilter: (id: string) => void;
-  onToggleGoldColor: (id: ProductListingGoldColorId) => void;
+  filterConfig?: CatalogCategoryFilterConfig;
+  queryState: ProductListingQueryState;
+  onToggleFilter: (id: string, checked: boolean) => void;
   onClearAll: () => void;
   onClose: () => void;
 }
 
 export function ProductListingFilterSheet({
   open,
-  selectedFilters,
-  selectedGoldColors,
+  filterConfig,
+  queryState,
   onToggleFilter,
-  onToggleGoldColor,
   onClearAll,
   onClose,
 }: ProductListingFilterSheetProps) {
@@ -51,6 +53,16 @@ export function ProductListingFilterSheet({
     return null;
   }
 
+  const filterSections =
+    filterConfig?.filterSections ??
+    PRODUCT_LISTING_FILTER_SECTIONS.map((section) => ({
+      id: section.id,
+      title: section.title,
+      options: section.options.map((option) => ({ ...option })),
+    }));
+
+  const activeFilterIds = new Set(resolveActiveFilterIds(queryState, filterConfig));
+
   return (
     <div className="product-listing-sheet-root" role="presentation">
       <button
@@ -65,7 +77,7 @@ export function ProductListingFilterSheet({
         aria-modal="true"
         aria-label="فیلتر محصولات"
       >
-        {PRODUCT_LISTING_FILTER_SECTIONS.map((section) => (
+        {filterSections.map((section) => (
           <section key={section.id} className="product-listing-filter-section">
             <h2 className="product-listing-sheet-title">{section.title}</h2>
             <ul className="product-listing-sheet-options">
@@ -76,8 +88,8 @@ export function ProductListingFilterSheet({
                     <input
                       type="checkbox"
                       className="product-listing-sheet-checkbox"
-                      checked={selectedFilters.has(option.id)}
-                      onChange={() => onToggleFilter(option.id)}
+                      checked={activeFilterIds.has(option.id)}
+                      onChange={(event) => onToggleFilter(option.id, event.target.checked)}
                     />
                   </label>
                 </li>
@@ -89,24 +101,11 @@ export function ProductListingFilterSheet({
         <section className="product-listing-filter-section">
           <h2 className="product-listing-sheet-title">{PRODUCT_LISTING_GOLD_COLOR_SECTION_TITLE}</h2>
           <div className="product-listing-filter-color-chips">
-            {PRODUCT_LISTING_GOLD_COLOR_OPTIONS.map((color) => {
-              const isActive = selectedGoldColors.has(color.id);
-
-              return (
-                <button
-                  key={color.id}
-                  type="button"
-                  className={
-                    isActive
-                      ? 'product-listing-filter-color-chip is-active'
-                      : 'product-listing-filter-color-chip'
-                  }
-                  onClick={() => onToggleGoldColor(color.id)}
-                >
-                  {color.label}
-                </button>
-              );
-            })}
+            {PRODUCT_LISTING_GOLD_COLOR_OPTIONS.map((color) => (
+              <button key={color.id} type="button" className="product-listing-filter-color-chip">
+                {color.label}
+              </button>
+            ))}
           </div>
         </section>
 

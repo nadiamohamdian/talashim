@@ -6,7 +6,16 @@ type CatalogListFilters = {
   category?: ProductCategory;
   search?: string;
   sale?: boolean;
+  minWeight?: number;
+  maxWeight?: number;
 };
+
+type CatalogSort = {
+  field: 'createdAt' | 'priceToman';
+  direction: 'asc' | 'desc';
+};
+
+export type { CatalogSort };
 
 @Injectable()
 export class CatalogRepository {
@@ -39,7 +48,23 @@ export class CatalogRepository {
       });
     }
 
+    if (filters.minWeight != null) {
+      conditions.push({ weightGram: { gte: filters.minWeight } });
+    }
+
+    if (filters.maxWeight != null) {
+      conditions.push({ weightGram: { lte: filters.maxWeight } });
+    }
+
     return conditions.length > 0 ? { AND: conditions } : {};
+  }
+
+  private resolveOrderBy(sort?: CatalogSort): Prisma.ProductOrderByWithRelationInput {
+    if (!sort) {
+      return { createdAt: 'desc' };
+    }
+
+    return { [sort.field]: sort.direction };
   }
 
   findFeatured() {
@@ -59,20 +84,81 @@ export class CatalogRepository {
     });
   }
 
-  findAll(limit = 12, category?: ProductCategory, search?: string, skip = 0, sale = false) {
-    const where = this.buildWhere({ category, search, sale });
+  findAll(
+    limit = 12,
+    category?: ProductCategory,
+    search?: string,
+    skip = 0,
+    sale = false,
+    weight: { minWeight?: number; maxWeight?: number } = {},
+    sort?: CatalogSort,
+  ) {
+    const where = this.buildWhere({
+      category,
+      search,
+      sale,
+      minWeight: weight.minWeight,
+      maxWeight: weight.maxWeight,
+    });
     return this.prisma.product.findMany({
       where,
       include: { inventoryItem: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: this.resolveOrderBy(sort),
       take: limit,
       skip,
     });
   }
 
-  countAll(category?: ProductCategory, search?: string, sale = false) {
-    const where = this.buildWhere({ category, search, sale });
+  countAll(
+    category?: ProductCategory,
+    search?: string,
+    sale = false,
+    weight: { minWeight?: number; maxWeight?: number } = {},
+  ) {
+    const where = this.buildWhere({
+      category,
+      search,
+      sale,
+      minWeight: weight.minWeight,
+      maxWeight: weight.maxWeight,
+    });
     return this.prisma.product.count({ where });
+  }
+
+  findAllForSalesSort(
+    category?: ProductCategory,
+    search?: string,
+    sale = false,
+    weight: { minWeight?: number; maxWeight?: number } = {},
+    take = 200,
+  ) {
+    const where = this.buildWhere({
+      category,
+      search,
+      sale,
+      minWeight: weight.minWeight,
+      maxWeight: weight.maxWeight,
+    });
+
+    return this.prisma.product
+      .findMany({
+        where,
+        include: {
+          inventoryItem: true,
+          orderItems: { select: { quantity: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take,
+      })
+      .then((products) =>
+        [...products]
+          .sort((a, b) => {
+            const soldA = a.orderItems.reduce((sum, item) => sum + item.quantity, 0);
+            const soldB = b.orderItems.reduce((sum, item) => sum + item.quantity, 0);
+            return soldB - soldA || b.createdAt.getTime() - a.createdAt.getTime();
+          })
+          .map(({ orderItems: _orderItems, ...product }) => product),
+      );
   }
 
   findById(id: string) {

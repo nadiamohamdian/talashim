@@ -4,8 +4,9 @@ import type {
   PaginatedResponse,
   ProductDetails,
   ProductSummary,
+  PublicCatalogCategoryPage,
 } from '@sadafgold/types';
-import { normalizeCatalogListResponse } from '@/shared/lib/catalog-list-response';
+import { normalizeCatalogListResponse, normalizeCatalogPaginatedResponse } from '@/shared/lib/catalog-list-response';
 import { enrichProductDetails, withLivePricingList } from '@/shared/lib/live-gold-pricing';
 import {
   getBlogPostBySlug as getBlogPostBySlugFromBlogApi,
@@ -107,6 +108,57 @@ export const productApi = {
     });
   },
 
+  async getCatalogCategoryPage(slug: string): Promise<PublicCatalogCategoryPage | null> {
+    try {
+      return await serverFetchCatalogList<PublicCatalogCategoryPage>(
+        `/catalog/categories/pages/${encodeURIComponent(slug)}`,
+        { revalidate: 120, tags: [`catalog:category-page:${slug}`] },
+      );
+    } catch {
+      return null;
+    }
+  },
+
+  async getProductsPaginated(
+    options: {
+      page?: number;
+      limit?: number;
+      category?: string;
+      sale?: boolean;
+      minPrice?: number;
+      maxPrice?: number;
+      minWeight?: number;
+      maxWeight?: number;
+      sort?: string;
+    } = {},
+  ): Promise<PaginatedResponse<ProductSummary>> {
+    const page = options.page ?? 1;
+    const limit = options.limit ?? 9;
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+
+    if (options.category) params.set('category', options.category);
+    if (options.sale) params.set('sale', '1');
+    if (options.minPrice != null) params.set('minPrice', String(options.minPrice));
+    if (options.maxPrice != null) params.set('maxPrice', String(options.maxPrice));
+    if (options.minWeight != null) params.set('minWeight', String(options.minWeight));
+    if (options.maxWeight != null) params.set('maxWeight', String(options.maxWeight));
+    if (options.sort) params.set('sort', options.sort);
+
+    const path = `/catalog?${params}`;
+    const raw = await serverFetchCatalogList<unknown>(path, {
+      cache: 'no-store',
+      tags: ['catalog:products'],
+    });
+    const result = normalizeCatalogPaginatedResponse(raw, page, limit);
+    return {
+      ...result,
+      items: await withLivePricingList(result.items),
+    };
+  },
+
   async getProducts(
     limit = 24,
     category?: string,
@@ -196,6 +248,8 @@ export const {
   getFeaturedProducts,
   getBestsellerProducts,
   getCatalogCategories,
+  getCatalogCategoryPage,
+  getProductsPaginated,
   getProducts,
   getSaleProducts,
   searchProducts,

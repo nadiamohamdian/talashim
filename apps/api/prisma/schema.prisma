@@ -161,6 +161,24 @@ model Product {
   @@index([discountPercent, discountEndsAt])
 }
 
+model CatalogCategoryPage {
+  id              String           @id @default(cuid())
+  slug            String           @unique
+  title           String
+  subtitle        String?
+  productCategory ProductCategory?
+  heroImageUrls   String[]         @default([])
+  filterConfig    Json
+  sortOrder       Int              @default(0)
+  isActive        Boolean          @default(true)
+  seoTitle        String?
+  seoDescription  String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
 model ProductReview {
   id         String              @id @default(cuid())
   productId  String

@@ -62,6 +62,7 @@ function NativeStoreImage({
       onError={onError}
       loading="lazy"
       decoding="async"
+      draggable={false}
     />
   );
 }
@@ -178,6 +179,7 @@ export function StoreImage({
       alt={alt}
       className={className}
       onError={handleError}
+      draggable={false}
     />
   );
 }

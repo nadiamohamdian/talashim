@@ -15,6 +15,7 @@ import { AdminOrdersController } from './controllers/admin-orders.controller';
 import { AdminProductsController } from './controllers/admin-products.controller';
 import { AdminProductReviewsController } from './controllers/admin-product-reviews.controller';
 import { AdminNotificationsController } from './controllers/admin-notifications.controller';
+import { AdminCatalogCategoriesController } from './controllers/admin-catalog-categories.controller';
 import { AdminController } from './controllers/admin.controller';
 import { AdminSettingsController } from './controllers/admin-settings.controller';
 import { AdminRbacRepository } from './repositories/admin-rbac.repository';
@@ -40,6 +41,7 @@ import { AdminTradingService } from './services/admin-trading.service';
 import { AdminReportsService } from './services/admin-reports.service';
 import { AdminRbacService } from './services/admin-rbac.service';
 import { AdminSettingsService } from './services/admin-settings.service';
+import { AdminCatalogCategoriesService } from './services/admin-catalog-categories.service';
 import { AdminService } from './services/admin.service';
 
 @Module({
@@ -61,6 +63,7 @@ import { AdminService } from './services/admin.service';
     AdminPricingController,
     AdminTradingController,
     AdminProductsController,
+    AdminCatalogCategoriesController,
     AdminProductReviewsController,
     AdminInventoryController,
     AdminOrdersController,
@@ -85,6 +88,7 @@ import { AdminService } from './services/admin.service';
     AdminFinanceService,
     AdminTradingService,
     AdminProductsService,
+    AdminCatalogCategoriesService,
     AdminProductReviewsService,
     AdminInventoryService,
     AdminOrdersService,

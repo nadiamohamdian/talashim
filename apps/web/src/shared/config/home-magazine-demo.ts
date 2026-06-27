@@ -12,7 +12,7 @@ export const HOME_MAGAZINE_COVER_IMAGE =
 export const HOME_MAGAZINE_READ_MORE_LABEL = 'ادامه مطلب';
 
 export const HOME_MAGAZINE_DEMO_EXCERPT =
-  'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه...';
+  'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.';
 
 const HOME_MAGAZINE_DEMO_TITLE = 'چگونه از طلا و جواهرات خود نگهداری کنیم؟';
 
@@ -33,6 +33,13 @@ export const HOME_MAGAZINE_DEMO_ITEMS: HomeMagazineArticleItem[] = [
   },
   {
     id: 'magazine-demo-3',
+    title: HOME_MAGAZINE_DEMO_TITLE,
+    excerpt: HOME_MAGAZINE_DEMO_EXCERPT,
+    imageUrl: HOME_MAGAZINE_COVER_IMAGE,
+    href: '/blog',
+  },
+  {
+    id: 'magazine-demo-4',
     title: HOME_MAGAZINE_DEMO_TITLE,
     excerpt: HOME_MAGAZINE_DEMO_EXCERPT,
     imageUrl: HOME_MAGAZINE_COVER_IMAGE,
