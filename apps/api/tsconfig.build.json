@@ -6,6 +6,7 @@
     "rootDir": "./src",
     "paths": {
       "@/*": ["src/*"],
+      "@/generated/prisma": ["src/generated/prisma/client.ts"],
       "@sadafgold/shared": ["../../packages/shared/dist/index"],
       "@sadafgold/shared/*": ["../../packages/shared/dist/*"],
       "@sadafgold/types": ["../../packages/types/dist/index"],

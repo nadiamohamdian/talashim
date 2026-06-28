@@ -24,13 +24,16 @@ function formatMagazineExcerpt(value: string): string {
 function mapBlogPostsToItems(
   posts: Awaited<ReturnType<typeof getBlogPosts>>,
 ): HomeMagazineArticleItem[] {
-  return posts.slice(0, MAGAZINE_POST_LIMIT).map((post) => ({
-    id: post.id,
-    title: post.title,
-    excerpt: formatMagazineExcerpt(post.excerpt || post.content || HOME_MAGAZINE_DEMO_EXCERPT),
-    imageUrl: post.coverImageUrl?.trim() || HOME_MAGAZINE_COVER_IMAGE,
-    href: `/blog/${post.slug}`,
-  }));
+  return posts
+    .filter((post) => Boolean(post.slug?.trim()))
+    .slice(0, MAGAZINE_POST_LIMIT)
+    .map((post) => ({
+      id: post.id,
+      title: post.title,
+      excerpt: formatMagazineExcerpt(post.excerpt || post.content || HOME_MAGAZINE_DEMO_EXCERPT),
+      imageUrl: post.coverImageUrl?.trim() || HOME_MAGAZINE_COVER_IMAGE,
+      href: `/blog/${encodeURIComponent(post.slug.trim())}`,
+    }));
 }
 
 export async function HomeMagazineShowcase() {

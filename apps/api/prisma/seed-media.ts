@@ -27,6 +27,7 @@ export type SeedMediaUrls = {
   banner: string;
   general: string;
   receipt: string;
+  lensVideo: string;
 };
 
 export async function ensureSeedMediaAssets(prisma: PrismaClient): Promise<SeedMediaUrls> {
@@ -108,5 +109,50 @@ export async function ensureSeedMediaAssets(prisma: PrismaClient): Promise<SeedM
     },
   });
 
+  urls.lensVideo = await ensureSeedLensVideoAsset(prisma, base);
+
   return urls as SeedMediaUrls;
+}
+
+const LENS_DEMO_VIDEO_SOURCE =
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm';
+
+async function ensureSeedLensVideoAsset(prisma: PrismaClient, base: string): Promise<string> {
+  const folder = 'lens';
+  const filename = 'seed-demo-lens.webm';
+  const dir = join(process.cwd(), 'uploads', folder);
+  const filePath = join(dir, filename);
+
+  await mkdir(dir, { recursive: true });
+
+  let sizeBytes = 0;
+  try {
+    const existing = await readFile(filePath);
+    sizeBytes = existing.length;
+  } catch {
+    const response = await fetch(LENS_DEMO_VIDEO_SOURCE);
+    if (!response.ok) {
+      throw new Error(`Failed to download seed lens video (${response.status})`);
+    }
+    const downloaded = Buffer.from(await response.arrayBuffer());
+    await writeFile(filePath, downloaded);
+    sizeBytes = downloaded.length;
+  }
+
+  const url = `${base}/lens/${filename}`;
+  await prisma.mediaAsset.upsert({
+    where: { id: 'seed-media-lens-video' },
+    update: { url, sizeBytes, mimeType: 'video/webm' },
+    create: {
+      id: 'seed-media-lens-video',
+      filename,
+      url,
+      mimeType: 'video/webm',
+      sizeBytes,
+      folder,
+      alt: 'ویدیوی نمونه لنز طلاشیم',
+    },
+  });
+
+  return url;
 }

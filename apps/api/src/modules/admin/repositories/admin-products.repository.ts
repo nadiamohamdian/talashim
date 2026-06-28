@@ -15,6 +15,7 @@ export type ProductVariantInput = {
   sku: string;
   color?: string;
   size?: string;
+  stone?: string;
   priceToman: number;
   weightGram?: number;
   makingFeePercent?: number;
@@ -222,6 +223,7 @@ export class AdminProductsRepository {
             sku: variant.sku,
             color: variant.color ?? null,
             size: variant.size ?? null,
+            stone: variant.stone ?? null,
             priceToman: variant.priceToman,
             weightGram: variant.weightGram ?? null,
             makingFeePercent: variant.makingFeePercent ?? null,

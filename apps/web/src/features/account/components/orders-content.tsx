@@ -5,6 +5,7 @@ import Link from 'next/link';
 import {
   Badge,
   Button,
+  cn,
   Skeleton,
   Table,
   TableBody,
@@ -20,6 +21,7 @@ import { isOrderInvoiceReady } from '../lib/order-invoice';
 import { InvoiceAccessLink } from './invoice-access-link';
 import { OrdersMobileContent } from './orders-mobile-content';
 import {
+  ORDER_STATUS_BADGE_LAYOUT_CLASS,
   ORDER_STATUS_LABELS,
   getDisplayPaymentStatus,
   getDisplayPaymentStatusLabel,
@@ -111,13 +113,23 @@ export function OrdersContent() {
                   <TableRow key={order.id}>
                     <TableCell className="font-mono text-xs">{order.orderNumber}</TableCell>
                     <TableCell>
-                      <Badge className={orderStatusBadgeClass(order.status)}>
+                      <Badge
+                        className={cn(
+                          orderStatusBadgeClass(order.status),
+                          ORDER_STATUS_BADGE_LAYOUT_CLASS,
+                        )}
+                      >
                         {ORDER_STATUS_LABELS[order.status] ?? order.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       {getDisplayPaymentStatus(order) ? (
-                        <Badge className={paymentStatusBadgeClass(getDisplayPaymentStatus(order)!)}>
+                        <Badge
+                          className={cn(
+                            paymentStatusBadgeClass(getDisplayPaymentStatus(order)!),
+                            ORDER_STATUS_BADGE_LAYOUT_CLASS,
+                          )}
+                        >
                           {getDisplayPaymentStatusLabel(order)}
                         </Badge>
                       ) : (

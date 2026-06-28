@@ -1,12 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 import {
+  DEFAULT_CARD_TO_CARD_ACCOUNTS,
   DEFAULT_COMMERCE_SETTINGS,
   DEFAULT_FEATURE_FLAGS,
   DEFAULT_GENERAL_SETTINGS,
   DEFAULT_GOLD_SETTINGS,
   type PlatformSettingsPayload,
 } from '../platform-settings.defaults';
+import type { CardToCardAccount } from '@sadafgold/shared';
+
+function normalizeCardToCardAccounts(value: unknown): CardToCardAccount[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    return DEFAULT_CARD_TO_CARD_ACCOUNTS;
+  }
+
+  const accounts = value.filter(
+    (item): item is CardToCardAccount =>
+      typeof item === 'object' &&
+      item !== null &&
+      typeof (item as CardToCardAccount).bankName === 'string' &&
+      typeof (item as CardToCardAccount).accountHolder === 'string' &&
+      typeof (item as CardToCardAccount).cardNumber === 'string' &&
+      typeof (item as CardToCardAccount).iban === 'string',
+  );
+
+  return accounts.length > 0 ? accounts : DEFAULT_CARD_TO_CARD_ACCOUNTS;
+}
 
 @Injectable()
 export class PlatformSettingsRepository {
@@ -68,7 +88,13 @@ export class PlatformSettingsRepository {
         ...general,
         maintenanceMode: general.maintenanceMode === true,
       },
-      commerce: row.commerce as PlatformSettingsPayload['commerce'],
+      commerce: {
+        ...DEFAULT_COMMERCE_SETTINGS,
+        ...(row.commerce as PlatformSettingsPayload['commerce']),
+        cardToCardAccounts: normalizeCardToCardAccounts(
+          (row.commerce as PlatformSettingsPayload['commerce']).cardToCardAccounts,
+        ),
+      },
       gold: row.gold as PlatformSettingsPayload['gold'],
       featureFlags: row.featureFlags as PlatformSettingsPayload['featureFlags'],
       updatedAt: row.updatedAt.toISOString(),

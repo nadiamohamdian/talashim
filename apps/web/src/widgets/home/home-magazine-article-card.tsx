@@ -38,7 +38,7 @@ export function HomeMagazineArticleCard({ item }: HomeMagazineArticleCardProps) 
             fill
             unoptimized
             className="home-magazine-article-card-image"
-            sizes="(min-width: 768px) 33vw, 130px"
+            sizes="(min-width: 1024px) 392px, (min-width: 768px) 33vw, 130px"
           />
         </div>
 

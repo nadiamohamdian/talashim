@@ -6,8 +6,13 @@
     "lib": ["ES2022", "DOM"],
     "types": ["node"],
     "skipLibCheck": true,
-    "composite": true
+    "composite": true,
+    "paths": {
+      "@sadafgold/types": ["../types/dist/index"],
+      "@sadafgold/types/*": ["../types/dist/*"]
+    }
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["src/**/*.spec.ts"]
+  "exclude": ["src/**/*.spec.ts"],
+  "references": [{ "path": "../types" }]
 }

@@ -110,7 +110,7 @@ export const productApi = {
 
   async getCatalogCategoryPage(slug: string): Promise<PublicCatalogCategoryPage | null> {
     try {
-      return await serverFetchCatalogList<PublicCatalogCategoryPage>(
+      return await serverFetchCatalogDetail<PublicCatalogCategoryPage>(
         `/catalog/categories/pages/${encodeURIComponent(slug)}`,
         { revalidate: 120, tags: [`catalog:category-page:${slug}`] },
       );
@@ -148,10 +148,11 @@ export const productApi = {
     if (options.sort) params.set('sort', options.sort);
 
     const path = `/catalog?${params}`;
-    const raw = await serverFetchCatalogList<unknown>(path, {
-      cache: 'no-store',
-      tags: ['catalog:products'],
-    });
+    const raw = await serverFetchPaginatedCatalog<ProductSummary>(
+      path,
+      { cache: 'no-store', tags: ['catalog:products'] },
+      { page, limit },
+    );
     const result = normalizeCatalogPaginatedResponse(raw, page, limit);
     return {
       ...result,

@@ -56,6 +56,11 @@ export class AdminProductVariantInputDto {
   @IsString()
   size?: string;
 
+  @ApiPropertyOptional({ description: 'Stone swatch id (e.g. pink, blue)' })
+  @IsOptional()
+  @IsString()
+  stone?: string;
+
   @ApiProperty()
   @Type(() => Number)
   @IsInt()

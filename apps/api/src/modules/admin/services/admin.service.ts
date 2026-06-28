@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import * as argon2 from 'argon2';
 import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 import {
@@ -33,6 +34,7 @@ import type { UpdateStaffUserDto } from '../dto/update-staff-user.dto';
 import type { UpdateRolePermissionsBatchDto } from '../dto/update-role-permissions.dto';
 import { WalletService } from '@/modules/wallet/services/wallet.service';
 import type { RejectWalletDepositDto } from '../dto/reject-wallet-deposit.dto';
+import type { AdjustUserWalletDto } from '../dto/adjust-user-wallet.dto';
 import { AdminRepository } from '../repositories/admin.repository';
 import { AdminRbacService } from './admin-rbac.service';
 
@@ -561,6 +563,55 @@ export class AdminService {
     );
 
     return { page, limit, total, items };
+  }
+
+  async adjustUserWallet(dto: AdjustUserWalletDto, actor: AuthenticatedUser) {
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.finance.adjust);
+
+    const user = await this.adminRepository.findUserById(dto.userId);
+    if (!user) {
+      throw new NotFoundException('کاربر یافت نشد');
+    }
+
+    const idempotencyKey = dto.idempotencyKey?.trim() || `admin-wallet-adjust-${randomUUID()}`;
+    const description =
+      dto.direction === 'CREDIT'
+        ? `شارژ دستی کیف پول: ${dto.reason.trim()}`
+        : `برداشت دستی کیف پول: ${dto.reason.trim()}`;
+
+    const transaction = await this.walletService.adminAdjustWallet({
+      userId: dto.userId,
+      assetType: dto.assetType,
+      direction: dto.direction,
+      amount: dto.amount.trim(),
+      description,
+      idempotencyKey,
+      actorId: actor.id,
+    });
+
+    const balances = await this.adminRepository.getUserWalletSnapshot(dto.userId);
+
+    await this.adminRepository.createAuditLog('admin.wallet.adjusted', actor.id, {
+      userId: dto.userId,
+      userEmail: user.email,
+      assetType: dto.assetType,
+      direction: dto.direction,
+      amount: dto.amount,
+      reason: dto.reason.trim(),
+      transactionId: transaction.id,
+      balances,
+    });
+
+    return {
+      transactionId: transaction.id,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+      },
+      balances,
+    };
   }
 
   async listAuditLogs(query: AdminAuditQueryDto, actor: AuthenticatedUser) {

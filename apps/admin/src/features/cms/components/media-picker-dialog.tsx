@@ -70,7 +70,7 @@ export function MediaPickerDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="media-picker-title"
-        className="relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-2xl)]"
+        className="relative flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-panel)]"
       >
         <div className="flex items-center justify-between border-b border-border bg-[var(--surface)] px-5 py-4">
           <h2 id="media-picker-title" className="text-base font-bold text-foreground">

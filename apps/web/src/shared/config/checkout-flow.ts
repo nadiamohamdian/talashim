@@ -77,17 +77,15 @@ export type OrderTrackingStage =
 export interface OrderTrackingStep {
   id: OrderTrackingStage;
   label: string;
-  side: 'left' | 'right';
-  completedAt?: string;
 }
 
 export const ORDER_TRACKING_STEPS: OrderTrackingStep[] = [
-  { id: 'placed', label: 'ثبت سفارش', side: 'left', completedAt: '14 مهر 1405 - 10:15' },
-  { id: 'confirmed', label: 'تائید سفارش', side: 'right', completedAt: '14 مهر 1405 - 10:15' },
-  { id: 'packaging', label: 'بسته‌بندی', side: 'left' },
-  { id: 'in_transit', label: 'درحال ارسال', side: 'right' },
-  { id: 'shipped', label: 'ارسال', side: 'left' },
-  { id: 'delivered', label: 'تحویل شده', side: 'right' },
+  { id: 'placed', label: 'ثبت سفارش' },
+  { id: 'confirmed', label: 'تائید سفارش' },
+  { id: 'packaging', label: 'بسته‌بندی' },
+  { id: 'in_transit', label: 'درحال ارسال' },
+  { id: 'shipped', label: 'ارسال' },
+  { id: 'delivered', label: 'تحویل شده' },
 ];
 
 export function getCompletedTrackingIndex(status: OrderTrackingStage): number {

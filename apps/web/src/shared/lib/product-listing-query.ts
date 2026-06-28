@@ -1,9 +1,11 @@
+import { buildDefaultCatalogCategoryFilterConfig, DEFAULT_CATALOG_CATEGORY_SORT_OPTIONS } from '@sadafgold/shared';
 import type {
   CatalogCategoryFilterConfig,
   CatalogCategoryFilterOption,
   CatalogCategorySortOption,
 } from '@sadafgold/types';
 import type { ProductSummary } from '@sadafgold/types';
+import { filterProductsByPrice, type ProductPriceFilter } from '@/shared/lib/product-price-filter';
 
 export interface ProductListingQueryState {
   sort: string | null;
@@ -103,7 +105,18 @@ export function applyFilterSelection(
 ): ProductListingQueryState {
   const option = findFilterOption(config, optionId);
   if (!option) {
-    return state;
+    const nextFilterIds = new Set(state.filterIds);
+    if (checked) {
+      nextFilterIds.add(optionId);
+    } else {
+      nextFilterIds.delete(optionId);
+    }
+
+    return {
+      ...state,
+      page: 1,
+      filterIds: [...nextFilterIds],
+    };
   }
 
   const nextFilterIds = new Set(state.filterIds);
@@ -189,20 +202,33 @@ export function clearProductListingFilters(
   };
 }
 
+const GOLD_COLOR_FILTER_TERMS: Record<string, string[]> = {
+  'gold-color-gold': ['طلایی'],
+  'gold-color-rose-gold': ['رز', 'رزگلد', 'rose'],
+  'gold-color-white': ['سفید', 'white'],
+};
+
 export function filterProductsBySearchTerms(
   products: ProductSummary[],
   config: CatalogCategoryFilterConfig | undefined,
   filterIds: string[],
 ): ProductSummary[] {
-  if (!config || filterIds.length === 0) {
+  if (filterIds.length === 0) {
     return products;
   }
 
   const termGroups = filterIds
-    .map((id) => findFilterOption(config, id))
+    .map((id) => (config ? findFilterOption(config, id) : undefined))
     .filter((option): option is CatalogCategoryFilterOption => Boolean(option))
     .filter((option) => option.searchTerms && option.searchTerms.length > 0)
     .map((option) => option.searchTerms ?? []);
+
+  for (const filterId of filterIds) {
+    const colorTerms = GOLD_COLOR_FILTER_TERMS[filterId];
+    if (colorTerms) {
+      termGroups.push(colorTerms);
+    }
+  }
 
   if (termGroups.length === 0) {
     return products;
@@ -316,4 +342,79 @@ export function filterProductsByWeight<T extends Pick<ProductSummary, 'weightGra
     }
     return true;
   });
+}
+
+export function resolveProductListingFilterConfig(
+  categoryPage?: { filterConfig: CatalogCategoryFilterConfig; slug?: string } | null,
+  categorySlug?: string | null,
+): CatalogCategoryFilterConfig {
+  if (categoryPage?.filterConfig) {
+    return categoryPage.filterConfig;
+  }
+
+  const slug = categoryPage?.slug ?? categorySlug ?? 'rings';
+  return buildDefaultCatalogCategoryFilterConfig(slug);
+}
+
+export function sortProductsByListingQuery(
+  products: ProductSummary[],
+  sortId: string | null,
+  config?: CatalogCategoryFilterConfig,
+): ProductSummary[] {
+  if (!sortId) {
+    return products;
+  }
+
+  const sortOptions = getSortOptions(config, DEFAULT_CATALOG_CATEGORY_SORT_OPTIONS);
+  const option = sortOptions.find((item) => item.id === sortId);
+  if (!option) {
+    return products;
+  }
+
+  if (option.discountOnly) {
+    return products.filter(
+      (product) =>
+        (product.discountPercent ?? 0) > 0 ||
+        (product.compareAtPriceToman != null &&
+          product.compareAtPriceToman > product.priceToman),
+    );
+  }
+
+  const sorted = [...products];
+  sorted.sort((left, right) => {
+    let comparison = 0;
+
+    switch (option.field) {
+      case 'priceToman':
+        comparison = left.priceToman - right.priceToman;
+        break;
+      case 'sales':
+        comparison =
+          Number(Boolean(right.featured)) - Number(Boolean(left.featured)) ||
+          right.inventory - left.inventory;
+        break;
+      case 'createdAt':
+      default:
+        comparison = left.title.localeCompare(right.title, 'fa');
+        break;
+    }
+
+    return option.direction === 'asc' ? comparison : -comparison;
+  });
+
+  return sorted;
+}
+
+export function applyProductListingQueryToProducts(
+  products: ProductSummary[],
+  state: ProductListingQueryState,
+  config: CatalogCategoryFilterConfig,
+  priceFilter: ProductPriceFilter = {},
+): ProductSummary[] {
+  const effectivePriceFilter = getEffectivePriceFilter(state, priceFilter);
+  let result = filterProductsByPrice(products, effectivePriceFilter);
+  result = filterProductsByWeight(result, state.minWeight, state.maxWeight);
+  result = filterProductsBySearchTerms(result, config, state.filterIds);
+  result = sortProductsByListingQuery(result, state.sort, config);
+  return result;
 }

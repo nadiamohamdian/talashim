@@ -42,13 +42,28 @@ export function getNormalizedScrollLeft(track: HTMLDivElement): number {
   return track.scrollWidth - track.clientWidth - track.scrollLeft;
 }
 
+function applyInstantNormalizedScrollLeft(track: HTMLDivElement, position: number): void {
+  if (!isRtlScrollElement(track)) {
+    track.scrollLeft = position;
+    return;
+  }
+
+  if (track.scrollLeft <= 0) {
+    track.scrollLeft = -position;
+    return;
+  }
+
+  const maxScroll = track.scrollWidth - track.clientWidth;
+  track.scrollLeft = maxScroll - position;
+}
+
 export function setNormalizedScrollLeft(
   track: HTMLDivElement,
   position: number,
   behavior: ScrollBehavior = 'auto',
 ): void {
   if (behavior === 'auto') {
-    applyNormalizedScrollLeft(track, position);
+    applyInstantNormalizedScrollLeft(track, position);
     return;
   }
 

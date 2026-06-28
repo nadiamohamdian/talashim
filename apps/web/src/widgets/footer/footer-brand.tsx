@@ -6,18 +6,14 @@ export function FooterBrand() {
     <Link href="/" className="footer-brand" aria-label="Talashim">
       <div className="footer-brand-head">
         <div className="footer-brand-mark" aria-hidden>
-          <span className="footer-brand-necklace-slot">
-            <Image
-              src="/images/footer/necklace.png"
-              alt=""
-              width={138}
-              height={136}
-              className="footer-brand-necklace"
-              priority={false}
-            />
-          </span>
-          <span className="footer-brand-ta">Ta</span>
-          <span className="footer-brand-ashim">ashim</span>
+          <Image
+            src="/images/footer/talashim-brand-mark.png"
+            alt=""
+            width={194}
+            height={140}
+            className="footer-brand-mark-image"
+            priority={false}
+          />
         </div>
 
         <div className="footer-brand-lines" aria-hidden>

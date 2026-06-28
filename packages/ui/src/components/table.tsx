@@ -2,7 +2,7 @@ import type { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
 import { cn } from '../lib/utils';
 
 const tableWrapClass =
-  'w-full overflow-x-auto rounded-[var(--radius-xl,0.75rem)] border border-[var(--border-subtle,var(--border,#d9d0c8))] bg-[var(--card,#fff)] shadow-[var(--shadow-card)]';
+  'w-full overflow-x-auto rounded-[var(--radius-panel,var(--radius-xl,0.75rem))] border border-[var(--border-subtle,var(--border,#d9d0c8))] bg-[var(--card,#fff)] shadow-none';
 
 export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
   return (

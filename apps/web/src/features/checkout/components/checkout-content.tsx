@@ -6,23 +6,24 @@ import { useMemo, useRef, useState } from 'react';
 import { Button, Skeleton } from '@sadafgold/ui';
 import {
   CHECKOUT_PAYMENT_LABELS,
-  DEFAULT_CARD_TO_CARD_INFO,
   calculateInsuranceFeeToman,
   calculateShippingFeeToman,
   SHIPPING_INSURANCE_PERCENT,
   type CheckoutPaymentProvider,
 } from '@sadafgold/shared';
-import { getEnabledPaymentProviders } from '@/shared/model/storefront-settings';
+import { getEnabledPaymentProviders, resolveCardToCardAccounts } from '@/shared/model/storefront-settings';
 import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { formatPrice } from '@/shared/lib/format-price';
 import { getApiErrorMessage } from '@/lib/api';
 import { useAddresses } from '@/features/account/hooks/use-addresses';
 import { useCheckoutMutation, useCart, useUploadPaymentReceiptMutation } from '@/lib/api';
 import { CheckoutSuccessDialog } from '@/features/checkout/components/checkout-success-dialog';
+import { CheckoutCardInfo } from '@/widgets/checkout/checkout-card-info';
 
 export function CheckoutContent() {
   const { commerce } = useStorefrontSettings();
   const paymentProviders = getEnabledPaymentProviders(commerce);
+  const cardToCardAccounts = resolveCardToCardAccounts(commerce);
   const router = useRouter();
   const { data: cart, isLoading: cartLoading, isError: cartError, refetch } = useCart();
   const { data: addresses, isLoading: addressesLoading } = useAddresses();
@@ -278,23 +279,7 @@ export function CheckoutContent() {
             })}
             {paymentProvider === 'card_to_card' ? (
               <>
-                <div className="rounded-2xl border border-nude-200 bg-nude-50/70 p-4 text-xs leading-7 text-stone-700">
-                  <p>
-                    <span className="font-semibold">بانک:</span> {DEFAULT_CARD_TO_CARD_INFO.bankName}
-                  </p>
-                  <p>
-                    <span className="font-semibold">به نام:</span>{' '}
-                    {DEFAULT_CARD_TO_CARD_INFO.accountHolder}
-                  </p>
-                  <p className="font-mono">
-                    <span className="font-sans font-semibold">کارت:</span>{' '}
-                    {DEFAULT_CARD_TO_CARD_INFO.cardNumber}
-                  </p>
-                  <p className="font-mono">
-                    <span className="font-sans font-semibold">شبا:</span>{' '}
-                    {DEFAULT_CARD_TO_CARD_INFO.iban}
-                  </p>
-                </div>
+                <CheckoutCardInfo accounts={cardToCardAccounts} className="rounded-2xl" />
                 <div
                   className={`rounded-2xl border bg-white p-4 ${
                     needsReceipt && !hasReceipt

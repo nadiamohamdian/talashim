@@ -8,19 +8,20 @@
   "scripts": {
     "build": "prisma generate && node scripts/sync-prisma-dist.cjs && nest build && tsc-alias -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"prisma/**/*.ts\"",
-    "dev": "pnpm --filter @sadafgold/types build && pnpm --filter @sadafgold/shared build && prisma generate && rimraf dist tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json && node scripts/sync-prisma-dist.cjs && tsc-alias -p tsconfig.build.json && node dist/main.js",
+    "dev": "pnpm run dev:deps && rimraf dist tsconfig.build.tsbuildinfo && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -p tsconfig.build.json && node --max-old-space-size=4096 ./node_modules/tsc-alias/dist/bin/index.js -p tsconfig.build.json && node scripts/sync-prisma-dist.cjs && node --max-old-space-size=4096 dist/main.js",
+    "dev:deps": "pnpm --filter @sadafgold/types build && pnpm --filter @sadafgold/shared build && pnpm run prisma:generate",
     "prisma:sync-dist": "node scripts/sync-prisma-dist.cjs",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,test,prisma}/**/*.ts\"",
-    "prisma:generate": "prisma generate",
+    "prisma:generate": "prisma generate && node scripts/prisma-post-generate.cjs",
     "prisma:db:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:seed": "prisma db seed",
+    "prisma:migrate:deploy": "node --max-old-space-size=4096 ./node_modules/prisma/build/index.js migrate deploy",
+    "prisma:seed": "node --max-old-space-size=4096 ./node_modules/prisma/build/index.js db seed",
     "smoke:roles": "node scripts/smoke-role-apis.mjs",
     "test": "jest",
     "typecheck": "prisma generate && tsc --noEmit",
@@ -86,7 +87,7 @@
     "tsc-alias": "^1.8.17",
     "tsconfig-paths": "^4.2.0",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:"
+    "typescript-eslint": "^8.57.1"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

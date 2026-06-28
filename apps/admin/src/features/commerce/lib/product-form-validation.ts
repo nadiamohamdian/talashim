@@ -74,6 +74,7 @@ function isMeaningfulVariant(variant: ProductVariantField): boolean {
     variant.sku.trim().length > 0 ||
     variant.color.trim().length > 0 ||
     variant.size.trim().length > 0 ||
+    variant.stone.trim().length > 0 ||
     variant.imageUrl.trim().length > 0 ||
     variant.weightGram.trim().length > 0 ||
     variant.makingFeePercent.trim().length > 0
@@ -225,8 +226,8 @@ export function validateProductForm(
     if (sku.toLowerCase() === parentSku) {
       errors.push(`واریانت ${index + 1}: SKU واریانت نباید با SKU محصول یکسان باشد.`);
     }
-    if (!variant.color.trim() && !variant.size.trim()) {
-      errors.push(`واریانت ${index + 1}: رنگ یا سایز را مشخص کنید.`);
+    if (!variant.color.trim() && !variant.size.trim() && !variant.stone.trim()) {
+      errors.push(`واریانت ${index + 1}: رنگ، سایز یا سنگ را مشخص کنید.`);
     }
     const variantWeight = variant.weightGram.trim();
     if (variantWeight) {
@@ -325,6 +326,7 @@ export function buildProductCreateBody(
           sku: variant.sku.trim(),
           color: variant.color.trim() || undefined,
           size: variant.size.trim() || undefined,
+          stone: variant.stone.trim() || undefined,
           priceToman: parseIntegerDigitsToNumber(variant.priceToman),
           weightGram:
             weightGram !== undefined && Number.isFinite(weightGram) && weightGram >= 0.01

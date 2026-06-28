@@ -33,6 +33,7 @@ import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
 import { BANNER_LINK_TYPE_FA, BANNER_PLACEMENT_FA, BANNER_STATUS_FA, selectFieldClass } from '../lib/labels';
 import { validateLibraryImageUrl } from '../lib/validate-library-image';
+import { PersianDatePicker } from '@/shared/ui/persian-date-picker';
 
 const emptyBanner = (): UpsertBannerPayload => ({
   title: '',
@@ -336,21 +337,17 @@ export function BannersPanel() {
               </div>
             ) : null}
             <div>
-              <Label>شروع نمایش (اختیاری)</Label>
-              <Input
-                className="mt-1"
-                type="date"
+              <PersianDatePicker
+                label="شروع نمایش (اختیاری)"
                 value={form.startsAt ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, startsAt: e.target.value }))}
+                onChange={(startsAt) => setForm((f) => ({ ...f, startsAt }))}
               />
             </div>
             <div>
-              <Label>پایان نمایش (اختیاری)</Label>
-              <Input
-                className="mt-1"
-                type="date"
+              <PersianDatePicker
+                label="پایان نمایش (اختیاری)"
                 value={form.endsAt ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, endsAt: e.target.value }))}
+                onChange={(endsAt) => setForm((f) => ({ ...f, endsAt }))}
               />
             </div>
             <div className="md:col-span-2">

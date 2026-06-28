@@ -11,6 +11,10 @@ export const HOME_MAGAZINE_COVER_IMAGE =
 
 export const HOME_MAGAZINE_READ_MORE_LABEL = 'ادامه مطلب';
 
+export const HOME_MAGAZINE_DEMO_SLUG = 'jewelry-care-tips';
+
+export const HOME_MAGAZINE_DEMO_HREF = `/blog/${HOME_MAGAZINE_DEMO_SLUG}`;
+
 export const HOME_MAGAZINE_DEMO_EXCERPT =
   'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.';
 
@@ -22,27 +26,27 @@ export const HOME_MAGAZINE_DEMO_ITEMS: HomeMagazineArticleItem[] = [
     title: HOME_MAGAZINE_DEMO_TITLE,
     excerpt: HOME_MAGAZINE_DEMO_EXCERPT,
     imageUrl: HOME_MAGAZINE_COVER_IMAGE,
-    href: '/blog',
+    href: HOME_MAGAZINE_DEMO_HREF,
   },
   {
     id: 'magazine-demo-2',
     title: HOME_MAGAZINE_DEMO_TITLE,
     excerpt: HOME_MAGAZINE_DEMO_EXCERPT,
     imageUrl: HOME_MAGAZINE_COVER_IMAGE,
-    href: '/blog',
+    href: HOME_MAGAZINE_DEMO_HREF,
   },
   {
     id: 'magazine-demo-3',
     title: HOME_MAGAZINE_DEMO_TITLE,
     excerpt: HOME_MAGAZINE_DEMO_EXCERPT,
     imageUrl: HOME_MAGAZINE_COVER_IMAGE,
-    href: '/blog',
+    href: HOME_MAGAZINE_DEMO_HREF,
   },
   {
     id: 'magazine-demo-4',
     title: HOME_MAGAZINE_DEMO_TITLE,
     excerpt: HOME_MAGAZINE_DEMO_EXCERPT,
     imageUrl: HOME_MAGAZINE_COVER_IMAGE,
-    href: '/blog',
+    href: HOME_MAGAZINE_DEMO_HREF,
   },
 ];

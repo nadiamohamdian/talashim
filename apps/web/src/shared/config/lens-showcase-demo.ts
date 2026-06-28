@@ -32,6 +32,8 @@ export interface LensHotspot {
   id?: string;
   top: string;
   left: string;
+  topMobile?: string;
+  leftMobile?: string;
   chipTop?: string;
   chipLeft?: string;
   chipTopMobile?: string;
@@ -40,14 +42,31 @@ export interface LensHotspot {
   chipTranslateY?: string;
 }
 
+export function resolveLensHotspotPosition(
+  spot: LensHotspot,
+  isMobile: boolean,
+): { top: string; left: string } {
+  if (isMobile) {
+    return {
+      top: spot.topMobile ?? spot.top,
+      left: spot.leftMobile ?? spot.left,
+    };
+  }
+
+  return {
+    top: spot.top,
+    left: spot.left,
+  };
+}
+
 export function resolveLensChipPosition(
   spot: LensHotspot,
   isMobile: boolean,
 ): { top: string; left: string } {
   if (isMobile) {
     return {
-      top: spot.chipTopMobile ?? spot.chipTop ?? spot.top,
-      left: spot.chipLeftMobile ?? spot.chipLeft ?? spot.left,
+      top: spot.chipTopMobile ?? spot.chipTop ?? spot.topMobile ?? spot.top,
+      left: spot.chipLeftMobile ?? spot.chipLeft ?? spot.leftMobile ?? spot.left,
     };
   }
 
@@ -88,6 +107,10 @@ const DEMO_LENS_POSTER = '/images/home/lens-demo-poster.png';
 export const LENS_EDITORIAL_HERO =
   '/images/home/9c4dd67d8f1d19b4e88be95aa15037b4%202.png';
 
+/** Development fallback until CMS lens videos are published */
+export const LENS_DEMO_VIDEO_URL =
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm';
+
 export const LENS_EDITORIAL_META = {
   eyebrow: 'Talashim Lens',
   title: 'ست‌ها از نمای نزدیک',
@@ -100,30 +123,40 @@ export const LENS_EDITORIAL_HOTSPOTS = [
     id: 'hotspot-ring',
     top: '73px',
     left: '199px',
+    topMobile: '29.3%',
+    leftMobile: '41.7%',
     chipTop: '75px',
     chipLeft: '-11px',
-    chipTranslateX: '-12%',
-    chipTranslateY: 'calc(-100% - 8px)',
+    chipTopMobile: '0%',
+    chipLeftMobile: '10px',
+    chipTranslateX: '-50%',
+    chipTranslateY: 'calc(-100% - 6px)',
   },
   {
     id: 'hotspot-earring',
     top: '104px',
     left: '300px',
+    topMobile: '78.9%',
+    leftMobile: '44.6%',
     chipTop: '104px',
     chipLeft: '507px',
-    chipTranslateX: '-88%',
-    chipTranslateY: 'calc(-100% - 8px)',
+    chipTopMobile: '0%',
+    chipLeftMobile: '10px',
+    chipTranslateX: '-50%',
+    chipTranslateY: 'calc(-100% - 6px)',
   },
   {
     id: 'hotspot-bracelet',
     top: '72%',
     left: '40%',
+    topMobile: '27.1%',
+    leftMobile: '70%',
     chipTop: '245px',
     chipLeft: '48px',
-    chipTopMobile: '93.2%',
-    chipLeftMobile: '6.95%',
-    chipTranslateX: '-20%',
-    chipTranslateY: 'calc(-100% - 8px)',
+    chipTopMobile: '0%',
+    chipLeftMobile: '10px',
+    chipTranslateX: '-50%',
+    chipTranslateY: 'calc(-100% - 6px)',
   },
 ] as const;
 
@@ -131,24 +164,28 @@ export const LENS_SHOWCASE_DEMO_ITEMS: LensShowcaseDemoItem[] = [
   {
     id: 'demo-lens-1',
     title: 'کالکشن گوشواره',
-    videoUrl: '',
+    videoUrl: LENS_DEMO_VIDEO_URL,
     thumbnailUrl: LENS_EDITORIAL_HERO,
+    heroImageUrl: LENS_EDITORIAL_HERO,
+    hotspots: [...LENS_EDITORIAL_HOTSPOTS],
     sortOrder: 0,
     products: DEMO_LENS_PRODUCTS,
   },
   {
     id: 'demo-lens-2',
     title: 'ست عروسی',
-    videoUrl: '',
+    videoUrl: LENS_DEMO_VIDEO_URL,
     thumbnailUrl: '/images/home/new-arrival-lifestyle.png',
+    heroImageUrl: '/images/home/new-arrival-lifestyle.png',
     sortOrder: 1,
     products: DEMO_LENS_PRODUCTS,
   },
   {
     id: 'demo-lens-3',
     title: 'طلای روز',
-    videoUrl: '',
+    videoUrl: LENS_DEMO_VIDEO_URL,
     thumbnailUrl: DEMO_LENS_POSTER,
+    heroImageUrl: DEMO_LENS_POSTER,
     sortOrder: 2,
     products: DEMO_LENS_PRODUCTS,
   },
@@ -160,7 +197,7 @@ export const LENS_CAROUSEL_DEMO_ITEMS: LensShowcaseDemoItem[] = [
   {
     id: 'demo-lens-carousel-4',
     title: 'کالکشن دستبند',
-    videoUrl: '',
+    videoUrl: LENS_DEMO_VIDEO_URL,
     thumbnailUrl: DEMO_LENS_POSTER,
     sortOrder: 3,
     products: DEMO_LENS_PRODUCTS,

@@ -75,7 +75,9 @@ export function ProductSizeRulerSection({
   const dragStartScrollRef = useRef(0);
   const snapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  selectedSizeRef.current = selectedSize;
+  useEffect(() => {
+    selectedSizeRef.current = selectedSize;
+  }, [selectedSize]);
 
   const selectedIndex = Math.max(0, sizes.indexOf(selectedSize));
 

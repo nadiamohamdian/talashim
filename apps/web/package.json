@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 3000 --webpack",
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "eslint .",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@reduxjs/toolkit": "^2.8.2",
     "@sadafgold/api-client": "workspace:*",
     "@sadafgold/shared": "workspace:*",
     "@sadafgold/types": "workspace:*",
@@ -22,6 +23,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-hook-form": "^7.76.1",
+    "react-redux": "^9.2.0",
     "recharts": "^3.8.1",
     "socket.io-client": "^4.8.1",
     "zod": "catalog:",

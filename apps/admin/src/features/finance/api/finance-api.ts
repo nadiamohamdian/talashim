@@ -73,6 +73,7 @@ export {
   fetchWalletTransactions,
   fetchPaymentReceipts,
   fetchWallets,
+  adjustUserWallet,
 } from '@/features/admin/api/admin-api';
 
 export type { AdminPaginated, AdminTradeOrder, AdminWalletRow, AdminWalletTransaction, AdminPaymentReceiptItem };

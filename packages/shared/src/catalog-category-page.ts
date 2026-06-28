@@ -125,4 +125,11 @@ export const DEFAULT_CATALOG_CATEGORY_SEEDS: DefaultCatalogCategorySeed[] = [
     productCategory: 'COIN',
     sortOrder: 6,
   },
+  {
+    slug: 'kids',
+    title: 'طلای کودکانه',
+    subtitle: 'انگشتر، دستبند، گردنبند و گوشواره طلا با طراحی ایمن برای کودکان',
+    productCategory: null,
+    sortOrder: 7,
+  },
 ];

@@ -45,6 +45,7 @@ export interface AdminProductVariantDto {
   sku: string;
   color: string | null;
   size: string | null;
+  stone: string | null;
   priceToman: number;
   weightGram: string | null;
   makingFeePercent: number | null;
@@ -91,6 +92,24 @@ export interface AdminProductReviewItem {
     title: string;
     slug: string;
   };
+}
+
+export interface AdminProductReviewGroup {
+  product: {
+    id: string;
+    title: string;
+    slug: string;
+  };
+  reviewCount: number;
+  averageRating: number;
+  reviews: AdminProductReviewItem[];
+}
+
+export interface AdminProductReviewsGroupedResponse {
+  page: number;
+  limit: number;
+  total: number;
+  groups: AdminProductReviewGroup[];
 }
 
 export interface AdminInventoryRowDto {

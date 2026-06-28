@@ -1,4 +1,5 @@
-import type { CheckoutPaymentProvider } from '@sadafgold/shared';
+import type { CheckoutPaymentProvider, CardToCardAccount } from '@sadafgold/shared';
+import { DEFAULT_CARD_TO_CARD_ACCOUNTS } from '@sadafgold/shared';
 
 export type StorefrontGeneralSettings = {
   storeName: string;
@@ -20,6 +21,7 @@ export type StorefrontCommerceSettings = {
   enableWalletCheckout: boolean;
   enableCod: boolean;
   autoConfirmPaidOrders: boolean;
+  cardToCardAccounts: CardToCardAccount[];
 };
 
 export type StorefrontGoldSettings = {
@@ -66,4 +68,14 @@ export function getEnabledPaymentProviders(
     providers.push('credit');
   }
   return providers.length > 0 ? providers : ['card_to_card'];
+}
+
+export function resolveCardToCardAccounts(
+  commerce: StorefrontCommerceSettings,
+): CardToCardAccount[] {
+  const accounts = commerce.cardToCardAccounts;
+  if (Array.isArray(accounts) && accounts.length > 0) {
+    return accounts;
+  }
+  return DEFAULT_CARD_TO_CARD_ACCOUNTS;
 }

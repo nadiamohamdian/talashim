@@ -11,7 +11,7 @@ export function isCarouselControlTarget(target: EventTarget | null): boolean {
   }
 
   return Boolean(
-    target.closest('button, input, textarea, select, [data-carousel-control]'),
+    target.closest('a, button, input, textarea, select, label, [data-carousel-control]'),
   );
 }
 

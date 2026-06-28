@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { HomeMagazineArticleItem } from '@/shared/config/home-magazine-demo';
+import {
+  getNormalizedScrollLeft,
+  setNormalizedScrollLeft,
+} from '@/shared/lib/horizontal-loop-carousel';
 import { useHorizontalScrollDrag } from '@/shared/lib/horizontal-scroll-drag';
 import { HomeMagazineArticleCard } from '@/widgets/home/home-magazine-article-card';
 
@@ -36,6 +40,8 @@ export function HomeMagazineCarousel({ items }: HomeMagazineCarouselProps) {
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
+  useHorizontalScrollDrag(frameRef);
+
   const updateScrollState = useCallback(() => {
     const frame = frameRef.current;
     if (!frame) {
@@ -43,7 +49,7 @@ export function HomeMagazineCarousel({ items }: HomeMagazineCarouselProps) {
     }
 
     const maxScroll = Math.max(0, frame.scrollWidth - frame.clientWidth);
-    const position = frame.scrollLeft;
+    const position = getNormalizedScrollLeft(frame);
     const tolerance = 2;
 
     setCanScrollPrev(position > tolerance);
@@ -56,21 +62,29 @@ export function HomeMagazineCarousel({ items }: HomeMagazineCarouselProps) {
       return;
     }
 
-    updateScrollState();
+    const syncScrollState = () => {
+      window.requestAnimationFrame(updateScrollState);
+    };
+
+    syncScrollState();
 
     const onScroll = () => updateScrollState();
     frame.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', updateScrollState);
+    window.addEventListener('resize', syncScrollState);
+
+    const resizeObserver = new ResizeObserver(syncScrollState);
+    resizeObserver.observe(frame);
+    const track = frame.querySelector('.home-magazine-showcase-track');
+    if (track instanceof HTMLElement) {
+      resizeObserver.observe(track);
+    }
 
     return () => {
       frame.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', updateScrollState);
+      window.removeEventListener('resize', syncScrollState);
+      resizeObserver.disconnect();
     };
   }, [items.length, updateScrollState]);
-
-  useHorizontalScrollDrag(frameRef, {
-    onDragEnd: updateScrollState,
-  });
 
   const scrollByStep = useCallback(
     (direction: 'prev' | 'next') => {
@@ -88,11 +102,14 @@ export function HomeMagazineCarousel({ items }: HomeMagazineCarouselProps) {
       const trackStyles = getComputedStyle(track);
       const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap || '0') || 0;
       const step = card.offsetWidth + gap;
+      const position = getNormalizedScrollLeft(frame);
+      const maxScroll = Math.max(0, frame.scrollWidth - frame.clientWidth);
+      const nextPosition =
+        direction === 'next'
+          ? Math.min(position + step, maxScroll)
+          : Math.max(position - step, 0);
 
-      frame.scrollBy({
-        left: direction === 'next' ? step : -step,
-        behavior: 'smooth',
-      });
+      setNormalizedScrollLeft(frame, nextPosition, 'smooth');
     },
     [],
   );
@@ -108,19 +125,19 @@ export function HomeMagazineCarousel({ items }: HomeMagazineCarouselProps) {
           <button
             type="button"
             className="home-magazine-showcase-nav-btn"
-            onClick={() => scrollByStep('prev')}
-            aria-label="مطالب قبلی"
-            disabled={!canScrollPrev}
+            onClick={() => scrollByStep('next')}
+            aria-label="مطالب بعدی"
+            disabled={!canScrollNext}
             data-carousel-control
           >
-            <MagazineCarouselArrow />
+            <MagazineCarouselArrow flipped />
           </button>
           <button
             type="button"
             className="home-magazine-showcase-nav-btn"
-            onClick={() => scrollByStep('next')}
-            aria-label="مطالب بعدی"
-            disabled={!canScrollNext}
+            onClick={() => scrollByStep('prev')}
+            aria-label="مطالب قبلی"
+            disabled={!canScrollPrev}
             data-carousel-control
           >
             <MagazineCarouselArrow flipped />

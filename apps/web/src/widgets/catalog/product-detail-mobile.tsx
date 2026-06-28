@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import type { ProductVariant } from '@sadafgold/types';
+import { applyLivePricingToProduct } from '@sadafgold/shared';
 import { AddToCartButton } from '@/features/cart/components/add-to-cart-button';
 import { ProductDetailVideoIcon } from '@/features/cart/components/product-detail-video-icon';
 import { useDynamicProductPrice } from '@/features/catalog/hooks/use-dynamic-product-price';
+import { useMarketPrices } from '@/lib/api/hooks/use-market-prices';
 import { formatPrice } from '@/shared/lib/format-price';
 import {
   DEFAULT_RELATED_PRODUCTS,
@@ -187,10 +189,64 @@ export function ProductDetailMobile({
     const matched = findMatchingVariant(variants, {
       goldColor: showGoldSection ? selectedGold : undefined,
       size: activeSize,
+      stone: showStoneSection ? selectedStone : undefined,
     });
 
     return matched ?? resolveDefaultVariant(variants);
-  }, [activeSize, selectedGold, showGoldSection, variants]);
+  }, [
+    activeSize,
+    selectedGold,
+    selectedStone,
+    showGoldSection,
+    showStoneSection,
+    variants,
+  ]);
+
+  const { data: liveQuote } = useMarketPrices({ karat: product.karat });
+
+  const resolveEffectivePriceToman = (variant: ProductVariant | null): number => {
+    const merged = applyVariantToProduct(product, variant);
+    const livePerGram = Number(liveQuote?.pricePerGram ?? 0);
+    if (Number.isFinite(livePerGram) && livePerGram > 0) {
+      return applyLivePricingToProduct(merged, livePerGram).priceToman;
+    }
+    return merged.priceToman;
+  };
+
+  const stonePriceDeltas = useMemo(() => {
+    if (!showStoneSection || !stoneSwatches?.length) {
+      return {} as Record<string, number | null>;
+    }
+
+    const selection = {
+      goldColor: showGoldSection ? selectedGold : undefined,
+      size: activeSize,
+    };
+    const basePrice = resolveEffectivePriceToman(selectedVariant);
+    const deltas: Record<string, number | null> = {};
+
+    for (const swatch of stoneSwatches) {
+      const variant = findMatchingVariant(variants, { ...selection, stone: swatch.id });
+      if (!variant) {
+        deltas[swatch.id] = null;
+        continue;
+      }
+      const delta = resolveEffectivePriceToman(variant) - basePrice;
+      deltas[swatch.id] = delta === 0 ? null : delta;
+    }
+
+    return deltas;
+  }, [
+    activeSize,
+    liveQuote?.pricePerGram,
+    product,
+    selectedGold,
+    selectedVariant,
+    showGoldSection,
+    showStoneSection,
+    stoneSwatches,
+    variants,
+  ]);
 
   const variantProduct = useMemo(
     () => applyVariantToProduct(product, selectedVariant),
@@ -447,21 +503,34 @@ export function ProductDetailMobile({
             انتخاب رنگ سنگ
           </h2>
           <div className="product-details-stone-swatches">
-            {stoneSwatches!.map((swatch) => (
-              <button
-                key={swatch.id}
-                type="button"
-                className={
-                  selectedStone === swatch.id
-                    ? 'product-details-stone-swatch is-active'
-                    : 'product-details-stone-swatch'
-                }
-                style={{ backgroundColor: swatch.color }}
-                aria-label={swatch.label}
-                aria-pressed={selectedStone === swatch.id}
-                onClick={() => setSelectedStone(swatch.id)}
-              />
-            ))}
+            {stoneSwatches!.map((swatch) => {
+              const priceDelta = stonePriceDeltas[swatch.id];
+              return (
+                <div key={swatch.id} className="product-details-stone-swatch-item">
+                  <button
+                    type="button"
+                    className={
+                      selectedStone === swatch.id
+                        ? 'product-details-stone-swatch is-active'
+                        : 'product-details-stone-swatch'
+                    }
+                    style={{ backgroundColor: swatch.color }}
+                    aria-label={swatch.label}
+                    aria-pressed={selectedStone === swatch.id}
+                    onClick={() => setSelectedStone(swatch.id)}
+                  />
+                  {priceDelta != null ? (
+                    <span
+                      className={`product-details-stone-price-delta${
+                        priceDelta > 0 ? ' is-positive' : priceDelta < 0 ? ' is-negative' : ''
+                      }`}
+                    >
+                      {priceDelta > 0 ? '+' : '−'} {formatPrice(Math.abs(priceDelta))}
+                    </span>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         </section>
         ) : null}
@@ -469,8 +538,7 @@ export function ProductDetailMobile({
         ) : null}
 
         <div className="product-details-specs-review-row">
-        <section className="product-details-section product-details-specs-section" aria-labelledby="pdp-specs-title">
-          <div className="product-details-section-head">
+          <div className="product-details-section-head product-details-specs-review-head">
             <h2 id="pdp-specs-title" className="product-details-section-title">
               مشخصات
             </h2>
@@ -491,26 +559,30 @@ export function ProductDetailMobile({
             </div>
           </div>
 
-          <table className="product-details-specs-table">
-            <tbody>
-              {specs.map((row) => (
-                <tr key={row.label} className="product-details-spec-row">
-                  <th scope="row" className="product-details-spec-label">
-                    {row.label}
-                  </th>
-                  <td className="product-details-spec-value">{row.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+          <section
+            className="product-details-section product-details-specs-section product-details-specs-table-wrap"
+            aria-labelledby="pdp-specs-title"
+          >
+            <table className="product-details-specs-table">
+              <tbody>
+                {specs.map((row) => (
+                  <tr key={row.label} className="product-details-spec-row">
+                    <th scope="row" className="product-details-spec-label">
+                      {row.label}
+                    </th>
+                    <td className="product-details-spec-value">{row.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
 
-        <ProductReviewsShowcase
-          productSlug={product.slug}
-          seedReviews={reviews}
-          featuredReview={featuredReview}
-          onSubmitReview={() => setReviewWizardOpen(true)}
-        />
+          <ProductReviewsShowcase
+            productSlug={product.slug}
+            seedReviews={reviews}
+            featuredReview={featuredReview}
+            onSubmitReview={() => setReviewWizardOpen(true)}
+          />
         </div>
 
         <section className="product-details-related" aria-labelledby="pdp-related-title">

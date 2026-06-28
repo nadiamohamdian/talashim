@@ -45,6 +45,9 @@ export const ORDER_STATUS_HINTS: Record<OrderStatus, string> = {
   cancelled: 'این سفارش لغو شده است.',
 };
 
+export const ORDER_STATUS_BADGE_LAYOUT_CLASS =
+  'flex h-[23px] w-[95px] flex-col items-center justify-center text-center align-middle';
+
 export function orderStatusBadgeClass(status: OrderStatus): string {
   switch (status) {
     case 'confirmed':

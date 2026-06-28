@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { StaffRoleGuard } from '@/common/guards/staff-role.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
@@ -6,7 +6,9 @@ import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface'
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import {
   AdminProductReviewsQueryDto,
+  CreateAdminProductReviewDto,
   ReviewAdminProductReviewDto,
+  UpdateAdminProductReviewDto,
 } from '../dto/admin-product-reviews.dto';
 import { AdminProductReviewsService } from '../services/admin-product-reviews.service';
 
@@ -31,5 +33,27 @@ export class AdminProductReviewsController {
     @CurrentUser() actor: AuthenticatedUser,
   ) {
     return this.adminProductReviewsService.review(id, payload, actor);
+  }
+
+  @Post()
+  @ApiOperation({ summary: 'Create a product review (admin)' })
+  create(@Body() payload: CreateAdminProductReviewDto, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminProductReviewsService.create(payload, actor);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a product review' })
+  update(
+    @Param('id') id: string,
+    @Body() payload: UpdateAdminProductReviewDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminProductReviewsService.update(id, payload, actor);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a product review' })
+  remove(@Param('id') id: string, @CurrentUser() actor: AuthenticatedUser) {
+    return this.adminProductReviewsService.remove(id, actor);
   }
 }

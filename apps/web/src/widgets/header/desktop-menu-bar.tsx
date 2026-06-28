@@ -10,7 +10,7 @@ import {
   IconMenuBag,
   IconMenuSearch,
 } from '@/widgets/header/header-menu-icons';
-import { StoreSearchBar } from '@/widgets/header/store-search-bar';
+import { StorefrontSearchBar } from '@/widgets/header/storefront-search-bar';
 
 export function DesktopMenuBar() {
   const cartHydrated = useCartHydrated();
@@ -19,45 +19,50 @@ export function DesktopMenuBar() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <div className="desktop-menu-bar">
-      <div className="desktop-menu-bar-top">
-        <div className="desktop-menu-bar-actions">
-          <button
-            type="button"
-            className="desktop-menu-bar-action"
-            aria-label="جستجو"
-            aria-expanded={searchOpen}
-            onClick={() => setSearchOpen((value) => !value)}
-          >
-            <IconMenuSearch className="desktop-menu-bar-icon desktop-menu-bar-icon-search" />
-          </button>
+    <>
+      <div className="desktop-menu-bar">
+        <div className="desktop-menu-bar-top">
+          <div className="desktop-menu-bar-actions">
+            <button
+              type="button"
+              className="desktop-menu-bar-action"
+              aria-label="جستجو"
+              aria-expanded={searchOpen}
+              onClick={() => setSearchOpen((value) => !value)}
+            >
+              <IconMenuSearch className="desktop-menu-bar-icon desktop-menu-bar-icon-search" />
+            </button>
 
-          <UserAccountDropdown variant="menu-icon" surface="desktop" />
+            <UserAccountDropdown variant="menu-icon" surface="desktop" />
 
-          <Link href="/cart" className="desktop-menu-bar-action" aria-label="سبد خرید">
-            <IconMenuBag className="desktop-menu-bar-icon desktop-menu-bar-icon-bag" />
-            {cartBadge != null ? (
-              <span className="desktop-menu-bar-badge">{cartBadge}</span>
-            ) : null}
+            <Link href="/cart" className="desktop-menu-bar-action" aria-label="سبد خرید">
+              <IconMenuBag className="desktop-menu-bar-icon desktop-menu-bar-icon-bag" />
+              {cartBadge != null ? (
+                <span className="desktop-menu-bar-badge">{cartBadge}</span>
+              ) : null}
+            </Link>
+          </div>
+
+          <nav className="desktop-menu-bar-nav" aria-label="دسته‌بندی محصولات">
+            <div className="desktop-menu-bar-nav-list">
+              <HomeHeroDesktopNav />
+            </div>
+          </nav>
+
+          <Link href="/" className="desktop-menu-bar-brand" aria-label="Talashim">
+            Talashim
           </Link>
         </div>
-
-        <nav className="desktop-menu-bar-nav" aria-label="دسته‌بندی محصولات">
-          <div className="desktop-menu-bar-nav-list">
-            <HomeHeroDesktopNav />
-          </div>
-        </nav>
-
-        <Link href="/" className="desktop-menu-bar-brand" aria-label="Talashim">
-          Talashim
-        </Link>
       </div>
 
       {searchOpen ? (
-        <div className="desktop-menu-bar-search-wrap">
-          <StoreSearchBar />
+        <div className="storefront-search-bar-wrap storefront-search-bar-wrap--header">
+          <StorefrontSearchBar
+            autoFocus
+            onSubmitted={() => setSearchOpen(false)}
+          />
         </div>
       ) : null}
-    </div>
+    </>
   );
 }

@@ -1,4 +1,5 @@
-import { platformConfig } from '@sadafgold/shared';
+import { DEFAULT_CARD_TO_CARD_ACCOUNTS, platformConfig } from '@sadafgold/shared';
+import type { CardToCardAccount } from '@sadafgold/shared';
 
 export type GeneralSettingsPayload = {
   storeName: string;
@@ -24,6 +25,7 @@ export type CommerceSettingsPayload = {
   enableWalletCheckout: boolean;
   enableCod: boolean;
   autoConfirmPaidOrders: boolean;
+  cardToCardAccounts: CardToCardAccount[];
 };
 
 export type GoldSettingsPayload = {
@@ -81,6 +83,7 @@ export const DEFAULT_COMMERCE_SETTINGS: CommerceSettingsPayload = {
   enableWalletCheckout: true,
   enableCod: false,
   autoConfirmPaidOrders: false,
+  cardToCardAccounts: DEFAULT_CARD_TO_CARD_ACCOUNTS,
 };
 
 export const DEFAULT_GOLD_SETTINGS: GoldSettingsPayload = {

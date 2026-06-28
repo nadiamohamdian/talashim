@@ -68,7 +68,7 @@ export function CatalogCategoriesListPanel() {
                   </TableCell>
                   <TableCell>{category.heroImageUrls.length}</TableCell>
                   <TableCell>
-                    <Badge variant={category.isActive ? 'default' : 'secondary'}>
+                    <Badge variant={category.isActive ? 'default' : 'outline'}>
                       {category.isActive ? 'فعال' : 'غیرفعال'}
                     </Badge>
                   </TableCell>

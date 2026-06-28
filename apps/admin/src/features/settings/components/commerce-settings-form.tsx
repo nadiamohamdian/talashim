@@ -15,6 +15,7 @@ import { SettingsFormFooter } from './settings-form-footer';
 import { SettingsPersistenceNotice } from './settings-persistence-notice';
 import { SettingsSectionCard } from './settings-section-card';
 import { SettingsToggleRow } from './settings-toggle-row';
+import { CardToCardAccountsFields } from './card-to-card-accounts-fields';
 
 export function CommerceSettingsForm() {
   const canWrite = useAdminAuthStore((s) => s.hasPermission(ADMIN_PERMISSIONS.settings.write));
@@ -30,6 +31,7 @@ export function CommerceSettingsForm() {
     watch,
     setValue,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CommerceSettings>({
     resolver: zodResolver(commerceSettingsSchema) as Resolver<CommerceSettings>,
@@ -174,6 +176,13 @@ export function CommerceSettingsForm() {
           disabled={!canWrite}
           onChange={(v) => setValue('autoConfirmPaidOrders', v, { shouldDirty: true })}
         />
+      </SettingsSectionCard>
+
+      <SettingsSectionCard
+        title="اطلاعات کارت‌به‌کارت"
+        description="حساب‌هایی که در صفحه پرداخت و واریز کیف پول به مشتری نمایش داده می‌شوند."
+      >
+        <CardToCardAccountsFields control={control} errors={errors} disabled={!canWrite} />
       </SettingsSectionCard>
 
       <SettingsFormFooter

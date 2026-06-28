@@ -1,1 +1,5 @@
-export { formatPersianDate, formatPersianDateTime } from './jalaali';
+export {
+  formatPersianDate,
+  formatPersianDateTime,
+  formatPersianTime,
+} from './jalaali';

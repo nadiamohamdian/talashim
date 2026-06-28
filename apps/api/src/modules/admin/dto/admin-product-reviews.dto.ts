@@ -1,6 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ProductReviewStatus } from '@/generated/prisma';
-import { IsEnum, IsIn, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
+import { Type, Transform } from 'class-transformer';
 import { PaginationQueryDto } from './admin-query.dto';
 
 export class AdminProductReviewsQueryDto extends PaginationQueryDto {
@@ -13,10 +25,94 @@ export class AdminProductReviewsQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: 'When true, groups reviews by product',
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    if (value === true || value === 'true' || value === '1') {
+      return true;
+    }
+    if (value === false || value === 'false' || value === '0') {
+      return false;
+    }
+    return undefined;
+  })
+  @IsBoolean()
+  groupByProduct?: boolean;
 }
 
 export class ReviewAdminProductReviewDto {
   @ApiProperty({ enum: [ProductReviewStatus.APPROVED, ProductReviewStatus.REJECTED] })
   @IsIn([ProductReviewStatus.APPROVED, ProductReviewStatus.REJECTED])
   status!: ProductReviewStatus;
+}
+
+export class UpdateAdminProductReviewDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(10)
+  @MaxLength(2000)
+  body?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  @Min(1)
+  @Max(5)
+  rating?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  authorName?: string;
+
+  @ApiPropertyOptional({ enum: ProductReviewStatus })
+  @IsOptional()
+  @IsEnum(ProductReviewStatus)
+  status?: ProductReviewStatus;
+}
+
+export class CreateAdminProductReviewDto {
+  @ApiProperty({ description: 'Product slug' })
+  @IsString()
+  @MinLength(2)
+  productSlug!: string;
+
+  @ApiProperty()
+  @IsString()
+  @MinLength(10)
+  @MaxLength(2000)
+  body!: string;
+
+  @ApiProperty()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating!: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  authorName?: string;
+
+  @ApiPropertyOptional({ description: '11-digit mobile; optional for admin-created reviews' })
+  @IsOptional()
+  @IsString()
+  @MinLength(11)
+  @MaxLength(11)
+  phone?: string;
+
+  @ApiPropertyOptional({ enum: ProductReviewStatus, default: ProductReviewStatus.APPROVED })
+  @IsOptional()
+  @IsEnum(ProductReviewStatus)
+  status?: ProductReviewStatus;
 }

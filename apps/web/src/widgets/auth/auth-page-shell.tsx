@@ -24,7 +24,7 @@ export function AuthPageShell({
       className={`auth-page store-chrome-light store-no-chrome${isVerify ? ' auth-page--verify' : ''}`}
     >
       <div className="auth-page-frame">
-        <AuthBackButton fallbackHref={isVerify ? '/login' : '/'} />
+        <AuthBackButton fallbackHref="/" />
 
         <div className="auth-page-visual" aria-hidden>
           <Image

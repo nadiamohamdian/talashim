@@ -1,4 +1,4 @@
-import { platformConfig } from '@talashim/shared';
+import { DEFAULT_CARD_TO_CARD_ACCOUNTS, platformConfig } from '@talashim/shared';
 import type {
   CommerceSettings,
   FeatureFlagsSettings,
@@ -6,6 +6,8 @@ import type {
   GoldSettings,
   PlatformSettings,
 } from './schemas';
+
+export { DEFAULT_CARD_TO_CARD_ACCOUNTS };
 
 export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   storeName: platformConfig.name,
@@ -31,6 +33,7 @@ export const DEFAULT_COMMERCE_SETTINGS: CommerceSettings = {
   enableWalletCheckout: true,
   enableCod: false,
   autoConfirmPaidOrders: false,
+  cardToCardAccounts: DEFAULT_CARD_TO_CARD_ACCOUNTS,
 };
 
 export const DEFAULT_GOLD_SETTINGS: GoldSettings = {

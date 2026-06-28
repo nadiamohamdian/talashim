@@ -1,5 +1,5 @@
 import type { ProductSummary } from '@sadafgold/types';
-import { HOME_BUDGET_RANGES } from '@/shared/config/storefront-ia';
+import { GIFT_BUDGET_RANGES, HOME_BUDGET_RANGES } from '@/shared/config/storefront-ia';
 import type { ProductListingPageMeta } from '@/shared/config/product-listing-meta';
 import { formatPrice } from '@/shared/lib/format-price';
 
@@ -60,12 +60,17 @@ export function filterProductsByPrice<T extends Pick<ProductSummary, 'priceToman
   return products.filter((product) => matchesProductPriceFilter(product.priceToman, filter));
 }
 
-export function getBudgetListingMeta(filter: ProductPriceFilter): ProductListingPageMeta | null {
+export function getBudgetListingMeta(
+  filter: ProductPriceFilter,
+  context: 'home' | 'gift' = 'home',
+): ProductListingPageMeta | null {
   if (!hasProductPriceFilter(filter)) {
     return null;
   }
 
-  const knownRange = HOME_BUDGET_RANGES.find((range) => {
+  const ranges = context === 'gift' ? GIFT_BUDGET_RANGES : HOME_BUDGET_RANGES;
+
+  const knownRange = ranges.find((range) => {
     const url = new URL(range.href, 'http://localhost');
     const min = parsePriceQueryParam(url.searchParams.get('minPrice') ?? undefined);
     const max = parsePriceQueryParam(url.searchParams.get('maxPrice') ?? undefined);
@@ -75,8 +80,14 @@ export function getBudgetListingMeta(filter: ProductPriceFilter): ProductListing
   if (knownRange) {
     return {
       title: knownRange.label,
-      breadcrumbs: [{ label: 'فروشگاه' }, { label: knownRange.label }],
-      subtitle: 'محصولات در بازه بودجه انتخاب‌شده',
+      breadcrumbs:
+        context === 'gift'
+          ? [{ label: 'فروشگاه' }, { label: 'هدیه' }, { label: knownRange.label }]
+          : [{ label: 'فروشگاه' }, { label: knownRange.label }],
+      subtitle:
+        context === 'gift'
+          ? 'طلاهای مناسب هدیه در بازه بودجه انتخاب‌شده'
+          : 'محصولات در بازه بودجه انتخاب‌شده',
     };
   }
 

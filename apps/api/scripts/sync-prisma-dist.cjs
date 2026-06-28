@@ -9,5 +9,33 @@ if (!fs.existsSync(src)) {
   process.exit(0);
 }
 
-fs.cpSync(src, dest, { recursive: true, force: true });
-console.log('[sync-prisma-dist] copied src/generated → dist/generated');
+function shouldCopy(relativePath) {
+  if (relativePath.endsWith('.ts') || relativePath.endsWith('.tsx')) {
+    return false;
+  }
+  return true;
+}
+
+function copyAssets(dir, relativeBase = '') {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const relativePath = path.join(relativeBase, entry.name).replace(/\\/g, '/');
+    const srcPath = path.join(dir, entry.name);
+    const destPath = path.join(dest, relativePath);
+
+    if (entry.isDirectory()) {
+      copyAssets(srcPath, relativePath);
+      continue;
+    }
+
+    if (!shouldCopy(relativePath)) {
+      continue;
+    }
+
+    fs.mkdirSync(path.dirname(destPath), { recursive: true });
+    fs.copyFileSync(srcPath, destPath);
+  }
+}
+
+fs.mkdirSync(dest, { recursive: true });
+copyAssets(src);
+console.log('[sync-prisma-dist] copied Prisma runtime assets (wasm, mjs, json) → dist/generated');

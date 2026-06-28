@@ -13,6 +13,13 @@ export const generalSettingsSchema = z.object({
   maintenanceMessage: z.string().max(500).optional(),
 });
 
+export const cardToCardAccountSchema = z.object({
+  bankName: z.string().min(2, 'نام بانک الزامی است'),
+  accountHolder: z.string().min(2, 'نام صاحب حساب الزامی است'),
+  cardNumber: z.string().min(10, 'شماره کارت معتبر نیست'),
+  iban: z.string().min(24, 'شماره شبا معتبر نیست'),
+});
+
 export const commerceSettingsSchema = z.object({
   currencyLabel: z.string().min(1),
   minOrderToman: z.coerce.number().int().min(0),
@@ -24,6 +31,9 @@ export const commerceSettingsSchema = z.object({
   enableWalletCheckout: z.boolean(),
   enableCod: z.boolean(),
   autoConfirmPaidOrders: z.boolean(),
+  cardToCardAccounts: z
+    .array(cardToCardAccountSchema)
+    .min(1, 'حداقل یک حساب کارت‌به‌کارت لازم است'),
 });
 
 export const goldSettingsSchema = z.object({
@@ -51,6 +61,7 @@ export const featureFlagsSchema = z.object({
   enableAdminAuditExport: z.boolean(),
 });
 
+export type CardToCardAccount = z.infer<typeof cardToCardAccountSchema>;
 export type GeneralSettings = z.infer<typeof generalSettingsSchema>;
 export type CommerceSettings = z.infer<typeof commerceSettingsSchema>;
 export type GoldSettings = z.infer<typeof goldSettingsSchema>;

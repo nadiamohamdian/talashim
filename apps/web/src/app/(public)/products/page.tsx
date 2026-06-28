@@ -12,6 +12,7 @@ import {
   PRODUCT_LISTING_DEMO_PRODUCTS,
   PRODUCT_LISTING_PAGE,
 } from '@/shared/config/product-listing-demo';
+import { GIFT_LISTING_PAGE } from '@/shared/config/storefront-ia';
 import { getCategoryListingGallerySlides } from '@/shared/config/category-listing-gallery';
 import { resolveCategoryListingGallerySlides } from '@/shared/config/cms-category-listing-gallery';
 import { getPublicHomepage } from '@/lib/api/cms.api';
@@ -21,12 +22,22 @@ import {
   resolveCatalogCategorySlug,
 } from '@/shared/lib/catalog-category';
 import {
+  applyProductListingQueryToProducts,
   filterProductsBySearchTerms,
   filterProductsByWeight,
   getEffectivePriceFilter,
   hasActiveListingQuery,
   parseProductListingQuery,
+  resolveProductListingFilterConfig,
+  sortProductsByListingQuery,
 } from '@/shared/lib/product-listing-query';
+import {
+  buildGiftListingFilterConfig,
+  filterProductsByGift,
+  filterProductsByProductType,
+  isKidsListingCategory,
+  parseProductListingType,
+} from '@/shared/lib/product-listing-scope';
 import {
   filterProductsByPrice,
   getBudgetListingMeta,
@@ -43,16 +54,19 @@ export async function generateMetadata({
   searchParams: Promise<{
     sale?: string;
     category?: string;
+    type?: string;
     minPrice?: string;
     maxPrice?: string;
   }>;
 }): Promise<Metadata> {
   const params = await searchParams;
-  const { sale } = params;
+  const { sale, type } = params;
   const onSale = sale === '1';
+  const productType = parseProductListingType(type);
+  const isGiftListing = productType === 'gold_jewelry' && !params.category;
   const priceFilter = parseProductPriceFilter(params);
   const categorySlug = resolveCatalogCategorySlug(params.category);
-  const budgetMeta = getBudgetListingMeta(priceFilter);
+  const budgetMeta = getBudgetListingMeta(priceFilter, isGiftListing ? 'gift' : 'home');
   const categoryPage = categorySlug
     ? await getCatalogCategoryPage(params.category ?? categorySlug)
     : null;
@@ -76,6 +90,21 @@ export async function generateMetadata({
     };
   }
 
+  if (isGiftListing) {
+    return {
+      title: GIFT_LISTING_PAGE.title,
+      description: GIFT_LISTING_PAGE.subtitle,
+    };
+  }
+
+  if (isKidsListingCategory(params.category)) {
+    const kidsMeta = getCategoryListingMeta('kids');
+    return {
+      title: kidsMeta?.title ?? 'طلای کودکانه',
+      description: kidsMeta?.subtitle ?? 'محصولات طلای کودکانه',
+    };
+  }
+
   if (categoryMeta) {
     return {
       title: categoryPage?.seoTitle ?? categoryMeta.title,
@@ -96,6 +125,7 @@ interface ProductsPageProps {
   searchParams: Promise<{
     sale?: string;
     category?: string;
+    type?: string;
     minPrice?: string;
     maxPrice?: string;
     minWeight?: string;
@@ -109,8 +139,16 @@ interface ProductsPageProps {
 function buildDemoProducts(
   categorySlug: string | undefined,
   priceFilter: ReturnType<typeof parseProductPriceFilter>,
+  productType?: ReturnType<typeof parseProductListingType>,
+  giftOnly = false,
 ) {
   let products = PRODUCT_LISTING_DEMO_PRODUCTS;
+  if (productType) {
+    products = filterProductsByProductType(products, productType);
+  }
+  if (giftOnly) {
+    products = filterProductsByGift(products);
+  }
   if (categorySlug) {
     products = filterProductsByCategory(products, categorySlug);
   }
@@ -120,28 +158,45 @@ function buildDemoProducts(
 async function ProductsPageContent({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
   const listingQuery = parseProductListingQuery(new URLSearchParams(params as Record<string, string>));
-  const { sale, category } = params;
+  const { sale, category, type } = params;
   const onSale = sale === '1';
+  const productType = parseProductListingType(type);
+  const isGiftListing = productType === 'gold_jewelry' && !category;
   const priceFilter = parseProductPriceFilter(params);
   const effectivePriceFilter = getEffectivePriceFilter(listingQuery, priceFilter);
   const hasPriceFilter = hasProductPriceFilter(effectivePriceFilter);
   const hasActiveFilters = hasActiveListingQuery(listingQuery, priceFilter);
   const categorySlug = resolveCatalogCategorySlug(category);
-  const categoryPage: PublicCatalogCategoryPage | null = categorySlug
-    ? (await getCatalogCategoryPage(category ?? categorySlug)) ??
-      ({
-        slug: category ?? categorySlug,
-        title: getCategoryListingMeta(category ?? categorySlug)?.title ?? category ?? '',
-        subtitle: getCategoryListingMeta(category ?? categorySlug)?.subtitle ?? null,
-        heroImageUrls: [],
-        filterConfig: buildDefaultCatalogCategoryFilterConfig(category ?? categorySlug),
-        productCategory: categorySlug,
-        seoTitle: null,
-        seoDescription: null,
-      } satisfies PublicCatalogCategoryPage)
-    : null;
+  const isKidsCategory = isKidsListingCategory(category);
+  let categoryPage: PublicCatalogCategoryPage | null = null;
+  if (categorySlug || isKidsCategory) {
+    const slug = category ?? (isKidsCategory ? 'kids' : categorySlug);
+    const fetched = slug ? await getCatalogCategoryPage(slug) : null;
+    categoryPage = fetched
+      ? {
+          ...fetched,
+          heroImageUrls: fetched.heroImageUrls ?? [],
+          filterConfig:
+            fetched.filterConfig ?? buildDefaultCatalogCategoryFilterConfig(slug ?? 'rings'),
+        }
+      : slug
+        ? {
+            slug,
+            title: getCategoryListingMeta(slug)?.title ?? category ?? '',
+            subtitle: getCategoryListingMeta(slug)?.subtitle ?? null,
+            heroImageUrls: [],
+            filterConfig: buildDefaultCatalogCategoryFilterConfig(slug),
+            productCategory: isKidsCategory ? null : categorySlug ?? null,
+            seoTitle: null,
+            seoDescription: null,
+          }
+        : null;
+  }
+  const listingFilterConfig = isGiftListing
+    ? buildGiftListingFilterConfig()
+    : resolveProductListingFilterConfig(categoryPage, category ?? categorySlug);
 
-  if (onSale || categorySlug || hasActiveFilters) {
+  if (onSale || categorySlug || isKidsCategory || isGiftListing || hasActiveFilters) {
     noStore();
   }
 
@@ -174,6 +229,18 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
     products = filterProductsByCategory(products, categorySlug);
   }
 
+  if (!catalogFetchFailed && isKidsCategory) {
+    products = filterProductsByCategory(products, 'kids');
+  }
+
+  if (!catalogFetchFailed && productType) {
+    products = filterProductsByProductType(products, productType);
+  }
+
+  if (!catalogFetchFailed && isGiftListing) {
+    products = filterProductsByGift(products);
+  }
+
   if (!catalogFetchFailed) {
     products = filterProductsByPrice(products, effectivePriceFilter);
     products = filterProductsByWeight(
@@ -182,52 +249,58 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
       listingQuery.maxWeight,
     );
 
-    if (categoryPage?.filterConfig) {
-      products = filterProductsBySearchTerms(
-        products,
-        categoryPage.filterConfig,
-        listingQuery.filterIds,
-      );
-    }
+    products = filterProductsBySearchTerms(
+      products,
+      listingFilterConfig,
+      listingQuery.filterIds,
+    );
+
+    products = sortProductsByListingQuery(products, listingQuery.sort, listingFilterConfig);
   }
 
-  const demoProducts = buildDemoProducts(categorySlug, effectivePriceFilter);
+  const demoProducts = buildDemoProducts(
+    isKidsCategory ? 'kids' : categorySlug,
+    effectivePriceFilter,
+    productType,
+    isGiftListing,
+  );
   let displayProducts = products;
 
-  if (displayProducts.length === 0 && !hasActiveFilters && !onSale) {
-    displayProducts = filterProductsByWeight(
-      filterProductsBySearchTerms(
-        demoProducts,
-        categoryPage?.filterConfig,
-        listingQuery.filterIds,
-      ),
-      listingQuery.minWeight,
-      listingQuery.maxWeight,
+  if (displayProducts.length === 0 && !onSale) {
+    displayProducts = applyProductListingQueryToProducts(
+      demoProducts,
+      listingQuery,
+      listingFilterConfig,
+      priceFilter,
     );
   }
-  const budgetMeta = getBudgetListingMeta(priceFilter);
+  const budgetMeta = getBudgetListingMeta(priceFilter, isGiftListing ? 'gift' : 'home');
 
   const categoryMeta = categoryPage
     ? {
         title: categoryPage.title,
         subtitle: categoryPage.subtitle ?? undefined,
       }
-    : categorySlug
-      ? getCategoryListingMeta(category ?? categorySlug)
-      : null;
+    : isKidsCategory
+      ? getCategoryListingMeta('kids')
+      : categorySlug
+        ? getCategoryListingMeta(category ?? categorySlug)
+        : null;
 
   let categoryGallerySlides: readonly string[] | undefined;
-  if (categoryPage?.heroImageUrls.length) {
+  if (categoryPage?.heroImageUrls?.length) {
     categoryGallerySlides = categoryPage.heroImageUrls;
-  } else if (categorySlug) {
+  } else if (categorySlug || isKidsCategory) {
     try {
       const homepage = await getPublicHomepage();
       categoryGallerySlides = resolveCategoryListingGallerySlides(
-        category ?? categorySlug,
+        category ?? (isKidsCategory ? 'kids' : categorySlug) ?? 'rings',
         homepage.sections,
       );
     } catch {
-      categoryGallerySlides = getCategoryListingGallerySlides(category ?? categorySlug);
+      categoryGallerySlides = getCategoryListingGallerySlides(
+        category ?? (isKidsCategory ? 'kids' : categorySlug) ?? 'rings',
+      );
     }
   }
 
@@ -236,10 +309,16 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
     emptyMessage = 'بارگذاری محصولات ناموفق بود. لطفاً دوباره تلاش کنید.';
   } else if (listingQuery.sort === 'discounts') {
     emptyMessage = 'محصولی با تخفیف فعال یافت نشد.';
-  } else if (hasPriceFilter && categorySlug) {
+  } else if (hasPriceFilter && (categorySlug || isKidsCategory)) {
     emptyMessage = 'محصولی در این دسته و بازه قیمت یافت نشد.';
+  } else if (hasPriceFilter && isGiftListing) {
+    emptyMessage = 'طلای هدیه‌ای در این بازه بودجه یافت نشد.';
   } else if (hasPriceFilter) {
     emptyMessage = 'محصولی در این بازه قیمت یافت نشد.';
+  } else if (isKidsCategory) {
+    emptyMessage = 'محصول کودکانه‌ای یافت نشد.';
+  } else if (isGiftListing) {
+    emptyMessage = 'برای مشاهده پیشنهادها، بودجه هدیه خود را انتخاب کنید.';
   } else if (categorySlug) {
     emptyMessage = 'محصولی در این دسته یافت نشد.';
   }
@@ -253,11 +332,16 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
               title: 'تخفیف‌های روز',
               subtitle: 'محصولات طلا و جواهر با تخفیف فعال',
             }
-          : budgetMeta ?? categoryMeta ?? PRODUCT_LISTING_PAGE
+          : budgetMeta ??
+            (isGiftListing && !hasPriceFilter ? GIFT_LISTING_PAGE : null) ??
+            categoryMeta ??
+            PRODUCT_LISTING_PAGE
       }
       categoryPage={categoryPage}
+      filterConfig={listingFilterConfig}
+      categorySlug={category ?? (isKidsCategory ? 'kids' : categorySlug)}
       gallerySlides={categoryGallerySlides}
-      showDefaultHero={!hasPriceFilter && !onSale && !categorySlug}
+      showDefaultHero={!hasPriceFilter && !onSale && !categorySlug && !isKidsCategory && !isGiftListing}
       emptyMessage={emptyMessage}
       pagination={pagination}
       pageSize={PAGE_SIZE}

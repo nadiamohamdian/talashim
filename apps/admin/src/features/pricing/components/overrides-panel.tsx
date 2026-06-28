@@ -31,6 +31,7 @@ import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { PricingPageShell } from './pricing-page-shell';
 import { formatRial } from '../lib/labels';
 import { FormattedNumberInput } from '@/shared/ui/formatted-number-input';
+import { PersianDateTimePicker } from '@/shared/ui/persian-datetime-picker';
 
 const emptyForm = (): UpsertPriceOverridePayload => ({
   symbol: 'XAU-IRR',
@@ -49,7 +50,7 @@ function buildOverridePayload(form: UpsertPriceOverridePayload): UpsertPriceOver
     ...(form.sellPrice ? { sellPrice: form.sellPrice } : {}),
     ...(reason ? { reason } : {}),
     isActive: form.isActive ?? true,
-    ...(form.expiresAt ? { expiresAt: new Date(form.expiresAt).toISOString() } : {}),
+    ...(form.expiresAt ? { expiresAt: form.expiresAt } : {}),
   };
 }
 
@@ -75,7 +76,7 @@ export function OverridesPanel() {
         sellPrice: editing.sellPrice ? Number(editing.sellPrice) : undefined,
         reason: editing.reason ?? undefined,
         isActive: editing.isActive,
-        expiresAt: editing.expiresAt?.slice(0, 16),
+        expiresAt: editing.expiresAt ?? undefined,
       });
     } else if (editing === 'new') {
       setForm(emptyForm());
@@ -170,12 +171,10 @@ export function OverridesPanel() {
               />
             </div>
             <div>
-              <Label>انقضا</Label>
-              <Input
-                className="mt-1"
-                type="datetime-local"
+              <PersianDateTimePicker
+                label="انقضا"
                 value={form.expiresAt ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, expiresAt: e.target.value }))}
+                onChange={(expiresAt) => setForm((f) => ({ ...f, expiresAt }))}
               />
             </div>
             <div className="flex items-end gap-2 pb-1">

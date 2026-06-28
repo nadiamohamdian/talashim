@@ -25,6 +25,7 @@ import {
   AdminSessionsQueryDto,
 } from '../dto/admin-security-query.dto';
 import { RejectWalletDepositDto } from '../dto/reject-wallet-deposit.dto';
+import { AdjustUserWalletDto } from '../dto/adjust-user-wallet.dto';
 import { AdminReportsService } from '../services/admin-reports.service';
 import { AdminService } from '../services/admin.service';
 import {
@@ -198,6 +199,15 @@ export class AdminController {
     @CurrentUser() actor: AuthenticatedUser,
   ) {
     return this.adminService.listWallets(query, actor);
+  }
+
+  @Post('wallets/adjustments')
+  @ApiOperation({ summary: 'Charge or discharge a user wallet (admin adjustment)' })
+  adjustUserWallet(
+    @Body() dto: AdjustUserWalletDto,
+    @CurrentUser() actor: AuthenticatedUser,
+  ) {
+    return this.adminService.adjustUserWallet(dto, actor);
   }
 
   @Get('audit-logs')

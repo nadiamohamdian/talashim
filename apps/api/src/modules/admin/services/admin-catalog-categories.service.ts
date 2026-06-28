@@ -11,7 +11,7 @@ import type {
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { requireLibraryImageUrl } from '@/common/media/require-library-image-url';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
-import type { CatalogCategoryPage } from '@/generated/prisma';
+import type { CatalogCategoryPage, Prisma } from '@/generated/prisma';
 import { CatalogCategoryPageRepository } from '@/modules/catalog/repositories/catalog-category-page.repository';
 import {
   parseCatalogCategoryFilterConfig,
@@ -32,13 +32,13 @@ export class AdminCatalogCategoriesService {
   ) {}
 
   async list(actor: AuthenticatedUser): Promise<AdminCatalogCategoryPageDto[]> {
-    assertAdminPermission(actor, ADMIN_PERMISSIONS.products.read);
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.read);
     const rows = await this.repository.findAll();
     return rows.map((row) => this.toAdminDto(row));
   }
 
   async getById(id: string, actor: AuthenticatedUser): Promise<AdminCatalogCategoryPageDto> {
-    assertAdminPermission(actor, ADMIN_PERMISSIONS.products.read);
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.read);
     const row = await this.repository.findById(id);
     if (!row) {
       throw new NotFoundException('دسته‌بندی یافت نشد');
@@ -50,7 +50,7 @@ export class AdminCatalogCategoriesService {
     dto: CreateAdminCatalogCategoryPageDto,
     actor: AuthenticatedUser,
   ): Promise<AdminCatalogCategoryPageDto> {
-    assertAdminPermission(actor, ADMIN_PERMISSIONS.products.write);
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.write);
 
     const slug = slugifyCatalogCategory(dto.slug);
     if (!slug) {
@@ -71,7 +71,7 @@ export class AdminCatalogCategoriesService {
       title: dto.title.trim(),
       subtitle: dto.subtitle?.trim() || null,
       heroImageUrls,
-      filterConfig,
+      filterConfig: filterConfig as unknown as Prisma.InputJsonValue,
       productCategory: productCategory ?? undefined,
       sortOrder: dto.sortOrder ?? 0,
       isActive: dto.isActive ?? true,
@@ -93,7 +93,7 @@ export class AdminCatalogCategoriesService {
     dto: UpdateAdminCatalogCategoryPageDto,
     actor: AuthenticatedUser,
   ): Promise<AdminCatalogCategoryPageDto> {
-    assertAdminPermission(actor, ADMIN_PERMISSIONS.products.write);
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.write);
 
     const existing = await this.repository.findById(id);
     if (!existing) {
@@ -123,7 +123,7 @@ export class AdminCatalogCategoriesService {
       filterConfig:
         dto.filterConfig === undefined
           ? undefined
-          : validateCatalogCategoryFilterConfig(dto.filterConfig),
+          : (validateCatalogCategoryFilterConfig(dto.filterConfig) as unknown as Prisma.InputJsonValue),
       productCategory:
         dto.productCategory === undefined
           ? undefined
@@ -146,7 +146,7 @@ export class AdminCatalogCategoriesService {
   }
 
   async remove(id: string, actor: AuthenticatedUser): Promise<void> {
-    assertAdminPermission(actor, ADMIN_PERMISSIONS.products.write);
+    assertAdminPermission(actor.role, ADMIN_PERMISSIONS.products.write);
 
     const existing = await this.repository.findById(id);
     if (!existing) {

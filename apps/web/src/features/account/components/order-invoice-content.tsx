@@ -79,7 +79,7 @@ export function OrderInvoiceContent({ orderId }: OrderInvoiceContentProps) {
     <div className="space-y-4">
       <Link
         href={`/orders/${order.id}`}
-        className="no-print inline-block text-sm text-muted transition hover:text-gold-dark"
+        className="no-print flex flex-col items-end justify-start text-sm text-muted transition hover:text-gold-dark"
       >
         ← بازگشت به سفارش
       </Link>

@@ -7,7 +7,7 @@ export function formatToman(value: number | string): string {
   return formatted === '—' ? '0' : formatted;
 }
 
-export { formatPersianDate, formatPersianDateTime } from '@/shared/lib/format-date';
+export { formatPersianDate, formatPersianDateTime, formatPersianTime } from '@/shared/lib/format-date';
 
 export function formatGram(value: string | number): string {
   return Number(value).toLocaleString('fa-IR', { maximumFractionDigits: 4 });

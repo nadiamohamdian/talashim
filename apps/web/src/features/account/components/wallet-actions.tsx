@@ -3,10 +3,11 @@
 import { useRef, useState } from 'react';
 import { Button, Input, Label } from '@sadafgold/ui';
 import {
-  DEFAULT_CARD_TO_CARD_INFO,
   formatGroupedIntegerFa,
   parseGroupedIntegerDigits,
 } from '@sadafgold/shared';
+import { resolveCardToCardAccounts } from '@/shared/model/storefront-settings';
+import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import {
   useWalletDepositRequest,
   useWalletWithdrawalRequest,
@@ -56,6 +57,8 @@ function CopyableRow({
 }
 
 export function WalletActions() {
+  const { commerce } = useStorefrontSettings();
+  const cardToCardAccounts = resolveCardToCardAccounts(commerce);
   const [tab, setTab] = useState<WalletActionTab>('deposit');
   const [amount, setAmount] = useState('');
   const [iban, setIban] = useState('');
@@ -177,21 +180,28 @@ export function WalletActions() {
               />
             </div>
 
-            <div className="rounded-2xl border border-nude-200 bg-gradient-to-br from-nude-50/80 to-card p-4">
-              <p className="mb-1 text-xs font-semibold text-foreground">اطلاعات واریز</p>
-              <p className="mb-3 text-[11px] leading-5 text-muted">
-                مبلغ را به حساب زیر واریز کنید و سپس فیش را بارگذاری نمایید.
+            <div className="space-y-4">
+              <p className="text-[11px] leading-5 text-muted">
+                مبلغ را به یکی از حساب‌های زیر واریز کنید و سپس فیش را بارگذاری نمایید.
               </p>
-              <div className="divide-y divide-nude-200/80">
-                <CopyableRow label="بانک" value={DEFAULT_CARD_TO_CARD_INFO.bankName} />
-                <CopyableRow label="به نام" value={DEFAULT_CARD_TO_CARD_INFO.accountHolder} />
-                <CopyableRow
-                  label="شماره کارت"
-                  value={DEFAULT_CARD_TO_CARD_INFO.cardNumber}
-                  mono
-                />
-                <CopyableRow label="شبا" value={DEFAULT_CARD_TO_CARD_INFO.iban} mono />
-              </div>
+              {cardToCardAccounts.map((account, index) => (
+                <div
+                  key={`${account.cardNumber}-${account.iban}-${index}`}
+                  className="rounded-2xl border border-nude-200 bg-gradient-to-br from-nude-50/80 to-card p-4"
+                >
+                  {cardToCardAccounts.length > 1 ? (
+                    <p className="mb-2 text-xs font-semibold text-foreground">حساب {index + 1}</p>
+                  ) : (
+                    <p className="mb-2 text-xs font-semibold text-foreground">اطلاعات واریز</p>
+                  )}
+                  <div className="divide-y divide-nude-200/80">
+                    <CopyableRow label="بانک" value={account.bankName} />
+                    <CopyableRow label="به نام" value={account.accountHolder} />
+                    <CopyableRow label="شماره کارت" value={account.cardNumber} mono />
+                    <CopyableRow label="شبا" value={account.iban} mono />
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div

@@ -156,6 +156,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
               sku: variant.sku,
               color: variant.color ?? '',
               size: variant.size ?? '',
+              stone: variant.stone ?? '',
               priceToman: String(variant.priceToman),
               weightGram: variant.weightGram ?? '',
               makingFeePercent: variant.makingFeePercent
@@ -477,8 +478,8 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
 
         <AdminFormSection
           title="گزینه‌های صفحه محصول"
-          description="مشخصات جدول، رنگ طلا، رنگ سنگ و خط‌کش سایز"
-          badge={pdpOptions.enableGoldColors || pdpOptions.enableStoneColors || pdpOptions.enableSizeRuler ? 'فعال' : undefined}
+          description="جدول مشخصات (مالیات، اجرت، نوع سنگ و …)، رنگ طلا، رنگ سنگ و خط‌کش سایز"
+          badge={pdpOptions.enableGoldColors || pdpOptions.enableStoneColors || pdpOptions.enableSizeRuler || pdpOptions.customSpecs.length > 0 ? 'فعال' : undefined}
         >
           <ProductPdpOptionsFields
             baseSku={form.sku}
@@ -487,11 +488,21 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
             onChange={setPdpOptions}
             onGenerateVariants={setVariants}
           />
+          {mode === 'edit' && form.slug ? (
+            <p className="mt-3 text-xs text-[var(--muted-foreground)]">
+              <Link
+                href={`/products/reviews?search=${encodeURIComponent(form.slug)}`}
+                className="text-[var(--primary)] hover:underline"
+              >
+                مدیریت نظرات این محصول
+              </Link>
+            </p>
+          ) : null}
         </AdminFormSection>
 
         <AdminFormSection
           title="واریانت‌ها"
-          description="قیمت، وزن و موجودی برای هر ترکیب رنگ و سایز"
+          description="قیمت، وزن و موجودی برای هر ترکیب رنگ طلا، سنگ و سایز"
           badge={variants.length > 0 ? `${variants.length} واریانت` : undefined}
         >
           <ProductVariantFields

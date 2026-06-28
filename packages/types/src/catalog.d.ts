@@ -44,6 +44,7 @@ export interface ProductVariant {
     sku: string;
     color: string | null;
     size: string | null;
+    stone: string | null;
     priceToman: number;
     weightGram: number | null;
     makingFeePercent: number | null;

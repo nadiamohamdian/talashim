@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <style
           dangerouslySetInnerHTML={{
             __html: `
-html { background-color: #faf6f2; color: #3d3630; }
+html { background-color: #ffffff; color: #3d3630; }
 html.dark { background-color: #1f1c1a; color: #f5ede6; }
 body { min-height: 100%; background-color: inherit; color: inherit; }
 `,

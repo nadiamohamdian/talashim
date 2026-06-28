@@ -68,10 +68,20 @@ export const CHECKOUT_PAYMENT_LABELS: Record<
   },
 };
 
-/** اطلاعات واریز کارت به کارت — قابل override از env در وب */
-export const DEFAULT_CARD_TO_CARD_INFO = {
+/** اطلاعات حساب برای واریز کارت‌به‌کارت */
+export type CardToCardAccount = {
+  bankName: string;
+  accountHolder: string;
+  cardNumber: string;
+  iban: string;
+};
+
+/** اطلاعات واریز کارت به کارت — پیش‌فرض فروشگاه */
+export const DEFAULT_CARD_TO_CARD_INFO: CardToCardAccount = {
   bankName: 'بانک ملت',
   accountHolder: 'گالری طلاشیم',
   cardNumber: '6104-3378-1234-5678',
   iban: 'IR120120000000001234567890',
 };
+
+export const DEFAULT_CARD_TO_CARD_ACCOUNTS: CardToCardAccount[] = [DEFAULT_CARD_TO_CARD_INFO];

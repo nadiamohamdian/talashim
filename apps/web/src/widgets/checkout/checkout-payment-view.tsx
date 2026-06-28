@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Address } from '@sadafgold/types';
 import {
   CHECKOUT_PAYMENT_LABELS,
-  DEFAULT_CARD_TO_CARD_INFO,
   calculateInsuranceFeeToman,
   calculateShippingFeeToman,
   SHIPPING_INSURANCE_PERCENT,
@@ -25,10 +24,11 @@ import {
 import { formatPrice } from '@/shared/lib/format-price';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
 import { CHECKOUT_PROVINCES } from '@/shared/config/checkout-flow';
-import { getEnabledPaymentProviders } from '@/shared/model/storefront-settings';
+import { getEnabledPaymentProviders, resolveCardToCardAccounts } from '@/shared/model/storefront-settings';
 import { useStorefrontSettings } from '@/shared/providers/storefront-settings-provider';
 import { CheckoutOrderSummary } from '@/widgets/checkout/checkout-order-summary';
 import { CheckoutStepper } from '@/widgets/checkout/checkout-stepper';
+import { CheckoutCardInfo } from '@/widgets/checkout/checkout-card-info';
 
 function normalizePhone(value: string): string {
   return value.replace(/\D/g, '');
@@ -83,6 +83,7 @@ export function CheckoutPaymentView() {
   const router = useRouter();
   const { commerce } = useStorefrontSettings();
   const paymentProviders = getEnabledPaymentProviders(commerce);
+  const cardToCardAccounts = resolveCardToCardAccounts(commerce);
 
   const {
     items,
@@ -324,20 +325,7 @@ export function CheckoutPaymentView() {
 
           {paymentProvider === 'card_to_card' ? (
             <>
-              <div className="checkout-card-info">
-                <p>
-                  <span>بانک:</span> {DEFAULT_CARD_TO_CARD_INFO.bankName}
-                </p>
-                <p>
-                  <span>به نام:</span> {DEFAULT_CARD_TO_CARD_INFO.accountHolder}
-                </p>
-                <p>
-                  <span>کارت:</span> {DEFAULT_CARD_TO_CARD_INFO.cardNumber}
-                </p>
-                <p>
-                  <span>شبا:</span> {DEFAULT_CARD_TO_CARD_INFO.iban}
-                </p>
-              </div>
+              <CheckoutCardInfo accounts={cardToCardAccounts} />
 
               <div className="checkout-receipt-upload">
                 <p className="checkout-receipt-title">بارگذاری فیش کارت‌به‌کارت</p>

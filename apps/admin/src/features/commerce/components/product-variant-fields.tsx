@@ -10,6 +10,7 @@ export type ProductVariantField = {
   sku: string;
   color: string;
   size: string;
+  stone: string;
   priceToman: string;
   weightGram: string;
   makingFeePercent: string;
@@ -22,6 +23,7 @@ export const emptyVariantField = (): ProductVariantField => ({
   sku: '',
   color: '',
   size: '',
+  stone: '',
   priceToman: '0',
   weightGram: '',
   makingFeePercent: '',
@@ -64,7 +66,7 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
     <div className="space-y-4" data-span="full">
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm text-[var(--muted-foreground)]">
-          هر ترکیب رنگ و سایز می‌تواند قیمت، وزن، موجودی و تصویر جدا داشته باشد (حداکثر{' '}
+          هر ترکیب رنگ طلا، سنگ و سایز می‌تواند قیمت، وزن، موجودی و تصویر جدا داشته باشد (حداکثر{' '}
           {MAX_VARIANTS}).
         </p>
         <Button
@@ -167,6 +169,15 @@ export function ProductVariantFields({ baseSku, variants, onChange }: ProductVar
                   value={variant.size}
                   placeholder="۵۲، ۱۴، L"
                   onChange={(e) => onChange(patchVariant(variants, index, { size: e.target.value }))}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">سنگ (شناسه)</Label>
+                <Input
+                  className="mt-1"
+                  value={variant.stone}
+                  placeholder="pink، blue، purple"
+                  onChange={(e) => onChange(patchVariant(variants, index, { stone: e.target.value }))}
                 />
               </div>
               <div>

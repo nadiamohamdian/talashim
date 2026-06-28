@@ -7,6 +7,7 @@ interface CheckoutOrderSummaryProps {
   shippingToman: number;
   title?: string;
   className?: string;
+  showTitle?: boolean;
 }
 
 export function CheckoutOrderSummary({
@@ -16,10 +17,11 @@ export function CheckoutOrderSummary({
   shippingToman,
   title = 'جزئیات سفارش',
   className = '',
+  showTitle = true,
 }: CheckoutOrderSummaryProps) {
   return (
     <section className={`checkout-summary${className ? ` ${className}` : ''}`}>
-      <h2 className="checkout-section-title">{title}</h2>
+      {showTitle ? <h2 className="checkout-section-title">{title}</h2> : null}
       <div className="checkout-summary-box">
         <div className="checkout-summary-row">
           <span className="checkout-summary-label">جمع کل:</span>

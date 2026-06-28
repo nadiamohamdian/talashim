@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
@@ -217,6 +217,7 @@ model ProductVariant {
   sku              String   @unique
   color            String?
   size             String?
+  stone            String?
   priceToman       BigInt
   weightGram       Decimal? @db.Decimal(10, 2)
   makingFeePercent Int?

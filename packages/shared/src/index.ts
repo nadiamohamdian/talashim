@@ -15,3 +15,4 @@ export * from './iranian-identity';
 export * from './order-line-pricing';
 export * from './product-pdp-presets';
 export * from './catalog-category-page';
+export * from './jalaali';

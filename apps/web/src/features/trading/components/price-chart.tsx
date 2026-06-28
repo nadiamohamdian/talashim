@@ -11,6 +11,7 @@ import {
 } from 'recharts';
 import { Card, Skeleton } from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
+import { formatPersianTime } from '@/shared/lib/persian-date';
 import { useGoldPriceHistory } from '../hooks/use-gold-price-history';
 
 export function PriceChart() {
@@ -20,10 +21,7 @@ export function PriceChart() {
     .slice()
     .reverse()
     .map((point) => ({
-      time: new Date(point.recordedAt).toLocaleTimeString('fa-IR', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+      time: formatPersianTime(point.recordedAt),
       price: Number(point.pricePerGram),
     }));
 

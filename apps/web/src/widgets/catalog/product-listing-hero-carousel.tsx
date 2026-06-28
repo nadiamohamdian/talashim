@@ -24,9 +24,8 @@ export function ProductListingHeroCarousel({ slides }: ProductListingHeroCarouse
         <StoreImage
           src={activeSlide}
           alt=""
-          fill
           unoptimized
-          className="product-listing-carousel-image"
+          className="product-listing-carousel-image h-full w-full"
           sizes="100vw"
           priority
         />

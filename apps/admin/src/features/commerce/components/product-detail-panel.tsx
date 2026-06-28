@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Badge, Card, Skeleton } from '@talashim/ui';
 import { fetchAdminProductBySlug } from '../api/commerce-api';
 import { CatalogPageShell } from './catalog-page-shell';
+import { formatPersianDateTime } from '@/shared/lib/format-date';
 import { formatToman, PRODUCT_CATEGORY_FA } from '../lib/labels';
 
 interface ProductDetailPanelProps {
@@ -77,11 +78,11 @@ export function ProductDetailPanel({ slug }: ProductDetailPanelProps) {
                   </div>
                   <div>
                     <dt className="text-muted">شروع تخفیف</dt>
-                    <dd>{data.discountStartsAt ? new Date(data.discountStartsAt).toLocaleString('fa-IR') : '—'}</dd>
+                    <dd>{data.discountStartsAt ? formatPersianDateTime(data.discountStartsAt) : '—'}</dd>
                   </div>
                   <div>
                     <dt className="text-muted">پایان تخفیف</dt>
-                    <dd>{data.discountEndsAt ? new Date(data.discountEndsAt).toLocaleString('fa-IR') : '—'}</dd>
+                    <dd>{data.discountEndsAt ? formatPersianDateTime(data.discountEndsAt) : '—'}</dd>
                   </div>
                 </>
               ) : null}

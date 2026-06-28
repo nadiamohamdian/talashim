@@ -8,6 +8,7 @@ import {
   BLOG_POST_SECTION_TITLES,
 } from '@/shared/config/blog-post-page';
 import { injectHeadingIds } from '@/shared/lib/blog-post-toc';
+import { formatPersianDate } from '@/shared/lib/persian-date';
 import { RichHtmlContent } from '@/shared/ui/rich-html-content';
 import { BlogPostRelatedArticleCard } from '@/widgets/blog/blog-post-related-article-card';
 import { BlogPostRelatedProducts } from '@/widgets/blog/blog-post-related-products';
@@ -127,6 +128,7 @@ export function BlogPostPageView({
                 <div className="blog-post-title-wrap">
                   <span className="blog-post-title-accent" aria-hidden />
                   <h1 className="blog-post-title">{post.title}</h1>
+                  <p className="blog-post-published-at">{formatPersianDate(post.publishedAt)}</p>
                 </div>
 
                 <RichHtmlContent html={contentHtml} className="blog-post-content" />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { getLensProductPageHref, type LensShowcaseDemoItem } from '@/shared/config/lens-showcase-demo';
 import { formatPrice } from '@/shared/lib/format-price';
 import { StoreImage } from '@/shared/ui/store-image';
@@ -19,7 +19,7 @@ export function LensVideoPopup({
   onClose,
   onNavigate,
 }: LensVideoPopupProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [thumbMetrics, setThumbMetrics] = useState<{
     height: number;
@@ -57,12 +57,6 @@ export function LensVideoPopup({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [handleNext, handlePrev, onClose]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !item?.videoUrl) return;
-    void video.play().catch(() => undefined);
-  }, [item?.videoUrl, activeIndex]);
 
   const updateScrollbar = useCallback(() => {
     const scrollEl = scrollRef.current;
@@ -106,10 +100,19 @@ export function LensVideoPopup({
     };
   }, [activeIndex, item?.products, updateScrollbar]);
 
+  const openProduct = useCallback(
+    (slug: string) => {
+      void router.push(getLensProductPageHref(slug));
+    },
+    [router],
+  );
+
   if (!item) return null;
 
-  const popupPoster =
-    item.heroImageUrl?.trim() || item.thumbnailUrl || '';
+  const popupImage =
+    item.heroImageUrl?.trim() || item.thumbnailUrl?.trim() || '/images/home/lens-demo-poster.png';
+
+  const visibleProducts = item.products.filter((product) => Boolean(product.slug?.trim()));
 
   return (
     <div className="lens-video-popup" role="dialog" aria-modal="true" aria-label="لنز طلاشیم">
@@ -135,7 +138,7 @@ export function LensVideoPopup({
           className="lens-video-popup-nav lens-video-popup-nav-prev"
           onClick={handlePrev}
           disabled={!hasPrev}
-          aria-label="ویدیوی قبلی"
+          aria-label="اسلاید قبلی"
         >
           <span aria-hidden>‹</span>
         </button>
@@ -145,35 +148,21 @@ export function LensVideoPopup({
           className="lens-video-popup-nav lens-video-popup-nav-next"
           onClick={handleNext}
           disabled={!hasNext}
-          aria-label="ویدیوی بعدی"
+          aria-label="اسلاید بعدی"
         >
           <span aria-hidden>›</span>
         </button>
 
         <div className="lens-video-popup-media">
-          {item.videoUrl ? (
-            <video
-              ref={videoRef}
-              className="lens-video-popup-video"
-              src={item.videoUrl}
-              poster={popupPoster}
-              playsInline
-              muted
-              loop
-              autoPlay
-              preload="auto"
-              aria-label={item.title ?? 'ویدیو لنز طلاشیم'}
-            />
-          ) : (
-            <StoreImage
-              src={popupPoster}
-              alt={item.title ?? 'پوستر لنز طلاشیم'}
-              fill
-              className="lens-video-popup-poster"
-              sizes="100vw"
-              priority
-            />
-          )}
+          <StoreImage
+            src={popupImage}
+            alt={item.title ?? 'لنز طلاشیم'}
+            fill
+            unoptimized
+            className="lens-video-popup-poster"
+            sizes="100vw"
+            priority
+          />
         </div>
 
         <div className="lens-video-popup-products">
@@ -196,11 +185,12 @@ export function LensVideoPopup({
               ref={scrollRef}
               className="lens-video-popup-products-scroll"
             >
-            {item.products.map((product) => (
-              <Link
+            {visibleProducts.map((product) => (
+              <button
                 key={product.id}
-                href={getLensProductPageHref(product.slug)}
+                type="button"
                 className="lens-video-popup-product"
+                onClick={() => openProduct(product.slug)}
               >
                 <div className="lens-video-popup-product-copy">
                   <p className="lens-video-popup-product-title">{product.title}</p>
@@ -228,7 +218,7 @@ export function LensVideoPopup({
                 <span className="lens-video-popup-product-arrow" aria-hidden>
                   ←
                 </span>
-              </Link>
+              </button>
             ))}
             </div>
           </div>

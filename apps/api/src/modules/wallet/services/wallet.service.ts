@@ -268,6 +268,108 @@ export class WalletService {
     return this.ledgerRepository.rejectPendingRialWithdrawal(transactionId, actorId, reason);
   }
 
+  async adminAdjustWallet(payload: {
+    userId: string;
+    assetType: WalletAssetType;
+    direction: 'CREDIT' | 'DEBIT';
+    amount: string;
+    description: string;
+    idempotencyKey: string;
+    actorId: string;
+  }) {
+    const amount = this.parseAdjustmentAmount(payload.amount, payload.assetType);
+
+    await this.walletRepository.ensureUserWallets(payload.userId);
+    const userAccountCode = userWalletAccountCode(payload.userId, payload.assetType);
+    const platformCode =
+      payload.assetType === WalletAssetType.RIAL ? 'PLATFORM_CASH_RIAL' : 'PLATFORM_GOLD_VAULT';
+
+    if (payload.direction === 'DEBIT') {
+      const userAccount = await this.ledgerRepository.findAccountByCode(userAccountCode);
+      if (!userAccount) {
+        throw new NotFoundException('Wallet account not found');
+      }
+      const balance = await this.ledgerRepository.calculateAccountBalance(userAccount.id);
+      if (balance < amount) {
+        throw new BadRequestException('موجودی کیف پول برای برداشت کافی نیست');
+      }
+    }
+
+    const lines =
+      payload.direction === 'CREDIT'
+        ? [
+            {
+              accountCode: platformCode,
+              side: LedgerSide.DEBIT,
+              assetType: payload.assetType,
+              amount: payload.amount,
+            },
+            {
+              accountCode: userAccountCode,
+              side: LedgerSide.CREDIT,
+              assetType: payload.assetType,
+              amount: payload.amount,
+            },
+          ]
+        : [
+            {
+              accountCode: userAccountCode,
+              side: LedgerSide.DEBIT,
+              assetType: payload.assetType,
+              amount: payload.amount,
+            },
+            {
+              accountCode: platformCode,
+              side: LedgerSide.CREDIT,
+              assetType: payload.assetType,
+              amount: payload.amount,
+            },
+          ];
+
+    return this.ledgerService.postJournal({
+      reference: `admin-wallet-adjust-${payload.idempotencyKey}`,
+      idempotencyKey: payload.idempotencyKey,
+      type: WalletTransactionType.ADJUSTMENT,
+      userId: payload.userId,
+      description: payload.description,
+      metadata: {
+        direction: payload.direction,
+        assetType: payload.assetType,
+        amount: payload.amount,
+        adminActorId: payload.actorId,
+      },
+      lines,
+      actorId: payload.actorId,
+    });
+  }
+
+  private parseAdjustmentAmount(raw: string, assetType: WalletAssetType): number {
+    const amount = Number(raw);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new BadRequestException('مبلغ وارد شده معتبر نیست');
+    }
+
+    if (assetType === WalletAssetType.RIAL) {
+      if (!Number.isInteger(amount)) {
+        throw new BadRequestException('مبلغ تومان باید عدد صحیح باشد');
+      }
+      if (amount > MAX_RIAL_DEPOSIT_TOMAN) {
+        throw new BadRequestException('مبلغ از سقف مجاز بیشتر است');
+      }
+      return amount;
+    }
+
+    if (amount > 10_000) {
+      throw new BadRequestException('مقدار طلا از سقف مجاز بیشتر است');
+    }
+
+    const normalized = amount.toFixed(6);
+    if (Number(normalized) <= 0) {
+      throw new BadRequestException('مقدار طلا معتبر نیست');
+    }
+    return Number(normalized);
+  }
+
   async getHistory(userId: string, query: WalletHistoryQueryDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;

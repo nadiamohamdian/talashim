@@ -16,6 +16,7 @@ import {
 import { getApiEnv } from '../src/config/env';
 import { ensureSeedMediaAssets } from './seed-media';
 import { seedCatalogDemoProducts } from './seed-demo-products';
+import { seedLensVideos } from './seed-lens-videos';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -257,6 +258,7 @@ async function main() {
   }
 
   await seedCatalogDemoProducts(prisma, seedMedia);
+  await seedLensVideos(prisma, seedMedia);
 
   const customerAddress = await prisma.address.upsert({
     where: { id: 'seed-customer-address-1' },
@@ -405,6 +407,48 @@ async function main() {
       publishedAt: new Date('2026-05-01'),
     },
   });
+
+  const magazinePosts = [
+    {
+      slug: 'jewelry-care-tips',
+      title: 'چگونه از جواهرات خود نگهداری کنیم؟',
+      excerpt:
+        'لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است.',
+    },
+    {
+      slug: 'gold-storage-guide',
+      title: 'راهنمای نگهداری طلا در خانه',
+      excerpt:
+        'نکات مهم برای جلوگیری از خش، کدر شدن و آسیب به زیورآلات طلا در نگهداری روزمره.',
+    },
+    {
+      slug: 'ring-cleaning-at-home',
+      title: 'تمیز کردن انگشتر طلا در خانه',
+      excerpt:
+        'روش‌های ساده و ایمن برای تمیز کردن انگشتر و زیورآلات طلا بدون آسیب به سنگ و روکش.',
+    },
+  ] as const;
+
+  for (const post of magazinePosts) {
+    await prisma.blogPost.upsert({
+      where: { slug: post.slug },
+      update: {
+        title: post.title,
+        excerpt: post.excerpt,
+        publishedAt: new Date(),
+      },
+      create: {
+        categoryId: guidesCategory.id,
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+        content: `<p>${post.excerpt}</p>`,
+        coverImageUrl: seedMedia.blog,
+        publishedAt: new Date(),
+      },
+    });
+    console.info(`  [BLOG] ${post.slug}`);
+  }
 
   const faqCategory = await prisma.blogCategory.findUniqueOrThrow({
     where: { slug: 'faq' },

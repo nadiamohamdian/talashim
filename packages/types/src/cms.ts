@@ -30,6 +30,8 @@ export interface CmsLensHotspot {
   id?: string;
   top: string;
   left: string;
+  topMobile?: string;
+  leftMobile?: string;
   chipTop?: string;
   chipLeft?: string;
   chipTopMobile?: string;

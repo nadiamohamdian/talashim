@@ -4,6 +4,12 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": false,
-    "assets": ["generated/**/*"]
+    "assets": [
+      {
+        "include": "generated/**/*",
+        "exclude": "**/*.{ts,tsx}",
+        "watchAssets": true
+      }
+    ]
   }
 }

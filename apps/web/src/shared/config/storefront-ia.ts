@@ -217,6 +217,36 @@ export const HOME_BUDGET_RANGES = [
   },
 ] as const;
 
+/** Gift shop — budget ranges scoped to gold jewelry gifts */
+export const GIFT_BUDGET_RANGES = [
+  {
+    id: 'gift-1-3m',
+    label: '۱-۳ میلیون تومان',
+    href: '/products?type=gold_jewelry&minPrice=1000000&maxPrice=3000000',
+  },
+  {
+    id: 'gift-4-8m',
+    label: '۴-۸ میلیون تومان',
+    href: '/products?type=gold_jewelry&minPrice=4000000&maxPrice=8000000',
+  },
+  {
+    id: 'gift-9-15m',
+    label: '۹-۱۵ میلیون تومان',
+    href: '/products?type=gold_jewelry&minPrice=9000000&maxPrice=15000000',
+  },
+  {
+    id: 'gift-16m-plus',
+    label: 'بالای ۱۶ میلیون تومان',
+    href: '/products?type=gold_jewelry&minPrice=16000000',
+  },
+] as const;
+
+export const GIFT_LISTING_PAGE = {
+  title: 'هدیه طلا',
+  subtitle: 'طلاهای مناسب هدیه — بودجه خود را انتخاب کنید یا همه پیشنهادها را ببینید',
+  breadcrumbs: [{ label: 'فروشگاه' }, { label: 'هدیه' }],
+} as const;
+
 /** Homepage wedding rings promo — Figma Group 386 (1616×512 artboard) */
 export const HOME_WEDDING_PROMO = {
   title: 'برای یک عمر کنار هم',

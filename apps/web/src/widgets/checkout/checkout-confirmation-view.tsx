@@ -173,62 +173,69 @@ export function CheckoutConfirmationView() {
           </button>
         </div>
 
-        <div className="checkout-order-items">
-          {lineItems.map((item, index) => (
-            <CheckoutOrderLineItem
-              key={item.id}
-              item={item}
-              readOnly
-              swatchColor={
-                CHECKOUT_DEFAULT_SWATCH_COLORS[index % CHECKOUT_DEFAULT_SWATCH_COLORS.length]
-              }
+        <div className="checkout-confirmation-body">
+          <section className="checkout-shipping-card checkout-shipping-card--confirmation">
+            <h2 className="checkout-section-title">اطلاعات ارسال</h2>
+            <dl className="checkout-shipping-details">
+              <div className="checkout-shipping-row">
+                <dt>نام گیرنده:</dt>
+                <dd>{recipientName}</dd>
+              </div>
+              <div className="checkout-shipping-row">
+                <dt>تلفن همراه:</dt>
+                <dd>{toPersianDigits(recipientPhone)}</dd>
+              </div>
+              <div className="checkout-shipping-row">
+                <dt>آدرس گیرنده:</dt>
+                <dd>{recipientLine}</dd>
+              </div>
+              <div className="checkout-shipping-row">
+                <dt>استان - شهر:</dt>
+                <dd>
+                  {resolveProvinceLabel(recipientState)} - {recipientCity}
+                </dd>
+              </div>
+              <div className="checkout-shipping-row">
+                <dt>کدپستی:</dt>
+                <dd>{toPersianDigits(recipientPostal)}</dd>
+              </div>
+              <div className="checkout-shipping-row">
+                <dt>بیمه مرسوله:</dt>
+                <dd>{isInsured || order.isInsured ? 'دارد' : 'ندارد'}</dd>
+              </div>
+              <div className="checkout-shipping-row">
+                <dt>زمان ارسال:</dt>
+                <dd>{deliverySlotLabel || '—'}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <div className="checkout-confirmation-order">
+            <div className="checkout-order-items-panel">
+              <div className="checkout-order-items">
+                {lineItems.map((item, index) => (
+                  <CheckoutOrderLineItem
+                    key={item.id}
+                    item={item}
+                    readOnly
+                    swatchColor={
+                      CHECKOUT_DEFAULT_SWATCH_COLORS[index % CHECKOUT_DEFAULT_SWATCH_COLORS.length]
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+
+            <CheckoutOrderSummary
+              subtotalToman={subtotalToman}
+              discountToman={discountToman}
+              taxToman={taxToman}
+              shippingToman={shippingToman}
+              className="checkout-summary--compact checkout-summary--confirmation"
+              showTitle={false}
             />
-          ))}
+          </div>
         </div>
-
-        <CheckoutOrderSummary
-          subtotalToman={subtotalToman}
-          discountToman={discountToman}
-          taxToman={taxToman}
-          shippingToman={shippingToman}
-          className="checkout-summary--compact"
-        />
-
-        <section className="checkout-shipping-card">
-          <h2 className="checkout-section-title">اطلاعات ارسال</h2>
-          <dl className="checkout-shipping-details">
-            <div className="checkout-shipping-row">
-              <dt>نام گیرنده:</dt>
-              <dd>{recipientName}</dd>
-            </div>
-            <div className="checkout-shipping-row">
-              <dt>تلفن همراه:</dt>
-              <dd>{toPersianDigits(recipientPhone)}</dd>
-            </div>
-            <div className="checkout-shipping-row">
-              <dt>آدرس گیرنده:</dt>
-              <dd>{recipientLine}</dd>
-            </div>
-            <div className="checkout-shipping-row">
-              <dt>استان - شهر:</dt>
-              <dd>
-                {resolveProvinceLabel(recipientState)} - {recipientCity}
-              </dd>
-            </div>
-            <div className="checkout-shipping-row">
-              <dt>کدپستی:</dt>
-              <dd>{toPersianDigits(recipientPostal)}</dd>
-            </div>
-            <div className="checkout-shipping-row">
-              <dt>بیمه مرسوله:</dt>
-              <dd>{isInsured || order.isInsured ? 'دارد' : 'ندارد'}</dd>
-            </div>
-            <div className="checkout-shipping-row">
-              <dt>زمان ارسال:</dt>
-              <dd>{deliverySlotLabel || '—'}</dd>
-            </div>
-          </dl>
-        </section>
 
       </div>
     </div>

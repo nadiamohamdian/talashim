@@ -1,4 +1,4 @@
-import { platformConfig } from '@sadafgold/shared';
+import { DEFAULT_CARD_TO_CARD_ACCOUNTS, platformConfig } from '@sadafgold/shared';
 import type { StorefrontSettings } from '@/shared/model/storefront-settings';
 
 export const DEFAULT_STOREFRONT_SETTINGS: StorefrontSettings = {
@@ -23,6 +23,7 @@ export const DEFAULT_STOREFRONT_SETTINGS: StorefrontSettings = {
     enableWalletCheckout: true,
     enableCod: false,
     autoConfirmPaidOrders: false,
+    cardToCardAccounts: DEFAULT_CARD_TO_CARD_ACCOUNTS,
   },
   gold: {
     displayKarat: 18,

@@ -307,6 +307,7 @@ export class CatalogService {
         sku: variant.sku,
         color: variant.color,
         size: variant.size,
+        stone: variant.stone,
         priceToman: Number(variant.priceToman),
         weightGram: variant.weightGram != null ? Number(variant.weightGram) : null,
         makingFeePercent: variant.makingFeePercent,

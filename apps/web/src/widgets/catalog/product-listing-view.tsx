@@ -1,13 +1,16 @@
 'use client';
 
 import { useCallback, useState, type PropsWithChildren } from 'react';
-import type { ProductSummary, PublicCatalogCategoryPage } from '@sadafgold/types';
+import type { ProductSummary, PublicCatalogCategoryPage, CatalogCategoryFilterConfig } from '@sadafgold/types';
 import {
   PRODUCT_LISTING_CAROUSEL_SLIDES,
   PRODUCT_LISTING_PAGE,
   type ProductListingPageMeta,
 } from '@/shared/config/product-listing-meta';
-import type { ProductListingQueryState } from '@/shared/lib/product-listing-query';
+import {
+  resolveProductListingFilterConfig,
+  type ProductListingQueryState,
+} from '@/shared/lib/product-listing-query';
 import { ProductListingCard } from '@/widgets/catalog/product-listing-card';
 import { ProductListingFilterSheet } from '@/widgets/catalog/product-listing-filter-sheet';
 import { ProductListingHeroCarousel } from '@/widgets/catalog/product-listing-hero-carousel';
@@ -20,8 +23,10 @@ interface ProductListingViewProps extends PropsWithChildren {
   products: ProductSummary[];
   meta?: ProductListingPageMeta;
   categoryPage?: PublicCatalogCategoryPage | null;
+  filterConfig?: CatalogCategoryFilterConfig;
   gallerySlides?: readonly string[];
   showDefaultHero?: boolean;
+  beforeTop?: React.ReactNode;
   emptyMessage?: string;
   isLoading?: boolean;
   loadingMessage?: string;
@@ -38,9 +43,11 @@ export function ProductListingView({
   products,
   meta = PRODUCT_LISTING_PAGE,
   categoryPage,
+  filterConfig,
   children,
   gallerySlides,
   showDefaultHero = true,
+  beforeTop,
   emptyMessage = 'محصولی یافت نشد.',
   isLoading = false,
   loadingMessage = 'در حال بارگذاری...',
@@ -57,7 +64,7 @@ export function ProductListingView({
 
   const resolvedGallerySlides =
     gallerySlides ??
-    (categoryPage?.heroImageUrls.length ? categoryPage.heroImageUrls : undefined) ??
+    (categoryPage?.heroImageUrls?.length ? categoryPage.heroImageUrls : undefined) ??
     (showDefaultHero ? PRODUCT_LISTING_CAROUSEL_SLIDES : undefined);
 
   const handleSortChange = useCallback(
@@ -88,8 +95,12 @@ export function ProductListingView({
       page: currentPage,
     } satisfies ProductListingQueryState);
 
+  const resolvedFilterConfig =
+    filterConfig ?? resolveProductListingFilterConfig(categoryPage);
+
   return (
     <div className="product-listing-page store-chrome-light store-minimal-header">
+      {beforeTop}
       <div className="product-listing-top">
         <div className="product-listing-inner product-listing-inner--top">
           <div className="product-listing-top-layout">
@@ -110,15 +121,13 @@ export function ProductListingView({
 
       <div className="product-listing-inner product-listing-inner--body">
         <div className="product-listing-body">
-          {categoryPage?.filterConfig ? (
-            <ProductListingSidebar
-              filterConfig={categoryPage.filterConfig}
-              queryState={resolvedQueryState}
-              onSortChange={handleSortChange}
-              onToggleFilter={handleToggleFilter}
-              onClearFilters={handleClearFilters}
-            />
-          ) : null}
+          <ProductListingSidebar
+            filterConfig={resolvedFilterConfig}
+            queryState={resolvedQueryState}
+            onSortChange={handleSortChange}
+            onToggleFilter={handleToggleFilter}
+            onClearFilters={handleClearFilters}
+          />
 
           <div className="product-listing-main">
             <ProductListingToolbar
@@ -150,14 +159,14 @@ export function ProductListingView({
       <ProductListingSortSheet
         open={sortOpen}
         selected={resolvedQueryState.sort}
-        sortOptions={categoryPage?.filterConfig.sortOptions}
+        sortOptions={resolvedFilterConfig?.sortOptions}
         onSelect={handleSortChange}
         onClose={() => setSortOpen(false)}
       />
 
       <ProductListingFilterSheet
         open={filterOpen}
-        filterConfig={categoryPage?.filterConfig}
+        filterConfig={resolvedFilterConfig}
         queryState={resolvedQueryState}
         onToggleFilter={handleToggleFilter}
         onClearAll={handleClearFilters}

@@ -63,7 +63,7 @@ export function StaffUserEditDialog({
       <div
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-lg overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-2xl)]"
+        className="relative w-full max-w-lg overflow-hidden rounded-t-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--card)] shadow-[var(--shadow-dialog)] sm:rounded-[var(--radius-panel)]"
       >
         <div className="admin-dialog-header">
           <h2 className="text-base font-bold text-foreground">ویرایش پرسنل</h2>

@@ -70,7 +70,7 @@ export function AddressesContent() {
         </div>
       ) : (
         data.map((address) => (
-          <div key={address.id} className="card-luxury flex items-start justify-between gap-4 p-5">
+          <div key={address.id} className="card-luxury flex items-center justify-between gap-4 p-5">
             <div className="text-sm">
               <p className="font-semibold text-stone-950">{address.title}</p>
               <p className="mt-1 text-muted">
@@ -83,7 +83,7 @@ export function AddressesContent() {
             </div>
             <Button
               variant="outline"
-              className="!px-3 !py-1.5 text-xs"
+              className="!px-3 text-xs mt-0"
               disabled={deleteMutation.isPending}
               onClick={() => deleteMutation.mutate(address.id)}
             >

@@ -3,7 +3,7 @@ import type { ProductSpecRow, StoneColorSwatch } from '@/shared/config/product-d
 
 export function findMatchingVariant(
   variants: ProductVariant[],
-  selection: { goldColor?: string; size?: string | number },
+  selection: { goldColor?: string; size?: string | number; stone?: string },
 ): ProductVariant | null {
   if (variants.length === 0) {
     return null;
@@ -14,11 +14,16 @@ export function findMatchingVariant(
       ? String(selection.size)
       : undefined;
 
+  const stoneValue = selection.stone?.trim() || undefined;
+
   const matches = variants.filter((variant) => {
     if (selection.goldColor && variant.color && variant.color !== selection.goldColor) {
       return false;
     }
     if (sizeValue && variant.size && variant.size !== sizeValue) {
+      return false;
+    }
+    if (stoneValue && variant.stone && variant.stone !== stoneValue) {
       return false;
     }
     return true;

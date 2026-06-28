@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { CmsLensSetsShowcaseConfig } from '@sadafgold/types';
 import {
   LENS_EDITORIAL_HERO,
@@ -10,6 +10,7 @@ import {
   LENS_EDITORIAL_META,
   getLensProductPageHref,
   resolveLensChipPosition,
+  resolveLensHotspotPosition,
   type LensHotspot,
   type LensShowcaseDemoItem,
 } from '@/shared/config/lens-showcase-demo';
@@ -45,7 +46,23 @@ function createDefaultOpenChips(count: number): Set<number> {
   return isMobile ? new Set([0]) : new Set(Array.from({ length: count }, (_, index) => index));
 }
 
+function resolveLensHeroImage(item: LensShowcaseDemoItem): string {
+  const hero = item.heroImageUrl?.trim() ?? '';
+  const thumb = item.thumbnailUrl?.trim() ?? '';
+  const isWeakAsset = (url: string) =>
+    !url || url.includes('seed-placeholder') || url.endsWith('.webm');
+
+  if (thumb && !isWeakAsset(thumb)) {
+    return thumb;
+  }
+  if (hero && !isWeakAsset(hero)) {
+    return hero;
+  }
+  return LENS_EDITORIAL_HERO;
+}
+
 export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
+  const router = useRouter();
   const [activeIndex, setActiveIndex] = useState(0);
   const [popupOpen, setPopupOpen] = useState(false);
   const [openChips, setOpenChips] = useState<Set<number>>(() => new Set([0]));
@@ -104,18 +121,28 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
     });
   };
 
-  const openPopup = () => {
+  const openPopup = (event: MouseEvent<HTMLElement>) => {
+    if (
+      (event.target as HTMLElement).closest(
+        '.lens-sets-showcase-product-chip--open, .lens-sets-showcase-hotspot',
+      )
+    ) {
+      return;
+    }
     setPopupOpen(true);
+  };
+
+  const openProduct = (slug: string, event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    void router.push(getLensProductPageHref(slug));
   };
 
   if (!activeItem) {
     return null;
   }
 
-  const heroImage =
-    activeItem.heroImageUrl?.trim() ||
-    activeItem.thumbnailUrl ||
-    LENS_EDITORIAL_HERO;
+  const heroImage = resolveLensHeroImage(activeItem);
 
   return (
     <>
@@ -138,7 +165,7 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
               onKeyDown={(event) => {
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
-                  openPopup();
+                  setPopupOpen(true);
                 }
               }}
               aria-label="مشاهده لنز طلاشیم"
@@ -155,16 +182,18 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
                 <span className="lens-sets-showcase-hero-overlay" />
               </div>
 
-              {spotlightProducts.map((product, index) => {
+              {spotlightProducts
+                .filter((product) => Boolean(product.slug?.trim()))
+                .map((product, index) => {
                 const isOpen = openChips.has(index);
                 const spot = activeHotspots[index];
                 const chipPosition = spot ? resolveLensChipPosition(spot, isMobileViewport) : null;
 
                 return (
-                  <Link
+                  <button
                     key={product.id}
+                    type="button"
                     id={`lens-sets-chip-${index}`}
-                    href={getLensProductPageHref(product.slug)}
                     className={`lens-sets-showcase-product-chip lens-sets-showcase-product-chip--${index}${
                       isOpen ? ' lens-sets-showcase-product-chip--open' : ''
                     }`}
@@ -178,9 +207,10 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
                           } as CSSProperties)
                         : undefined
                     }
-                    onClick={(event) => event.stopPropagation()}
+                    onClick={(event) => openProduct(product.slug, event)}
                     aria-hidden={!isOpen}
                     tabIndex={isOpen ? 0 : -1}
+                    disabled={!isOpen}
                   >
                   <span className="lens-sets-showcase-product-chip-copy">
                     <span className="lens-sets-showcase-product-chip-title">{product.title}</span>
@@ -201,13 +231,14 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
                       className="lens-sets-showcase-product-chip-image"
                     />
                   </span>
-                  </Link>
+                  </button>
                 );
               })}
 
               {activeHotspots.map((spot, index) => {
                 const product = spotlightProducts[index];
                 const isOpen = openChips.has(index);
+                const hotspotPosition = resolveLensHotspotPosition(spot, isMobileViewport);
 
                 return (
                   <button
@@ -216,7 +247,7 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
                     className={`lens-sets-showcase-hotspot lens-sets-showcase-hotspot--${index}${
                       isOpen ? ' lens-sets-showcase-hotspot--active' : ''
                     }`}
-                    style={{ top: spot.top, left: spot.left }}
+                    style={{ top: hotspotPosition.top, left: hotspotPosition.left }}
                     onClick={(event) => toggleChip(index, event)}
                     aria-expanded={isOpen}
                     aria-controls={`lens-sets-chip-${index}`}

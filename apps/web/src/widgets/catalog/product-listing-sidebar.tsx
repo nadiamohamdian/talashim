@@ -2,15 +2,12 @@
 
 import type { CatalogCategoryFilterConfig } from '@sadafgold/types';
 import {
-  getFilterSections,
   getSortOptions,
   resolveActiveFilterIds,
   type ProductListingQueryState,
 } from '@/shared/lib/product-listing-query';
-import {
-  PRODUCT_LISTING_FILTER_SECTIONS,
-  PRODUCT_LISTING_SORT_OPTIONS,
-} from '@/shared/config/product-listing-filters';
+import { DEFAULT_CATALOG_CATEGORY_SORT_OPTIONS } from '@sadafgold/shared';
+import { PRODUCT_LISTING_FILTER_SECTIONS } from '@/shared/config/product-listing-filters';
 
 interface ProductListingSidebarProps {
   filterConfig?: CatalogCategoryFilterConfig;
@@ -27,7 +24,7 @@ export function ProductListingSidebar({
   onToggleFilter,
   onClearFilters,
 }: ProductListingSidebarProps) {
-  const sortOptions = getSortOptions(filterConfig, PRODUCT_LISTING_SORT_OPTIONS);
+  const sortOptions = getSortOptions(filterConfig, DEFAULT_CATALOG_CATEGORY_SORT_OPTIONS);
   const filterSections =
     filterConfig?.filterSections ??
     PRODUCT_LISTING_FILTER_SECTIONS.map((section) => ({

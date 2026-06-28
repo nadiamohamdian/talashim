@@ -44,6 +44,12 @@ export const CATEGORY_LISTING_GALLERY: Record<string, readonly string[]> = {
     '/images/home/hero-carousel-ring.png',
     '/images/home/hero-carousel-necklace.png',
   ],
+  kids: [
+    '/images/categories/bracelets.png',
+    '/images/categories/rings.png',
+    '/images/categories/earrings.png',
+    '/images/home/hero-carousel-bracelet.png',
+  ],
 };
 
 const DEFAULT_CATEGORY_GALLERY_SLIDES = CATEGORY_LISTING_GALLERY.ring;

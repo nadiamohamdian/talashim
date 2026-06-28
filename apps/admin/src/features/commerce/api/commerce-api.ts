@@ -9,6 +9,7 @@ import type {
   AdminProductDto,
   AdminProductVideoDto,
   AdminProductReviewItem,
+  AdminProductReviewsGroupedResponse,
   OrderDetail,
   PaginatedResponse,
 } from '@sadafgold/types';
@@ -68,9 +69,20 @@ export function fetchProductReviews(params?: {
   page?: number;
   status?: string;
   search?: string;
+  groupByProduct?: boolean;
 }) {
+  const { groupByProduct, ...rest } = params ?? {};
+
   return axiosClient
-    .get<PaginatedResponse<AdminProductReviewItem>>('/admin/product-reviews', { params })
+    .get<PaginatedResponse<AdminProductReviewItem> | AdminProductReviewsGroupedResponse>(
+      '/admin/product-reviews',
+      {
+        params: {
+          ...rest,
+          ...(groupByProduct ? { groupByProduct: true } : {}),
+        },
+      },
+    )
     .then((r) => r.data);
 }
 
@@ -81,6 +93,37 @@ export function reviewProductReview(
   return axiosClient
     .patch<AdminProductReviewItem>(`/admin/product-reviews/${id}/review`, payload)
     .then((r) => r.data);
+}
+
+export function createAdminProductReview(body: {
+  productSlug: string;
+  body: string;
+  rating: number;
+  authorName?: string;
+  phone?: string;
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+}) {
+  return axiosClient
+    .post<AdminProductReviewItem>('/admin/product-reviews', body)
+    .then((r) => r.data);
+}
+
+export function updateAdminProductReview(
+  id: string,
+  body: {
+    body?: string;
+    rating?: number;
+    authorName?: string;
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  },
+) {
+  return axiosClient
+    .patch<AdminProductReviewItem>(`/admin/product-reviews/${id}`, body)
+    .then((r) => r.data);
+}
+
+export function deleteAdminProductReview(id: string) {
+  return axiosClient.delete(`/admin/product-reviews/${id}`).then((r) => r.data);
 }
 
 export function createProductVideo(body: Record<string, unknown>) {

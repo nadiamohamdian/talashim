@@ -4,7 +4,7 @@ import {
   buildDefaultCatalogCategoryFilterConfig,
 } from '@sadafgold/shared';
 import type { PublicCatalogCategoryPage } from '@sadafgold/types';
-import type { CatalogCategoryPage } from '@/generated/prisma';
+import type { CatalogCategoryPage, Prisma } from '@/generated/prisma';
 import { CatalogCategoryPageRepository } from '../repositories/catalog-category-page.repository';
 import {
   parseCatalogCategoryFilterConfig,
@@ -28,7 +28,9 @@ export class CatalogCategoryPageService {
         subtitle: seed.subtitle,
         productCategory: seed.productCategory ?? undefined,
         heroImageUrls: [],
-        filterConfig: buildDefaultCatalogCategoryFilterConfig(seed.slug),
+        filterConfig: buildDefaultCatalogCategoryFilterConfig(
+          seed.slug,
+        ) as unknown as Prisma.InputJsonValue,
         sortOrder: seed.sortOrder,
         isActive: true,
       });

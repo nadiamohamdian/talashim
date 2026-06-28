@@ -22,7 +22,30 @@ function mapProduct(product: ProductSummary): LensShowcaseProductVariant | null 
   };
 }
 
-export function mapLensVideoToShowcaseItem(video: PublicCmsLensVideo): LensShowcaseDemoItem {
+function resolveLensProducts(
+  products: ProductSummary[],
+  fallbackIndex: number,
+): LensShowcaseProductVariant[] {
+  const mapped = products
+    .map(mapProduct)
+    .filter((product): product is LensShowcaseProductVariant => product != null);
+
+  if (mapped.length > 0) {
+    return mapped;
+  }
+
+  const fallbackItem =
+    LENS_SHOWCASE_DEMO_ITEMS[fallbackIndex] ??
+    LENS_CAROUSEL_DEMO_ITEMS[fallbackIndex] ??
+    LENS_SHOWCASE_DEMO_ITEMS[0];
+
+  return fallbackItem?.products ?? [];
+}
+
+export function mapLensVideoToShowcaseItem(
+  video: PublicCmsLensVideo,
+  fallbackIndex = 0,
+): LensShowcaseDemoItem {
   return {
     id: video.id,
     title: video.title,
@@ -31,9 +54,7 @@ export function mapLensVideoToShowcaseItem(video: PublicCmsLensVideo): LensShowc
     heroImageUrl: video.heroImageUrl,
     hotspots: video.hotspots?.length ? video.hotspots : undefined,
     sortOrder: video.sortOrder,
-    products: (video.products ?? [])
-      .map(mapProduct)
-      .filter((product): product is LensShowcaseProductVariant => product != null),
+    products: resolveLensProducts(video.products ?? [], fallbackIndex),
   };
 }
 
@@ -44,7 +65,7 @@ export function resolveLensSetsShowcaseItems(
     return [...LENS_SHOWCASE_DEMO_ITEMS];
   }
 
-  return videos.map(mapLensVideoToShowcaseItem);
+  return videos.map((video, index) => mapLensVideoToShowcaseItem(video, index));
 }
 
 export function resolveLensCarouselItems(videos: PublicCmsLensVideo[]): LensShowcaseDemoItem[] {
@@ -52,5 +73,5 @@ export function resolveLensCarouselItems(videos: PublicCmsLensVideo[]): LensShow
     return [...LENS_CAROUSEL_DEMO_ITEMS];
   }
 
-  return videos.map(mapLensVideoToShowcaseItem);
+  return videos.map((video, index) => mapLensVideoToShowcaseItem(video, index));
 }

@@ -22,7 +22,7 @@ export function WishlistContent() {
 
   if (!isAuthenticated) {
     return (
-      <div className="card-luxury p-12 text-center">
+      <div className="wishlist-empty-card p-12 text-center">
         <p className="text-muted">برای مشاهده علاقه‌مندی‌ها وارد شوید.</p>
         <Link href={buildLoginHref('/wishlist')} className="btn-gold mt-6 inline-flex">
           ورود
@@ -50,7 +50,7 @@ export function WishlistContent() {
 
   if (!data?.length) {
     return (
-      <div className="card-luxury p-12 text-center">
+      <div className="wishlist-empty-card p-12 text-center">
         <p className="text-muted">لیست علاقه‌مندی‌های شما خالی است.</p>
         <Link href="/products" className="btn-gold mt-6 inline-flex">
           مشاهده محصولات

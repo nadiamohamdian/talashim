@@ -21,6 +21,7 @@ const CATEGORY_SLUG_MAP: Record<string, string> = {
   'wedding-rings': 'wedding_ring',
   wedding_ring: 'wedding_ring',
   wedding_rings: 'wedding_ring',
+  kids: 'kids',
 };
 
 const CATEGORY_META: Record<string, { parent: string; title: string; subtitle: string }> = {
@@ -58,6 +59,11 @@ const CATEGORY_META: Record<string, { parent: string; title: string; subtitle: s
     parent: 'زنانه',
     title: 'ست و نیم‌ست زنانه',
     subtitle: 'خرید ست و نیم‌ست طلا با ضمانت اصالت و ارسال سریع',
+  },
+  kids: {
+    parent: 'کودکانه',
+    title: 'طلای کودکانه',
+    subtitle: 'انگشتر، دستبند، گردنبند و گوشواره طلا با طراحی ایمن و سبک برای کودکان',
   },
 };
 
@@ -196,12 +202,7 @@ export function shouldShowProductSizeRulers(product: ProductJewelrySizeSource): 
   }
 
   const kind = resolveProductJewelrySizeKind(product.category);
-  return (
-    kind === 'ring' ||
-    kind === 'wedding_ring' ||
-    kind === 'necklace' ||
-    kind === 'bracelet'
-  );
+  return kind === 'ring' || kind === 'necklace' || kind === 'bracelet';
 }
 
 /** Returns all jewelry size selectors needed for a product (multi-select for sets). */
@@ -239,7 +240,7 @@ export function matchesCatalogCategory(productCategory: string, categorySlug: st
   return normalizeProductCategory(productCategory) === resolved;
 }
 
-export function filterProductsByCategory<T extends Pick<ProductSummary, 'category'>>(
+export function filterProductsByCategory<T extends Pick<ProductSummary, 'category' | 'slug' | 'title'>>(
   products: T[],
   categorySlug: string,
 ): T[] {
@@ -247,6 +248,16 @@ export function filterProductsByCategory<T extends Pick<ProductSummary, 'categor
   if (!resolved) {
     return [];
   }
+
+  if (resolved === 'kids') {
+    return products.filter(
+      (product) =>
+        /کودک/u.test(product.title) ||
+        product.slug.toLowerCase().includes('kids') ||
+        product.slug.toLowerCase().includes('koodak'),
+    );
+  }
+
   return products.filter((product) => normalizeProductCategory(product.category) === resolved);
 }
 

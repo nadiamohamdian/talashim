@@ -70,8 +70,8 @@ export const adminQueryKeys = {
       ['admin', 'commerce', 'products', page, search, category, lowStock, demoOnly] as const,
     videos: (page: number, search: string) =>
       ['admin', 'commerce', 'videos', page, search] as const,
-    reviews: (page: number, status: string, search: string) =>
-      ['admin', 'commerce', 'reviews', page, status, search] as const,
+    reviews: (page: number, status: string, search: string, groupByProduct = false) =>
+      ['admin', 'commerce', 'reviews', page, status, search, groupByProduct] as const,
     inventory: (page: number, search: string, category: string, lowStock: boolean) =>
       ['admin', 'commerce', 'inventory', page, search, category, lowStock] as const,
     inventoryHistory: (page: number, productId: string, type: string) =>

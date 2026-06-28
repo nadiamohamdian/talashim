@@ -91,6 +91,7 @@ const DEMO_VARIANTS: ProductVariant[] = [
     sku: 'RNG-LUX-57-G',
     color: 'طلایی',
     size: '57',
+    stone: 'pink',
     priceToman: 17_548_000,
     weightGram: 2.8,
     makingFeePercent: 24,
@@ -99,10 +100,37 @@ const DEMO_VARIANTS: ProductVariant[] = [
     isDefault: true,
   },
   {
+    id: 'variant-gold-57-purple',
+    sku: 'RNG-LUX-57-G-PUR',
+    color: 'طلایی',
+    size: '57',
+    stone: 'purple',
+    priceToman: 17_698_000,
+    weightGram: 2.8,
+    makingFeePercent: 24,
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
+    quantity: 2,
+    isDefault: false,
+  },
+  {
+    id: 'variant-gold-57-blue',
+    sku: 'RNG-LUX-57-G-BLU',
+    color: 'طلایی',
+    size: '57',
+    stone: 'blue',
+    priceToman: 17_398_000,
+    weightGram: 2.8,
+    makingFeePercent: 24,
+    imageUrl: '/images/product-detail/pdp-ring-cutout.png',
+    quantity: 2,
+    isDefault: false,
+  },
+  {
     id: 'variant-rosegold-57',
     sku: 'RNG-LUX-57-R',
     color: 'رزگلد',
     size: '57',
+    stone: 'pink',
     priceToman: 17_548_000,
     weightGram: 2.8,
     makingFeePercent: 24,
@@ -115,6 +143,7 @@ const DEMO_VARIANTS: ProductVariant[] = [
     sku: 'RNG-LUX-57-W',
     color: 'سفید',
     size: '57',
+    stone: 'pink',
     priceToman: 17_800_000,
     weightGram: 2.8,
     makingFeePercent: 24,
@@ -291,6 +320,7 @@ export const JEWELRY_SET_DEMO: ProductDetailDemo = {
       sku: 'SET-LIQ-18-G',
       color: 'طلایی',
       size: '45',
+      stone: 'pink',
       priceToman: 24_850_000,
       weightGram: 12.4,
       makingFeePercent: 22,
@@ -367,9 +397,7 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     specifications: {},
   });
   const isSet = sizeKinds.length > 1;
-  const isRingProduct =
-    resolveProductJewelrySizeKind(source.category) === 'ring' ||
-    resolveProductJewelrySizeKind(source.category) === 'wedding_ring';
+  const isRingProduct = resolveProductJewelrySizeKind(source.category) === 'ring';
   const isNecklaceProduct = resolveProductJewelrySizeKind(source.category) === 'necklace';
   const template = isSet ? JEWELRY_SET_DEMO : PRODUCT_DETAIL_DEMO;
   const description = catalog?.description
@@ -401,7 +429,9 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     seoDescription: catalog?.seoDescription ?? source.title,
     gallery: template.gallery.map((image, index) => (index === 0 ? source.imageUrl : image)),
     ringSizes:
-      (isSet || isRingProduct) && sizeKinds.includes('ring') ? DEFAULT_RING_SIZES : undefined,
+      (isSet || isRingProduct) && sizeKinds.includes('ring')
+        ? DEFAULT_RING_SIZES
+        : template.ringSizes,
     necklaceSizes:
       (isSet || isNecklaceProduct) && sizeKinds.includes('necklace')
         ? DEFAULT_NECKLACE_SIZES
@@ -466,9 +496,7 @@ export function enrichProductDetailProps(
     const sizeKinds = resolveProductJewelrySizeKinds(jewelrySource);
     const isSet = isJewelrySetOrHalfSetProduct(jewelrySource);
     const showSizes = shouldShowProductSizeRulers(jewelrySource);
-    const isRingProduct =
-      resolveProductJewelrySizeKind(product.category) === 'ring' ||
-      resolveProductJewelrySizeKind(product.category) === 'wedding_ring';
+    const isRingProduct = resolveProductJewelrySizeKind(product.category) === 'ring';
     const isNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
     const pdpSections = resolvePdpSections(product);
     const hasPdpConfig = Boolean(product.pdpConfig);
@@ -517,9 +545,7 @@ export function enrichProductDetailProps(
   const demoSizeKinds = resolveProductJewelrySizeKinds(jewelrySource);
   const demoIsSet = isJewelrySetOrHalfSetProduct(jewelrySource);
   const demoShowSizes = shouldShowProductSizeRulers(jewelrySource);
-  const demoIsRingProduct =
-    resolveProductJewelrySizeKind(product.category) === 'ring' ||
-    resolveProductJewelrySizeKind(product.category) === 'wedding_ring';
+  const demoIsRingProduct = resolveProductJewelrySizeKind(product.category) === 'ring';
   const demoIsNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
 
   return {

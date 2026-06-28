@@ -123,6 +123,23 @@ export function fetchWallets(params: { page?: number; search?: string }) {
     .then((r) => r.data);
 }
 
+export function adjustUserWallet(body: {
+  userId: string;
+  assetType: 'RIAL' | 'GOLD';
+  direction: 'CREDIT' | 'DEBIT';
+  amount: string;
+  reason: string;
+  idempotencyKey?: string;
+}) {
+  return axiosClient
+    .post<{
+      transactionId: string;
+      user: { id: string; email: string; fullName: string; role: string };
+      balances: { rialBalance: string; goldBalanceGram: string };
+    }>('/admin/wallets/adjustments', body)
+    .then((r) => r.data);
+}
+
 export function fetchAuditLogs(params: { page?: number; source?: string }) {
   return axiosClient
     .get<AdminPaginated<AdminAuditLog>>('/admin/audit-logs', { params })

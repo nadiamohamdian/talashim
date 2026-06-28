@@ -203,20 +203,28 @@ export function ProductPdpOptionsFields({
       options.enableSizeRuler && options.sizes.length > 0
         ? options.sizes.map(String)
         : [undefined];
+    const stones =
+      options.enableStoneColors && options.stoneSwatchIds.length > 0
+        ? options.stoneSwatchIds
+        : [undefined];
 
-    const combinations: Array<{ color?: string; size?: string }> = [];
+    const combinations: Array<{ color?: string; size?: string; stone?: string }> = [];
     for (const color of colors) {
       for (const size of sizes) {
-        combinations.push({ color, size });
+        for (const stone of stones) {
+          combinations.push({ color, size, stone });
+        }
       }
     }
 
     const generated = combinations.map((combo, index) => {
       const row = emptyVariantField();
-      const suffix = [combo.color, combo.size].filter(Boolean).join('-') || `V${index + 1}`;
+      const suffix =
+        [combo.color, combo.stone, combo.size].filter(Boolean).join('-') || `V${index + 1}`;
       row.sku = baseSku.trim() ? `${baseSku.trim()}-${suffix}` : '';
       row.color = combo.color ?? '';
       row.size = combo.size ?? '';
+      row.stone = combo.stone ?? '';
       row.priceToman = basePriceToman;
       row.isDefault = index === 0;
       return row;
@@ -227,7 +235,8 @@ export function ProductPdpOptionsFields({
 
   const canGenerateVariants =
     (options.enableGoldColors && options.goldColors.length > 0) ||
-    (options.enableSizeRuler && options.sizes.length > 0);
+    (options.enableSizeRuler && options.sizes.length > 0) ||
+    (options.enableStoneColors && options.stoneSwatchIds.length > 0);
 
   return (
     <div className="space-y-4" data-span="full">

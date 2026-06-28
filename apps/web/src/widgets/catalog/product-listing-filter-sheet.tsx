@@ -101,11 +101,22 @@ export function ProductListingFilterSheet({
         <section className="product-listing-filter-section">
           <h2 className="product-listing-sheet-title">{PRODUCT_LISTING_GOLD_COLOR_SECTION_TITLE}</h2>
           <div className="product-listing-filter-color-chips">
-            {PRODUCT_LISTING_GOLD_COLOR_OPTIONS.map((color) => (
-              <button key={color.id} type="button" className="product-listing-filter-color-chip">
-                {color.label}
-              </button>
-            ))}
+            {PRODUCT_LISTING_GOLD_COLOR_OPTIONS.map((color) => {
+              const colorFilterId = `gold-color-${color.id}`;
+              const isActive = activeFilterIds.has(colorFilterId);
+
+              return (
+                <button
+                  key={color.id}
+                  type="button"
+                  className={`product-listing-filter-color-chip${isActive ? ' is-active' : ''}`}
+                  aria-pressed={isActive}
+                  onClick={() => onToggleFilter(colorFilterId, !isActive)}
+                >
+                  {color.label}
+                </button>
+              );
+            })}
           </div>
         </section>
 

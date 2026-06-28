@@ -24,6 +24,7 @@ export const ALL_ADMIN_PERMISSIONS = [
   'admin.kyc.read',
   'admin.kyc.review',
   'admin.finance.read',
+  'admin.finance.adjust',
   'admin.finance.transactions.read',
   'admin.finance.reports',
   'admin.ledger.read',
@@ -72,6 +73,7 @@ export const ADMIN_PERMISSIONS = {
   kyc: { read: 'admin.kyc.read', review: 'admin.kyc.review' },
   finance: {
     read: 'admin.finance.read',
+    adjust: 'admin.finance.adjust',
     transactions: 'admin.finance.transactions.read',
     reports: 'admin.finance.reports',
   },
