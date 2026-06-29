@@ -17,6 +17,7 @@ import {
 } from '../api/catalog-categories-api';
 import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { ImageUrlField } from '@/features/cms/components/image-url-field';
+import { IMAGE_FRAME_PRESETS } from '@/features/cms/lib/image-frame-spec';
 import { CatalogPageShell } from '@/features/commerce/components/catalog-page-shell';
 import { selectFieldClass } from '@/features/commerce/lib/labels';
 
@@ -246,7 +247,7 @@ export function CatalogCategoryFormPanel({ categoryId }: CatalogCategoryFormPane
                   )
                 }
                 folder="general"
-                previewClassName="aspect-[1328/502] max-h-48 w-full rounded-lg object-cover"
+                frame={IMAGE_FRAME_PRESETS.categoryHero}
               />
               {heroImageUrls.length > 1 ? (
                 <Button

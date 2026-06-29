@@ -26,6 +26,7 @@ import {
   type UpsertBannerPayload,
 } from '../api/cms-api';
 import { ImageUrlField } from './image-url-field';
+import { IMAGE_FRAME_PRESETS } from '../lib/image-frame-spec';
 import { BannerProductPicker } from './banner-product-picker';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
@@ -357,6 +358,7 @@ export function BannersPanel() {
                 value={form.imageUrl}
                 onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
                 folder="banners"
+                frame={IMAGE_FRAME_PRESETS.banner}
                 required
               />
             </div>

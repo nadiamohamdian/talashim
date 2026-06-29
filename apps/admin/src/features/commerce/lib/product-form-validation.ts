@@ -99,6 +99,12 @@ export function normalizeMediaUrl(url: string): string {
   return `https://${trimmed}`;
 }
 
+export function resolveProductHoverImageUrl(imageUrl: string, hoverImageUrl: string): string {
+  const cover = imageUrl.trim();
+  const hover = hoverImageUrl.trim();
+  return hover || cover;
+}
+
 function resolveDiscountFields(form: {
   discountPercent?: string;
   discountStartsAt?: string;
@@ -171,8 +177,12 @@ export function validateProductForm(
     }
   }
 
+  const resolvedHoverImageUrl = resolveProductHoverImageUrl(form.imageUrl, form.hoverImageUrl);
   if (!hoverImageChanged) {
-    const hoverImageError = validateLibraryImageUrl(form.hoverImageUrl, 'تصویر هاور محصول');
+    const hoverImageError = validateLibraryImageUrl(
+      resolvedHoverImageUrl,
+      'تصویر هاور محصول',
+    );
     if (hoverImageError) {
       errors.push(hoverImageError);
     }
@@ -292,7 +302,9 @@ export function buildProductCreateBody(
     makingFeePercent: Number(form.makingFeePercent),
     priceToman: parseIntegerDigitsToNumber(form.priceToman),
     imageUrl: normalizeMediaUrl(form.imageUrl),
-    hoverImageUrl: normalizeMediaUrl(form.hoverImageUrl),
+    hoverImageUrl: normalizeMediaUrl(
+      resolveProductHoverImageUrl(form.imageUrl, form.hoverImageUrl),
+    ),
     featured: form.featured,
     discountPercent,
     discountStartsAt: discountPercent > 0 ? discountStartsAt : undefined,

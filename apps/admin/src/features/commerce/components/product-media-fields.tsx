@@ -2,6 +2,7 @@
 
 import { Button, Label } from '@sadafgold/ui';
 import { ImageUrlField } from '@/features/cms/components/image-url-field';
+import { IMAGE_FRAME_PRESETS } from '@/features/cms/lib/image-frame-spec';
 
 const MAX_GALLERY = 10;
 const MAX_VIDEOS = 10;
@@ -73,16 +74,17 @@ export function ProductMediaFields({
         onChange={onImageUrlChange}
         folder="products"
         previewAlt="پیش‌نمایش شاخص"
+        frame={IMAGE_FRAME_PRESETS.productThumbnail}
       />
 
       <ImageUrlField
         label="تصویر هاور"
-        required
-        hint="تصویر جایگزین هنگام هاور روی کارت — مثلاً محصول در حال استفاده."
+        hint="اختیاری — اگر خالی بماند، همان تصویر شاخص در هاور کارت نمایش داده می‌شود."
         value={hoverImageUrl}
         onChange={onHoverImageUrlChange}
         folder="products"
         previewAlt="پیش‌نمایش هاور"
+        frame={IMAGE_FRAME_PRESETS.productThumbnail}
       />
 
       <div>

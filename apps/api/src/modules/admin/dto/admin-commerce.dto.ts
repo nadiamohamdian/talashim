@@ -306,9 +306,12 @@ export class CreateAdminProductDto {
   @IsUrl({ require_tld: false })
   imageUrl!: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'If omitted, the main product image is used on card hover.',
+  })
+  @IsOptional()
   @IsUrl({ require_tld: false })
-  hoverImageUrl!: string;
+  hoverImageUrl?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

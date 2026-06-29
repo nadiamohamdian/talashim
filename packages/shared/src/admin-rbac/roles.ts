@@ -41,8 +41,6 @@ const SUPPORT_PERMISSIONS: AdminPermissionKey[] = [
   P.users.read,
   P.kyc.read,
   P.orders.read,
-  P.tickets.read,
-  P.tickets.write,
 ];
 
 const ACCOUNTANT_PERMISSIONS: AdminPermissionKey[] = [
@@ -90,14 +88,15 @@ export const ADMIN_ROLE_DEFINITIONS: readonly AdminRoleDefinition[] = [
     enum: 'ACCOUNTANT',
     slug: 'accountant',
     labelFa: 'حسابدار',
-    descriptionFa: 'فقط مشاهده محصولات، سفارش‌ها و گزارش‌های فروش.',
+    descriptionFa: 'مشاهده محصولات، تراکنش‌های مالی و دفتر کل.',
     permissions: ACCOUNTANT_PERMISSIONS,
   },
   {
     enum: 'EDITOR',
     slug: 'editor',
     labelFa: 'ادیتور',
-    descriptionFa: 'ویرایش و انتشار محصولات، وبلاگ و رسانه.',
+    descriptionFa:
+      'مدیریت محصولات، صفحات دسته‌بندی، محتوای سایت (صفحه اصلی، بنر، لنز، وبلاگ) و کتابخانه رسانه.',
     permissions: EDITOR_PERMISSIONS,
   },
   {

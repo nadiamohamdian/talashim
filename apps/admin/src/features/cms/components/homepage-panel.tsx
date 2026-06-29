@@ -6,8 +6,6 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Card, Input, Label, Skeleton } from '@talashim/ui';
 import type {
-  CmsCategoryListingGalleryItem,
-  CmsCategoryListingGallerySlug,
   CmsCategoryShowcaseItem,
   CmsCategoryShowcaseSlug,
   CmsHeroConfig,
@@ -21,6 +19,7 @@ import { getApiErrorMessage } from '@/shared/api/axios-client';
 import { CmsPageShell } from './cms-page-shell';
 import { BannerProductPicker } from './banner-product-picker';
 import { ImageUrlField } from './image-url-field';
+import { IMAGE_FRAME_PRESETS } from '../lib/image-frame-spec';
 import { validateLibraryImageUrl } from '../lib/validate-library-image';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 
@@ -62,48 +61,6 @@ const CATEGORY_SHOWCASE_LABELS: Record<CmsCategoryShowcaseSlug, string> = {
   earrings: 'گوشواره',
   necklaces: 'گردنبند',
 };
-
-const DEFAULT_CATEGORY_LISTING_GALLERY_ITEMS: CmsCategoryListingGalleryItem[] = [
-  { slug: 'rings', label: 'انگشتر زنانه', imageUrls: [] },
-  { slug: 'necklaces', label: 'گردنبند', imageUrls: [] },
-  { slug: 'bracelets', label: 'دستبند', imageUrls: [] },
-  { slug: 'earrings', label: 'گوشواره', imageUrls: [] },
-  { slug: 'sets', label: 'ست و نیم‌ست', imageUrls: [] },
-  { slug: 'wedding-rings', label: 'حلقه ازدواج', imageUrls: [] },
-  { slug: 'coins', label: 'سکه', imageUrls: [] },
-];
-
-const CATEGORY_LISTING_GALLERY_LABELS: Record<CmsCategoryListingGallerySlug, string> = {
-  rings: 'انگشتر زنانه',
-  necklaces: 'گردنبند',
-  bracelets: 'دستبند',
-  earrings: 'گوشواره',
-  sets: 'ست و نیم‌ست',
-  'wedding-rings': 'حلقه ازدواج',
-  coins: 'سکه',
-};
-
-const MAX_CATEGORY_LISTING_GALLERY_IMAGES = 8;
-
-function withCategoryListingGalleryDefaults(
-  sections: CmsHomepageSections,
-): CmsHomepageSections {
-  const configuredItems = sections.categoryListingGallery?.items ?? [];
-
-  return {
-    ...sections,
-    categoryListingGallery: {
-      items: DEFAULT_CATEGORY_LISTING_GALLERY_ITEMS.map((fallback) => {
-        const configured = configuredItems.find((item) => item.slug === fallback.slug);
-        return {
-          ...fallback,
-          label: configured?.label?.trim() || fallback.label,
-          imageUrls: configured?.imageUrls?.map((url) => url.trim()) ?? [],
-        };
-      }),
-    },
-  };
-}
 
 function withCategoryShowcaseDefaults(sections: CmsHomepageSections): CmsHomepageSections {
   const configuredItems = sections.categoryShowcase?.items ?? [];
@@ -159,11 +116,7 @@ export function HomepagePanel() {
   useEffect(() => {
     if (data) {
       setHero(withDesktopHeroDefaults(data.hero));
-      setSections(
-        withCategoryListingGalleryDefaults(
-          withCategoryShowcaseDefaults(withBestsellerDefaults(data.sections)),
-        ),
-      );
+      setSections(withCategoryShowcaseDefaults(withBestsellerDefaults(data.sections)));
     }
   }, [data]);
 
@@ -298,7 +251,7 @@ export function HomepagePanel() {
               onChange={(url) => setHero({ ...hero, imageUrl: url })}
               folder="general"
               previewAlt="پیش‌نمایش هیرو موبایل"
-              previewClassName="aspect-[9/16] max-h-56 w-full rounded-lg object-cover"
+              frame={IMAGE_FRAME_PRESETS.heroMobile}
             />
           </div>
         </div>
@@ -318,7 +271,7 @@ export function HomepagePanel() {
           onChange={(url) => setHero({ ...hero, desktopBackgroundImageUrl: url })}
           folder="banners"
           previewAlt="پیش‌نمایش هیرو دسکتاپ"
-          previewClassName="aspect-[16/9] max-h-56 w-full rounded-lg object-cover"
+          frame={IMAGE_FRAME_PRESETS.heroDesktop}
         />
 
         <div className="space-y-4">
@@ -477,116 +430,6 @@ export function HomepagePanel() {
               />
             </div>
           ))}
-        </div>
-      </Card>
-
-      <Card className="space-y-4 border-[var(--border-subtle)] bg-[var(--card)] p-6">
-        <h2 className="text-sm font-semibold text-foreground">گالری صفحات دسته‌بندی</h2>
-        <p className="text-xs text-muted">
-          تصاویر گالری بالای صفحه فهرست محصولات هر دسته را از اینجا مدیریت کنید. اگر برای دسته‌ای
-          تصویری انتخاب نشود، تصاویر پیش‌فرض فروشگاه نمایش داده می‌شوند.
-        </p>
-
-        <div className="space-y-6">
-          {(sections.categoryListingGallery?.items ?? DEFAULT_CATEGORY_LISTING_GALLERY_ITEMS).map(
-            (item) => (
-              <div
-                key={item.slug}
-                className="space-y-4 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] p-4"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-medium text-foreground">
-                    {CATEGORY_LISTING_GALLERY_LABELS[item.slug]}
-                  </h3>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={item.imageUrls.length >= MAX_CATEGORY_LISTING_GALLERY_IMAGES}
-                    onClick={() =>
-                      setSections({
-                        ...sections,
-                        categoryListingGallery: {
-                          items: (sections.categoryListingGallery?.items ?? []).map((entry) =>
-                            entry.slug === item.slug
-                              ? { ...entry, imageUrls: [...entry.imageUrls, ''] }
-                              : entry,
-                          ),
-                        },
-                      })
-                    }
-                  >
-                    افزودن تصویر
-                  </Button>
-                </div>
-
-                {item.imageUrls.length === 0 ? (
-                  <p className="text-xs text-muted">
-                    هنوز تصویری اضافه نشده — تصاویر پیش‌فرض فروشگاه نمایش داده می‌شوند.
-                  </p>
-                ) : null}
-
-                {item.imageUrls.map((imageUrl, imageIndex) => (
-                  <div
-                    key={`${item.slug}-${imageIndex}`}
-                    className="space-y-3 rounded-lg border border-[var(--border-subtle)] p-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-sm font-medium text-foreground">تصویر {imageIndex + 1}</p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() =>
-                          setSections({
-                            ...sections,
-                            categoryListingGallery: {
-                              items: (sections.categoryListingGallery?.items ?? []).map((entry) =>
-                                entry.slug === item.slug
-                                  ? {
-                                      ...entry,
-                                      imageUrls: entry.imageUrls.filter(
-                                        (_, index) => index !== imageIndex,
-                                      ),
-                                    }
-                                  : entry,
-                              ),
-                            },
-                          })
-                        }
-                      >
-                        حذف
-                      </Button>
-                    </div>
-
-                    <ImageUrlField
-                      label="تصویر گالری"
-                      hint="پیشنهاد: تصویر افقی با نسبت ۳۷۰×۱۴۸ پیکسل برای موبایل."
-                      value={imageUrl}
-                      onChange={(url) =>
-                        setSections({
-                          ...sections,
-                          categoryListingGallery: {
-                            items: (sections.categoryListingGallery?.items ?? []).map((entry) =>
-                              entry.slug === item.slug
-                                ? {
-                                    ...entry,
-                                    imageUrls: entry.imageUrls.map((currentUrl, index) =>
-                                      index === imageIndex ? url : currentUrl,
-                                    ),
-                                  }
-                                : entry,
-                            ),
-                          },
-                        })
-                      }
-                      folder="banners"
-                      previewAlt={`پیش‌نمایش ${item.label} ${imageIndex + 1}`}
-                      previewClassName="aspect-[370/148] max-h-40 w-full rounded-lg object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            ),
-          )}
         </div>
       </Card>
 
@@ -757,23 +600,6 @@ export function HomepagePanel() {
             }
           }
 
-          for (const item of sections.categoryListingGallery?.items ?? []) {
-            for (const [imageIndex, imageUrl] of item.imageUrls.entries()) {
-              if (!imageUrl.trim()) {
-                continue;
-              }
-
-              const galleryImageError = validateLibraryImageUrl(
-                imageUrl,
-                `تصویر گالری ${item.label} (${imageIndex + 1})`,
-              );
-              if (galleryImageError) {
-                setSaveError(galleryImageError);
-                return;
-              }
-            }
-          }
-
           const bestsellerIds = sections.bestsellerProductIds ?? [];
           if (
             bestsellerIds.length > 0 &&
@@ -815,16 +641,6 @@ export function HomepagePanel() {
                       ...item,
                       mobileImageUrl: item.mobileImageUrl?.trim() ?? '',
                       desktopImageUrl: item.desktopImageUrl?.trim() ?? '',
-                    })),
-                  }
-                : undefined,
-              categoryListingGallery: sections.categoryListingGallery
-                ? {
-                    items: sections.categoryListingGallery.items.map((item) => ({
-                      ...item,
-                      imageUrls: item.imageUrls
-                        .map((url) => url.trim())
-                        .filter((url) => url.length > 0),
                     })),
                   }
                 : undefined,

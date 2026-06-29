@@ -2553,3 +2553,60 @@ html.dark body {
   display: table;
   clear: both;
 }
+
+.image-framing-workspace {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--surface) 80%, var(--border) 20%);
+}
+
+.image-framing-frame {
+  position: relative;
+  width: min(100%, 920px);
+  overflow: hidden;
+  cursor: grab;
+  border: 2px dashed color-mix(in srgb, var(--primary) 55%, var(--border));
+  border-radius: var(--radius-lg);
+  background: #111;
+  touch-action: none;
+  user-select: none;
+}
+
+.image-framing-frame:active {
+  cursor: grabbing;
+}
+
+.image-framing-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-framing-frame-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
+.image-framing-frame-label {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.image-url-field-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

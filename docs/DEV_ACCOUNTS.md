@@ -17,7 +17,7 @@ pnpm --filter @sadafgold/api smoke:roles
 | Role | Email | Password | Typical access |
 |------|-------|----------|----------------|
 | `SUPER_ADMIN` | `admin@talashim.local` | `Admin12345!` | Full panel |
-| `SUPPORT` | `support@talashim.local` | `Admin12345!` | Users, KYC, orders, tickets |
+| `SUPPORT` | `support@talashim.local` | `Admin12345!` | Users, KYC, orders |
 | `ACCOUNTANT` | `accountant@talashim.local` | `Admin12345!` | Dashboard, products (read), orders (read) |
 | `EDITOR` | `editor@talashim.local` | `Admin12345!` | CMS, products, media |
 | `WAREHOUSE` | `warehouse@talashim.local` | `Admin12345!` | Orders, shipping, inventory |

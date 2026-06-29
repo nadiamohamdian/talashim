@@ -133,6 +133,7 @@ export class AdminProductsService {
       throw new ConflictException('Slug already exists');
     }
 
+    const imageUrl = requireLibraryImageUrl(dto.imageUrl, 'تصویر اصلی محصول');
     const product = await this.productsRepository.createProduct(
       {
         sku: dto.sku,
@@ -150,8 +151,11 @@ export class AdminProductsService {
         weightGram: dto.weightGram,
         makingFeePercent: dto.makingFeePercent,
         priceToman: dto.priceToman,
-        imageUrl: requireLibraryImageUrl(dto.imageUrl, 'تصویر اصلی محصول'),
-        hoverImageUrl: requireLibraryImageUrl(dto.hoverImageUrl, 'تصویر هاور محصول'),
+        imageUrl,
+        hoverImageUrl: requireLibraryImageUrl(
+          dto.hoverImageUrl?.trim() || imageUrl,
+          'تصویر هاور محصول',
+        ),
         featured: dto.featured ?? false,
         ...this.resolveDiscountFields(dto.discountPercent, dto.discountStartsAt, dto.discountEndsAt),
       },

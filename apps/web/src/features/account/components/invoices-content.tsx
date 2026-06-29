@@ -1,13 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { Badge, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@sadafgold/ui';
+import {
+  Badge,
+  cn,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@sadafgold/ui';
 import { formatPrice } from '@/shared/lib/format-price';
 import { formatPersianDate } from '@/shared/lib/persian-date';
 import { useOrders } from '@/lib/api';
 import { isOrderInvoiceReady } from '../lib/order-invoice';
 import { InvoiceAccessLink } from './invoice-access-link';
-import { ORDER_STATUS_LABELS } from '../lib/order-labels';
+import { ORDER_STATUS_BADGE_LAYOUT_CLASS, ORDER_STATUS_LABELS } from '../lib/order-labels';
 
 export function InvoicesContent() {
   const { data, isLoading, isError } = useOrders({ limit: 50 });
@@ -47,7 +57,12 @@ export function InvoicesContent() {
             <TableRow key={order.id}>
               <TableCell className="font-mono text-xs">{order.orderNumber}</TableCell>
               <TableCell>
-                <Badge className="bg-emerald-50 text-emerald-700">
+                <Badge
+                  className={cn(
+                    'bg-emerald-50 text-emerald-700',
+                    ORDER_STATUS_BADGE_LAYOUT_CLASS,
+                  )}
+                >
                   {ORDER_STATUS_LABELS[order.status] ?? order.status}
                 </Badge>
               </TableCell>

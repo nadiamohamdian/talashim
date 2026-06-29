@@ -21,3 +21,11 @@ export {
   type StaffRoleSlug,
   type UserRoleSlug,
 } from './roles';
+
+export {
+  ADMIN_PERMISSION_GROUP_LABELS,
+  ADMIN_PERMISSION_LABELS,
+  ADMIN_PERMISSION_GROUP_ORDER,
+  getAdminPermissionGroups,
+  type AdminPermissionLabel,
+} from './permission-labels';

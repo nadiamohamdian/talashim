@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, Button, Skeleton } from '@talashim/ui';
 import {
@@ -9,7 +9,11 @@ import {
 } from '@/features/admin/api/admin-api';
 import { useAdminAuthStore } from '@/features/auth/model/admin-auth-store';
 import type { AdminPermissionKey } from '@/shared/config/admin-permissions';
-import { ADMIN_PERMISSIONS } from '@/shared/config/admin-permissions';
+import {
+  ADMIN_PERMISSIONS,
+  ADMIN_PERMISSION_LABELS,
+  getAdminPermissionGroups,
+} from '@/shared/config/admin-permissions';
 import { adminQueryKeys } from '@/lib/api/query-keys';
 import { SecurityPageShell } from './security-page-shell';
 
@@ -206,6 +210,8 @@ export function PermissionsMatrixContent({ editor }: { editor: PermissionsEditor
     isSuperAdmin,
   } = editor;
 
+  const permissionGroups = useMemo(() => getAdminPermissionGroups(), []);
+
   if (isLoading) {
     return <Skeleton className="h-96 w-full rounded-[var(--radius-xl)]" />;
   }
@@ -219,61 +225,94 @@ export function PermissionsMatrixContent({ editor }: { editor: PermissionsEditor
       {saveMessage ? <Alert variant="success">{saveMessage}</Alert> : null}
       {saveError ? <Alert variant="destructive">{saveError}</Alert> : null}
 
+      <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface)]/60 p-4 text-sm text-[var(--muted-foreground)]">
+        <p>
+          مجوزها بر اساس بخش‌های فعلی پنل گروه‌بندی شده‌اند. «صفحات دسته‌بندی» و بنر Hero هر دسته
+          زیر مجوزهای محصولات است؛ گالری دسته‌ها از صفحه اصلی حذف شده و از مسیر{' '}
+          <span className="font-medium text-foreground">فروشگاه → صفحات دسته‌بندی</span> مدیریت
+          می‌شود.
+        </p>
+      </div>
+
       <p className="text-sm text-[var(--muted-foreground)]">
         برای هر نقش، مجوزها را با کلیک روی چک‌باکس فعال یا غیرفعال کنید و سپس «ذخیره
         تغییرات» را بزنید.
       </p>
 
       <div className="admin-table-wrap overflow-x-auto">
-        <table className="w-full min-w-[720px] text-sm">
+        <table className="w-full min-w-[860px] text-sm">
           <thead>
             <tr>
-              <th>مجوز</th>
+              <th className="min-w-[280px] text-right">مجوز</th>
               {data.roles.map((role) => (
-                <th key={role.slug} className="text-center">
+                <th key={role.slug} className="min-w-[88px] text-center">
                   {role.labelFa}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {data.permissions.map((permission) => (
-              <tr key={permission}>
-                <td className="font-mono text-xs text-muted" dir="ltr">
-                  {permission}
-                </td>
-                {data.roles.map((role) => {
-                  const allowed = (draft[role.slug] ?? []).includes(permission);
-                  const isLockedRbac =
-                    role.slug === 'super_admin' &&
-                    permission === ADMIN_PERMISSIONS.security.rbac;
-                  const readOnly =
-                    (role.slug === 'super_admin' && !isSuperAdmin) || isLockedRbac;
+            {permissionGroups.map((group) => (
+              <Fragment key={group.id}>
+                <tr className="bg-[var(--surface)]">
+                  <td
+                    colSpan={data.roles.length + 1}
+                    className="px-3 py-2 text-xs font-semibold text-foreground"
+                  >
+                    {group.labelFa}
+                  </td>
+                </tr>
+                {group.permissions.map((permission) => {
+                  const meta = ADMIN_PERMISSION_LABELS[permission as AdminPermissionKey];
 
                   return (
-                    <td key={`${role.slug}-${permission}`} className="text-center">
-                      <label
-                        className={
-                          readOnly
-                            ? 'inline-flex cursor-not-allowed opacity-50'
-                            : 'inline-flex cursor-pointer'
-                        }
-                      >
-                        <input
-                          type="checkbox"
-                          className="size-4 rounded border-[var(--border)] text-[var(--primary)] accent-[var(--primary)] focus:ring-[var(--primary)]/30"
-                          checked={allowed}
-                          disabled={readOnly || saveMutationPending}
-                          onChange={(event) =>
-                            togglePermission(role.slug, permission, event.target.checked)
-                          }
-                          aria-label={`${role.labelFa} — ${permission}`}
-                        />
-                      </label>
-                    </td>
+                    <tr key={permission}>
+                      <td className="align-top">
+                        <p className="font-medium text-foreground">{meta.labelFa}</p>
+                        {meta.hintFa ? (
+                          <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
+                            {meta.hintFa}
+                          </p>
+                        ) : null}
+                        <p className="mt-1 font-mono text-[10px] text-muted" dir="ltr">
+                          {permission}
+                        </p>
+                      </td>
+                      {data.roles.map((role) => {
+                        const allowed = (draft[role.slug] ?? []).includes(permission);
+                        const isLockedRbac =
+                          role.slug === 'super_admin' &&
+                          permission === ADMIN_PERMISSIONS.security.rbac;
+                        const readOnly =
+                          (role.slug === 'super_admin' && !isSuperAdmin) || isLockedRbac;
+
+                        return (
+                          <td key={`${role.slug}-${permission}`} className="text-center align-middle">
+                            <label
+                              className={
+                                readOnly
+                                  ? 'inline-flex cursor-not-allowed opacity-50'
+                                  : 'inline-flex cursor-pointer'
+                              }
+                            >
+                              <input
+                                type="checkbox"
+                                className="size-4 rounded border-[var(--border)] text-[var(--primary)] accent-[var(--primary)] focus:ring-[var(--primary)]/30"
+                                checked={allowed}
+                                disabled={readOnly || saveMutationPending}
+                                onChange={(event) =>
+                                  togglePermission(role.slug, permission, event.target.checked)
+                                }
+                                aria-label={`${role.labelFa} — ${meta.labelFa}`}
+                              />
+                            </label>
+                          </td>
+                        );
+                      })}
+                    </tr>
                   );
                 })}
-              </tr>
+              </Fragment>
             ))}
           </tbody>
         </table>

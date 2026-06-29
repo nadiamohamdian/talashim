@@ -39,9 +39,6 @@ export const ALL_ADMIN_PERMISSIONS = [
   'admin.security.rbac',
   'admin.settings.read',
   'admin.settings.write',
-  'admin.tickets.read',
-  'admin.tickets.write',
-  'admin.tickets.manage',
 ] as const;
 
 export type AdminPermissionKey = (typeof ALL_ADMIN_PERMISSIONS)[number];
@@ -87,9 +84,4 @@ export const ADMIN_PERMISSIONS = {
     rbac: 'admin.security.rbac',
   },
   settings: { read: 'admin.settings.read', write: 'admin.settings.write' },
-  tickets: {
-    read: 'admin.tickets.read',
-    write: 'admin.tickets.write',
-    manage: 'admin.tickets.manage',
-  },
 } as const satisfies Record<string, Record<string, AdminPermissionKey>>;

@@ -32,6 +32,5 @@ __exportStar(require("./pricing-admin"), exports);
 __exportStar(require("./trading-admin"), exports);
 __exportStar(require("./commerce-admin"), exports);
 __exportStar(require("./notifications-admin"), exports);
-__exportStar(require("./staff-tickets"), exports);
 __exportStar(require("./discounts"), exports);
 //# sourceMappingURL=index.js.map

@@ -96,9 +96,6 @@ model User {
   goldPriceOverrides GoldPriceOverride[]
   inventoryMovements InventoryMovement[]
   staffNotifications StaffNotification[] @relation("StaffNotificationRecipient")
-  staffTicketsCreated StaffTicket[]       @relation("StaffTicketCreator")
-  staffTicketsClosed  StaffTicket[]       @relation("StaffTicketCloser")
-  staffTicketMessages StaffTicketMessage[]
   productReviews      ProductReview[]
   createdCoupons      DiscountCoupon[] @relation("CouponCreator")
   updatedCoupons      DiscountCoupon[] @relation("CouponUpdater")
@@ -430,53 +427,6 @@ model CouponUsage {
   @@index([couponId, usedAt])
   @@index([userId, usedAt])
   @@unique([couponId, userId, orderId])
-}
-
-enum StaffTicketStatus {
-  OPEN
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
-}
-
-enum StaffTicketPriority {
-  LOW
-  NORMAL
-  HIGH
-  URGENT
-}
-
-model StaffTicket {
-  id           String              @id @default(cuid())
-  ticketNumber String              @unique
-  subject      String
-  body         String
-  status       StaffTicketStatus   @default(OPEN)
-  priority     StaffTicketPriority @default(NORMAL)
-  category     String              @default("general")
-  createdById  String
-  closedById   String?
-  closedAt     DateTime?
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
-  createdBy    User                @relation("StaffTicketCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  closedBy     User?               @relation("StaffTicketCloser", fields: [closedById], references: [id], onDelete: SetNull)
-  messages     StaffTicketMessage[]
-
-  @@index([createdById, createdAt])
-  @@index([status, createdAt])
-}
-
-model StaffTicketMessage {
-  id        String      @id @default(cuid())
-  ticketId  String
-  authorId  String
-  body      String
-  createdAt DateTime    @default(now())
-  ticket    StaffTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  @@index([ticketId, createdAt])
 }
 
 model BlogCategory {

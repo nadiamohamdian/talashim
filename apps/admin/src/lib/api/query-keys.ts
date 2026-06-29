@@ -5,11 +5,6 @@ export const adminQueryKeys = {
   userDetail: (userId: string) => ['admin', 'users', 'detail', userId] as const,
   userActivity: (userId: string, page: number) =>
     ['admin', 'users', 'activity', userId, page] as const,
-  tickets: {
-    list: (page: number, status: string, priority: string, scope: string, search: string) =>
-      ['admin', 'tickets', page, status, priority, scope, search] as const,
-    detail: (ticketId: string) => ['admin', 'tickets', 'detail', ticketId] as const,
-  },
   kyc: (page: number, status: string) => ['admin', 'kyc', page, status] as const,
   walletTx: (page: number, type: string) => ['admin', 'wallet-tx', page, type] as const,
   walletDepositReceipts: (page: number, status: string) =>

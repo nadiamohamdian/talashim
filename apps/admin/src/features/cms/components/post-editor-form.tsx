@@ -5,6 +5,7 @@ import { Button, Card, Input, Label } from '@talashim/ui';
 import type { AdminBlogCategoryDto, AdminBlogPostDto } from '@talashim/types';
 import type { UpsertBlogPostPayload } from '../api/cms-api';
 import { ImageUrlField } from './image-url-field';
+import { IMAGE_FRAME_PRESETS } from '../lib/image-frame-spec';
 import { RichTextEditor } from '@/shared/ui/rich-text-editor';
 import { PersianDateTimePicker } from '@/shared/ui/persian-datetime-picker';
 import { selectFieldClass } from '../lib/labels';
@@ -152,6 +153,7 @@ export function PostEditorForm({
             value={form.coverImageUrl}
             onChange={(url) => setForm((f) => ({ ...f, coverImageUrl: url }))}
             folder="blog"
+            frame={IMAGE_FRAME_PRESETS.blogCover}
             required
           />
         </div>

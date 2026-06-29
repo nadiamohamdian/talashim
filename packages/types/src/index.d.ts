@@ -16,6 +16,5 @@ export * from './pricing-admin';
 export * from './trading-admin';
 export * from './commerce-admin';
 export * from './notifications-admin';
-export * from './staff-tickets';
 export * from './discounts';
 //# sourceMappingURL=index.d.ts.map

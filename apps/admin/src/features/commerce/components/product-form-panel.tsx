@@ -63,7 +63,7 @@ const emptyForm = {
   imageUrl: '',
   hoverImageUrl: '',
   featured: false,
-  initialQuantity: '0',
+  initialQuantity: '1',
   discountPercent: '',
   discountStartsAt: '',
   discountEndsAt: '',
@@ -83,6 +83,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const hydratedSlugRef = useRef<string | null>(null);
   const originalImageUrlRef = useRef('');
   const originalHoverImageUrlRef = useRef('');
+  const validationAlertRef = useRef<HTMLDivElement>(null);
 
   const detailQuery = useQuery({
     queryKey: ['admin', 'commerce', 'product-slug', slug],
@@ -202,39 +203,43 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
     });
   }, [form.discountPercent, form.discountStartsAt, form.discountEndsAt]);
 
+  const runClientValidation = () => {
+    const formValues: ProductFormValues = {
+      sku: form.sku,
+      title: form.title,
+      description: form.description,
+      imageUrl: form.imageUrl,
+      hoverImageUrl: form.hoverImageUrl,
+      weightGram: form.weightGram,
+      karat: form.karat,
+      priceToman: form.priceToman,
+      discountPercent: form.discountPercent,
+      discountStartsAt: form.discountStartsAt,
+      discountEndsAt: form.discountEndsAt,
+    };
+
+    const seoValues: ProductSeoFormValues = {
+      seoTitle: form.seoTitle,
+      seoDescription: form.seoDescription,
+      seoKeywords: form.seoKeywords,
+      ogImageUrl: form.ogImageUrl,
+      seoCanonicalPath: form.seoCanonicalPath,
+      seoNoIndex: form.seoNoIndex,
+    };
+
+    return validateProductForm(formValues, variants, seoValues, {
+      mode,
+      originalImageUrl: originalImageUrlRef.current,
+      originalHoverImageUrl: originalHoverImageUrlRef.current,
+    });
+  };
+
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const formValues: ProductFormValues = {
-        sku: form.sku,
-        title: form.title,
-        description: form.description,
-        imageUrl: form.imageUrl,
-        hoverImageUrl: form.hoverImageUrl,
-        weightGram: form.weightGram,
-        karat: form.karat,
-        priceToman: form.priceToman,
-        discountPercent: form.discountPercent,
-        discountStartsAt: form.discountStartsAt,
-        discountEndsAt: form.discountEndsAt,
-      };
-
-      const seoValues: ProductSeoFormValues = {
-        seoTitle: form.seoTitle,
-        seoDescription: form.seoDescription,
-        seoKeywords: form.seoKeywords,
-        ogImageUrl: form.ogImageUrl,
-        seoCanonicalPath: form.seoCanonicalPath,
-        seoNoIndex: form.seoNoIndex,
-      };
-
-      const errors = validateProductForm(formValues, variants, seoValues, {
-        mode,
-        originalImageUrl: originalImageUrlRef.current,
-        originalHoverImageUrl: originalHoverImageUrlRef.current,
-      });
+      const errors = runClientValidation();
       if (errors.length > 0) {
         setValidationErrors(errors);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        validationAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         throw new ProductFormValidationError(errors[0] ?? 'اطلاعات محصول نامعتبر است.');
       }
       setValidationErrors([]);
@@ -304,7 +309,10 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
     <CatalogPageShell routeId={routeId}>
       <div className="product-form-shell">
         {validationErrors.length > 0 ? (
-          <div className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3">
+          <div
+            ref={validationAlertRef}
+            className="rounded-xl border border-[var(--error-border)] bg-[var(--error-bg)] px-4 py-3"
+          >
             <p className="text-sm font-semibold text-[var(--error)]">لطفاً موارد زیر را تکمیل کنید:</p>
             <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--error)]">
               {validationErrors.map((error) => (
@@ -541,7 +549,18 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           <Button
             className="btn-luxury h-11 px-5"
             disabled={saveMutation.isPending}
-            onClick={() => saveMutation.mutate()}
+            onClick={() => {
+              const errors = runClientValidation();
+              if (errors.length > 0) {
+                setValidationErrors(errors);
+                setSubmitError('ذخیره انجام نشد. موارد مشخص‌شده در بالای فرم را تکمیل کنید.');
+                validationAlertRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+              }
+              setValidationErrors([]);
+              setSubmitError(null);
+              saveMutation.mutate();
+            }}
           >
             {mode === 'create' ? 'ایجاد محصول' : 'ذخیره تغییرات'}
           </Button>
