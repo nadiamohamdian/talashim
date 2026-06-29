@@ -351,7 +351,7 @@ export function buildProductCreateBody(
           isDefault: variant.isDefault,
         };
       }),
-    pdpConfig: pdpOptions ? pdpFormToConfig(pdpOptions) : undefined,
+    pdpConfig: pdpOptions ? (pdpFormToConfig(pdpOptions) ?? null) : undefined,
   };
 
   if (mode === 'create') {

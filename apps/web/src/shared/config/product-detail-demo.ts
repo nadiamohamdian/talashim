@@ -9,7 +9,7 @@ import {
   resolveProductJewelrySizeKinds,
   shouldShowProductSizeRulers,
 } from '@/shared/lib/catalog-category';
-import { resolvePdpSections } from '@/shared/lib/resolve-product-pdp-config';
+import { resolvePdpSections, resolveProductDetailSizeProps } from '@/shared/lib/resolve-product-pdp-config';
 
 export interface ProductReviewDemo {
   id: string;
@@ -500,15 +500,9 @@ export function enrichProductDetailProps(
     const isNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
     const pdpSections = resolvePdpSections(product);
     const hasPdpConfig = Boolean(product.pdpConfig);
+    const isBraceletProduct = resolveProductJewelrySizeKind(product.category) === 'bracelet';
 
-    return {
-      product,
-      gallery,
-      heroImageUrl: gallery[0] ?? product.imageUrl,
-      videos,
-      reviews,
-      featuredReview: DEFAULT_FEATURED_REVIEW,
-      relatedProducts: DEFAULT_RELATED_PRODUCTS,
+    const heuristicSizeProps = {
       ringSizes:
         showSizes && (isSet || isRingProduct) && sizeKinds.includes('ring')
           ? pdpSections.ringSizes
@@ -518,9 +512,21 @@ export function enrichProductDetailProps(
           ? pdpSections.necklaceSizes
           : undefined,
       braceletSizes:
-        showSizes && isSet && sizeKinds.includes('bracelet')
+        showSizes && (isSet || isBraceletProduct) && sizeKinds.includes('bracelet')
           ? pdpSections.braceletSizes
           : undefined,
+    };
+    const sizeProps = resolveProductDetailSizeProps(product, heuristicSizeProps);
+
+    return {
+      product,
+      gallery,
+      heroImageUrl: gallery[0] ?? product.imageUrl,
+      videos,
+      reviews,
+      featuredReview: DEFAULT_FEATURED_REVIEW,
+      relatedProducts: DEFAULT_RELATED_PRODUCTS,
+      ...sizeProps,
       goldColors: pdpSections.goldColors ?? (catalog && !hasPdpConfig ? PRODUCT_DETAIL_DEMO.goldColors : undefined),
       stoneSwatches:
         pdpSections.stoneSwatches ??
@@ -548,12 +554,8 @@ export function enrichProductDetailProps(
   const demoIsRingProduct = resolveProductJewelrySizeKind(product.category) === 'ring';
   const demoIsNecklaceProduct = resolveProductJewelrySizeKind(product.category) === 'necklace';
 
-  return {
-    product,
-    gallery,
-    heroImageUrl: demo.heroImageUrl,
-    cardImageUrl: demo.cardImageUrl,
-    displayPriceToman: demo.displayPriceToman,
+  const demoIsBraceletProduct = resolveProductJewelrySizeKind(product.category) === 'bracelet';
+  const demoHeuristicSizeProps = {
     ringSizes:
       demoShowSizes && (demoIsSet || demoIsRingProduct) && demoSizeKinds.includes('ring')
         ? demo.ringSizes
@@ -563,9 +565,19 @@ export function enrichProductDetailProps(
         ? demo.necklaceSizes
         : undefined,
     braceletSizes:
-      demoShowSizes && demoIsSet && demoSizeKinds.includes('bracelet')
+      demoShowSizes && (demoIsSet || demoIsBraceletProduct) && demoSizeKinds.includes('bracelet')
         ? demo.braceletSizes
         : undefined,
+  };
+  const demoSizeProps = resolveProductDetailSizeProps(product, demoHeuristicSizeProps);
+
+  return {
+    product,
+    gallery,
+    heroImageUrl: demo.heroImageUrl,
+    cardImageUrl: demo.cardImageUrl,
+    displayPriceToman: demo.displayPriceToman,
+    ...demoSizeProps,
     goldColors: demo.goldColors,
     stoneSwatches: demo.stoneSwatches,
     specRows: demo.specRows,

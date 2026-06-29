@@ -25,7 +25,7 @@ import type {
   UpdateAdminProductDto,
   UpsertAdminProductVideoDto,
 } from '../dto/admin-commerce.dto';
-import { parseProductPdpConfig } from '../lib/product-pdp-config.util';
+import { parseProductPdpConfig, sanitizeProductPdpConfig } from '../lib/product-pdp-config.util';
 import { AdminProductsRepository } from '../repositories/admin-products.repository';
 import { revalidateStorefrontProducts } from '../../../infrastructure/storefront/storefront-cache.util';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
@@ -158,6 +158,7 @@ export class AdminProductsService {
         ),
         featured: dto.featured ?? false,
         ...this.resolveDiscountFields(dto.discountPercent, dto.discountStartsAt, dto.discountEndsAt),
+        pdpConfig: this.resolvePdpConfigInput(dto.pdpConfig) ?? null,
       },
       dto.initialQuantity ?? 0,
       actor.id,
@@ -233,6 +234,9 @@ export class AdminProductsService {
               dto.discountStartsAt,
               dto.discountEndsAt,
             )
+          : {}),
+        ...(dto.pdpConfig !== undefined
+          ? { pdpConfig: this.resolvePdpConfigInput(dto.pdpConfig) ?? null }
           : {}),
       },
       dto.galleryImages !== undefined ||
@@ -617,6 +621,15 @@ export class AdminProductsService {
       createdAt: video.createdAt.toISOString(),
       updatedAt: video.updatedAt.toISOString(),
     };
+  }
+
+  private resolvePdpConfigInput(
+    value: CreateAdminProductDto['pdpConfig'] | UpdateAdminProductDto['pdpConfig'] | undefined,
+  ) {
+    if (value === undefined) {
+      return undefined;
+    }
+    return sanitizeProductPdpConfig(value);
   }
 
   private resolveDiscountFields(

@@ -122,9 +122,13 @@ export function pdpFormToConfig(form: ProductPdpOptionsForm): ProductPdpConfig |
     );
   }
 
-  if (form.enableSizeRuler && form.sizes.length > 0) {
-    config.sizeKind = form.sizeKind;
-    config.sizes = form.sizes;
+  if (form.enableSizeRuler) {
+    const kind = resolveSizeKind(form.sizeKind);
+    const sizes = form.sizes.length > 0 ? form.sizes : sizeOptionsFor(kind);
+    if (sizes.length > 0) {
+      config.sizeKind = kind;
+      config.sizes = sizes;
+    }
   }
 
   return Object.keys(config).length > 0 ? config : null;

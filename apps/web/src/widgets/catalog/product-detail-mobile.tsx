@@ -21,7 +21,7 @@ import { buildBraceletSizeGuideHref } from '@/shared/config/bracelet-size-guide'
 import { buildNecklaceSizeGuideHref } from '@/shared/config/necklace-size-guide';
 import { buildRingSizeGuideHref } from '@/shared/config/ring-size-guide';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
-import { findMatchingVariant } from '@/shared/lib/resolve-product-pdp-config';
+import { findMatchingVariant, resolvePdpSections } from '@/shared/lib/resolve-product-pdp-config';
 import { ProductSizeRulerSection } from '@/widgets/catalog/product-size-ruler-section';
 import { StoreImage } from '@/shared/ui/store-image';
 import {
@@ -116,28 +116,44 @@ export function ProductDetailMobile({
       return Math.min(index, productSlideImages.length - 1);
     });
   }, [productSlideImages.length]);
-  const showRingSize = Boolean(ringSizes && ringSizes.length > 0);
-  const showNecklaceSize = Boolean(necklaceSizes && necklaceSizes.length > 0);
-  const showBraceletSize = Boolean(braceletSizes && braceletSizes.length > 0);
-  const showGoldSection = Boolean(goldColors && goldColors.length > 0);
-  const showStoneSection = Boolean(stoneSwatches && stoneSwatches.length > 0);
-  const ringSizeOptions = ringSizes ?? DEFAULT_RING_SIZES;
-  const necklaceSizeOptions = necklaceSizes ?? DEFAULT_NECKLACE_SIZES;
-  const braceletSizeOptions = braceletSizes ?? DEFAULT_BRACELET_SIZES;
+
+  const pdpSections = useMemo(() => resolvePdpSections(product), [product]);
+  const effectiveRingSizes = ringSizes?.length ? ringSizes : pdpSections.ringSizes;
+  const effectiveNecklaceSizes = necklaceSizes?.length ? necklaceSizes : pdpSections.necklaceSizes;
+  const effectiveBraceletSizes = braceletSizes?.length ? braceletSizes : pdpSections.braceletSizes;
+
+  const showRingSize = Boolean(effectiveRingSizes && effectiveRingSizes.length > 0);
+  const showNecklaceSize = Boolean(effectiveNecklaceSizes && effectiveNecklaceSizes.length > 0);
+  const showBraceletSize = Boolean(effectiveBraceletSizes && effectiveBraceletSizes.length > 0);
+  const showGoldSection = Boolean(
+    (goldColors?.length ? goldColors : pdpSections.goldColors)?.length,
+  );
+  const showStoneSection = Boolean(
+    (stoneSwatches?.length ? stoneSwatches : pdpSections.stoneSwatches)?.length,
+  );
+  const activeGoldColors = goldColors?.length ? goldColors : pdpSections.goldColors;
+  const activeStoneSwatches = stoneSwatches?.length ? stoneSwatches : pdpSections.stoneSwatches;
+  const ringSizeOptions = effectiveRingSizes ?? DEFAULT_RING_SIZES;
+  const necklaceSizeOptions = effectiveNecklaceSizes ?? DEFAULT_NECKLACE_SIZES;
+  const braceletSizeOptions = effectiveBraceletSizes ?? DEFAULT_BRACELET_SIZES;
 
   useEffect(() => {
-    if (goldColors?.length) {
-      setSelectedGold((current) => (goldColors.includes(current) ? current : goldColors[0]!));
-    }
-  }, [goldColors]);
-
-  useEffect(() => {
-    if (stoneSwatches?.length) {
-      setSelectedStone((current) =>
-        stoneSwatches.some((swatch) => swatch.id === current) ? current : stoneSwatches[0]!.id,
+    if (activeGoldColors?.length) {
+      setSelectedGold((current) =>
+        activeGoldColors.includes(current) ? current : activeGoldColors[0]!,
       );
     }
-  }, [stoneSwatches]);
+  }, [activeGoldColors]);
+
+  useEffect(() => {
+    if (activeStoneSwatches?.length) {
+      setSelectedStone((current) =>
+        activeStoneSwatches.some((swatch) => swatch.id === current)
+          ? current
+          : activeStoneSwatches[0]!.id,
+      );
+    }
+  }, [activeStoneSwatches]);
 
   useEffect(() => {
     setSelectedRingSize((current) =>
@@ -476,7 +492,7 @@ export function ProductDetailMobile({
             انتخاب رنگ طلا
           </h2>
           <div className="product-details-options">
-            {goldColors!.map((color) => (
+            {activeGoldColors!.map((color) => (
               <button
                 key={color}
                 type="button"
@@ -503,7 +519,7 @@ export function ProductDetailMobile({
             انتخاب رنگ سنگ
           </h2>
           <div className="product-details-stone-swatches">
-            {stoneSwatches!.map((swatch) => {
+            {activeStoneSwatches!.map((swatch) => {
               const priceDelta = stonePriceDeltas[swatch.id];
               return (
                 <div key={swatch.id} className="product-details-stone-swatch-item">

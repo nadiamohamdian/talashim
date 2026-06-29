@@ -225,7 +225,8 @@ export const productApi = {
 
   async getProductBySlug(slug: string): Promise<ProductDetails | null> {
     const product = await serverFetchCatalogDetail<ProductDetails>(`/catalog/${slug}`, {
-      revalidate: 60,
+      cache: process.env.NODE_ENV === 'development' ? 'no-store' : undefined,
+      revalidate: process.env.NODE_ENV === 'development' ? undefined : 60,
       tags: [`catalog:product:${slug}`, 'catalog:products'],
     });
     if (!product) {

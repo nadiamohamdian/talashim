@@ -86,13 +86,17 @@ export function resolvePdpSections(product: ProductDetails): {
     result.stoneSwatches = config.stoneSwatches;
   }
 
-  if (config.sizeKind && config.sizes && config.sizes.length > 0) {
+  const normalizedSizes = (config.sizes ?? [])
+    .map((size) => Number(size))
+    .filter((size) => Number.isFinite(size) && size > 0);
+
+  if (config.sizeKind && normalizedSizes.length > 0) {
     if (config.sizeKind === 'ring') {
-      result.ringSizes = config.sizes;
+      result.ringSizes = normalizedSizes;
     } else if (config.sizeKind === 'necklace') {
-      result.necklaceSizes = config.sizes;
+      result.necklaceSizes = normalizedSizes;
     } else if (config.sizeKind === 'bracelet') {
-      result.braceletSizes = config.sizes;
+      result.braceletSizes = normalizedSizes;
     }
   }
 
@@ -101,4 +105,37 @@ export function resolvePdpSections(product: ProductDetails): {
   }
 
   return result;
+}
+
+export function resolveProductDetailSizeProps(
+  product: ProductDetails,
+  fallback?: {
+    ringSizes?: number[];
+    necklaceSizes?: number[];
+    braceletSizes?: number[];
+  },
+): {
+  ringSizes?: number[];
+  necklaceSizes?: number[];
+  braceletSizes?: number[];
+} {
+  const fromConfig = resolvePdpSections(product);
+  const hasConfiguredSizes =
+    (fromConfig.ringSizes?.length ?? 0) > 0 ||
+    (fromConfig.necklaceSizes?.length ?? 0) > 0 ||
+    (fromConfig.braceletSizes?.length ?? 0) > 0;
+
+  if (hasConfiguredSizes) {
+    return {
+      ringSizes: fromConfig.ringSizes,
+      necklaceSizes: fromConfig.necklaceSizes,
+      braceletSizes: fromConfig.braceletSizes,
+    };
+  }
+
+  return {
+    ringSizes: fallback?.ringSizes,
+    necklaceSizes: fallback?.necklaceSizes,
+    braceletSizes: fallback?.braceletSizes,
+  };
 }
