@@ -132,7 +132,7 @@ export function CheckoutConfirmationView() {
   return (
     <div className="checkout-page store-minimal-header">
       <div className="checkout-page-inner checkout-page-inner--confirmation">
-        <CheckoutStepper activeStep={3} />
+        <CheckoutStepper activeStep={3} allStepsComplete />
 
         <div className="checkout-success">
           <span className="checkout-success-icon" aria-hidden>

@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import argon2 from 'argon2';
-import { isValidIranNationalId } from '@sadafgold/shared';
+import { isValidIranNationalId, normalizeIranMobile } from '@sadafgold/shared';
 import { Role } from '@/generated/prisma';
 import { UsersRepository } from '../repositories/users.repository';
 import type { ChangePasswordDto } from '../dto/change-password.dto';
@@ -15,7 +15,40 @@ export class UsersService {
   }
 
   findByPhone(phone: string) {
-    return this.usersRepository.findByPhone(phone);
+    const normalized = normalizeIranMobile(phone);
+    if (!normalized) {
+      return null;
+    }
+    return this.usersRepository.findByPhone(normalized);
+  }
+
+  async assertPhoneAvailable(phone: string, excludeUserId?: string) {
+    const normalized = normalizeIranMobile(phone);
+    if (!normalized) {
+      throw new BadRequestException('شماره موبایل معتبر نیست');
+    }
+
+    const existing = await this.usersRepository.findByPhone(normalized);
+    if (existing && existing.id !== excludeUserId) {
+      throw new ConflictException('این شماره موبایل قبلاً ثبت شده است');
+    }
+
+    return normalized;
+  }
+
+  async ensurePhoneFromAddress(userId: string, addressPhone: string) {
+    const normalized = normalizeIranMobile(addressPhone);
+    if (!normalized) {
+      return;
+    }
+
+    const user = await this.usersRepository.findById(userId);
+    if (!user || user.phone) {
+      return;
+    }
+
+    await this.assertPhoneAvailable(normalized, userId);
+    await this.usersRepository.updateProfile(userId, { phone: normalized });
   }
 
   findById(id: string) {
@@ -68,7 +101,7 @@ export class UsersService {
       data.nationalId = nationalId;
     }
     if (payload.phone !== undefined) {
-      data.phone = payload.phone.trim();
+      data.phone = await this.assertPhoneAvailable(payload.phone, userId);
     }
     if (payload.fullName !== undefined && payload.firstName === undefined && payload.lastName === undefined) {
       data.fullName = payload.fullName.trim();

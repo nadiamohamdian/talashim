@@ -18,6 +18,16 @@ export function useOrders(params: OrdersListParams = {}) {
   });
 }
 
+export function useOrderByNumber(orderNumber: string) {
+  return useQuery({
+    queryKey: queryKeys.orders.byNumber(orderNumber),
+    queryFn: ({ signal }) => orderApi.getByOrderNumber(orderNumber, signal),
+    enabled: Boolean(orderNumber),
+    staleTime: 15_000,
+    refetchOnWindowFocus: true,
+  });
+}
+
 export function useOrder(orderId: string) {
   return useQuery({
     queryKey: queryKeys.orders.detail(orderId),

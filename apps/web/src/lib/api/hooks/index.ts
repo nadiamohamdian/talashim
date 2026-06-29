@@ -11,6 +11,7 @@ export {
   useCart,
   useCheckoutMutation,
   useOrder,
+  useOrderByNumber,
   useOrders,
   useRemoveCartItemMutation,
   useSetInvoiceRecipientMutation,

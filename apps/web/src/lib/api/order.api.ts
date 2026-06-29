@@ -58,6 +58,13 @@ export const orderApi = {
     });
   },
 
+  getByOrderNumber(orderNumber: string, signal?: AbortSignal): Promise<OrderDetail> {
+    return apiGet<OrderDetail>(`/orders/me/by-number/${encodeURIComponent(orderNumber)}`, {
+      signal,
+      abortKey: `orders:by-number:${orderNumber}`,
+    });
+  },
+
   getById(orderId: string, signal?: AbortSignal): Promise<OrderDetail> {
     return apiGet<OrderDetail>(`/orders/${orderId}`, {
       signal,

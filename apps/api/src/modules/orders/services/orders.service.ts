@@ -67,7 +67,7 @@ export class OrdersService {
     private readonly couponsService: CouponsService,
   ) {}
 
-  async checkout(payload: CreateOrderDto) {
+  async checkout(userId: string, payload: CreateOrderDto) {
     const allowedProviders = getEnabledCheckoutProviders();
     if (!allowedProviders.includes(payload.paymentProvider as CheckoutPaymentProvider)) {
       throw new BadRequestException('روش پرداخت انتخاب‌شده فعال نیست');
@@ -87,25 +87,27 @@ export class OrdersService {
       throw new BadRequestException('Cart is no longer active');
     }
 
-    const userId = payload.userId ?? cart.userId;
-    if (!userId) {
+    const userIdFromAuth = userId;
+    if (!userIdFromAuth) {
       assertFeatureEnabled('enableGuestCheckout', 'خرید مهمان غیرفعال است — لطفاً وارد شوید');
       throw new BadRequestException('Checkout requires an authenticated user');
     }
 
-    if (cart.userId && cart.userId !== userId) {
-      throw new BadRequestException('Cart does not belong to this user');
+    if (cart.userId && cart.userId !== userIdFromAuth) {
+      throw new ForbiddenException('سبد خرید متعلق به حساب کاربری شما نیست');
     }
 
     const address = await this.addressesRepository.findByIdForUser(
       payload.shippingAddressId,
-      userId,
+      userIdFromAuth,
     );
     if (!address) {
       throw new NotFoundException('Shipping address not found');
     }
 
-    const profile = await this.usersService.getProfile(userId);
+    const profile = await this.usersService.getProfile(userIdFromAuth);
+
+    await this.usersService.ensurePhoneFromAddress(userIdFromAuth, address.phone);
 
     const settings = getPlatformSettings();
     if (settings.featureFlags.requireKycForCheckout && profile.kycStatus !== 'approved') {
@@ -156,7 +158,7 @@ export class OrdersService {
       const couponValidation = await this.couponsService.validateForCheckout(
         payload.couponCode,
         cart.id,
-        userId,
+        userIdFromAuth,
         { throwOnFailure: true, subtotalToman },
       );
       discountToman = couponValidation.discountAmount;
@@ -180,7 +182,7 @@ export class OrdersService {
 
     const created = await this.ordersRepository.createFromCart({
       cartId: cart.id,
-      userId,
+      userId: userIdFromAuth,
       shippingAddressId: address.id,
       paymentProvider: provider,
       paymentStatus: resolveInitialPaymentStatus(provider),
@@ -197,7 +199,7 @@ export class OrdersService {
       items: orderItems,
     });
 
-    const order = await this.ordersRepository.findByIdForUser(created.id, userId);
+    const order = await this.ordersRepository.findByIdForUser(created.id, userIdFromAuth);
     if (!order) {
       throw new NotFoundException('Order not found after checkout');
     }
@@ -288,6 +290,17 @@ export class OrdersService {
 
   async getForUser(userId: string, orderId: string) {
     const order = await this.ordersRepository.findByIdForUser(orderId, userId);
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    return this.toDetail(order);
+  }
+
+  async getForUserByOrderNumber(userId: string, orderNumber: string) {
+    const order = await this.ordersRepository.findByOrderNumberForUser(
+      decodeURIComponent(orderNumber).trim(),
+      userId,
+    );
     if (!order) {
       throw new NotFoundException('Order not found');
     }

@@ -571,9 +571,23 @@ export class AdminRepository {
     });
   }
 
+  findUserByPhoneForOtherUser(phone: string, userId: string) {
+    return this.prisma.user.findFirst({
+      where: { phone, id: { not: userId } },
+      select: { id: true },
+    });
+  }
+
   updateKycPhone(userId: string, phone: string) {
     return this.prisma.kycVerification.update({
       where: { userId },
+      data: { phone },
+    });
+  }
+
+  updateUserPhone(userId: string, phone: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
       data: { phone },
     });
   }

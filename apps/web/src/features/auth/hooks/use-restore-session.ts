@@ -4,6 +4,11 @@ import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { refreshSession } from '@/features/auth/api/auth-api';
 import { useAuthStore } from '@/features/auth/model/auth-store';
+import {
+  clearSessionLoginStamp,
+  isSessionExpired,
+  stampSessionLoginIfMissing,
+} from '@/features/auth/lib/session-expiry';
 
 export type SessionRestoreStatus = 'idle' | 'restoring' | 'done';
 
@@ -41,9 +46,24 @@ export function useRestoreSession(): SessionRestoreState {
     attemptedRef.current = true;
     setStatus('restoring');
 
+    if (isSessionExpired()) {
+      useAuthStore.getState().clearSession();
+      clearSessionLoginStamp();
+      setStatus('done');
+      return;
+    }
+
     void refreshSession()
       .then((session) => {
+        if (isSessionExpired()) {
+          useAuthStore.getState().clearSession();
+          clearSessionLoginStamp();
+          setVerified(false);
+          return;
+        }
+
         useAuthStore.getState().setSession(session);
+        stampSessionLoginIfMissing();
         setVerified(true);
       })
       .catch((error: unknown) => {

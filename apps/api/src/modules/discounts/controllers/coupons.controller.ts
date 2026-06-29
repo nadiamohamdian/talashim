@@ -35,7 +35,7 @@ export class CheckoutCouponsController {
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Validate coupon against current checkout cart' })
   validateCoupon(@CurrentUser() user: AuthenticatedUser, @Body() payload: ValidateCouponDto) {
-    return this.couponsService.validateForCheckout(payload.code, payload.cartId, payload.userId ?? user.id);
+    return this.couponsService.validateForCheckout(payload.code, payload.cartId, user.id);
   }
 }
 

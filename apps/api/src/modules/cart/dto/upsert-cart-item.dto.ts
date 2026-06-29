@@ -1,14 +1,6 @@
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsInt, IsString, Min } from 'class-validator';
 
 export class UpsertCartItemDto {
-  @IsOptional()
-  @IsString()
-  userId?: string;
-
-  @IsOptional()
-  @IsString()
-  sessionKey?: string;
-
   @IsString()
   productId!: string;
 

@@ -27,10 +27,7 @@ export class CartController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() payload: UpsertCartItemDto,
   ) {
-    return this.cartService.upsertItem({
-      ...payload,
-      userId: payload.userId ?? user.id,
-    });
+    return this.cartService.upsertItem(user.id, payload);
   }
 
   @Delete('items/:productId')

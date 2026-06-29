@@ -1,7 +1,10 @@
 export const WEB_ACCESS_TOKEN_COOKIE = 'sg-access-token';
 export const ADMIN_ACCESS_TOKEN_COOKIE = 'sg-admin-access-token';
 
-const DEFAULT_MAX_AGE_SEC = 60 * 60 * 24 * 7;
+/** Web storefront session — auto logout after 5 hours. */
+export const WEB_SESSION_MAX_AGE_SEC = 5 * 60 * 60;
+
+const DEFAULT_MAX_AGE_SEC = WEB_SESSION_MAX_AGE_SEC;
 
 export function setAccessTokenCookie(name: string, token: string, maxAgeSec = DEFAULT_MAX_AGE_SEC) {
   if (typeof document === 'undefined') {

@@ -1,10 +1,10 @@
 import type { BlogPostSummary } from '@sadafgold/types';
 import {
   BLOG_ARCHIVE_DEMO_ITEMS,
-  BLOG_ARCHIVE_FALLBACK_COVER,
   BLOG_PAGE_META,
   type BlogArchiveCardItem,
 } from '@/shared/config/blog-page';
+import { resolveBlogCoverImage } from '@/shared/lib/resolve-blog-cover-image';
 import { BlogArchiveCard } from '@/widgets/blog/blog-archive-card';
 import { BlogArchivePagination } from '@/widgets/blog/blog-archive-pagination';
 
@@ -30,7 +30,7 @@ function mapPostsToArchiveItems(posts: BlogPostSummary[]): BlogArchiveCardItem[]
     slug: post.slug,
     title: post.title,
     excerpt: formatArchiveExcerpt(post.excerpt),
-    imageUrl: post.coverImageUrl?.trim() || BLOG_ARCHIVE_FALLBACK_COVER,
+    imageUrl: resolveBlogCoverImage(post.coverImageUrl),
   }));
 }
 

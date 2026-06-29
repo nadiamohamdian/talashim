@@ -10,6 +10,7 @@ import { tomanBigIntToNumber } from '@/common/finance/toman-amount';
 import {
   ADMIN_PERMISSIONS,
 } from '@sadafgold/shared/admin-rbac';
+import { normalizeIranMobile } from '@sadafgold/shared';
 import { KycStatus, Role } from '@/generated/prisma';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { assertAdminPermission } from '@/common/rbac/assert-admin-permission';
@@ -235,8 +236,21 @@ export class AdminService {
     }
 
     if (payload.phone) {
+      const normalizedPhone = normalizeIranMobile(payload.phone);
+      if (!normalizedPhone) {
+        throw new BadRequestException('شماره موبایل معتبر نیست');
+      }
+
+      const phoneTakenInUser = await this.adminRepository.findUserByPhoneForOtherUser(
+        normalizedPhone,
+        userId,
+      );
+      if (phoneTakenInUser) {
+        throw new BadRequestException('This phone number is already registered');
+      }
+
       const phoneTaken = await this.adminRepository.findKycByPhoneForOtherUser(
-        payload.phone,
+        normalizedPhone,
         userId,
       );
       if (phoneTaken) {
@@ -244,7 +258,7 @@ export class AdminService {
       }
 
       if (user.kycVerification) {
-        await this.adminRepository.updateKycPhone(userId, payload.phone);
+        await this.adminRepository.updateKycPhone(userId, normalizedPhone);
       } else {
         if (!payload.nationalId?.trim()) {
           throw new BadRequestException(
@@ -252,10 +266,12 @@ export class AdminService {
           );
         }
         await this.adminRepository.createKycForUser(userId, {
-          phone: payload.phone,
+          phone: normalizedPhone,
           nationalId: payload.nationalId.trim(),
         });
       }
+
+      await this.adminRepository.updateUserPhone(userId, normalizedPhone);
     }
 
     if (payload.address) {

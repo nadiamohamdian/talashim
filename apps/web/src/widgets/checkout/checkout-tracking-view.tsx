@@ -1,14 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo } from 'react';
 import {
-  getCompletedTrackingIndex,
+  ORDER_TRACKING_STEPS,
   type OrderTrackingStage,
 } from '@/shared/config/checkout-flow';
 import { formatPersianDate } from '@/shared/lib/persian-date';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
-import { useOrder, useOrders } from '@/lib/api';
+import { useOrderByNumber } from '@/lib/api';
 import {
   getOrderTrackingStatusLabel,
   OrderTrackingStepper,
@@ -18,34 +17,30 @@ interface CheckoutTrackingViewProps {
   orderNumber: string;
 }
 
-function mapOrderStatusToTrackingStage(status: string): OrderTrackingStage {
+function resolveTrackingProgress(status: string): {
+  stage: OrderTrackingStage;
+  completedIndex: number;
+} {
   switch (status) {
     case 'paid':
-      return 'packaging';
+      return { stage: 'in_transit', completedIndex: 1 };
     case 'confirmed':
-      return 'confirmed';
+      return { stage: 'confirmed', completedIndex: 1 };
     case 'pending':
     default:
-      return 'placed';
+      return { stage: 'placed', completedIndex: 0 };
   }
 }
 
 export function CheckoutTrackingView({ orderNumber }: CheckoutTrackingViewProps) {
   const decodedOrderNumber = decodeURIComponent(orderNumber);
-  const { data, isLoading, isError } = useOrders({ limit: 50 });
+  const { data: order, isLoading, isError } = useOrderByNumber(decodedOrderNumber);
 
-  const order = useMemo(
-    () => data?.items.find((item) => item.orderNumber === decodedOrderNumber),
-    [data?.items, decodedOrderNumber],
-  );
-
-  const { isLoading: detailLoading } = useOrder(order?.id ?? '');
-
-  const activeStage = mapOrderStatusToTrackingStage(order?.status ?? 'pending');
-  const completedIndex = getCompletedTrackingIndex(activeStage);
+  const { stage: activeStage, completedIndex } = resolveTrackingProgress(order?.status ?? 'pending');
+  const activeIndex = ORDER_TRACKING_STEPS.findIndex((step) => step.id === activeStage);
   const statusLabel = getOrderTrackingStatusLabel(activeStage);
 
-  if (isLoading || (order && detailLoading)) {
+  if (isLoading) {
     return (
       <div className="checkout-page store-minimal-header">
         <div className="checkout-page-inner">
@@ -76,7 +71,7 @@ export function CheckoutTrackingView({ orderNumber }: CheckoutTrackingViewProps)
       <div className="checkout-page-inner checkout-page-inner--tracking">
         <h1 className="order-tracking-title">اطلاعات سفارش</h1>
 
-        <div className="order-tracking-cards">
+        <div className="order-tracking-cards" dir="rtl">
           <article className="order-tracking-card">
             <p className="order-tracking-card-label">وضعیت</p>
             <p className="order-tracking-card-value">{statusLabel}</p>
@@ -93,7 +88,7 @@ export function CheckoutTrackingView({ orderNumber }: CheckoutTrackingViewProps)
           </article>
         </div>
 
-        <OrderTrackingStepper completedIndex={completedIndex} />
+        <OrderTrackingStepper completedIndex={completedIndex} activeIndex={activeIndex} />
 
         <Link href="/orders" className="checkout-empty-link checkout-tracking-back">
           مشاهده همه سفارش‌ها

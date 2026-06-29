@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import type { AuthSession, UserProfile } from '@sadafgold/types';
 import { clearAuthCookie, syncAuthCookie } from '@/features/auth/api/auth-api';
+import { clearSessionLoginStamp } from '@/features/auth/lib/session-expiry';
 
 interface AuthState {
   user: UserProfile | null;
@@ -48,6 +49,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   clearOtpIdentifier: () => set({ otpIdentifier: null }),
   clearSession: () => {
     clearAuthCookie();
+    clearSessionLoginStamp();
     set({
       user: null,
       accessToken: null,

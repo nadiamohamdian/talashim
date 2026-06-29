@@ -1,10 +1,10 @@
 import { getBlogPosts } from '@/shared/api/blog-api';
 import {
-  HOME_MAGAZINE_COVER_IMAGE,
   HOME_MAGAZINE_DEMO_ITEMS,
   HOME_MAGAZINE_DEMO_EXCERPT,
   type HomeMagazineArticleItem,
 } from '@/shared/config/home-magazine-demo';
+import { resolveBlogCoverImage } from '@/shared/lib/resolve-blog-cover-image';
 import { HomeMagazineCarousel } from '@/widgets/home/home-magazine-carousel';
 
 const MAGAZINE_POST_LIMIT = 12;
@@ -31,7 +31,7 @@ function mapBlogPostsToItems(
       id: post.id,
       title: post.title,
       excerpt: formatMagazineExcerpt(post.excerpt || post.content || HOME_MAGAZINE_DEMO_EXCERPT),
-      imageUrl: post.coverImageUrl?.trim() || HOME_MAGAZINE_COVER_IMAGE,
+      imageUrl: resolveBlogCoverImage(post.coverImageUrl),
       href: `/blog/${encodeURIComponent(post.slug.trim())}`,
     }));
 }

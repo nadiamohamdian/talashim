@@ -153,12 +153,12 @@
   --shadow-elevated: 0 2px 16px rgba(61, 54, 48, 0.05);
 
   /* Radius — panel corners match storefront account pages */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.25rem;
-  --radius-2xl: 1.5rem;
-  --radius-panel: 0.6px;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-panel: 0;
 
   /* Layout */
   --sidebar-width: 16rem;
@@ -1102,6 +1102,27 @@ html.dark body {
 .admin-canvas .admin-main :is(div, section, article).rounded-2xl:not(.rounded-full),
 .admin-canvas .admin-main :is(div, section, article)[class*='rounded-[var(--radius-xl)]']:not(.rounded-full) {
   border-radius: var(--radius-panel);
+}
+
+/* Admin request: keep all panel boxes square */
+.admin-canvas .admin-main :is(
+  div,
+  section,
+  article,
+  aside,
+  form,
+  input,
+  textarea,
+  select,
+  button,
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td
+) {
+  border-radius: 0 !important;
 }
 
 /* KPI widgets */

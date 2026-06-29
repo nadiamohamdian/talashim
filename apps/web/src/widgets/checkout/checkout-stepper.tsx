@@ -3,15 +3,16 @@ import { CheckoutStepperNumeral } from '@/widgets/checkout/checkout-stepper-nume
 
 interface CheckoutStepperProps {
   activeStep: CheckoutStep;
+  allStepsComplete?: boolean;
 }
 
-export function CheckoutStepper({ activeStep }: CheckoutStepperProps) {
+export function CheckoutStepper({ activeStep, allStepsComplete = false }: CheckoutStepperProps) {
   return (
     <nav className="checkout-stepper" aria-label="مراحل تسویه حساب">
       <div className="checkout-stepper-track">
         {CHECKOUT_STEPS.map((step, index) => {
-          const isActive = step.step === activeStep;
-          const isComplete = step.step < activeStep;
+          const isActive = !allStepsComplete && step.step === activeStep;
+          const isComplete = allStepsComplete || step.step < activeStep;
 
           return (
             <div key={step.step} className="checkout-stepper-item">

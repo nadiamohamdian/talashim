@@ -422,7 +422,7 @@ function buildListingDetailDemo(source: ProductSummary): ProductDetailDemo {
     discountEndsAt: source.discountEndsAt ?? null,
     imageUrl: source.imageUrl,
     hoverImageUrl: source.hoverImageUrl,
-    heroImageUrl: source.imageUrl,
+    heroImageUrl: template.heroImageUrl,
     inventory: source.inventory,
     featured: source.featured ?? false,
     description,

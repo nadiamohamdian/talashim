@@ -28,6 +28,13 @@ interface DragState {
   target: DragTarget;
 }
 
+interface DragOrigin {
+  pointerStartX: number;
+  pointerStartY: number;
+  baseX: number;
+  baseY: number;
+}
+
 interface LensHotspotPositionEditorProps {
   heroImageUrl: string;
   hotspots: CmsLensHotspot[];
@@ -50,6 +57,24 @@ function chipHeightPercent(viewport: LensHotspotViewport): string {
   return `${(LENS_SHOWCASE_CHIP.height / artboard.height) * 100}%`;
 }
 
+function toRelativePercent(value: string, artboardSize: number): string {
+  const px = parseLensPosition(value, artboardSize, 0);
+  const percent = (px / artboardSize) * 100;
+  return String(Number(percent.toFixed(2)));
+}
+
+function parsePercentNumber(value: string): number | null {
+  const normalized = value.replace('%', '').replace(',', '.').trim();
+  if (!normalized) {
+    return null;
+  }
+  const parsed = Number.parseFloat(normalized);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  return Number(parsed.toFixed(2));
+}
+
 export function LensHotspotPositionEditor({
   heroImageUrl,
   hotspots,
@@ -58,13 +83,32 @@ export function LensHotspotPositionEditor({
   onChange,
 }: LensHotspotPositionEditorProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const dragOriginRef = useRef<DragOrigin | null>(null);
   const [viewport, setViewport] = useState<LensHotspotViewport>('desktop');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const artboard = LENS_HERO_ARTBOARD[viewport];
+
+  const readPointerInArtboard = useCallback(
+    (clientX: number, clientY: number): { x: number; y: number } | null => {
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        return null;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+      const safeWidth = Math.max(rect.width, 1);
+      const safeHeight = Math.max(rect.height, 1);
+
+      const x = ((clientX - rect.left) / safeWidth) * artboard.width;
+      const y = ((clientY - rect.top) / safeHeight) * artboard.height;
+
+      return { x, y };
+    },
+    [artboard.height, artboard.width],
+  );
 
   const updateSpot = useCallback(
     (index: number, patch: Partial<CmsLensHotspot>) => {
@@ -77,67 +121,72 @@ export function LensHotspotPositionEditor({
     [hotspots, onChange],
   );
 
-  const positionFromPointer = useCallback(
-    (clientX: number, clientY: number, preferUnit: 'px' | '%'): { top: string; left: string } | null => {
-      const canvas = canvasRef.current;
-      if (!canvas) {
-        return null;
-      }
-
-      const rect = canvas.getBoundingClientRect();
-      const pointerX = ((clientX - rect.left) / rect.width) * artboard.width;
-      const pointerY = ((clientY - rect.top) / rect.height) * artboard.height;
-      const x = clamp(pointerX - dragOffsetRef.current.x, 0, artboard.width);
-      const y = clamp(pointerY - dragOffsetRef.current.y, 0, artboard.height);
-
-      return {
-        left: formatLensPosition(x, artboard.width, preferUnit),
-        top: formatLensPosition(y, artboard.height, preferUnit),
-      };
-    },
-    [artboard.height, artboard.width],
-  );
-
   useEffect(() => {
     if (!drag) {
       return;
     }
 
     const handlePointerMove = (event: PointerEvent) => {
+      event.preventDefault();
       const spot = hotspots[drag.index];
       if (!spot) {
         return;
       }
+      const origin = dragOriginRef.current;
+      if (!origin) {
+        return;
+      }
+
+      const pointerNow = readPointerInArtboard(event.clientX, event.clientY);
+      if (!pointerNow) {
+        return;
+      }
+
+      const deltaX = pointerNow.x - origin.pointerStartX;
+      const deltaY = pointerNow.y - origin.pointerStartY;
+      const nextX = origin.baseX + deltaX;
+      const nextY = origin.baseY + deltaY;
 
       if (drag.target === 'hotspot') {
         const coords = readHotspotCoords(spot, viewport);
-        const preferUnit = detectPositionUnit(coords.top);
-        const next = positionFromPointer(event.clientX, event.clientY, preferUnit);
-        if (!next) {
-          return;
-        }
+        const topUnit = detectPositionUnit(coords.top);
+        const leftUnit = detectPositionUnit(coords.left);
         onChange(
           hotspots.map((item, index) =>
-            index === drag.index ? writeHotspotCoords(item, viewport, next.top, next.left) : item,
+            index === drag.index
+              ? writeHotspotCoords(
+                  item,
+                  viewport,
+                  formatLensPosition(clamp(nextY, 0, artboard.height), artboard.height, topUnit),
+                  formatLensPosition(clamp(nextX, 0, artboard.width), artboard.width, leftUnit),
+                )
+              : item,
           ),
         );
         return;
       }
 
       const coords = readChipCoords(spot, viewport);
-      const preferUnit = detectPositionUnit(coords.top);
-      const next = positionFromPointer(event.clientX, event.clientY, preferUnit);
-      if (!next) {
-        return;
-      }
+      const topUnit = detectPositionUnit(coords.top);
+      const leftUnit = detectPositionUnit(coords.left);
       onChange(
         hotspots.map((item, index) =>
-          index === drag.index ? writeChipCoords(item, viewport, next.top, next.left) : item,
+          index === drag.index
+            ? writeChipCoords(
+                item,
+                viewport,
+                formatLensPosition(nextY, artboard.height, topUnit),
+                formatLensPosition(nextX, artboard.width, leftUnit),
+              )
+            : item,
         ),
       );
     };
 
-    const handlePointerUp = () => setDrag(null);
+    const handlePointerUp = () => {
+      dragOriginRef.current = null;
+      setDrag(null);
+    };
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
@@ -145,23 +194,28 @@ export function LensHotspotPositionEditor({
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [drag, hotspots, onChange, positionFromPointer, viewport]);
+  }, [artboard.height, artboard.width, drag, hotspots, onChange, readPointerInArtboard, viewport]);
 
   const startDrag = (index: number, target: DragTarget) => (event: ReactPointerEvent) => {
     event.preventDefault();
     event.stopPropagation();
     setSelectedIndex(index);
 
-    const canvas = canvasRef.current;
     const spot = hotspots[index];
-    if (canvas && spot) {
-      const rect = canvas.getBoundingClientRect();
+    if (spot) {
+      const pointerStart = readPointerInArtboard(event.clientX, event.clientY);
+      if (!pointerStart) {
+        return;
+      }
       const coords = target === 'hotspot' ? readHotspotCoords(spot, viewport) : readChipCoords(spot, viewport);
-      const anchorX = parseLensPosition(coords.left, artboard.width, artboard.width / 2);
-      const anchorY = parseLensPosition(coords.top, artboard.height, artboard.height / 2);
-      const pointerX = ((event.clientX - rect.left) / rect.width) * artboard.width;
-      const pointerY = ((event.clientY - rect.top) / rect.height) * artboard.height;
-      dragOffsetRef.current = { x: pointerX - anchorX, y: pointerY - anchorY };
+      const baseX = parseLensPosition(coords.left, artboard.width, artboard.width / 2);
+      const baseY = parseLensPosition(coords.top, artboard.height, artboard.height / 2);
+      dragOriginRef.current = {
+        pointerStartX: pointerStart.x,
+        pointerStartY: pointerStart.y,
+        baseX,
+        baseY,
+      };
     }
 
     setDrag({ index, target });
@@ -190,7 +244,7 @@ export function LensHotspotPositionEditor({
           <Button
             type="button"
             size="sm"
-            variant={viewport === 'desktop' ? 'default' : 'ghost'}
+            variant={viewport === 'desktop' ? undefined : 'ghost'}
             className="h-8 px-3 text-xs"
             onClick={() => setViewport('desktop')}
           >
@@ -199,7 +253,7 @@ export function LensHotspotPositionEditor({
           <Button
             type="button"
             size="sm"
-            variant={viewport === 'mobile' ? 'default' : 'ghost'}
+            variant={viewport === 'mobile' ? undefined : 'ghost'}
             className="h-8 px-3 text-xs"
             onClick={() => setViewport('mobile')}
           >
@@ -241,30 +295,38 @@ export function LensHotspotPositionEditor({
             ثابت نمایش داده می‌شود.
           </p>
         ) : null}
+        {viewport === 'desktop' ? (
+          <p className="mb-3 text-xs text-muted">
+            در دسکتاپ می‌توانید کارت محصول را حتی خارج از کادر عکس (کل Stage) جابه‌جا کنید تا
+            خروجی نهایی دقیقاً مثل ویترین سایت شود.
+          </p>
+        ) : null}
 
         <div
           className="mx-auto w-full"
           style={{ maxWidth: `${artboard.width}px` }}
         >
           <div
-            ref={canvasRef}
-            className="relative mx-auto w-full select-none touch-none overflow-hidden bg-[#d9d9d9]"
-            style={{
-              aspectRatio: `${artboard.width} / ${artboard.height}`,
-            }}
+            className="relative mx-auto w-full select-none touch-none"
+            style={{ aspectRatio: `${artboard.width} / ${artboard.height}` }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={heroImageUrl}
-              alt=""
-              draggable={false}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
+            <div
+              ref={canvasRef}
+              className="absolute inset-0 z-[1] overflow-visible rounded-sm bg-[#d9d9d9]"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={heroImageUrl}
+                alt=""
+                draggable={false}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
 
-            <span
-              className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/20 to-black/20"
-              aria-hidden
-            />
+              <span
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-t from-black/20 to-black/20"
+                aria-hidden
+              />
+            </div>
 
             {hotspots.map((spot, index) => {
               const hotspotCoords = readHotspotCoords(spot, viewport);
@@ -293,6 +355,8 @@ export function LensHotspotPositionEditor({
                       left: `${(hotspotLeft / artboard.width) * 100}%`,
                       top: `${(hotspotTop / artboard.height) * 100}%`,
                       boxShadow: isSelected ? `0 0 0 3px ${color}55` : undefined,
+                      touchAction: 'none',
+                      cursor: 'grab',
                     }}
                     aria-label={`جابجایی نقطه ${index + 1}`}
                     onPointerDown={startDrag(index, 'hotspot')}
@@ -313,6 +377,8 @@ export function LensHotspotPositionEditor({
                         minHeight: chipHeightPercent(viewport),
                         transform: `translate(${chipTranslateX}, ${chipTranslateY})`,
                         direction: 'ltr',
+                        touchAction: 'none',
+                        cursor: 'grab',
                       }}
                       aria-label={`جابجایی کارت ${label}`}
                       onPointerDown={startDrag(index, 'chip')}
@@ -347,6 +413,19 @@ export function LensHotspotPositionEditor({
                 </div>
               );
             })}
+
+            <div
+              className="pointer-events-none absolute left-0 right-0 z-[0] border-t border-dashed border-white/45"
+              style={{ top: '100%' }}
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute left-0 right-0 z-[0] pt-2 text-[11px] text-white/85"
+              style={{ top: '100%' }}
+              aria-hidden
+            >
+              ناوبری Stage
+            </div>
           </div>
         </div>
       </div>
@@ -367,69 +446,88 @@ export function LensHotspotPositionEditor({
 
       {showAdvanced ? (
         <div className="space-y-4">
-          {hotspots.map((spot, index) => (
-            <div
-              key={spot.id ?? `lens-editor-fields-${index}`}
-              className="grid gap-3 rounded-lg border border-[var(--border-subtle)] p-4 md:grid-cols-4"
-            >
-              <p className="md:col-span-4 text-xs font-medium text-foreground">
-                نقطه {index + 1}
-                {productLabels[index] ? ` — ${productLabels[index]}` : ''}
-              </p>
-              <Field
-                label={viewport === 'desktop' ? 'عمودی (+)' : 'عمودی موبایل (+)'}
-                value={readHotspotCoords(spot, viewport).top}
-                onChange={(top) =>
-                  updateSpot(
-                    index,
-                    writeHotspotCoords(spot, viewport, top, readHotspotCoords(spot, viewport).left),
-                  )
-                }
-              />
-              <Field
-                label={viewport === 'desktop' ? 'افقی (+)' : 'افقی موبایل (+)'}
-                value={readHotspotCoords(spot, viewport).left}
-                onChange={(left) =>
-                  updateSpot(
-                    index,
-                    writeHotspotCoords(spot, viewport, readHotspotCoords(spot, viewport).top, left),
-                  )
-                }
-              />
-              <Field
-                label={viewport === 'desktop' ? 'عمودی کارت' : 'عمودی کارت موبایل'}
-                value={readChipCoords(spot, viewport).top}
-                onChange={(top) =>
-                  updateSpot(
-                    index,
-                    writeChipCoords(spot, viewport, top, readChipCoords(spot, viewport).left),
-                  )
-                }
-              />
-              <Field
-                label={viewport === 'desktop' ? 'افقی کارت' : 'افقی کارت موبایل'}
-                value={readChipCoords(spot, viewport).left}
-                onChange={(left) =>
-                  updateSpot(
-                    index,
-                    writeChipCoords(spot, viewport, readChipCoords(spot, viewport).top, left),
-                  )
-                }
-              />
-              <Field
-                label="ترجمه X کارت"
-                value={spot.chipTranslateX ?? ''}
-                onChange={(chipTranslateX) => updateSpot(index, { chipTranslateX })}
-                placeholder={DEFAULT_LENS_CHIP_TRANSLATE.x}
-              />
-              <Field
-                label="ترجمه Y کارت"
-                value={spot.chipTranslateY ?? ''}
-                onChange={(chipTranslateY) => updateSpot(index, { chipTranslateY })}
-                placeholder={DEFAULT_LENS_CHIP_TRANSLATE.y}
-              />
-            </div>
-          ))}
+          {hotspots.map((spot, index) => {
+            const hotspotCoords = readHotspotCoords(spot, viewport);
+            const chipCoords = readChipCoords(spot, viewport);
+            const chipTopPercent = toRelativePercent(chipCoords.top, artboard.height);
+            const chipLeftPercent = toRelativePercent(chipCoords.left, artboard.width);
+
+            return (
+              <div
+                key={spot.id ?? `lens-editor-fields-${index}`}
+                className="grid gap-3 rounded-lg border border-[var(--border-subtle)] p-4 md:grid-cols-4"
+              >
+                <p className="md:col-span-4 text-xs font-medium text-foreground">
+                  نقطه {index + 1}
+                  {productLabels[index] ? ` — ${productLabels[index]}` : ''}
+                </p>
+                <Field
+                  label={viewport === 'desktop' ? 'عمودی (+)' : 'عمودی موبایل (+)'}
+                  value={hotspotCoords.top}
+                  onChange={(top) =>
+                    updateSpot(index, writeHotspotCoords(spot, viewport, top, hotspotCoords.left))
+                  }
+                />
+                <Field
+                  label={viewport === 'desktop' ? 'افقی (+)' : 'افقی موبایل (+)'}
+                  value={hotspotCoords.left}
+                  onChange={(left) =>
+                    updateSpot(index, writeHotspotCoords(spot, viewport, hotspotCoords.top, left))
+                  }
+                />
+                <Field
+                  label={viewport === 'desktop' ? 'عمودی کارت' : 'عمودی کارت موبایل'}
+                  value={chipCoords.top}
+                  onChange={(top) =>
+                    updateSpot(index, writeChipCoords(spot, viewport, top, chipCoords.left))
+                  }
+                />
+                <Field
+                  label={viewport === 'desktop' ? 'افقی کارت' : 'افقی کارت موبایل'}
+                  value={chipCoords.left}
+                  onChange={(left) =>
+                    updateSpot(index, writeChipCoords(spot, viewport, chipCoords.top, left))
+                  }
+                />
+                <Field
+                  label={viewport === 'desktop' ? 'عمودی کارت (% نسبت به عکس)' : 'عمودی کارت موبایل (% نسبت به عکس)'}
+                  value={chipTopPercent}
+                  onChange={(value) => {
+                    const parsed = parsePercentNumber(value);
+                    if (parsed === null) {
+                      return;
+                    }
+                    updateSpot(index, writeChipCoords(spot, viewport, `${parsed}%`, chipCoords.left));
+                  }}
+                  placeholder="مثال: 42.5"
+                />
+                <Field
+                  label={viewport === 'desktop' ? 'افقی کارت (% نسبت به عکس)' : 'افقی کارت موبایل (% نسبت به عکس)'}
+                  value={chipLeftPercent}
+                  onChange={(value) => {
+                    const parsed = parsePercentNumber(value);
+                    if (parsed === null) {
+                      return;
+                    }
+                    updateSpot(index, writeChipCoords(spot, viewport, chipCoords.top, `${parsed}%`));
+                  }}
+                  placeholder="مثال: 18"
+                />
+                <Field
+                  label="ترجمه X کارت"
+                  value={spot.chipTranslateX ?? ''}
+                  onChange={(chipTranslateX) => updateSpot(index, { chipTranslateX })}
+                  placeholder={DEFAULT_LENS_CHIP_TRANSLATE.x}
+                />
+                <Field
+                  label="ترجمه Y کارت"
+                  value={spot.chipTranslateY ?? ''}
+                  onChange={(chipTranslateY) => updateSpot(index, { chipTranslateY })}
+                  placeholder={DEFAULT_LENS_CHIP_TRANSLATE.y}
+                />
+              </div>
+            );
+          })}
         </div>
       ) : null}
     </div>

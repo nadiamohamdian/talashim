@@ -6,6 +6,7 @@ import {
   type SessionRestoreState,
   type SessionRestoreStatus,
 } from '@/features/auth/hooks/use-restore-session';
+import { useSessionExpiryWatcher } from '@/features/auth/hooks/use-session-expiry';
 import { useMergeGuestCart } from '@/features/cart/hooks/use-merge-guest-cart';
 
 const defaultRestoreState: SessionRestoreState = { status: 'idle', verified: false };
@@ -23,6 +24,7 @@ export function useSessionVerified(): boolean {
 /** Restores auth from cookie and merges guest cart after login. */
 export function SessionBootstrap({ children }: PropsWithChildren) {
   const restoreState = useRestoreSession();
+  useSessionExpiryWatcher();
   useMergeGuestCart();
 
   return (

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -21,11 +20,7 @@ export class CartService {
     private readonly pricingEngine: PricingEngineService,
   ) {}
 
-  async upsertItem(payload: UpsertCartItemDto) {
-    if (!payload.userId && !payload.sessionKey) {
-      throw new BadRequestException('userId or sessionKey is required');
-    }
-
+  async upsertItem(userId: string, payload: UpsertCartItemDto) {
     const product = await this.catalogRepository.findById(payload.productId);
 
     if (!product) {
@@ -34,10 +29,7 @@ export class CartService {
 
     const unitPriceToman = await this.resolveLiveUnitPrice(product);
 
-    const cart = await this.cartRepository.findOrCreateActiveCart(
-      payload.userId,
-      payload.sessionKey,
-    );
+    const cart = await this.cartRepository.findOrCreateActiveCart(userId);
 
     await this.cartRepository.upsertCartItem(
       cart.id,
@@ -46,12 +38,7 @@ export class CartService {
       tomanNumberToBigInt(unitPriceToman),
     );
 
-    if (payload.userId) {
-      return this.getCartForUser(payload.userId);
-    }
-
-    const updated = await this.cartRepository.findCartById(cart.id);
-    return updated ? this.toCartResponse(updated) : { id: cart.id, items: [], subtotalToman: 0 };
+    return this.getCartForUser(userId);
   }
 
   async getCart(cartId: string) {
@@ -71,7 +58,11 @@ export class CartService {
       throw new NotFoundException('سبد خرید یافت نشد');
     }
 
-    if (cart.userId && cart.userId !== userId) {
+    if (!cart.userId) {
+      throw new ForbiddenException('دسترسی به سبد خرید مهمان از این مسیر مجاز نیست');
+    }
+
+    if (cart.userId !== userId) {
       throw new ForbiddenException('دسترسی به سبد خرید دیگران مجاز نیست');
     }
 

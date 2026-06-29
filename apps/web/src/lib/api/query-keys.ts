@@ -81,6 +81,8 @@ export const queryKeys = {
     list: (params: OrdersListParams = {}) =>
       [...queryKeys.orders.lists(), params] as const,
     detail: (orderId: string) => [...queryKeys.orders.all, 'detail', orderId] as const,
+    byNumber: (orderNumber: string) =>
+      [...queryKeys.orders.all, 'by-number', orderNumber] as const,
   },
 
   user: {

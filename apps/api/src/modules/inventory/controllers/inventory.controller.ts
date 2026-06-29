@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { StaffRoleGuard } from '@/common/guards/staff-role.guard';
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import { ReserveInventoryDto } from '../dto/reserve-inventory.dto';
 import { InventoryService } from '../services/inventory.service';
@@ -16,6 +17,7 @@ export class InventoryController {
   }
 
   @Post('reserve')
+  @UseGuards(StaffRoleGuard)
   reserve(@Body() payload: ReserveInventoryDto) {
     return this.inventoryService.reserve(payload);
   }

@@ -71,6 +71,15 @@ export class OrdersListController {
     return this.ordersService.setInvoiceRecipient(user.id, id, payload);
   }
 
+  @Get('me/by-number/:orderNumber')
+  @ApiOperation({ summary: 'Get current user order by order number' })
+  getMineByNumber(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('orderNumber') orderNumber: string,
+  ) {
+    return this.ordersService.getForUserByOrderNumber(user.id, orderNumber);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get order detail' })
   getOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
@@ -91,9 +100,6 @@ export class OrdersController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() payload: CreateOrderDto,
   ) {
-    return this.ordersService.checkout({
-      ...payload,
-      userId: payload.userId ?? user.id,
-    });
+    return this.ordersService.checkout(user.id, payload);
   }
 }

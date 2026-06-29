@@ -4,9 +4,9 @@ import {
   BLOG_POST_DEMO_BODY_SECOND,
   BLOG_POST_DEMO_TITLE,
   BLOG_POST_DEMO_TOC_ITEMS,
-  BLOG_POST_FALLBACK_COVER,
   BLOG_POST_SECTION_TITLES,
 } from '@/shared/config/blog-post-page';
+import { resolveBlogCoverImage } from '@/shared/lib/resolve-blog-cover-image';
 import { injectHeadingIds } from '@/shared/lib/blog-post-toc';
 import { formatPersianDate } from '@/shared/lib/persian-date';
 import { RichHtmlContent } from '@/shared/ui/rich-html-content';
@@ -45,14 +45,6 @@ function resolveContentHtml(content: string): string {
   return baseHtml;
 }
 
-function resolveCoverImage(coverImageUrl: string | undefined): string {
-  const normalized = coverImageUrl?.trim() ?? '';
-  if (!normalized || normalized.startsWith('http')) {
-    return BLOG_POST_FALLBACK_COVER;
-  }
-  return normalized;
-}
-
 function mapRelatedPosts(
   posts: BlogPostSummary[],
   currentSlug: string,
@@ -63,7 +55,7 @@ function mapRelatedPosts(
     .map((item) => ({
       id: item.id,
       title: item.title,
-      imageUrl: resolveCoverImage(item.coverImageUrl),
+      imageUrl: resolveBlogCoverImage(item.coverImageUrl),
       href: `/blog/${encodeURIComponent(item.slug)}`,
     }));
 
@@ -74,7 +66,7 @@ function mapRelatedPosts(
   return Array.from({ length: 5 }, (_, index) => ({
     id: `blog-related-demo-${index + 1}`,
     title: BLOG_POST_DEMO_TITLE,
-    imageUrl: BLOG_POST_FALLBACK_COVER,
+    imageUrl: resolveBlogCoverImage(''),
     href: '/blog',
   }));
 }
@@ -84,7 +76,7 @@ export function BlogPostPageView({
   relatedPosts,
   relatedProducts,
 }: BlogPostPageViewProps) {
-  const coverImage = resolveCoverImage(post.coverImageUrl);
+  const coverImage = resolveBlogCoverImage(post.coverImageUrl);
   const rawContentHtml = resolveContentHtml(post.content);
 
   const { html: contentHtml, items: tocItems } = injectHeadingIds(rawContentHtml);

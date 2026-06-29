@@ -1,8 +1,24 @@
 const IRAN_MOBILE_REGEX = /^09\d{9}$/;
 const NATIONAL_ID_REGEX = /^\d{10}$/;
 
+/** Normalize Iranian mobile input to `09xxxxxxxxx` or return null if invalid. */
+export function normalizeIranMobile(input: string): string | null {
+  const digits = input.trim().replace(/\D/g, '');
+  if (/^09\d{9}$/.test(digits)) {
+    return digits;
+  }
+  if (/^9\d{9}$/.test(digits)) {
+    return `0${digits}`;
+  }
+  if (/^989\d{9}$/.test(digits)) {
+    return `0${digits.slice(2)}`;
+  }
+  return null;
+}
+
 export function isValidIranMobile(phone: string): boolean {
-  return IRAN_MOBILE_REGEX.test(phone.trim());
+  const normalized = normalizeIranMobile(phone);
+  return normalized !== null && IRAN_MOBILE_REGEX.test(normalized);
 }
 
 export function isValidIranNationalId(nationalId: string): boolean {

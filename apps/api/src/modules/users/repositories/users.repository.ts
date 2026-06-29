@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Role } from '@/generated/prisma';
+import { normalizeIranMobile } from '@sadafgold/shared';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 
 const profileSelect = {
@@ -53,7 +54,14 @@ export class UsersRepository {
   }
 
   findByPhone(phone: string) {
-    return this.prisma.user.findFirst({ where: { phone } });
+    return this.prisma.user.findUnique({ where: { phone } });
+  }
+
+  findByPhoneForOtherUser(phone: string, userId: string) {
+    return this.prisma.user.findFirst({
+      where: { phone, id: { not: userId } },
+      select: { id: true },
+    });
   }
 
   findById(id: string) {
@@ -68,12 +76,13 @@ export class UsersRepository {
     requiresPasswordSetup?: boolean;
     role?: Role;
   }) {
+    const phone = data.phone ? normalizeIranMobile(data.phone) ?? undefined : undefined;
     return this.prisma.user.create({
       data: {
         email: data.email,
         fullName: data.fullName,
         passwordHash: data.passwordHash,
-        phone: data.phone,
+        phone,
         requiresPasswordSetup: data.requiresPasswordSetup ?? false,
         role: data.role ?? Role.CUSTOMER,
       },

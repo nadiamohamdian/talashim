@@ -2739,7 +2739,7 @@ body:has(.home-hero-fullscreen) .site-header-menu {
   width: 100%;
   max-width: none;
   margin-inline: 0;
-  padding: 0 var(--lens-sets-px);
+  vertical-align: middle;
 }
 
 .lens-sets-showcase-intro {
@@ -3599,6 +3599,11 @@ body:has(.home-hero-fullscreen) .site-header-menu {
   margin-inline: 0;
   padding-block: var(--hpc-py);
   padding-inline: var(--hpc-px);
+}
+
+.home-product-carousel--new-arrivals .home-product-carousel-inner {
+  padding-top: 0;
+  padding-bottom: 60px;
 }
 
 .home-product-carousel-header {
@@ -5386,7 +5391,6 @@ body:has(.home-hero-fullscreen) .site-header-menu {
     column-gap: clamp(32px, 4vw, 88px);
     align-items: start;
     direction: rtl;
-    padding-block: var(--home-desktop-section-py);
   }
 
   @media (max-width: 1279px) {
@@ -6073,6 +6077,7 @@ body:has(.home-hero-fullscreen) .site-header-menu {
   width: var(--footer-mark-w);
   height: var(--footer-mark-h);
   margin-inline: auto;
+  margin-top: -12px;
 }
 
 .footer-brand-mark-image {
@@ -6091,6 +6096,7 @@ body:has(.home-hero-fullscreen) .site-header-menu {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 60px;
   padding-inline: var(--footer-px);
   pointer-events: none;
   transform: translateY(-50%);
@@ -7678,11 +7684,14 @@ body:has(.product-detail-page) main.container-store {
   box-sizing: border-box;
   width: calc(100% + 2 * var(--pd-px));
   margin-top: clamp(24px, 8.2cqw, 32px);
-  padding-top: 0;
+  height: 460px;
+  padding-top: 35px;
   margin-inline: calc(-1 * var(--pd-px));
   overflow-x: clip;
   background: #ffffff;
-  min-height: clamp(240px, 72cqw, 317px);
+  min-height: 460px;
+  text-align: center;
+  vertical-align: middle;
   direction: rtl;
   container-type: inline-size;
   container-name: product-review;
@@ -7715,7 +7724,7 @@ body:has(.product-detail-page) main.container-store {
   top: 0;
   left: 11.538%;
   width: 88.462%;
-  height: 0.6px;
+  height: 1px;
 }
 
 /* left vertical: left 45px, height 242px */
@@ -7723,16 +7732,18 @@ body:has(.product-detail-page) main.container-store {
   top: 0;
   bottom: 23.66%;
   left: 11.538%;
-  width: 0.6px;
+  width: 1px;
   height: auto;
 }
 
 /* bottom horizontal: width 325px */
 .product-details-review-line-bottom {
+  top: auto;
   bottom: 0;
   left: 0;
   width: 83.333%;
-  height: 0.6px;
+  height: 1px;
+  margin-top: 0;
 }
 
 /* right vertical: left 325px, top 75px */
@@ -7740,7 +7751,7 @@ body:has(.product-detail-page) main.container-store {
   top: 23.66%;
   bottom: 0;
   left: 83.333%;
-  width: 0.6px;
+  width: 1px;
   height: auto;
 }
 
@@ -7786,13 +7797,15 @@ body:has(.product-detail-page) main.container-store {
   flex: 1 1 auto;
   flex-direction: column;
   align-items: flex-start;
+  gap: 9px;
   width: 62.82%;
   margin-top: clamp(32px, 9.2cqw, 48px);
   margin-left: 16.41%;
   margin-right: 20.77%;
-  padding-top: clamp(16px, 4.6cqw, 28px);
+  height: 430px;
+  padding-top: 35px;
   padding-bottom: clamp(8px, 2.5cqw, 16px);
-  min-height: clamp(160px, 46.5cqw, 200px);
+  min-height: 430px;
 }
 
 .product-details-review-content.has-toolbar {
@@ -8418,8 +8431,8 @@ body:has(.product-detail-page) main.container-store {
 @container product-review (min-width: 300px) {
   .product-details-review-content {
     margin-top: clamp(36px, 10.5cqw, 52px);
-    padding-top: clamp(20px, 5.8cqw, 32px);
-    min-height: clamp(168px, 48.8cqw, 200px);
+    padding-top: 35px;
+    min-height: 430px;
   }
 
   .product-details-review-dots {
@@ -8430,9 +8443,9 @@ body:has(.product-detail-page) main.container-store {
 @container product-review (min-width: 480px) {
   .product-details-review-content {
     margin-top: clamp(44px, 9cqw, 64px);
-    padding-top: clamp(28px, 6cqw, 48px);
+    padding-top: 35px;
     padding-bottom: clamp(16px, 3.5cqw, 24px);
-    min-height: clamp(180px, 38cqw, 240px);
+    min-height: 430px;
   }
 
   .product-details-review-body {
@@ -8892,8 +8905,7 @@ body:has(.product-detail-page) main.container-store {
 
   .product-detail-page .product-details-review-content {
     margin-top: clamp(32px, 3.5vw, 48px);
-    padding-top: clamp(24px, 2.8vw, 40px);
-    padding-bottom: clamp(12px, 1.5vw, 20px);
+    padding-top: 85px;
     min-height: 0;
   }
 
@@ -10947,6 +10959,7 @@ body:has(.checkout-page) main.container-store {
 }
 
 .checkout-page-inner--confirmation {
+  padding-top: clamp(48px, 6.5vw, 96px);
   padding-bottom: 24px;
 }
 
@@ -10982,7 +10995,8 @@ body:has(.checkout-page) main.container-store {
 
 .checkout-page-inner--tracking {
   max-width: min(1140px, 100%);
-  padding-bottom: 48px;
+  padding-top: clamp(48px, 6.5vw, 96px);
+  padding-bottom: clamp(48px, 8vw, 120px);
 }
 
 .checkout-empty {
@@ -11521,7 +11535,8 @@ body:has(.checkout-page) main.container-store {
   font-size: var(--checkout-title-size);
   font-weight: 400;
   line-height: var(--checkout-title-lh);
-  color: var(--checkout-gold);
+  color: #6d5945;
+  text-align: center;
 }
 
 .checkout-success-track-btn {
@@ -11606,7 +11621,7 @@ body:has(.checkout-page) main.container-store {
 }
 
 .order-tracking-title {
-  margin: 0 0 32px;
+  margin: 0 0 clamp(32px, 4vw, 56px);
   font-size: clamp(24px, 2.2vw, 32px);
   font-weight: 400;
   line-height: 1.55;
@@ -11617,7 +11632,7 @@ body:has(.checkout-page) main.container-store {
 .order-tracking-cards {
   display: grid;
   gap: 16px;
-  margin-bottom: 40px;
+  margin-bottom: clamp(40px, 5vw, 56px);
 }
 
 .order-tracking-card {
@@ -11634,7 +11649,7 @@ body:has(.checkout-page) main.container-store {
 }
 
 .order-tracking-card-label {
-  margin: 0 0 16px;
+  margin: 0 0 26px;
   font-size: clamp(16px, 1.4vw, 20px);
   font-weight: 400;
   line-height: 1.55;
@@ -11719,6 +11734,10 @@ body:has(.checkout-page) main.container-store {
 
 .order-tracking-stepper-dot--completed {
   background: #cba670;
+}
+
+.order-tracking-stepper-dot--active {
+  box-shadow: 0 0 0 2px #cba670;
 }
 
 .order-tracking-stepper-label {
@@ -16196,7 +16215,10 @@ body:has(.categories-page) main.container-store {
     max-width: 1140px;
     margin-inline: auto;
     margin-bottom: 56px;
-    direction: rtl;
+  }
+
+  .checkout-page-inner--tracking {
+    padding-inline: clamp(40px, 3.9vw, 56px);
   }
 
   .order-tracking-stepper-label {
@@ -18317,5 +18339,13 @@ body:has(.account-page) main.container-store {
 .invoice-print-btn:hover {
   border-color: color-mix(in srgb, var(--invoice-gold) 50%, transparent);
   background: var(--invoice-muted-bg);
+}
+
+/* Keep new-arrivals spacing stable when combined with bestsellers styles */
+.home-page
+  .home-product-carousel--bestsellers.home-product-carousel--new-arrivals
+  .home-product-carousel-inner {
+  padding-top: 0;
+  padding-bottom: 60px;
 }
 

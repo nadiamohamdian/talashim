@@ -228,9 +228,4 @@ export class ValidateCouponDto {
   @ApiProperty()
   @IsString()
   cartId!: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  userId?: string;
 }

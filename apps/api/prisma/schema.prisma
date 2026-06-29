@@ -74,7 +74,7 @@ model User {
   firstName        String?
   lastName         String?
   nationalId       String?
-  phone                  String?
+  phone                  String?           @unique
   requiresPasswordSetup  Boolean           @default(false)
   role             Role              @default(CUSTOMER)
   createdAt        DateTime          @default(now())
@@ -102,7 +102,9 @@ model User {
   productReviews      ProductReview[]
   createdCoupons      DiscountCoupon[] @relation("CouponCreator")
   updatedCoupons      DiscountCoupon[] @relation("CouponUpdater")
-  couponUsages        CouponUsage[]
+  couponUsages      CouponUsage[]
+
+  @@index([phone])
 }
 
 model Address {
@@ -294,6 +296,8 @@ model Cart {
   updatedAt  DateTime    @updatedAt
   user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
   items      CartItem[]
+
+  @@index([userId, status])
 }
 
 model CartItem {
@@ -336,6 +340,9 @@ model Order {
   discountToman     BigInt      @default(0)
   coupon            DiscountCoupon? @relation(fields: [couponId], references: [id], onDelete: SetNull)
   couponUsages      CouponUsage[]
+
+  @@index([userId, createdAt])
+  @@index([userId, status])
 }
 
 model OrderItem {

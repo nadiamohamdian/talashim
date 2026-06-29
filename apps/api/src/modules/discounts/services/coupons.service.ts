@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -58,8 +59,8 @@ export class CouponsService {
     if (!cart || !cart.items.length) {
       throw new BadRequestException('سبد خرید معتبر نیست');
     }
-    if (cart.userId && cart.userId !== userId) {
-      throw new BadRequestException('سبد خرید متعلق به شما نیست');
+    if (!cart.userId || cart.userId !== userId) {
+      throw new ForbiddenException('سبد خرید متعلق به شما نیست');
     }
 
     const subtotal =

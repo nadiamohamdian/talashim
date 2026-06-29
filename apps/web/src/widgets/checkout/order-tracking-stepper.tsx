@@ -5,6 +5,7 @@ import {
 
 interface OrderTrackingStepperProps {
   completedIndex: number;
+  activeIndex?: number;
 }
 
 function TrackingCheckIcon() {
@@ -21,12 +22,16 @@ function TrackingCheckIcon() {
   );
 }
 
-export function OrderTrackingStepper({ completedIndex }: OrderTrackingStepperProps) {
+export function OrderTrackingStepper({
+  completedIndex,
+  activeIndex = completedIndex,
+}: OrderTrackingStepperProps) {
   return (
     <nav className="order-tracking-stepper" aria-label="مراحل سفارش">
       <div className="order-tracking-stepper-track">
         {ORDER_TRACKING_STEPS.map((step, index) => {
           const isCompleted = index <= completedIndex;
+          const isActive = index === activeIndex;
 
           return (
             <div key={step.id} className="order-tracking-stepper-item">
@@ -39,12 +44,16 @@ export function OrderTrackingStepper({ completedIndex }: OrderTrackingStepperPro
                 />
               ) : null}
               <span
-                className={`order-tracking-stepper-dot${
-                  isCompleted ? ' order-tracking-stepper-dot--completed' : ''
-                }`}
-                aria-hidden
+                className={[
+                  'order-tracking-stepper-dot',
+                  isCompleted ? 'order-tracking-stepper-dot--completed' : '',
+                  isActive && !isCompleted ? 'order-tracking-stepper-dot--active' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                aria-current={isActive ? 'step' : undefined}
               >
-                <TrackingCheckIcon />
+                {isCompleted ? <TrackingCheckIcon /> : null}
               </span>
               <span className="order-tracking-stepper-label">{step.label}</span>
             </div>

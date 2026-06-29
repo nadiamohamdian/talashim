@@ -7,11 +7,6 @@ export class CreateOrderDto {
   @IsString()
   cartId!: string;
 
-  @ApiPropertyOptional({ description: 'User ID (defaults to authenticated user)' })
-  @IsOptional()
-  @IsString()
-  userId?: string;
-
   @ApiProperty({ description: 'Shipping address ID' })
   @IsString()
   shippingAddressId!: string;

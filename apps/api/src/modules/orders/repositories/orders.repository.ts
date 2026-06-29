@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CartStatus, OrderStatus, PaymentStatus, Prisma } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
+import { generateRetailOrderNumber } from '@/common/finance/order-number';
 import {
   applyInventoryOnCheckout,
   fulfillInventoryOnPayment,
@@ -41,7 +42,7 @@ export class OrdersRepository {
     return this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const order = await tx.order.create({
         data: {
-          orderNumber: `SG-${Date.now()}`,
+          orderNumber: generateRetailOrderNumber(),
           status: OrderStatus.PENDING,
           isInsured: payload.isInsured,
           insuranceFeeToman: payload.insuranceFeeToman,
@@ -303,6 +304,40 @@ export class OrdersRepository {
   findByIdForUser(orderId: string, userId: string) {
     return this.prisma.order.findFirst({
       where: { id: orderId, userId },
+      include: {
+        user: {
+          select: {
+            email: true,
+            fullName: true,
+            firstName: true,
+            lastName: true,
+            phone: true,
+            nationalId: true,
+          },
+        },
+        shippingAddress: true,
+        items: {
+          include: {
+            product: {
+              select: {
+                title: true,
+                slug: true,
+                sku: true,
+                weightGram: true,
+                karat: true,
+                makingFeePercent: true,
+              },
+            },
+          },
+        },
+        payments: { orderBy: { createdAt: 'desc' } },
+      },
+    });
+  }
+
+  findByOrderNumberForUser(orderNumber: string, userId: string) {
+    return this.prisma.order.findFirst({
+      where: { orderNumber, userId },
       include: {
         user: {
           select: {
