@@ -1,10 +1,11 @@
 import {
   CATALOG_DEMO_PRODUCTS,
   mapCatalogDemoCategoryToPrisma,
+  STOREFRONT_PRODUCT_IMAGES,
 } from '@sadafgold/shared';
 import { ProductCategory, type PrismaClient } from '@/generated/prisma';
 
-const DEFAULT_PRODUCT_IMAGE_URL = '/images/placeholder-media.svg';
+const DEFAULT_PRODUCT_IMAGE_URL = STOREFRONT_PRODUCT_IMAGES.default;
 
 const PRISMA_CATEGORY_MAP: Record<
   ReturnType<typeof mapCatalogDemoCategoryToPrisma>,

@@ -6,7 +6,8 @@ import type {
   ProductSummary,
   PublicCatalogCategoryPage,
 } from '@sadafgold/types';
-import { normalizeCatalogListResponse, normalizeCatalogPaginatedResponse } from '@/shared/lib/catalog-list-response';
+import { normalizeCatalogListResponse, normalizeCatalogPaginatedResponse, normalizeProductSummary } from '@/shared/lib/catalog-list-response';
+import { resolveStorefrontProductImageUrl } from '@sadafgold/shared';
 import { enrichProductDetails, withLivePricingList } from '@/shared/lib/live-gold-pricing';
 import {
   getBlogPostBySlug as getBlogPostBySlugFromBlogApi,
@@ -40,7 +41,7 @@ export const productApi = {
       },
       signal,
       abortKey: `products:list:${JSON.stringify(params)}`,
-    });
+    }).then(normalizeCatalogListResponse);
   },
 
   search(
@@ -56,21 +57,21 @@ export const productApi = {
       },
       signal,
       abortKey: `products:search:${params.query}:${params.page ?? 1}:${params.category ?? ''}`,
-    });
+    }).then((data) => normalizeCatalogPaginatedResponse(data, params.page ?? 1, params.limit ?? 24));
   },
 
   getFeatured(signal?: AbortSignal): Promise<ProductSummary[]> {
     return apiGet<ProductSummary[]>('/catalog/featured', {
       signal,
       abortKey: 'products:featured',
-    });
+    }).then(normalizeCatalogListResponse);
   },
 
   getBestsellers(signal?: AbortSignal): Promise<ProductSummary[]> {
     return apiGet<ProductSummary[]>('/catalog/bestsellers', {
       signal,
       abortKey: 'products:bestsellers',
-    });
+    }).then(normalizeCatalogListResponse);
   },
 
   getCategories(signal?: AbortSignal): Promise<CatalogCategory[]> {
@@ -84,7 +85,12 @@ export const productApi = {
     return apiGet<ProductDetails>(`/catalog/${slug}`, {
       signal,
       abortKey: `products:detail:${slug}`,
-    });
+    }).then((product) => ({
+      ...normalizeProductSummary(product),
+      gallery: product.gallery?.map((url) =>
+        resolveStorefrontProductImageUrl(url, product.category),
+      ),
+    }));
   },
 
   /** Server-side helpers with ISR + live pricing enrichment. */
@@ -186,10 +192,12 @@ export const productApi = {
   async getSaleProducts(limit = 48): Promise<ProductSummary[]> {
     const params = new URLSearchParams({ limit: String(limit), sale: '1' });
     const path = `/catalog?${params}`;
-    const products = await serverFetchCatalogList<ProductSummary[]>(path, {
+    const products = normalizeCatalogListResponse(
+      await serverFetchCatalogList<ProductSummary[]>(path, {
       cache: 'no-store',
       tags: ['catalog:sale'],
-    });
+    }),
+    );
     return withLivePricingList(products);
   },
 

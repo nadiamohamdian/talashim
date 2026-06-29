@@ -1,6 +1,7 @@
 export * from './constants/platform';
 export * from './constants/commerce';
 export * from './constants/demo-products';
+export * from './constants/lens-showcase';
 export * from './checkout-shipping';
 export * from './shared';
 export * from './api-env';
@@ -15,4 +16,5 @@ export * from './iranian-identity';
 export * from './order-line-pricing';
 export * from './product-pdp-presets';
 export * from './catalog-category-page';
+export * from './storefront-product-images';
 export * from './jalaali';

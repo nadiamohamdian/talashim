@@ -93,17 +93,6 @@ export function BlogPostPageView({
 
   return (
     <article className="blog-post-page store-chrome-light store-minimal-header">
-      <div className="blog-post-hero blog-post-hero--lead">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={coverImage}
-          alt=""
-          className="blog-post-hero-image"
-          decoding="async"
-          fetchPriority="high"
-        />
-      </div>
-
       <div className="blog-post-shell">
         <div className="blog-post-layout">
           <aside className="blog-post-sidebar" aria-label="نوار کناری مقاله">
@@ -113,18 +102,16 @@ export function BlogPostPageView({
 
           <div className="blog-post-main">
             <div className="blog-post-main-panel">
-              <div className="blog-post-hero blog-post-hero--inline" aria-hidden="true">
+              <div className="blog-post-article-panel">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={coverImage}
                   alt=""
                   className="blog-post-hero-image"
                   decoding="async"
-                  tabIndex={-1}
+                  fetchPriority="high"
                 />
-              </div>
 
-              <div className="blog-post-article-panel">
                 <div className="blog-post-title-wrap">
                   <span className="blog-post-title-accent" aria-hidden />
                   <h1 className="blog-post-title">{post.title}</h1>
@@ -138,10 +125,7 @@ export function BlogPostPageView({
         </div>
 
         <section className="blog-post-section blog-post-section--reviews blog-post-section--full" aria-labelledby="blog-post-reviews-title">
-          <h2 id="blog-post-reviews-title" className="blog-post-section-title blog-post-section-title--reviews">
-            {BLOG_POST_SECTION_TITLES.reviews}
-          </h2>
-          <BlogPostReviewSection />
+          <BlogPostReviewSection title={BLOG_POST_SECTION_TITLES.reviews} />
         </section>
 
         <section

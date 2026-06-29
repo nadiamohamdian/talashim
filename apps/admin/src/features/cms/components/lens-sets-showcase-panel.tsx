@@ -30,7 +30,9 @@ import {
 } from '../api/cms-api';
 import { ImageUrlField } from './image-url-field';
 import { BannerProductPicker } from './banner-product-picker';
+import { LensHotspotPositionEditor } from './lens-hotspot-position-editor';
 import { adminQueryKeys } from '@/lib/api/query-keys';
+import { fetchAdminProduct } from '@/features/commerce/api/commerce-api';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { CmsPageShell } from './cms-page-shell';
@@ -50,31 +52,37 @@ const DEFAULT_SECTION_COPY = {
 const DEFAULT_HOTSPOTS: CmsLensHotspot[] = [
   {
     id: 'hotspot-ring',
-    top: '52%',
-    left: '36%',
+    top: '67px',
+    left: '183px',
+    topMobile: '29.3%',
+    leftMobile: '41.7%',
     chipTop: '75px',
     chipLeft: '-11px',
-    chipTranslateX: '-12%',
+    chipTranslateX: '-50%',
     chipTranslateY: 'calc(-100% - 8px)',
   },
   {
     id: 'hotspot-earring',
-    top: '20%',
-    left: '58%',
-    chipTop: '92px',
-    chipLeft: '435px',
-    chipTranslateX: '-88%',
+    top: '104px',
+    left: '300px',
+    topMobile: '78.9%',
+    leftMobile: '44.6%',
+    chipTop: '127px',
+    chipLeft: '485px',
+    chipTranslateX: '-50%',
     chipTranslateY: 'calc(-100% - 8px)',
   },
   {
     id: 'hotspot-bracelet',
     top: '72%',
     left: '40%',
+    topMobile: '27.1%',
+    leftMobile: '70%',
     chipTop: '245px',
     chipLeft: '48px',
     chipTopMobile: '93.2%',
     chipLeftMobile: '6.95%',
-    chipTranslateX: '-20%',
+    chipTranslateX: '-50%',
     chipTranslateY: 'calc(-100% - 8px)',
   },
 ];
@@ -149,6 +157,8 @@ export function LensSetsShowcasePanel() {
   const [sectionError, setSectionError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [sectionCopy, setSectionCopy] = useState(DEFAULT_SECTION_COPY);
+  const [productLabels, setProductLabels] = useState<string[]>([]);
+  const [productImages, setProductImages] = useState<string[]>([]);
 
   const homepageQuery = useQuery({
     queryKey: adminQueryKeys.cms.homepage,
@@ -269,14 +279,6 @@ export function LensSetsShowcasePanel() {
     setSaveError(null);
   };
 
-  const updateHotspot = (index: number, patch: Partial<CmsLensHotspot>) => {
-    setForm((prev) => {
-      const hotspots = normalizeHotspots(prev.hotspots);
-      hotspots[index] = { ...(hotspots[index] ?? defaultHotspot(index)), ...patch };
-      return { ...prev, hotspots };
-    });
-  };
-
   useEffect(() => {
     const configured = homepageQuery.data?.sections.lensSetsShowcase;
     if (!configured) {
@@ -289,6 +291,29 @@ export function LensSetsShowcasePanel() {
       description: configured.description || DEFAULT_SECTION_COPY.description,
     });
   }, [homepageQuery.data?.sections.lensSetsShowcase]);
+
+  useEffect(() => {
+    const ids = (form.productIds ?? []).slice(0, HOTSPOT_COUNT);
+    if (ids.length === 0) {
+      setProductLabels([]);
+      setProductImages([]);
+      return;
+    }
+
+    let cancelled = false;
+
+    void Promise.all(ids.map((id) => fetchAdminProduct(id).catch(() => null))).then((products) => {
+      if (cancelled) {
+        return;
+      }
+      setProductLabels(products.map((product) => product?.title ?? ''));
+      setProductImages(products.map((product) => product?.imageUrl ?? ''));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [form.productIds]);
 
   return (
     <CmsPageShell routeId="cms.lensSets">
@@ -462,59 +487,13 @@ export function LensSetsShowcasePanel() {
         </div>
 
         <div className="space-y-4 border-t border-[var(--border-subtle)] pt-4">
-          <h3 className="text-sm font-medium text-foreground">موقعیت نقاط روی تصویر</h3>
-          <p className="text-xs text-muted">
-            مقادیر به صورت درصد (مثل ۵۲%) یا پیکسل (مثل ۴۶px) وارد کنید. هر نقطه به یکی از ۳ محصول
-            اول متصل است.
-          </p>
-          {normalizeHotspots(form.hotspots).map((spot, index) => (
-            <div
-              key={spot.id ?? `hotspot-${index}`}
-              className="grid gap-3 rounded-lg border border-[var(--border-subtle)] p-4 md:grid-cols-4"
-            >
-              <p className="md:col-span-4 text-xs font-medium text-foreground">نقطه {index + 1}</p>
-              <div>
-                <Label>موقعیت عمودی (+)</Label>
-                <Input
-                  className="mt-1"
-                  value={spot.top}
-                  onChange={(e) => updateHotspot(index, { top: e.target.value })}
-                  placeholder="52%"
-                  dir="ltr"
-                />
-              </div>
-              <div>
-                <Label>موقعیت افقی (+)</Label>
-                <Input
-                  className="mt-1"
-                  value={spot.left}
-                  onChange={(e) => updateHotspot(index, { left: e.target.value })}
-                  placeholder="36%"
-                  dir="ltr"
-                />
-              </div>
-              <div>
-                <Label>عمودی کارت محصول</Label>
-                <Input
-                  className="mt-1"
-                  value={spot.chipTop ?? ''}
-                  onChange={(e) => updateHotspot(index, { chipTop: e.target.value })}
-                  placeholder="75px"
-                  dir="ltr"
-                />
-              </div>
-              <div>
-                <Label>افقی کارت محصول</Label>
-                <Input
-                  className="mt-1"
-                  value={spot.chipLeft ?? ''}
-                  onChange={(e) => updateHotspot(index, { chipLeft: e.target.value })}
-                  placeholder="-11px"
-                  dir="ltr"
-                />
-              </div>
-            </div>
-          ))}
+          <LensHotspotPositionEditor
+            heroImageUrl={form.heroImageUrl ?? ''}
+            hotspots={normalizeHotspots(form.hotspots)}
+            productLabels={productLabels}
+            productImages={productImages}
+            onChange={(hotspots) => setForm((prev) => ({ ...prev, hotspots }))}
+          />
         </div>
 
         <div className="flex flex-wrap gap-2">

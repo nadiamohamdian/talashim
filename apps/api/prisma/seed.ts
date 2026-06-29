@@ -2,6 +2,7 @@ import argon2 from 'argon2';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import { KycStatus, OrderStatus, PaymentStatus, PrismaClient, ProductCategory, Role } from '../src/generated/prisma';
+import { STOREFRONT_PRODUCT_IMAGES } from '@sadafgold/shared';
 import {
   DEFAULT_CMS_HERO,
   DEFAULT_CMS_SECTIONS,
@@ -121,6 +122,15 @@ async function main() {
     },
   });
 
+  const categoryImageByType: Record<ProductCategory, string> = {
+    [ProductCategory.RING]: STOREFRONT_PRODUCT_IMAGES.ring,
+    [ProductCategory.NECKLACE]: STOREFRONT_PRODUCT_IMAGES.necklace,
+    [ProductCategory.BRACELET]: STOREFRONT_PRODUCT_IMAGES.bracelet,
+    [ProductCategory.EARRING]: STOREFRONT_PRODUCT_IMAGES.earring,
+    [ProductCategory.COIN]: STOREFRONT_PRODUCT_IMAGES.coin,
+    [ProductCategory.WEDDING_RING]: STOREFRONT_PRODUCT_IMAGES.wedding_ring,
+  };
+
   const products = [
     {
       sku: 'TL-R-0412-01',
@@ -212,6 +222,7 @@ async function main() {
   ];
 
   for (const item of products) {
+    const productImageUrl = categoryImageByType[item.category];
     const product = await prisma.product.upsert({
       where: { slug: item.slug },
       update: {
@@ -224,8 +235,8 @@ async function main() {
         weightGram: item.weightGram,
         makingFeePercent: item.makingFeePercent,
         priceToman: item.priceToman,
-        imageUrl: item.imageUrl,
-        hoverImageUrl: item.hoverImageUrl,
+        imageUrl: productImageUrl,
+        hoverImageUrl: productImageUrl,
         featured: item.featured,
       },
       create: {
@@ -239,8 +250,8 @@ async function main() {
         weightGram: item.weightGram,
         makingFeePercent: item.makingFeePercent,
         priceToman: item.priceToman,
-        imageUrl: item.imageUrl,
-        hoverImageUrl: item.hoverImageUrl,
+        imageUrl: productImageUrl,
+        hoverImageUrl: productImageUrl,
         featured: item.featured,
       },
     });

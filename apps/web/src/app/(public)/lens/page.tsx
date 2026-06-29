@@ -1,51 +1,39 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getPublishedLensVideos } from '@/lib/api/cms.api';
+import { mapLensVideoToShowcaseItem } from '@/shared/config/cms-lens-showcase';
+import { LENS_ARCHIVE_PAGE_SIZE, LENS_PAGE_META } from '@/shared/config/lens-page';
+import { LensPageView } from '@/widgets/lens/lens-page-view';
 
 export const metadata: Metadata = {
-  title: 'لنز طلاشیم',
-  description: 'ویدیوهای لنز طلاشیم — معرفی محصولات و کالکشن‌های طلا و جواهر',
+  title: LENS_PAGE_META.title,
+  description: LENS_PAGE_META.description,
 };
 
-export default async function LensPage() {
-  const videos = await getPublishedLensVideos().catch(() => []);
+export const dynamic = 'force-dynamic';
+
+interface LensPageProps {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function LensPage({ searchParams }: LensPageProps) {
+  const { page: pageParam } = await searchParams;
+  const requestedPage = Number.parseInt(pageParam ?? '1', 10);
+  const safeRequestedPage = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+  const allVideos = await getPublishedLensVideos().catch(() => []);
+  const allItems = allVideos.map((video, index) => mapLensVideoToShowcaseItem(video, index));
+
+  const totalPages = Math.max(1, Math.ceil(allItems.length / LENS_ARCHIVE_PAGE_SIZE));
+  const currentPage = Math.min(safeRequestedPage, totalPages);
+  const pageItems =
+    allItems.length > 0
+      ? allItems.slice(
+          (currentPage - 1) * LENS_ARCHIVE_PAGE_SIZE,
+          currentPage * LENS_ARCHIVE_PAGE_SIZE,
+        )
+      : [];
 
   return (
-    <div className="space-y-8">
-      <div className="rounded-2xl border border-nude-200 bg-gradient-to-l from-nude-50 to-card p-6 md:p-8">
-        <p className="text-xs font-medium tracking-widest text-muted">Talashim Lens</p>
-        <h1 className="section-heading mt-1">لنز طلاشیم</h1>
-        <p className="mt-3 text-sm text-muted">{videos.length} ویدیو</p>
-      </div>
-
-      {!videos.length ? (
-        <p className="text-sm text-muted">هنوز ویدیویی منتشر نشده است.</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4">
-          {videos.map((video) => (
-            <article
-              key={video.id}
-              className="overflow-hidden rounded-xl border border-nude-200 bg-card"
-            >
-              <video
-                className="aspect-[9/16] w-full bg-nude-100 object-cover"
-                src={video.videoUrl}
-                poster={video.thumbnailUrl ?? undefined}
-                controls
-                playsInline
-                preload="metadata"
-              />
-              {video.title ? (
-                <p className="px-3 py-2 text-sm text-foreground">{video.title}</p>
-              ) : null}
-            </article>
-          ))}
-        </div>
-      )}
-
-      <Link href="/" className="link-gold text-sm">
-        بازگشت به صفحه اصلی ←
-      </Link>
-    </div>
+    <LensPageView items={pageItems} currentPage={currentPage} totalPages={totalPages} />
   );
 }

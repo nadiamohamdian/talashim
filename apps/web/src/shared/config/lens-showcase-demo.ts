@@ -1,4 +1,9 @@
 /** Demo lens videos + linked product variants — until CMS lens API is wired */
+import {
+  LENS_SHOWCASE_ARTBOARD,
+  scaleLensPositionToPercent,
+} from '@sadafgold/shared';
+
 export interface LensShowcaseProductVariant {
   id: string;
   slug: string;
@@ -41,6 +46,11 @@ export interface LensHotspot {
   chipTranslateX?: string;
   chipTranslateY?: string;
 }
+
+/** Figma artboard — must match storefront CSS (--ls-art-hero-w/h) and admin CMS editor */
+export const LENS_HERO_ARTBOARD = LENS_SHOWCASE_ARTBOARD;
+
+export { scaleLensPositionToPercent };
 
 export function resolveLensHotspotPosition(
   spot: LensHotspot,
@@ -121,8 +131,8 @@ export const LENS_EDITORIAL_META = {
 export const LENS_EDITORIAL_HOTSPOTS = [
   {
     id: 'hotspot-ring',
-    top: '73px',
-    left: '199px',
+    top: '67px',
+    left: '183px',
     topMobile: '29.3%',
     leftMobile: '41.7%',
     chipTop: '75px',
@@ -138,8 +148,8 @@ export const LENS_EDITORIAL_HOTSPOTS = [
     left: '300px',
     topMobile: '78.9%',
     leftMobile: '44.6%',
-    chipTop: '104px',
-    chipLeft: '507px',
+    chipTop: '127px',
+    chipLeft: '485px',
     chipTopMobile: '0%',
     chipLeftMobile: '10px',
     chipTranslateX: '-50%',

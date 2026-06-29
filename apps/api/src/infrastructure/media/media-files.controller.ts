@@ -41,9 +41,13 @@ export class MediaFilesController {
           ? 'image/webp'
           : ext === 'gif'
             ? 'image/gif'
-            : ext === 'pdf'
-              ? 'application/pdf'
-              : 'image/jpeg';
+            : ext === 'svg'
+              ? 'image/svg+xml'
+              : ext === 'webm'
+                ? 'video/webm'
+                : ext === 'pdf'
+                  ? 'application/pdf'
+                  : 'image/jpeg';
 
     res.setHeader('Cache-Control', 'public, max-age=86400');
     res.setHeader('Content-Type', mime);

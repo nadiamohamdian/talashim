@@ -1,5 +1,5 @@
 ﻿@import "tailwindcss";
-@import "./blog-post-layout.css";
+@import "./blog-post-layout.css" layer(components);
 
 /* Class-based dark mode — do not follow OS prefers-color-scheme in embedded previews */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -2585,8 +2585,8 @@ body:has(.home-hero-fullscreen) .site-header-menu {
 
 @media (min-width: 1024px) {
   .wedding-rings-promo {
-    --wr-art-w: 1616;
-    --wr-art-h: 512;
+    --wr-art-w: 1200;
+    --wr-art-h: 350;
     --wr-panel-x: 193;
     --wr-panel-w: 766;
     --wr-panel-h: 146;
@@ -2595,9 +2595,20 @@ body:has(.home-hero-fullscreen) .site-header-menu {
     --wr-panel-shift-x: calc(270 / var(--wr-art-w) * 100%);
     --wr-panel-shift-y: calc(16 / var(--wr-art-h) * 100%);
     --wr-px: var(--home-desktop-px);
-    max-width: var(--store-max-width);
+    box-sizing: border-box;
+    width: 1322px;
+    max-width: 1322px;
+    height: 302px;
     margin-inline: auto;
-    padding-inline: var(--home-section-px);
+    padding-inline: calc((1322px - 1200px) / 2);
+  }
+
+  .wedding-rings-promo-card {
+    width: 1200px;
+    max-width: 1200px;
+    height: 350px;
+    margin-inline: auto;
+    aspect-ratio: auto;
   }
 
   .wedding-rings-promo-overlay {
@@ -13922,18 +13933,11 @@ body:has(.blog-post-page) main.container-store {
   overflow-x: clip;
 }
 
-.blog-post-hero {
-  position: relative;
-  width: 100%;
-  height: clamp(220px, 65vw, 255px);
-  overflow: hidden;
-  background: #d9d9d9;
-}
-
-.blog-post-hero-image {
+.blog-post-article-panel > .blog-post-hero-image {
   display: block;
   width: 100%;
-  height: 100%;
+  height: clamp(220px, 65vw, 255px);
+  padding-bottom: 20px;
   object-fit: cover;
   object-position: center;
 }
@@ -14021,6 +14025,61 @@ body:has(.blog-post-page) main.container-store {
   text-decoration: underline;
 }
 
+.blog-post-content .rte-image {
+  margin: 0 0 20px;
+  clear: both;
+}
+
+.blog-post-content .rte-image img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+
+.blog-post-content .rte-image--align-center {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.blog-post-content .rte-image--align-center img {
+  margin-inline: auto;
+}
+
+.blog-post-content .rte-image--align-start {
+  float: inline-start;
+  margin-inline-end: 20px;
+}
+
+.blog-post-content .rte-image--align-end {
+  float: inline-end;
+  margin-inline-start: 20px;
+}
+
+.blog-post-content .rte-image--w-sm {
+  width: min(33%, 220px);
+}
+
+.blog-post-content .rte-image--w-md {
+  width: min(50%, 360px);
+}
+
+.blog-post-content .rte-image--w-lg {
+  width: min(75%, 540px);
+}
+
+.blog-post-content .rte-image--w-full {
+  width: 100%;
+}
+
+.blog-post-content::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
 .blog-post-sections {
   padding: 0 var(--bp-px);
 }
@@ -14036,6 +14095,18 @@ body:has(.blog-post-page) main.container-store {
 
 .blog-post-section--reviews {
   padding-inline: var(--bp-px);
+}
+
+.blog-post-reviews-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: clamp(18px, 6.15vw, 24px);
+}
+
+.blog-post-reviews-header .blog-post-section-title {
+  margin: 0;
 }
 
 .blog-post-section-title {
@@ -14197,9 +14268,10 @@ body:has(.blog-post-page) main.container-store {
 
 .blog-post-review-meta {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-end;
   gap: 10px 12px;
   width: 100%;
 }
@@ -14353,6 +14425,7 @@ body:has(.blog-post-page) main.container-store {
 /* Related products header + carousel nav */
 .blog-post-products-block {
   min-width: 0;
+  padding-bottom: 100px;
 }
 
 .blog-post-products-header {
@@ -14395,6 +14468,7 @@ body:has(.blog-post-page) main.container-store {
   background: rgb(109 89 69 / 0.06);
 }
 
+.blog-post-carousel-nav-icon--prev,
 .blog-post-carousel-nav-icon--next {
   transform: scaleX(-1);
 }
@@ -14596,12 +14670,8 @@ body:has(.blog-post-page) main.container-store {
     padding-bottom: 80px;
   }
 
-  .blog-post-hero {
-    height: clamp(255px, 28vw, 320px);
-  }
-
   .blog-post-article-panel {
-    margin-top: -55px;
+    margin-top: 0;
   }
 
   .blog-post-title {
@@ -14644,11 +14714,15 @@ body:has(.blog-post-page) main.container-store {
   }
 
   .blog-post-section-title--reviews {
-    margin-bottom: 48px;
+    margin-bottom: 0;
     font-size: 32px;
     font-weight: 400;
     line-height: 50px;
     color: var(--bp-gold);
+  }
+
+  .blog-post-reviews-header {
+    margin-bottom: 48px;
   }
 
   .blog-post-section-title-mobile {
@@ -14702,8 +14776,8 @@ body:has(.blog-post-page) main.container-store {
   .blog-post-review-track .blog-post-review-frame {
     flex: 0 0 571px;
     width: 571px;
-    height: 464px;
-    min-height: 464px;
+    height: 460px;
+    min-height: 460px;
     margin-inline: 0;
     scroll-snap-align: start;
     background: none;
@@ -14725,17 +14799,21 @@ body:has(.blog-post-page) main.container-store {
 
   .blog-post-review-content {
     flex: 1 1 auto;
-    width: min(359px, calc(100% - 94px));
+    width: min(359px, calc(100% - 180px));
     max-width: 359px;
-    margin-inline: auto;
-    padding: 100px 0 32px;
-    background: none;
-    background-color: var(--bp-bg);
+    height: auto;
+    gap: 0;
+    margin-inline: 90px;
+    padding: 0 0 20px;
+    background: transparent;
   }
 
   .blog-post-review-body {
     flex: 1 1 auto;
     min-height: 0;
+    margin-bottom: 0;
+    padding-top: 59px;
+    padding-bottom: 0;
     font-size: 16px;
     font-weight: 300;
     line-height: 1.97;
@@ -14760,7 +14838,12 @@ body:has(.blog-post-page) main.container-store {
   }
 
   .blog-post-review-submit {
-    margin-top: 38px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin: 0 0 0 260px;
+    padding-bottom: 80px;
     font-size: 16px;
     line-height: 25px;
     color: #cba670;
@@ -14768,9 +14851,41 @@ body:has(.blog-post-page) main.container-store {
 
   .blog-post-review-meta {
     flex-shrink: 0;
-    margin-top: 29px;
-    padding-top: 16px;
+    margin-top: 0;
+    padding-top: 15px;
     border-top: 0.6px solid rgb(109 89 69 / 0.14);
+  }
+
+  .blog-post-review-rating {
+    justify-content: center;
+    gap: 0;
+    text-align: right;
+    vertical-align: middle;
+  }
+
+  .blog-post-review-line-bottom {
+    margin-bottom: 41px;
+  }
+
+  .blog-post-review-line-right {
+    bottom: auto;
+    height: 354px;
+    margin-top: -45px;
+    padding-bottom: 0;
+  }
+
+  .blog-post-review-quote-open {
+    transform: scaleX(-1) scaleX(-1);
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  .blog-post-review-quote-close {
+    margin-top: 25px;
+    margin-bottom: 25px;
+    padding-inline: 25px;
+    text-align: center;
+    vertical-align: middle;
   }
 
   .blog-post-carousel-nav {

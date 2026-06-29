@@ -18,8 +18,8 @@ export class CartController {
   }
 
   @Get(':cartId')
-  getCart(@Param('cartId') cartId: string) {
-    return this.cartService.getCart(cartId);
+  getCart(@CurrentUser() user: AuthenticatedUser, @Param('cartId') cartId: string) {
+    return this.cartService.getCartForUserById(user.id, cartId);
   }
 
   @Post('items')

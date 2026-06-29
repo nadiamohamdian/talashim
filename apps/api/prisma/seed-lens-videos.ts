@@ -4,8 +4,8 @@ import type { SeedMediaUrls } from './seed-media';
 const LENS_EDITORIAL_HOTSPOTS = [
   {
     id: 'hotspot-ring',
-    top: '73px',
-    left: '199px',
+    top: '67px',
+    left: '183px',
     chipTop: '75px',
     chipLeft: '-11px',
     chipTranslateX: '-12%',
@@ -15,8 +15,8 @@ const LENS_EDITORIAL_HOTSPOTS = [
     id: 'hotspot-earring',
     top: '104px',
     left: '300px',
-    chipTop: '104px',
-    chipLeft: '507px',
+    chipTop: '127px',
+    chipLeft: '485px',
     chipTranslateX: '-88%',
     chipTranslateY: 'calc(-100% - 8px)',
   },

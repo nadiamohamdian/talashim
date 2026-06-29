@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -58,6 +59,20 @@ export class CartService {
 
     if (!cart) {
       throw new NotFoundException('Cart not found');
+    }
+
+    return this.toCartResponse(cart);
+  }
+
+  async getCartForUserById(userId: string, cartId: string) {
+    const cart = await this.cartRepository.findCartById(cartId);
+
+    if (!cart) {
+      throw new NotFoundException('سبد خرید یافت نشد');
+    }
+
+    if (cart.userId && cart.userId !== userId) {
+      throw new ForbiddenException('دسترسی به سبد خرید دیگران مجاز نیست');
     }
 
     return this.toCartResponse(cart);

@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
+import { DEFAULT_CARD_TO_CARD_ACCOUNTS, type CardToCardAccount } from '@sadafgold/shared';
 import {
-  DEFAULT_CARD_TO_CARD_ACCOUNTS,
   DEFAULT_COMMERCE_SETTINGS,
   DEFAULT_FEATURE_FLAGS,
   DEFAULT_GENERAL_SETTINGS,
   DEFAULT_GOLD_SETTINGS,
   type PlatformSettingsPayload,
 } from '../platform-settings.defaults';
-import type { CardToCardAccount } from '@sadafgold/shared';
 
 function normalizeCardToCardAccounts(value: unknown): CardToCardAccount[] {
   if (!Array.isArray(value) || value.length === 0) {

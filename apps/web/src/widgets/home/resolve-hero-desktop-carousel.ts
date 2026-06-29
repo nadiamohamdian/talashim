@@ -1,5 +1,6 @@
 import type { CmsHeroConfig } from '@sadafgold/types';
 import type { ProductSummary } from '@sadafgold/types';
+import { resolveStorefrontProductImageUrl } from '@sadafgold/shared';
 import {
   HOME_HERO_DESKTOP_CAROUSEL,
   HOME_HERO_DESKTOP_CAROUSEL_VISIBLE_COUNT,
@@ -25,7 +26,7 @@ function mapProductCarouselItems(products: ProductSummary[]): HomeHeroDesktopCar
   const mapped: HomeHeroDesktopCarouselItem[] = [];
 
   for (const product of products) {
-    const imageUrl = product.imageUrl?.trim();
+    const imageUrl = resolveStorefrontProductImageUrl(product.imageUrl, product.category);
     if (!imageUrl || seen.has(product.id)) {
       continue;
     }

@@ -158,7 +158,7 @@ export function PostEditorForm({
         <div className="md:col-span-2">
           <RichTextEditor
             label="متن کامل"
-            hint="محتوای مقاله — تصاویر داخل متن را از دکمه «درج تصویر» در کتابخانه انتخاب کنید."
+            hint="محتوای مقاله — تصویر را از «تصویر» اضافه کنید؛ روی تصویر کلیک کنید تا چیدمان (وسط/راست/چپ) و اندازه را مثل ورد تنظیم کنید."
             value={form.content}
             onChange={(content) => setForm((f) => ({ ...f, content }))}
             minHeight={220}

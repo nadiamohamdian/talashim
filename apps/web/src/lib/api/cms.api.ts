@@ -106,7 +106,7 @@ function defaultPublicHomepage(): PublicCmsHomepage {
     sections: {
       featuredTitle: 'جدیدترین محصولات',
       featuredSubtitle: 'آخرین طراحی‌های طلا و جواهر',
-      bestsellerTitle: 'پرفروش‌ترین محصولات',
+      bestsellerTitle: 'پرفروش‌ترین ها',
       bestsellerSubtitle: 'بر اساس تعداد فروش واقعی',
       newArrivalsTitle: 'جدیدترین ها',
       showCategoryShowcase: true,

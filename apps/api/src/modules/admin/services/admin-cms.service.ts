@@ -59,6 +59,7 @@ import {
 import {
   revalidateStorefrontAboutPage,
   revalidateStorefrontBanners,
+  revalidateStorefrontBlog,
   revalidateStorefrontFaq,
   revalidateStorefrontHomepage,
   revalidateStorefrontLens,
@@ -132,6 +133,12 @@ export class AdminCmsService {
       category: dto.categoryId ? { connect: { id: dto.categoryId } } : undefined,
     });
 
+    if (post.category?.slug === 'faq') {
+      void revalidateStorefrontFaq();
+    } else if (post.isPublished) {
+      void revalidateStorefrontBlog(post.slug);
+    }
+
     return this.mapBlogPost(post);
   }
 
@@ -165,6 +172,13 @@ export class AdminCmsService {
         : {}),
     });
 
+    const isFaq = post.category?.slug === 'faq';
+    if (isFaq) {
+      void revalidateStorefrontFaq();
+    } else {
+      void revalidateStorefrontBlog(existing.slug, post.slug);
+    }
+
     return this.mapBlogPost(post);
   }
 
@@ -178,6 +192,8 @@ export class AdminCmsService {
     await this.cmsRepository.deleteBlogPost(id);
     if (isFaq) {
       void revalidateStorefrontFaq();
+    } else {
+      void revalidateStorefrontBlog(existing.slug);
     }
     return { ok: true };
   }
@@ -1216,6 +1232,8 @@ export class AdminCmsService {
 
       const optionalFields = [
         'id',
+        'topMobile',
+        'leftMobile',
         'chipTop',
         'chipLeft',
         'chipTopMobile',
@@ -1226,20 +1244,42 @@ export class AdminCmsService {
       for (const field of optionalFields) {
         const value = item[field];
         if (typeof value === 'string' && value.trim()) {
+          const trimmed = value.trim();
           if (field === 'id') {
-            hotspot.id = value.trim();
+            hotspot.id = trimmed;
+          } else if (field === 'topMobile' || field === 'leftMobile') {
+            if (!positionPattern.test(trimmed)) {
+              throw new BadRequestException(`موقعیت نقطه ${index + 1} نامعتبر است`);
+            }
+            if (field === 'topMobile') {
+              hotspot.topMobile = trimmed;
+            } else {
+              hotspot.leftMobile = trimmed;
+            }
           } else if (field === 'chipTop') {
-            hotspot.chipTop = value.trim();
+            if (!positionPattern.test(trimmed)) {
+              throw new BadRequestException(`موقعیت کارت نقطه ${index + 1} نامعتبر است`);
+            }
+            hotspot.chipTop = trimmed;
           } else if (field === 'chipLeft') {
-            hotspot.chipLeft = value.trim();
+            if (!positionPattern.test(trimmed)) {
+              throw new BadRequestException(`موقعیت کارت نقطه ${index + 1} نامعتبر است`);
+            }
+            hotspot.chipLeft = trimmed;
           } else if (field === 'chipTopMobile') {
-            hotspot.chipTopMobile = value.trim();
+            if (!positionPattern.test(trimmed)) {
+              throw new BadRequestException(`موقعیت کارت موبایل نقطه ${index + 1} نامعتبر است`);
+            }
+            hotspot.chipTopMobile = trimmed;
           } else if (field === 'chipLeftMobile') {
-            hotspot.chipLeftMobile = value.trim();
+            if (!positionPattern.test(trimmed)) {
+              throw new BadRequestException(`موقعیت کارت موبایل نقطه ${index + 1} نامعتبر است`);
+            }
+            hotspot.chipLeftMobile = trimmed;
           } else if (field === 'chipTranslateX') {
-            hotspot.chipTranslateX = value.trim();
+            hotspot.chipTranslateX = trimmed;
           } else if (field === 'chipTranslateY') {
-            hotspot.chipTranslateY = value.trim();
+            hotspot.chipTranslateY = trimmed;
           }
         }
       }
@@ -1259,6 +1299,8 @@ export class AdminCmsService {
         id: typeof item.id === 'string' ? item.id : undefined,
         top: typeof item.top === 'string' ? item.top : '50%',
         left: typeof item.left === 'string' ? item.left : '50%',
+        topMobile: typeof item.topMobile === 'string' ? item.topMobile : undefined,
+        leftMobile: typeof item.leftMobile === 'string' ? item.leftMobile : undefined,
         chipTop: typeof item.chipTop === 'string' ? item.chipTop : undefined,
         chipLeft: typeof item.chipLeft === 'string' ? item.chipLeft : undefined,
         chipTopMobile: typeof item.chipTopMobile === 'string' ? item.chipTopMobile : undefined,

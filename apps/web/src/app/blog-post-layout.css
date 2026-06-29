@@ -1,4 +1,4 @@
-/* Blog post two-column shell — sidebar left, main right (desktop) */
+/* Blog post two-column shell - sidebar left, main right (desktop) */
 .blog-post-layout {
   display: block;
 }
@@ -15,14 +15,6 @@
   display: block;
 }
 
-.blog-post-hero--lead {
-  display: block;
-}
-
-.blog-post-hero--inline {
-  display: none;
-}
-
 .blog-post-mobile-related {
   display: block;
 }
@@ -35,7 +27,7 @@
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  .blog-post-hero {
+  .blog-post-article-panel > .blog-post-hero-image {
     height: clamp(255px, 42vw, 300px);
   }
 
@@ -55,7 +47,7 @@
   }
 }
 
-/* Sidebar — TOC */
+/* Sidebar - TOC */
 .blog-post-toc-box {
   box-sizing: border-box;
   padding: 37px 15px 24px;
@@ -109,7 +101,7 @@
   text-decoration: none;
 }
 
-/* Sidebar — related articles */
+/* Sidebar - related articles */
 .blog-post-sidebar-related {
   margin-top: 40px;
 }
@@ -200,12 +192,22 @@
     padding: clamp(64px, 8vw, 96px) var(--bp-px) clamp(56px, 6vw, 80px);
   }
 
+  .blog-post-article-panel > .blog-post-hero-image {
+    width: 100%;
+    height: 464px;
+    padding-bottom: 20px;
+    object-fit: cover;
+    object-position: center;
+  }
+
   .blog-post-layout {
     display: grid;
     grid-template-columns: minmax(0, 458px) minmax(0, 1fr);
     gap: clamp(24px, 3vw, 35px);
     align-items: start;
     direction: ltr;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
   .blog-post-sidebar,
@@ -222,22 +224,10 @@
     padding-bottom: 40px;
   }
 
-  .blog-post-hero--lead {
-    display: none;
-  }
-
-  .blog-post-hero--inline {
-    display: block;
-    width: 100%;
-    max-width: min(799px, 100%);
-    height: auto;
-    margin: clamp(28px, 4vw, 42px) 0 0;
-    margin-inline-start: auto;
-    margin-inline-end: 0;
-    aspect-ratio: 799 / 464;
-  }
-
   .blog-post-main-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
     background: #ffffff;
   }
 
@@ -245,8 +235,7 @@
     width: 100%;
     max-width: 776px;
     margin: 0;
-    margin-inline-start: auto;
-    margin-inline-end: 0;
+    margin-inline: auto;
     padding: 32px 34px 48px;
     background: transparent;
   }
@@ -269,11 +258,16 @@
   }
 
   .blog-post-content {
-    margin-top: 28px;
+    margin-top: 0;
     font-size: 18px;
     font-weight: 300;
     line-height: 28px;
     color: #292524;
+  }
+
+  .blog-post-content > p:first-child {
+    margin-top: 150px;
+    margin-bottom: 150px;
   }
 
   .blog-post-content h2,

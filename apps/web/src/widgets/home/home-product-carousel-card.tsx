@@ -15,7 +15,7 @@ export function HomeProductCarouselCard({ item }: HomeProductCarouselCardProps) 
         imageUrl={item.imageUrl}
         hoverImageUrl={item.hoverImageUrl}
         alt={item.title}
-        sizes="(max-width: 1024px) 45vw, 248px"
+        sizes="(max-width: 1024px) 45vw, 210px"
       />
       <h3 className="store-product-card-title home-product-carousel-item-title">{item.title}</h3>
       <p className="store-product-card-price home-product-carousel-price">

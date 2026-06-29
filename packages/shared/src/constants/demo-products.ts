@@ -31,7 +31,7 @@ const DEMO_STOREFRONT_IMAGES = {
   rings: '/images/categories/rings.png',
   bracelets: '/images/categories/bracelets.png',
   earrings: '/images/categories/earrings.png',
-  necklaces: '/images/placeholder-media.svg',
+  necklaces: '/images/home/new-arrival-necklace.png',
   jewelrySet: '/images/products/jewelry-set-lifestyle.png',
   lifestyle: '/images/home/new-arrival-lifestyle.png',
 } as const;

@@ -5,11 +5,27 @@ import {
   calculateJewelryPricing,
   formatPricingBreakdown as sharedFormatPricingBreakdown,
   formatTomanAmountWithUnit,
+  resolveStorefrontProductImageUrl,
 } from '@sadafgold/shared';
 import type { ProductDetails, ProductPricing, ProductSummary } from '@sadafgold/types';
 import { isApiUnreachableError, serverFetch } from '@/lib/api/client';
 
 export { sharedFormatPricingBreakdown as formatPricingBreakdown };
+
+function normalizeProductImages<T extends Pick<ProductSummary, 'imageUrl' | 'hoverImageUrl' | 'category'>>(
+  product: T,
+): T {
+  const imageUrl = resolveStorefrontProductImageUrl(product.imageUrl, product.category);
+  const hoverImageUrl = product.hoverImageUrl
+    ? resolveStorefrontProductImageUrl(product.hoverImageUrl, product.category)
+    : product.hoverImageUrl;
+
+  return {
+    ...product,
+    imageUrl,
+    hoverImageUrl,
+  };
+}
 
 function getDevFallbackGoldPricePerGram(karat = 18): number {
   const fallback = buildFallbackGoldTicker();
@@ -60,11 +76,12 @@ export function buildProductPricing(
 
 /** Prefer API pricing; recompute only when missing (SSR fallback). */
 export async function withLivePricing<T extends ProductSummary>(product: T): Promise<T> {
-  if (product.pricing?.pricedAt) {
-    return product;
+  const normalized = normalizeProductImages(product);
+  if (normalized.pricing?.pricedAt) {
+    return normalized;
   }
-  const livePrice = await getLiveGoldPricePerGram(product.karat);
-  return applyLivePricingToProduct(product, livePrice);
+  const livePrice = await getLiveGoldPricePerGram(normalized.karat);
+  return applyLivePricingToProduct(normalized, livePrice);
 }
 
 export async function withLivePricingList(products: ProductSummary[]) {
@@ -72,14 +89,15 @@ export async function withLivePricingList(products: ProductSummary[]) {
     return [];
   }
 
-  const needsPricing = products.some((product) => !product.pricing?.pricedAt);
+  const normalizedProducts = products.map((product) => normalizeProductImages(product));
+  const needsPricing = normalizedProducts.some((product) => !product.pricing?.pricedAt);
   if (!needsPricing) {
-    return products;
+    return normalizedProducts;
   }
 
-  const karats = products.map((product) => product.karat);
+  const karats = normalizedProducts.map((product) => product.karat);
   const liveByKarat = await resolveLivePricesByKarat(karats);
-  return applyLivePricingToProducts(products, liveByKarat);
+  return applyLivePricingToProducts(normalizedProducts, liveByKarat);
 }
 
 export function buildSpecifications(
@@ -110,5 +128,8 @@ export async function enrichProductDetails(product: ProductDetails): Promise<Pro
     ...enriched,
     color: product.color ?? 'طلایی',
     specifications: product.specifications ?? buildSpecifications(enriched, enriched.pricing),
+    gallery: product.gallery?.map((url) =>
+      resolveStorefrontProductImageUrl(url, product.category),
+    ),
   };
 }

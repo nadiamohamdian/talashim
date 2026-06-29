@@ -266,6 +266,45 @@ export async function revalidateStorefrontProducts(
   }
 }
 
+export async function revalidateStorefrontBlog(
+  ...slugs: Array<string | undefined>
+): Promise<void> {
+  const env = getApiEnv();
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!secret) {
+    return;
+  }
+
+  const uniqueSlugs = [...new Set(slugs.filter((slug): slug is string => Boolean(slug?.trim())))];
+  const url = `${env.WEB_URL.replace(/\/$/, '')}/api/revalidate`;
+
+  const paths = ['/blog'];
+  for (const slug of uniqueSlugs) {
+    paths.push(`/blog/${slug.trim()}`);
+  }
+
+  for (const path of paths) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-revalidate-secret': secret,
+        },
+        body: JSON.stringify({ path }),
+      });
+
+      if (!response.ok) {
+        logger.warn(`Storefront blog revalidation failed for ${path} (${response.status})`);
+      }
+    } catch (error) {
+      logger.warn(
+        `Storefront blog revalidation error for ${path}: ${error instanceof Error ? error.message : 'unknown'}`,
+      );
+    }
+  }
+}
+
 export async function revalidateStorefrontAboutPage(): Promise<void> {
   const env = getApiEnv();
   const secret = process.env.REVALIDATE_SECRET;

@@ -14,6 +14,8 @@ import type {
 } from '../dto/admin-commerce.dto';
 import { AdminReportsService } from './admin-reports.service';
 import { AdminInventoryRepository } from '../repositories/admin-inventory.repository';
+import { revalidateStorefrontProducts } from '@/infrastructure/storefront/storefront-cache.util';
+import { PrismaService } from '@/infrastructure/database/prisma.service';
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -22,6 +24,7 @@ export class AdminInventoryService {
   constructor(
     private readonly inventoryRepository: AdminInventoryRepository,
     private readonly adminReportsService: AdminReportsService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async listStock(query: AdminInventoryQueryDto, actor: AuthenticatedUser) {
@@ -82,6 +85,15 @@ export class AdminInventoryService {
       if (!updated) {
         throw new NotFoundException('Inventory item not found');
       }
+
+      const product = await this.prisma.product.findUnique({
+        where: { id: dto.productId },
+        select: { slug: true },
+      });
+      if (product?.slug) {
+        void revalidateStorefrontProducts(product.slug);
+      }
+
       return {
         productId: updated.productId,
         quantity: updated.quantity,

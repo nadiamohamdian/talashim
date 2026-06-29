@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -16,11 +17,8 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import type { UploadedImageFile } from '@/infrastructure/media/media-storage.service';
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
-import { DepositGoldDto } from '../dto/deposit-gold.dto';
-import { DepositRialDto } from '../dto/deposit-rial.dto';
 import { RequestRialDepositDto } from '../dto/request-rial-deposit.dto';
 import { RequestRialWithdrawalDto } from '../dto/request-rial-withdrawal.dto';
-import { TransferWalletDto } from '../dto/transfer-wallet.dto';
 import { WalletHistoryQueryDto } from '../dto/wallet-history-query.dto';
 import {
   WalletBalanceDto,
@@ -71,7 +69,11 @@ export class WalletController {
   @Get(':userId/balances')
   @ApiOperation({ summary: 'Get Rial and Gold wallet balances' })
   @ApiOkResponse({ type: WalletBalanceDto })
-  getBalances(@Param('userId') userId: string) {
+  getBalances(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('userId') userId: string,
+  ) {
+    this.assertWalletOwner(user.id, userId);
     return this.walletService.getBalances(userId);
   }
 
@@ -79,30 +81,38 @@ export class WalletController {
   @ApiOperation({ summary: 'Get wallet transaction history' })
   @ApiOkResponse({ type: WalletHistoryResponseDto })
   getHistory(
+    @CurrentUser() user: AuthenticatedUser,
     @Param('userId') userId: string,
     @Query() query: WalletHistoryQueryDto,
   ) {
+    this.assertWalletOwner(user.id, userId);
     return this.walletService.getHistory(userId, query);
   }
 
   @Post('deposit/rial')
   @ApiOperation({ summary: 'Deposit Rial into user wallet' })
   @ApiOkResponse({ type: WalletTransactionDto })
-  depositRial(@Body() payload: DepositRialDto) {
-    return this.walletService.depositRial(payload);
+  depositRial() {
+    throw new ForbiddenException('این عملیات فقط از طریق پنل مدیریت قابل انجام است');
   }
 
   @Post('deposit/gold')
   @ApiOperation({ summary: 'Deposit Gold into user wallet' })
   @ApiOkResponse({ type: WalletTransactionDto })
-  depositGold(@Body() payload: DepositGoldDto) {
-    return this.walletService.depositGold(payload);
+  depositGold() {
+    throw new ForbiddenException('این عملیات فقط از طریق پنل مدیریت قابل انجام است');
   }
 
   @Post('transfer')
   @ApiOperation({ summary: 'Transfer between user wallets' })
   @ApiOkResponse({ type: WalletTransactionDto })
-  transfer(@Body() payload: TransferWalletDto) {
-    return this.walletService.transfer(payload);
+  transfer() {
+    throw new ForbiddenException('این عملیات فقط از طریق پنل مدیریت قابل انجام است');
+  }
+
+  private assertWalletOwner(authenticatedUserId: string, requestedUserId: string): void {
+    if (authenticatedUserId !== requestedUserId) {
+      throw new ForbiddenException('دسترسی به کیف پول دیگران مجاز نیست');
+    }
   }
 }

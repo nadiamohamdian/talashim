@@ -1,16 +1,31 @@
 import type { PaginatedResponse, ProductSummary } from '@sadafgold/types';
+import { resolveStorefrontProductImageUrl } from '@sadafgold/shared';
+
+export function normalizeProductSummary(product: ProductSummary): ProductSummary {
+  return {
+    ...product,
+    imageUrl: resolveStorefrontProductImageUrl(product.imageUrl, product.category),
+    hoverImageUrl: product.hoverImageUrl
+      ? resolveStorefrontProductImageUrl(product.hoverImageUrl, product.category)
+      : product.hoverImageUrl,
+  };
+}
 
 export function normalizeCatalogListResponse(data: unknown): ProductSummary[] {
-  if (Array.isArray(data)) {
-    return data as ProductSummary[];
-  }
+  const items = (() => {
+    if (Array.isArray(data)) {
+      return data as ProductSummary[];
+    }
 
-  if (data && typeof data === 'object' && 'items' in data) {
-    const items = (data as PaginatedResponse<ProductSummary>).items;
-    return Array.isArray(items) ? items : [];
-  }
+    if (data && typeof data === 'object' && 'items' in data) {
+      const list = (data as PaginatedResponse<ProductSummary>).items;
+      return Array.isArray(list) ? list : [];
+    }
 
-  return [];
+    return [];
+  })();
+
+  return items.map(normalizeProductSummary);
 }
 
 export function normalizeCatalogPaginatedResponse(
@@ -24,7 +39,9 @@ export function normalizeCatalogPaginatedResponse(
       page: payload.page ?? fallbackPage,
       limit: payload.limit ?? fallbackLimit,
       total: payload.total ?? payload.items.length,
-      items: Array.isArray(payload.items) ? payload.items : [],
+      items: Array.isArray(payload.items)
+        ? payload.items.map(normalizeProductSummary)
+        : [],
     };
   }
 

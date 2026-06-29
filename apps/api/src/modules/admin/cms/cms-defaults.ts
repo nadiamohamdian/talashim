@@ -71,7 +71,7 @@ export const DEFAULT_CMS_CATEGORY_LISTING_GALLERY_ITEMS: CmsCategoryListingGalle
 export const DEFAULT_CMS_SECTIONS: CmsHomepageSections = {
   featuredTitle: 'جدیدترین محصولات',
   featuredSubtitle: 'آخرین طراحی‌های طلا و جواهر',
-  bestsellerTitle: 'پرفروش‌ترین محصولات',
+  bestsellerTitle: 'پرفروش‌ترین ها',
   bestsellerSubtitle: 'بر اساس تعداد فروش واقعی',
   newArrivalsTitle: 'جدیدترین ها',
   showCategoryShowcase: true,

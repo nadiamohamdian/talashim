@@ -14,6 +14,9 @@ interface RichTextEditorProps {
   mediaFolder?: string;
 }
 
+type ImageAlign = 'center' | 'start' | 'end';
+type ImageWidth = 'sm' | 'md' | 'lg' | 'full';
+
 const FONT_OPTIONS = [
   { label: 'پیش‌فرض', value: '' },
   { label: 'IBM Plex Arabic', value: 'IBM Plex Sans Arabic, Tahoma, sans-serif' },
@@ -27,6 +30,13 @@ const SIZE_OPTIONS = [
   { label: 'معمولی', value: '3' },
   { label: 'بزرگ', value: '4' },
   { label: 'خیلی بزرگ', value: '5' },
+];
+
+const IMAGE_WIDTH_OPTIONS: Array<{ label: string; value: ImageWidth }> = [
+  { label: 'کوچک', value: 'sm' },
+  { label: 'متوسط', value: 'md' },
+  { label: 'بزرگ', value: 'lg' },
+  { label: 'تمام‌عرض', value: 'full' },
 ];
 
 function ToolbarButton({
@@ -57,6 +67,49 @@ function ToolbarButton({
   );
 }
 
+function escapeHtmlAttribute(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function ensureImageFigure(img: HTMLImageElement): HTMLElement {
+  const existing = img.closest('figure.rte-image');
+  if (existing instanceof HTMLElement) {
+    return existing;
+  }
+
+  const figure = document.createElement('figure');
+  figure.className = 'rte-image rte-image--align-center rte-image--w-md';
+  figure.dataset.align = 'center';
+  figure.dataset.width = 'md';
+  img.parentNode?.insertBefore(figure, img);
+  figure.appendChild(img);
+  if (!img.getAttribute('alt')) {
+    img.setAttribute('alt', '');
+  }
+  img.style.maxWidth = '100%';
+  img.style.height = 'auto';
+  return figure;
+}
+
+function applyImageLayout(figure: HTMLElement, align: ImageAlign, width: ImageWidth): void {
+  figure.className = `rte-image rte-image--align-${align} rte-image--w-${width}`;
+  figure.dataset.align = align;
+  figure.dataset.width = width;
+}
+
+function readImageLayout(figure: HTMLElement): { align: ImageAlign; width: ImageWidth } {
+  const align = figure.dataset.align;
+  const width = figure.dataset.width;
+  return {
+    align: align === 'start' || align === 'end' ? align : 'center',
+    width: width === 'sm' || width === 'lg' || width === 'full' ? width : 'md',
+  };
+}
+
 export function RichTextEditor({
   label,
   value,
@@ -69,20 +122,83 @@ export function RichTextEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const lastHtmlRef = useRef(value);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<HTMLImageElement | null>(null);
+  const [imageAlign, setImageAlign] = useState<ImageAlign>('center');
+  const [imageWidth, setImageWidth] = useState<ImageWidth>('md');
+
+  const syncHtml = useCallback(() => {
+    const html = editorRef.current?.innerHTML ?? '';
+    lastHtmlRef.current = html;
+    onChange(html);
+  }, [onChange]);
 
   const exec = useCallback((command: string, commandValue?: string) => {
     document.execCommand(command, false, commandValue);
     editorRef.current?.focus();
-    if (editorRef.current) {
-      const html = editorRef.current.innerHTML;
-      lastHtmlRef.current = html;
-      onChange(html);
-    }
-  }, [onChange]);
+    syncHtml();
+  }, [syncHtml]);
 
   const insertImageFromLibrary = useCallback((url: string) => {
-    exec('insertImage', url);
-  }, [exec]);
+    const safeUrl = escapeHtmlAttribute(url.trim());
+    if (!safeUrl) {
+      return;
+    }
+
+    const html =
+      `<figure class="rte-image rte-image--align-center rte-image--w-md" data-align="center" data-width="md">` +
+      `<img src="${safeUrl}" alt="" />` +
+      `</figure><p><br></p>`;
+
+    document.execCommand('insertHTML', false, html);
+    editorRef.current?.focus();
+    syncHtml();
+    setPickerOpen(false);
+  }, [syncHtml]);
+
+  const updateSelectedImageLayout = useCallback(
+    (align: ImageAlign, width: ImageWidth) => {
+      if (!selectedImage) {
+        return;
+      }
+
+      const figure = ensureImageFigure(selectedImage);
+      applyImageLayout(figure, align, width);
+      setImageAlign(align);
+      setImageWidth(width);
+      syncHtml();
+    },
+    [selectedImage, syncHtml],
+  );
+
+  const removeSelectedImage = useCallback(() => {
+    if (!selectedImage) {
+      return;
+    }
+
+    const figure = selectedImage.closest('figure.rte-image');
+    if (figure) {
+      figure.remove();
+    } else {
+      selectedImage.remove();
+    }
+
+    setSelectedImage(null);
+    syncHtml();
+  }, [selectedImage, syncHtml]);
+
+  const handleEditorClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target;
+    if (!(target instanceof HTMLImageElement) || !editorRef.current?.contains(target)) {
+      setSelectedImage(null);
+      return;
+    }
+
+    const figure = ensureImageFigure(target);
+    const layout = readImageLayout(figure);
+    setSelectedImage(target);
+    setImageAlign(layout.align);
+    setImageWidth(layout.width);
+  }, []);
 
   useEffect(() => {
     const el = editorRef.current;
@@ -176,18 +292,57 @@ export function RichTextEditor({
           </ToolbarButton>
         </div>
 
+        {selectedImage ? (
+          <div className="flex flex-wrap items-center gap-1 border-b border-border bg-[var(--surface)] px-2 py-2">
+            <span className="text-xs font-medium text-[var(--muted-foreground)]">چیدمان تصویر:</span>
+            <ToolbarButton
+              title="وسط‌چین — متن زیر تصویر"
+              active={imageAlign === 'center'}
+              onClick={() => updateSelectedImageLayout('center', imageWidth)}
+            >
+              وسط
+            </ToolbarButton>
+            <ToolbarButton
+              title="راست — متن دور تصویر می‌پیچد"
+              active={imageAlign === 'end'}
+              onClick={() => updateSelectedImageLayout('end', imageWidth)}
+            >
+              راست
+            </ToolbarButton>
+            <ToolbarButton
+              title="چپ — متن دور تصویر می‌پیچد"
+              active={imageAlign === 'start'}
+              onClick={() => updateSelectedImageLayout('start', imageWidth)}
+            >
+              چپ
+            </ToolbarButton>
+            <span className="mx-1 h-5 w-px bg-border" />
+            {IMAGE_WIDTH_OPTIONS.map((option) => (
+              <ToolbarButton
+                key={option.value}
+                title={`عرض ${option.label}`}
+                active={imageWidth === option.value}
+                onClick={() => updateSelectedImageLayout(imageAlign, option.value)}
+              >
+                {option.label}
+              </ToolbarButton>
+            ))}
+            <span className="mx-1 h-5 w-px bg-border" />
+            <ToolbarButton title="حذف تصویر" onClick={removeSelectedImage}>
+              حذف
+            </ToolbarButton>
+          </div>
+        ) : null}
+
         <div
           ref={editorRef}
           contentEditable
           suppressContentEditableWarning
           dir="rtl"
-          className="prose prose-sm max-w-none px-4 py-3 text-sm leading-8 text-foreground outline-none"
+          className="rte-editor prose prose-sm max-w-none px-4 py-3 text-sm leading-8 text-foreground outline-none"
           style={{ minHeight }}
-          onInput={() => {
-            const html = editorRef.current?.innerHTML ?? '';
-            lastHtmlRef.current = html;
-            onChange(html);
-          }}
+          onClick={handleEditorClick}
+          onInput={syncHtml}
         />
       </div>
 

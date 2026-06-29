@@ -63,9 +63,9 @@
   --brand-overlay: rgba(61, 54, 48, 0.32);
 
   /* Semantic colors */
-  --primary: var(--brand-gold-dark);
-  --primary-hover: #826842;
-  --primary-active: #7a613c;
+  --primary: #6d5945;
+  --primary-hover: #5c4a38;
+  --primary-active: #564739;
   --primary-foreground: #ffffff;
   --primary-muted: rgba(154, 123, 79, 0.22);
   --primary-subtle: rgba(154, 123, 79, 0.1);
@@ -101,7 +101,7 @@
   --sidebar-muted: #8a7f75;
   --sidebar-border: #ebe3da;
   --sidebar-active: rgba(154, 123, 79, 0.14);
-  --sidebar-active-border: var(--brand-gold-dark);
+  --sidebar-active-border: var(--primary);
   --sidebar-hover: rgba(154, 123, 79, 0.06);
   --sidebar-glow: 0 0 0 2px rgba(154, 123, 79, 0.2);
   --sidebar-accent-line: var(--brand-gold);
@@ -636,6 +636,10 @@ html.dark body {
 }
 
 .btn-luxury:hover:not(:disabled) {
+  transform: translateY(-0.5px);
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn):hover:not(:disabled) {
   transform: translateY(-0.5px);
 }
 
@@ -1372,38 +1376,112 @@ html.dark body {
 .nav-stagger > *:nth-child(5) .sidebar-nav-item { animation-delay: 0.14s; }
 .nav-stagger > *:nth-child(6) .sidebar-nav-item { animation-delay: 0.17s; }
 
-/* ─── Buttons (legacy class support) ────────────────────────────── */
+/* ─── Buttons (Figma Group 255 — admin panel) ─────────────────── */
+:root {
+  --admin-btn-bg: #6d5945;
+  --admin-btn-bg-hover: #5c4a38;
+  --admin-btn-bg-active: #564739;
+  --admin-btn-fg: #ffffff;
+  --admin-btn-font: 'Yekan Bakh', var(--font-family-base);
+  --admin-btn-weight: 600;
+  --admin-btn-size: 20px;
+  --admin-btn-leading: 31px;
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn),
+.admin-canvas .btn-gold {
+  font-family: var(--admin-btn-font);
+  font-style: normal;
+  font-weight: var(--admin-btn-weight);
+  text-align: right;
+  color: var(--admin-btn-fg) !important;
+  background: var(--admin-btn-bg) !important;
+  border-color: var(--admin-btn-bg) !important;
+  box-shadow: none;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    filter 0.2s ease;
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn):hover:not(:disabled),
+.admin-canvas .btn-gold:hover:not(:disabled) {
+  background: var(--admin-btn-bg-hover) !important;
+  border-color: var(--admin-btn-bg-hover) !important;
+  filter: none;
+  box-shadow: none;
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn):active:not(:disabled),
+.admin-canvas .btn-gold:active:not(:disabled) {
+  background: var(--admin-btn-bg-active) !important;
+  border-color: var(--admin-btn-bg-active) !important;
+  transform: scale(0.99);
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn):focus-visible,
+.admin-canvas .btn-gold:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--admin-btn-bg) 55%, white);
+  outline-offset: 2px;
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn).text-xs,
+.admin-canvas .btn-gold.text-xs {
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn).text-sm,
+.admin-canvas .btn-gold.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+}
+
+.admin-canvas button.btn-luxury:not(.sidebar-logout-btn):not(.text-xs):not(.text-sm),
+.admin-canvas .btn-gold:not(.text-xs):not(.text-sm) {
+  font-size: var(--admin-btn-size);
+  line-height: var(--admin-btn-leading);
+}
+
 .btn-gold {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  border: 1px solid var(--admin-btn-bg);
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--accent-hover) 100%);
+  background: var(--admin-btn-bg);
   padding: 0.5625rem 1.125rem;
-  font-size: var(--text-body-lg);
-  font-weight: 600;
-  color: var(--primary-foreground);
+  font-family: var(--admin-btn-font);
+  font-style: normal;
+  font-weight: var(--admin-btn-weight);
+  font-size: var(--admin-btn-size);
+  line-height: var(--admin-btn-leading);
+  text-align: right;
+  color: var(--admin-btn-fg);
   box-shadow: none;
   transition:
-    filter 0.2s ease,
-    box-shadow 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
     transform 0.2s ease;
 }
 
 .btn-gold:hover:not(:disabled) {
-  filter: brightness(1.05);
+  background: var(--admin-btn-bg-hover);
+  border-color: var(--admin-btn-bg-hover);
   box-shadow: none;
   transform: translateY(-1px);
 }
 
 .btn-gold:active:not(:disabled) {
-  background: linear-gradient(135deg, var(--brand-gold-dark) 0%, var(--accent-hover) 100%);
+  background: var(--admin-btn-bg-active);
+  border-color: var(--admin-btn-bg-active);
   transform: scale(0.99);
 }
 
 .btn-gold:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid color-mix(in srgb, var(--admin-btn-bg) 55%, white);
   outline-offset: 2px;
 }
 
@@ -2389,4 +2467,67 @@ html.dark body {
   80% {
     transform: rotate(-4deg);
   }
+}
+
+/* Rich text editor — Word-like image layout */
+.rte-editor .rte-image {
+  margin: 0 0 16px;
+  clear: both;
+}
+
+.rte-editor .rte-image img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  outline: 2px solid transparent;
+  transition: outline-color 0.15s ease;
+}
+
+.rte-editor .rte-image img:hover,
+.rte-editor .rte-image img:focus {
+  outline-color: color-mix(in srgb, var(--primary) 45%, transparent);
+}
+
+.rte-editor .rte-image--align-center {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.rte-editor .rte-image--align-center img {
+  margin-inline: auto;
+}
+
+.rte-editor .rte-image--align-start {
+  float: inline-start;
+  margin-inline-end: 16px;
+}
+
+.rte-editor .rte-image--align-end {
+  float: inline-end;
+  margin-inline-start: 16px;
+}
+
+.rte-editor .rte-image--w-sm {
+  width: min(33%, 180px);
+}
+
+.rte-editor .rte-image--w-md {
+  width: min(50%, 280px);
+}
+
+.rte-editor .rte-image--w-lg {
+  width: min(75%, 420px);
+}
+
+.rte-editor .rte-image--w-full {
+  width: 100%;
+}
+
+.rte-editor::after {
+  content: '';
+  display: table;
+  clear: both;
 }

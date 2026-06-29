@@ -4,13 +4,16 @@ import { useEffect, useState, type CSSProperties, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import type { CmsLensSetsShowcaseConfig } from '@sadafgold/types';
+import { DEFAULT_LENS_CHIP_TRANSLATE } from '@sadafgold/shared';
 import {
   LENS_EDITORIAL_HERO,
   LENS_EDITORIAL_HOTSPOTS,
   LENS_EDITORIAL_META,
+  LENS_HERO_ARTBOARD,
   getLensProductPageHref,
   resolveLensChipPosition,
   resolveLensHotspotPosition,
+  scaleLensPositionToPercent,
   type LensHotspot,
   type LensShowcaseDemoItem,
 } from '@/shared/config/lens-showcase-demo';
@@ -143,6 +146,7 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
   }
 
   const heroImage = resolveLensHeroImage(activeItem);
+  const artboard = isMobileViewport ? LENS_HERO_ARTBOARD.mobile : LENS_HERO_ARTBOARD.desktop;
 
   return (
     <>
@@ -200,10 +204,16 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
                     style={
                       chipPosition
                         ? ({
-                            '--lens-chip-top': chipPosition.top,
-                            '--lens-chip-left': chipPosition.left,
-                            '--lens-chip-tx': spot?.chipTranslateX ?? '-50%',
-                            '--lens-chip-ty': spot?.chipTranslateY ?? 'calc(-100% - 8px)',
+                            '--lens-chip-top': scaleLensPositionToPercent(
+                              chipPosition.top,
+                              artboard.height,
+                            ),
+                            '--lens-chip-left': scaleLensPositionToPercent(
+                              chipPosition.left,
+                              artboard.width,
+                            ),
+                            '--lens-chip-tx': spot?.chipTranslateX ?? DEFAULT_LENS_CHIP_TRANSLATE.x,
+                            '--lens-chip-ty': spot?.chipTranslateY ?? DEFAULT_LENS_CHIP_TRANSLATE.y,
                           } as CSSProperties)
                         : undefined
                     }
@@ -247,7 +257,10 @@ export function LensSetsShowcase({ items, section }: LensSetsShowcaseProps) {
                     className={`lens-sets-showcase-hotspot lens-sets-showcase-hotspot--${index}${
                       isOpen ? ' lens-sets-showcase-hotspot--active' : ''
                     }`}
-                    style={{ top: hotspotPosition.top, left: hotspotPosition.left }}
+                    style={{
+                      top: scaleLensPositionToPercent(hotspotPosition.top, artboard.height),
+                      left: scaleLensPositionToPercent(hotspotPosition.left, artboard.width),
+                    }}
                     onClick={(event) => toggleChip(index, event)}
                     aria-expanded={isOpen}
                     aria-controls={`lens-sets-chip-${index}`}

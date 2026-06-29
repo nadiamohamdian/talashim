@@ -4,11 +4,9 @@ import { syncCatalogDemoProducts } from '../src/modules/catalog/lib/sync-catalog
 
 export async function seedCatalogDemoProducts(
   prisma: PrismaClient,
-  seedMedia: SeedMediaUrls,
+  _seedMedia: SeedMediaUrls,
 ): Promise<void> {
-  const result = await syncCatalogDemoProducts(prisma, {
-    fallbackImageUrl: seedMedia.product,
-  });
+  const result = await syncCatalogDemoProducts(prisma);
 
   console.info(`  Seeded ${result.synced} catalog demo products (SKU prefix DEMO-)`);
 }

@@ -13,6 +13,7 @@ import {
 } from '@/shared/config/blog-post-page';
 import type { ProductReviewDemo } from '@/shared/config/product-detail-demo';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
+import { BlogPostCarouselArrow } from '@/widgets/blog/blog-post-carousel-arrow';
 
 interface BlogPostReviewCardProps {
   review: ProductReviewDemo;
@@ -52,7 +53,7 @@ function BlogPostReviewCard({ review, contentClassName = '' }: BlogPostReviewCar
   );
 }
 
-export function BlogPostReviewSection() {
+export function BlogPostReviewSection({ title }: { title: string }) {
   const reviews = BLOG_POST_DEMO_REVIEWS;
   const [activeIndex, setActiveIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
@@ -60,6 +61,19 @@ export function BlogPostReviewSection() {
   const [autoPlayPaused, setAutoPlayPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const frameRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const scrollByCard = useCallback((direction: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) {
+      return;
+    }
+
+    const card = track.querySelector<HTMLElement>('.blog-post-review-frame');
+    const gap = Number.parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 35;
+    const distance = (card?.offsetWidth ?? track.clientWidth) + gap;
+    track.scrollBy({ left: direction * distance * -1, behavior: 'smooth' });
+  }, []);
 
   const review = reviews[activeIndex] ?? BLOG_POST_FEATURED_REVIEW;
   const hasMultiple = reviews.length > 1;
@@ -160,6 +174,30 @@ export function BlogPostReviewSection() {
 
   return (
     <>
+      <div className="blog-post-reviews-header">
+        <h2 id="blog-post-reviews-title" className="blog-post-section-title blog-post-section-title--reviews">
+          {title}
+        </h2>
+        <div className="blog-post-carousel-nav blog-post-carousel-nav--reviews" aria-label="ناوبری نظرات">
+          <button
+            type="button"
+            className="blog-post-carousel-nav-btn"
+            onClick={() => scrollByCard(-1)}
+            aria-label="قبلی"
+          >
+            <BlogPostCarouselArrow direction="prev" />
+          </button>
+          <button
+            type="button"
+            className="blog-post-carousel-nav-btn"
+            onClick={() => scrollByCard(1)}
+            aria-label="بعدی"
+          >
+            <BlogPostCarouselArrow direction="next" />
+          </button>
+        </div>
+      </div>
+
       <div className="blog-post-review-mobile" role="region" aria-label="نظرات کاربران">
         <div
           ref={frameRef}
@@ -196,7 +234,7 @@ export function BlogPostReviewSection() {
       </div>
 
       <div className="blog-post-review-desktop" role="region" aria-label="نظرات کاربران">
-        <div className="blog-post-review-track">
+        <div ref={trackRef} className="blog-post-review-track">
           {reviews.map((item) => (
             <BlogPostReviewCard key={item.id} review={item} />
           ))}

@@ -53,6 +53,28 @@ export class TradingService {
     return this.mapOrderDetail(order);
   }
 
+  async getOrderForUser(userId: string, orderId: string) {
+    const order = await this.tradingRepository.findById(orderId);
+    if (!order) {
+      throw new NotFoundException('سفارش معامله یافت نشد');
+    }
+    if (order.userId !== userId) {
+      throw new ForbiddenException('دسترسی به سفارش معامله دیگران مجاز نیست');
+    }
+    return this.mapOrderDetail(order);
+  }
+
+  async getOrderHistoryForUser(
+    authenticatedUserId: string,
+    requestedUserId: string,
+    query: TradeHistoryQueryDto,
+  ) {
+    if (authenticatedUserId !== requestedUserId) {
+      throw new ForbiddenException('دسترسی به تاریخچه معاملات دیگران مجاز نیست');
+    }
+    return this.getOrderHistory(requestedUserId, query);
+  }
+
   async adminSettlePendingOrder(orderId: string, actorId: string) {
     const order = await this.tradingRepository.findById(orderId);
     if (!order) {
