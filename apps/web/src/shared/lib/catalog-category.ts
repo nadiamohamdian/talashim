@@ -1,28 +1,13 @@
 import type { ProductSummary } from '@sadafgold/types';
+import {
+  CATALOG_CATEGORY_SLUG_MAP,
+  normalizeStorefrontProductCategory,
+  resolveCatalogCategoryKey,
+} from '@sadafgold/shared';
 import type { ProductListingPageMeta } from '@/shared/config/product-listing-meta';
 
 /** Maps storefront slugs to API / Prisma category keys. */
-const CATEGORY_SLUG_MAP: Record<string, string> = {
-  ring: 'ring',
-  rings: 'ring',
-  necklace: 'necklace',
-  necklaces: 'necklace',
-  bracelet: 'bracelet',
-  bracelets: 'bracelet',
-  earring: 'earring',
-  earrings: 'earring',
-  set: 'set',
-  sets: 'set',
-  'half-set': 'set',
-  half_set: 'set',
-  coin: 'coin',
-  coins: 'coin',
-  'wedding-ring': 'wedding_ring',
-  'wedding-rings': 'wedding_ring',
-  wedding_ring: 'wedding_ring',
-  wedding_rings: 'wedding_ring',
-  kids: 'kids',
-};
+const CATEGORY_SLUG_MAP = CATALOG_CATEGORY_SLUG_MAP;
 
 const CATEGORY_META: Record<string, { parent: string; title: string; subtitle: string }> = {
   ring: {
@@ -68,14 +53,11 @@ const CATEGORY_META: Record<string, { parent: string; title: string; subtitle: s
 };
 
 export function resolveCatalogCategorySlug(slug: string | undefined | null): string | undefined {
-  if (!slug?.trim()) {
-    return undefined;
-  }
-  return CATEGORY_SLUG_MAP[slug.trim().toLowerCase()];
+  return resolveCatalogCategoryKey(slug);
 }
 
 export function normalizeProductCategory(category: string): string {
-  return category.trim().toLowerCase();
+  return normalizeStorefrontProductCategory(category);
 }
 
 export type ProductJewelrySizeKind = 'ring' | 'necklace' | 'bracelet';
@@ -258,7 +240,13 @@ export function filterProductsByCategory<T extends Pick<ProductSummary, 'categor
     );
   }
 
-  return products.filter((product) => normalizeProductCategory(product.category) === resolved);
+  if (resolved === 'set') {
+    return products.filter((product) => isJewelrySetOrHalfSetProduct(product));
+  }
+
+  return products.filter(
+    (product) => normalizeProductCategory(product.category) === resolved,
+  );
 }
 
 export function getCategoryListingMeta(categorySlug: string): ProductListingPageMeta | null {

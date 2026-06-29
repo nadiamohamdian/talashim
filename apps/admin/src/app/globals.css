@@ -47,6 +47,7 @@
 /* ─── Luxury Gold Design Tokens (storefront-aligned) ────────────── */
 :root {
   --font-family-base: 'Yekan Bakh', Tahoma, 'Segoe UI', sans-serif;
+  --Color-20: rgba(250, 249, 248, 1);
   /* Brand — Talashim storefront */
   --brand-gold: #c4a265;
   --brand-gold-light: #e8d5b5;
@@ -80,11 +81,11 @@
 
   --background: #ffffff;
   --foreground: #3d3630;
-  --card: #fffbf7;
+  --card: var(--Color-20, rgba(250, 249, 248, 1));
   --card-foreground: #3d3630;
-  --surface: #f5ede6;
+  --surface: var(--Color-20, rgba(250, 249, 248, 1));
   --surface-muted: #ebe0d6;
-  --surface-elevated: #fffbf7;
+  --surface-elevated: var(--Color-20, rgba(250, 249, 248, 1));
 
   --muted: #8a7f75;
   --muted-foreground: #8a7f75;

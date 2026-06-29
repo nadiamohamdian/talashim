@@ -4,6 +4,8 @@ import {
   calculateJewelryPricing,
   formatTomanAmountWithUnit,
   isProductDiscountActive,
+  CATALOG_CATEGORY_SLUG_MAP,
+  normalizeStorefrontProductCategory,
 } from '@sadafgold/shared';
 import type { ProductPricing } from '@sadafgold/types';
 import { ProductCategory, type Product } from '@/generated/prisma';
@@ -210,24 +212,28 @@ export class CatalogService {
     }
 
     const slug = raw.trim().toLowerCase();
+    const canonical = CATALOG_CATEGORY_SLUG_MAP[slug] ?? normalizeStorefrontProductCategory(slug);
+
     const map: Record<string, ProductCategory> = {
       ring: ProductCategory.RING,
-      rings: ProductCategory.RING,
       necklace: ProductCategory.NECKLACE,
-      necklaces: ProductCategory.NECKLACE,
       bracelet: ProductCategory.BRACELET,
-      bracelets: ProductCategory.BRACELET,
       earring: ProductCategory.EARRING,
-      earrings: ProductCategory.EARRING,
       coin: ProductCategory.COIN,
-      coins: ProductCategory.COIN,
-      'wedding-ring': ProductCategory.WEDDING_RING,
-      'wedding-rings': ProductCategory.WEDDING_RING,
       wedding_ring: ProductCategory.WEDDING_RING,
-      wedding_rings: ProductCategory.WEDDING_RING,
     };
 
-    return map[slug];
+    const fromSlug = map[canonical];
+    if (fromSlug) {
+      return fromSlug;
+    }
+
+    const upper = raw.trim().toUpperCase();
+    if (upper in ProductCategory) {
+      return ProductCategory[upper as keyof typeof ProductCategory];
+    }
+
+    return undefined;
   }
 
   private matchesPriceFilter(

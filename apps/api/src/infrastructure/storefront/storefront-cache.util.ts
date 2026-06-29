@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { DEFAULT_CATALOG_CATEGORY_SEEDS } from '@sadafgold/shared';
 import { getApiEnv } from '@/config/env';
 
 const logger = new Logger('StorefrontCache');
@@ -213,12 +214,18 @@ export async function revalidateStorefrontProducts(
   const uniqueSlugs = [...new Set(slugs.filter((slug): slug is string => Boolean(slug?.trim())))];
   const url = `${env.WEB_URL.replace(/\/$/, '')}/api/revalidate`;
 
-  const paths = ['/products', '/products?sale=1'];
+  const paths = ['/', '/products', '/products?sale=1'];
+  for (const seed of DEFAULT_CATALOG_CATEGORY_SEEDS) {
+    paths.push(`/products?category=${encodeURIComponent(seed.slug)}`);
+  }
   for (const slug of uniqueSlugs) {
     paths.push(`/products/${slug.trim()}`);
   }
 
-  const tags = ['catalog:products', 'catalog:sale'];
+  const tags = ['catalog:products', 'catalog:sale', 'content:homepage'];
+  for (const seed of DEFAULT_CATALOG_CATEGORY_SEEDS) {
+    tags.push(`catalog:category-page:${seed.slug}`);
+  }
   for (const slug of uniqueSlugs) {
     tags.push(`catalog:product:${slug.trim()}`);
   }

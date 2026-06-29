@@ -2,6 +2,10 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { unstable_noStore as noStore } from 'next/cache';
 import { buildDefaultCatalogCategoryFilterConfig } from '@sadafgold/shared';
+import {
+  isVirtualCatalogCategory,
+  resolveCatalogApiCategoryQuery,
+} from '@sadafgold/shared';
 import type { PaginatedResponse, ProductSummary, PublicCatalogCategoryPage } from '@sadafgold/types';
 import {
   getCatalogCategoryPage,
@@ -192,6 +196,15 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
           }
         : null;
   }
+  const listingCategoryKey =
+    categorySlug ?? (isKidsCategory ? 'kids' : undefined);
+  const needsBroadCategoryFetch = listingCategoryKey
+    ? isVirtualCatalogCategory(listingCategoryKey)
+    : false;
+  const apiCategoryQuery = resolveCatalogApiCategoryQuery(
+    category ?? categoryPage?.slug,
+    categoryPage?.productCategory,
+  );
   const listingFilterConfig = isGiftListing
     ? buildGiftListingFilterConfig()
     : resolveProductListingFilterConfig(categoryPage, category ?? categorySlug);
@@ -209,9 +222,9 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
       products = await getSaleProducts(48);
     } else {
       pagination = await getProductsPaginated({
-        page: listingQuery.page,
-        limit: PAGE_SIZE,
-        category: category ?? categorySlug,
+        page: needsBroadCategoryFetch ? 1 : listingQuery.page,
+        limit: needsBroadCategoryFetch ? 120 : PAGE_SIZE,
+        category: apiCategoryQuery,
         minPrice: effectivePriceFilter.minPrice,
         maxPrice: effectivePriceFilter.maxPrice,
         minWeight: listingQuery.minWeight,
@@ -219,17 +232,33 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
         sort: listingQuery.sort ?? undefined,
       });
       products = pagination.items;
+
+      if (needsBroadCategoryFetch && listingCategoryKey) {
+        products = filterProductsByCategory(products, listingCategoryKey);
+        if (pagination) {
+          const page = listingQuery.page;
+          const start = (page - 1) * PAGE_SIZE;
+          pagination = {
+            ...pagination,
+            page,
+            limit: PAGE_SIZE,
+            total: products.length,
+            items: products.slice(start, start + PAGE_SIZE),
+          };
+          products = pagination.items;
+        }
+      }
     }
   } catch {
     catalogFetchFailed = true;
     products = [];
   }
 
-  if (!catalogFetchFailed && categorySlug) {
+  if (!catalogFetchFailed && categorySlug && !needsBroadCategoryFetch) {
     products = filterProductsByCategory(products, categorySlug);
   }
 
-  if (!catalogFetchFailed && isKidsCategory) {
+  if (!catalogFetchFailed && isKidsCategory && !needsBroadCategoryFetch) {
     products = filterProductsByCategory(products, 'kids');
   }
 
@@ -266,7 +295,14 @@ async function ProductsPageContent({ searchParams }: ProductsPageProps) {
   );
   let displayProducts = products;
 
-  if (displayProducts.length === 0 && !onSale) {
+  if (
+    displayProducts.length === 0 &&
+    !onSale &&
+    !catalogFetchFailed &&
+    !categorySlug &&
+    !isKidsCategory &&
+    !isGiftListing
+  ) {
     displayProducts = applyProductListingQueryToProducts(
       demoProducts,
       listingQuery,
