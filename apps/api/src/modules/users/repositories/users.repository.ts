@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Role } from '@/generated/prisma';
 import { normalizeIranMobile } from '@sadafgold/shared';
+import { isPlaceholderPhoneEmail } from '@sadafgold/shared/auth/placeholder-email';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 
 const profileSelect = {
@@ -39,6 +40,7 @@ function mapProfile(user: {
     nationalId: user.nationalId,
     phone: user.phone,
     requiresPasswordSetup: user.requiresPasswordSetup,
+    requiresEmailSetup: isPlaceholderPhoneEmail(user.email),
     role: user.role.toLowerCase(),
     createdAt: user.createdAt.toISOString(),
     kycStatus: user.kycVerification?.status.toLowerCase() ?? 'none',
@@ -131,6 +133,18 @@ export class UsersRepository {
     return this.prisma.user.update({
       where: { id },
       data: { passwordHash, requiresPasswordSetup },
+    });
+  }
+
+  completeOnboarding(id: string, data: { email?: string; passwordHash?: string }) {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        ...(data.email ? { email: data.email } : {}),
+        ...(data.passwordHash
+          ? { passwordHash: data.passwordHash, requiresPasswordSetup: false }
+          : {}),
+      },
     });
   }
 }

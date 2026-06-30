@@ -19,3 +19,7 @@ export * from './catalog-category-page';
 export * from './catalog-category';
 export * from './storefront-product-images';
 export * from './jalaali';
+export {
+  isPlaceholderPhoneEmail,
+  buildPlaceholderPhoneEmail,
+} from './auth/placeholder-email';

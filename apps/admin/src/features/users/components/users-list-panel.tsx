@@ -30,7 +30,7 @@ import { adminQueryKeys } from '@/lib/api/query-keys';
 import { FilterBar } from '@/widgets/admin/filter-bar';
 import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { UsersPageShell } from './users-page-shell';
-import { KYC_STATUS_FA, selectFieldClass, USER_ROLE_OPTIONS } from '../lib/labels';
+import { KYC_STATUS_FA, formatUserEmailDisplay, selectFieldClass, USER_ROLE_OPTIONS } from '../lib/labels';
 
 const STAFF_ROLES = ADMIN_ROLE_DEFINITIONS.map((r) => r.enum);
 const DEFAULT_CREATE_ROLE: StaffRoleEnum = 'SUPPORT';
@@ -274,7 +274,7 @@ export function UsersListPanel() {
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">{user.fullName}</TableCell>
                       <TableCell className="text-sm text-[var(--muted-foreground)]" dir="ltr">
-                        {user.email}
+                        {formatUserEmailDisplay(user.email, user.phone)}
                       </TableCell>
                       <TableCell className="text-sm text-[var(--muted-foreground)]" dir="ltr">
                         {user.phone ?? '—'}

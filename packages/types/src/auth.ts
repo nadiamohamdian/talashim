@@ -7,6 +7,8 @@ export interface UserProfile {
   email: string;
   fullName: string;
   role: UserRoleSlug;
+  requiresPasswordSetup?: boolean;
+  requiresEmailSetup?: boolean;
 }
 
 export interface AuthTokens {

@@ -50,8 +50,44 @@ export const changePasswordSchema = z
     path: ['confirmPassword'],
   });
 
+export const completeAccountSetupSchema = z
+  .object({
+    email: z.email('ایمیل معتبر وارد کنید'),
+    newPassword: z.string().optional(),
+    confirmPassword: z.string().optional(),
+    requirePassword: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.requirePassword) {
+      return;
+    }
+
+    if (!data.newPassword || data.newPassword.length < 8) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'رمز عبور حداقل ۸ کاراکتر باشد',
+        path: ['newPassword'],
+      });
+    }
+
+    if (!data.confirmPassword || data.confirmPassword.length < 8) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'تکرار رمز عبور الزامی است',
+        path: ['confirmPassword'],
+      });
+    } else if (data.newPassword !== data.confirmPassword) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'تکرار رمز عبور با رمز جدید یکسان نیست',
+        path: ['confirmPassword'],
+      });
+    }
+  });
+
 export type OtpRequestValues = z.infer<typeof otpRequestSchema>;
 export type OtpVerifyValues = z.infer<typeof otpVerifySchema>;
 export type PasswordLoginValues = z.infer<typeof passwordLoginSchema>;
 export type PhonePasswordLoginValues = z.infer<typeof phonePasswordLoginSchema>;
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+export type CompleteAccountSetupValues = z.infer<typeof completeAccountSetupSchema>;

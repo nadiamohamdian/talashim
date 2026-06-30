@@ -42,6 +42,10 @@
       "types": "./dist/auth/map-session.d.ts",
       "default": "./dist/auth/map-session.js"
     },
+    "./auth/placeholder-email": {
+      "types": "./dist/auth/placeholder-email.d.ts",
+      "default": "./dist/auth/placeholder-email.js"
+    },
     "./admin-rbac": {
       "types": "./dist/admin-rbac/index.d.ts",
       "default": "./dist/admin-rbac/index.js"

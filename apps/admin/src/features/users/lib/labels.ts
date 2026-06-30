@@ -1,5 +1,14 @@
+import { isPlaceholderPhoneEmail } from '@sadafgold/shared/auth/placeholder-email';
+
 export const selectFieldClass =
   'flex h-11 min-w-[140px] rounded-2xl border border-border bg-white px-3 text-sm text-stone-900';
+
+export function formatUserEmailDisplay(email: string, phone?: string | null): string {
+  if (isPlaceholderPhoneEmail(email)) {
+    return phone?.trim() || '—';
+  }
+  return email;
+}
 
 export const KYC_STATUS_FA: Record<string, string> = {
   PENDING: 'در انتظار',

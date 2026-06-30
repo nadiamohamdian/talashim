@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, type PropsWithChildren } from 'react';
+import { createContext, useContext, Suspense, type PropsWithChildren } from 'react';
 import {
   useRestoreSession,
   type SessionRestoreState,
@@ -8,6 +8,7 @@ import {
 } from '@/features/auth/hooks/use-restore-session';
 import { useSessionExpiryWatcher } from '@/features/auth/hooks/use-session-expiry';
 import { useMergeGuestCart } from '@/features/cart/hooks/use-merge-guest-cart';
+import { AccountSetupGate } from '@/features/auth/components/account-setup-gate';
 
 const defaultRestoreState: SessionRestoreState = { status: 'idle', verified: false };
 
@@ -29,7 +30,9 @@ export function SessionBootstrap({ children }: PropsWithChildren) {
 
   return (
     <SessionRestoreContext.Provider value={restoreState}>
-      {children}
+      <Suspense fallback={null}>
+        <AccountSetupGate>{children}</AccountSetupGate>
+      </Suspense>
     </SessionRestoreContext.Provider>
   );
 }

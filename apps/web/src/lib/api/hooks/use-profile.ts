@@ -1,7 +1,14 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { userApi, type ChangePasswordPayload, type UpdateProfilePayload } from '@/lib/api/user.api';
+import {
+  userApi,
+  type ChangePasswordPayload,
+  type CompleteOnboardingPayload,
+  type UpdateProfilePayload,
+} from '@/lib/api/user.api';
+import { refreshSession } from '@/features/auth/api/auth-api';
+import { persistAuthSessionSync } from '@/features/auth/lib/persist-auth-session';
 import { queryKeys } from '@/lib/api/query-keys';
 import type { CreateAddressPayload, SubmitKycPayload, UpdateAddressPayload } from '@sadafgold/types';
 
@@ -22,12 +29,34 @@ export function useUpdateProfileMutation() {
   });
 }
 
+export function useCompleteOnboardingMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CompleteOnboardingPayload) => userApi.completeOnboarding(payload),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() });
+      try {
+        const session = await refreshSession();
+        persistAuthSessionSync(session);
+      } catch {
+        // Profile refetch still reflects saved email.
+      }
+    },
+  });
+}
+
 export function useChangePasswordMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: ChangePasswordPayload) => userApi.changePassword(payload),
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user.profile() });
+      try {
+        const session = await refreshSession();
+        persistAuthSessionSync(session);
+      } catch {
+        // Profile refetch still reflects saved password state.
+      }
     },
   });
 }

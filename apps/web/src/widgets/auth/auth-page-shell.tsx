@@ -59,8 +59,8 @@ export function AuthPageShell({
               <span className="auth-signup-footer-line" aria-hidden />
               <p className="auth-signup-footer-text">
                 <span>حساب کاربری ندارید؟</span>{' '}
-                <Link href="/contact" className="auth-signup-link">
-                  ثبت نام
+                <Link href="/login" className="auth-signup-link">
+                  ثبت نام با شماره موبایل
                 </Link>
               </p>
               <span className="auth-signup-footer-line" aria-hidden />

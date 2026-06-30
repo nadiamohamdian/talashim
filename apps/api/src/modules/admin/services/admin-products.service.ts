@@ -28,6 +28,7 @@ import type {
 import { parseProductPdpConfig, sanitizeProductPdpConfig } from '../lib/product-pdp-config.util';
 import { AdminProductsRepository } from '../repositories/admin-products.repository';
 import { revalidateStorefrontProducts } from '../../../infrastructure/storefront/storefront-cache.util';
+import { Prisma } from '@/generated/prisma';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 import { syncCatalogDemoProducts } from '@/modules/catalog/lib/sync-catalog-demo-products';
 
@@ -158,7 +159,7 @@ export class AdminProductsService {
         ),
         featured: dto.featured ?? false,
         ...this.resolveDiscountFields(dto.discountPercent, dto.discountStartsAt, dto.discountEndsAt),
-        pdpConfig: this.resolvePdpConfigInput(dto.pdpConfig) ?? null,
+        pdpConfig: this.resolvePdpConfigInput(dto.pdpConfig),
       },
       dto.initialQuantity ?? 0,
       actor.id,
@@ -236,7 +237,7 @@ export class AdminProductsService {
             )
           : {}),
         ...(dto.pdpConfig !== undefined
-          ? { pdpConfig: this.resolvePdpConfigInput(dto.pdpConfig) ?? null }
+          ? { pdpConfig: this.resolvePdpConfigInput(dto.pdpConfig) }
           : {}),
       },
       dto.galleryImages !== undefined ||
@@ -625,11 +626,15 @@ export class AdminProductsService {
 
   private resolvePdpConfigInput(
     value: CreateAdminProductDto['pdpConfig'] | UpdateAdminProductDto['pdpConfig'] | undefined,
-  ) {
+  ): Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined {
     if (value === undefined) {
       return undefined;
     }
-    return sanitizeProductPdpConfig(value);
+    const config = sanitizeProductPdpConfig(value);
+    if (config === null) {
+      return Prisma.DbNull;
+    }
+    return config as unknown as Prisma.InputJsonValue;
   }
 
   private resolveDiscountFields(

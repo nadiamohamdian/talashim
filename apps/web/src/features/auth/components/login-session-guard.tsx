@@ -9,7 +9,7 @@ import {
   useSessionVerified,
 } from '@/features/auth/context/session-restore-context';
 import { syncAuthCookieFromStore } from '@/features/auth/model/auth-store';
-import { resolvePostLoginPath } from '@/shared/routing/safe-redirect';
+import { resolvePostAuthPathFromUser } from '@/shared/routing/post-auth-redirect';
 
 /**
  * On /login: wait for session restore, then either show the form or redirect if signed in.
@@ -20,7 +20,7 @@ export function LoginSessionGuard({ children }: PropsWithChildren) {
   const hydrated = useAuthHydrated();
   const restoreStatus = useSessionRestoreStatus();
   const sessionVerified = useSessionVerified();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const restoring = restoreStatus === 'restoring';
   const shouldRedirect = isAuthenticated && sessionVerified;
 
@@ -29,11 +29,11 @@ export function LoginSessionGuard({ children }: PropsWithChildren) {
       return;
     }
 
-    if (shouldRedirect) {
+    if (shouldRedirect && user) {
       syncAuthCookieFromStore();
-      window.location.replace(resolvePostLoginPath(next));
+      window.location.replace(resolvePostAuthPathFromUser(user, next));
     }
-  }, [hydrated, restoring, shouldRedirect, next]);
+  }, [hydrated, restoring, shouldRedirect, next, user]);
 
   if (!hydrated || restoring) {
     return null;

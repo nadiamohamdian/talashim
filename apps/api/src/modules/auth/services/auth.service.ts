@@ -9,7 +9,8 @@ import argon2 from 'argon2';
 import { randomBytes, randomInt } from 'node:crypto';
 import { getApiEnv } from '@/config/env';
 import { isStaffRoleEnum } from '@sadafgold/shared/admin-rbac';
-import { normalizeIranMobile } from '@sadafgold/shared';
+import { normalizeIranMobile, buildPlaceholderPhoneEmail } from '@sadafgold/shared';
+import { isPlaceholderPhoneEmail } from '@sadafgold/shared/auth/placeholder-email';
 import { RedisService } from '@/infrastructure/redis/redis.service';
 import { assertFeatureEnabled } from '@/common/platform-settings/platform-settings-helpers';
 import { KycRepository } from '@/modules/kyc/repositories/kyc.repository';
@@ -52,7 +53,13 @@ export class AuthService {
 
     await this.authRepository.createAuditLog('auth.register', user.id);
 
-    return this.issueSession(user.id, user.email, user.fullName, user.role);
+    return this.issueSession(
+      user.id,
+      user.email,
+      user.fullName,
+      user.role,
+      user.requiresPasswordSetup,
+    );
   }
 
   async login(payload: LoginDto) {
@@ -80,8 +87,13 @@ export class AuthService {
           fullName: staffSeed.fullName,
         });
       }
-    } else if (!user && devCustomerBypass) {
-      user = await this.resolveOrCreateOtpUser(identifier);
+    } else if (!user) {
+      const phone = this.normalizeIdentifier(identifier);
+      if (phone && !phone.includes('@')) {
+        user = await this.resolveOrCreatePhonePasswordUser(phone, payload.password);
+      } else if (devCustomerBypass) {
+        user = await this.resolveOrCreateOtpUser(identifier);
+      }
     }
 
     if (!user) {
@@ -101,7 +113,13 @@ export class AuthService {
       user.id,
     );
 
-    return this.issueSession(user.id, user.email, user.fullName, user.role);
+    return this.issueSession(
+      user.id,
+      user.email,
+      user.fullName,
+      user.role,
+      user.requiresPasswordSetup,
+    );
   }
 
   private isDevStaffLoginEnabled(): boolean {
@@ -148,6 +166,7 @@ export class AuthService {
       user.email,
       user.fullName,
       user.role,
+      user.requiresPasswordSetup,
     );
   }
 
@@ -198,7 +217,13 @@ export class AuthService {
 
       await this.redisService.del(this.otpKey(identifier));
       await this.authRepository.createAuditLog('auth.otp_verified.dev', user.id);
-      return this.issueSession(user.id, user.email, user.fullName, user.role);
+      return this.issueSession(
+        user.id,
+        user.email,
+        user.fullName,
+        user.role,
+        user.requiresPasswordSetup,
+      );
     }
 
     const key = this.otpKey(identifier);
@@ -215,7 +240,13 @@ export class AuthService {
     await this.redisService.del(key);
     await this.authRepository.createAuditLog('auth.otp_verified', user.id);
 
-    return this.issueSession(user.id, user.email, user.fullName, user.role);
+    return this.issueSession(
+      user.id,
+      user.email,
+      user.fullName,
+      user.role,
+      user.requiresPasswordSetup,
+    );
   }
 
   private otpKey(identifier: string) {
@@ -233,7 +264,7 @@ export class AuthService {
   }
 
   private phoneToCustomerEmail(phone: string) {
-    return `${phone}@phone.talashim.local`;
+    return buildPlaceholderPhoneEmail(phone);
   }
 
   private async resolveUserByIdentifier(identifier: string) {
@@ -257,6 +288,40 @@ export class AuthService {
       return null;
     }
     return this.usersService.findById(kyc.userId);
+  }
+
+  private async resolveOrCreatePhonePasswordUser(phone: string, password: string) {
+    const normalized = this.normalizeIdentifier(phone);
+    if (!normalized || normalized.includes('@')) {
+      return null;
+    }
+
+    const existing = await this.resolveUserByIdentifier(normalized);
+    if (existing) {
+      return existing;
+    }
+
+    const email = this.phoneToCustomerEmail(normalized);
+    const byEmail = await this.usersService.findByEmail(email);
+    if (byEmail) {
+      if (!byEmail.phone) {
+        await this.usersService.updateProfile(byEmail.id, { phone: normalized });
+        return this.usersService.findById(byEmail.id);
+      }
+      return byEmail;
+    }
+
+    const passwordHash = await argon2.hash(password);
+    const user = await this.usersService.createUser({
+      email,
+      fullName: `کاربر ${normalized}`,
+      passwordHash,
+      phone: normalized,
+      requiresPasswordSetup: false,
+    });
+
+    await this.authRepository.createAuditLog('auth.user_created.password', user.id);
+    return user;
   }
 
   private async resolveOrCreateOtpUser(identifier: string) {
@@ -304,7 +369,10 @@ export class AuthService {
     email: string,
     fullName: string,
     role: string,
+    requiresPasswordSetup = false,
   ) {
+    const requiresEmailSetup = isPlaceholderPhoneEmail(email);
+
     const accessToken = await this.jwtService.signAsync(
       {
         sub: userId,
@@ -347,6 +415,8 @@ export class AuthService {
         email,
         fullName,
         role,
+        requiresPasswordSetup,
+        requiresEmailSetup,
       },
       tokens: {
         accessToken,

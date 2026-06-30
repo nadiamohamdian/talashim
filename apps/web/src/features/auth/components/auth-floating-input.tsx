@@ -15,6 +15,7 @@ interface AuthFloatingInputProps {
   maxLength?: number;
   readOnly?: boolean;
   numeric?: boolean;
+  fieldClassName?: string;
   error?: string;
 }
 
@@ -30,6 +31,7 @@ export function AuthFloatingInput({
   maxLength,
   readOnly = false,
   numeric = false,
+  fieldClassName,
   error,
 }: AuthFloatingInputProps) {
   const generatedId = useId();
@@ -39,7 +41,9 @@ export function AuthFloatingInput({
   const isActive = focused || safeValue.length > 0;
 
   return (
-    <div className="auth-floating-field">
+    <div
+      className={['auth-floating-field', fieldClassName].filter(Boolean).join(' ')}
+    >
       <div
         className={[
           'auth-floating-input',

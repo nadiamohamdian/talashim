@@ -17817,6 +17817,31 @@ body:has(.account-page) main.container-store {
   color: #b11226;
 }
 
+.profile-setup-banner {
+  padding: 16px 20px;
+  border: 0.6px solid #6d5945;
+  background: #f8f4ef;
+}
+
+.profile-setup-banner-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--account-dark);
+  text-align: right;
+}
+
+.profile-setup-link {
+  font-weight: 500;
+  color: #6d5945;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.profile-setup-link:hover {
+  color: var(--account-dark);
+}
+
 .profile-form {
   box-sizing: border-box;
   display: flex;
@@ -17857,10 +17882,20 @@ body:has(.account-page) main.container-store {
 
 .profile-form-grid--single {
   margin-top: 0;
+  padding-top: 25px;
 }
 
 .profile-form-field--span {
   grid-column: 1 / -1;
+}
+
+.profile-form-field--national-id {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: right;
+  margin-left: 0;
 }
 
 .profile-field-note {

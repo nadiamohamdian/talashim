@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, type PropsWithChildren } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { needsAccountSetup } from '@talashim/shared/auth/map-session';
 import { useAuthHydrated } from '@/features/auth/hooks/use-auth-hydrated';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import {
@@ -12,28 +13,35 @@ import { syncAuthCookieFromStore } from '@/features/auth/model/auth-store';
 import { resolvePostAuthPathFromUser } from '@/shared/routing/post-auth-redirect';
 
 /**
- * Sends already-signed-in users away from /login. Only trusts Zustand session
- * (not a stale cookie) to avoid /login ↔ /checkout redirect loops.
+ * Setup page requires an authenticated session that still needs onboarding.
  */
-export function AuthSessionRedirect() {
+export function AccountSetupSessionGuard({ children }: PropsWithChildren) {
   const searchParams = useSearchParams();
   const next = searchParams.get('next');
   const hydrated = useAuthHydrated();
   const restoreStatus = useSessionRestoreStatus();
   const sessionVerified = useSessionVerified();
   const { isAuthenticated, user } = useAuth();
-  const shouldRedirect = isAuthenticated && sessionVerified;
+  const restoring = restoreStatus === 'restoring';
 
   useEffect(() => {
-    if (!hydrated || restoreStatus === 'restoring') {
+    if (!hydrated || restoring) {
       return;
     }
 
-    if (shouldRedirect && user) {
+    if (isAuthenticated && sessionVerified && user && !needsAccountSetup(user)) {
       syncAuthCookieFromStore();
       window.location.replace(resolvePostAuthPathFromUser(user, next));
     }
-  }, [hydrated, restoreStatus, shouldRedirect, next, user]);
+  }, [hydrated, restoring, isAuthenticated, sessionVerified, user, next]);
 
-  return null;
+  if (!hydrated || restoring) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <>{children}</>;
 }

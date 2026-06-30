@@ -20,7 +20,7 @@ import {
 import type { AuthSession } from '@sadafgold/types';
 import { useCartStore } from '@/features/cart/model/cart-store';
 import { syncGuestCartToServer } from '@/features/cart/lib/sync-guest-cart';
-import { resolvePostLoginPath } from '@/shared/routing/safe-redirect';
+import { resolvePostAuthPath } from '@/shared/routing/post-auth-redirect';
 import { storeOtpExpiry } from '@/features/auth/hooks/use-otp-countdown';
 
 async function redirectAfterSession(
@@ -46,7 +46,7 @@ async function redirectAfterSession(
     }
   }
 
-  navigate(resolvePostLoginPath(next));
+  navigate(resolvePostAuthPath(session, next));
 }
 
 export function useAuth() {

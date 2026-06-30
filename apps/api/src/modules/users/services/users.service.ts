@@ -1,9 +1,11 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import argon2 from 'argon2';
 import { isValidIranNationalId, normalizeIranMobile } from '@sadafgold/shared';
+import { isPlaceholderPhoneEmail } from '@sadafgold/shared/auth/placeholder-email';
 import { Role } from '@/generated/prisma';
 import { UsersRepository } from '../repositories/users.repository';
 import type { ChangePasswordDto } from '../dto/change-password.dto';
+import type { CompleteOnboardingDto } from '../dto/complete-onboarding.dto';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 
 @Injectable()
@@ -144,6 +146,45 @@ export class UsersService {
 
     const passwordHash = await argon2.hash(payload.newPassword);
     await this.usersRepository.updatePassword(userId, passwordHash, false);
+
+    return { success: true };
+  }
+
+  async completeOnboarding(userId: string, payload: CompleteOnboardingDto) {
+    const user = await this.usersRepository.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const needsEmailSetup = isPlaceholderPhoneEmail(user.email);
+    const needsPasswordSetup = user.requiresPasswordSetup;
+    if (!needsEmailSetup && !needsPasswordSetup) {
+      throw new BadRequestException('Account setup is already complete');
+    }
+
+    const updateData: { email?: string; passwordHash?: string } = {};
+
+    if (needsEmailSetup) {
+      const email = payload.email?.trim().toLowerCase();
+      if (!email) {
+        throw new BadRequestException('ایمیل الزامی است');
+      }
+      const existing = await this.usersRepository.findByEmail(email);
+      if (existing && existing.id !== userId) {
+        throw new ConflictException('این ایمیل قبلاً ثبت شده است');
+      }
+      updateData.email = email;
+    }
+
+    if (payload.newPassword?.trim()) {
+      updateData.passwordHash = await argon2.hash(payload.newPassword.trim());
+    }
+
+    if (!updateData.email && !updateData.passwordHash) {
+      throw new BadRequestException('اطلاعاتی برای ذخیره وجود ندارد');
+    }
+
+    await this.usersRepository.completeOnboarding(userId, updateData);
 
     return { success: true };
   }

@@ -4,6 +4,7 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '@/common/interfaces/auth-user.interface';
 import { ApiProtected } from '@/swagger/decorators/api-protected.decorator';
 import { ChangePasswordDto } from '../dto/change-password.dto';
+import { CompleteOnboardingDto } from '../dto/complete-onboarding.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { UserProfileDto } from '../dto/user-profile.dto';
 import { UsersService } from '../services/users.service';
@@ -39,5 +40,15 @@ export class UsersController {
     @Body() payload: ChangePasswordDto,
   ) {
     return this.usersService.changePassword(user.id, payload);
+  }
+
+  @Post('me/onboarding')
+  @ApiOperation({ summary: 'Complete first-time account setup (email + password)' })
+  @ApiOkResponse({ schema: { example: { success: true } } })
+  completeOnboarding(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() payload: CompleteOnboardingDto,
+  ) {
+    return this.usersService.completeOnboarding(user.id, payload);
   }
 }

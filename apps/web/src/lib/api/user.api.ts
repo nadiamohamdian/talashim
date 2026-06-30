@@ -17,6 +17,7 @@ export interface UserProfile {
   nationalId?: string | null;
   phone?: string | null;
   requiresPasswordSetup?: boolean;
+  requiresEmailSetup?: boolean;
   role: string;
   createdAt: string;
   kycStatus?: string;
@@ -35,6 +36,11 @@ export interface ChangePasswordPayload {
   newPassword: string;
 }
 
+export interface CompleteOnboardingPayload {
+  email?: string;
+  newPassword?: string;
+}
+
 export type KycStatusResponse = KycVerification | { status: 'none' };
 
 export const userApi = {
@@ -48,6 +54,10 @@ export const userApi = {
 
   changePassword(payload: ChangePasswordPayload): Promise<{ success: boolean }> {
     return apiPost<{ success: boolean }>('/users/me/password', payload);
+  },
+
+  completeOnboarding(payload: CompleteOnboardingPayload): Promise<{ success: boolean }> {
+    return apiPost<{ success: boolean }>('/users/me/onboarding', payload);
   },
 
   getKycStatus(signal?: AbortSignal): Promise<KycStatusResponse> {
@@ -106,6 +116,7 @@ export const {
   getProfile,
   updateProfile,
   changePassword,
+  completeOnboarding,
   getKycStatus,
   submitKyc,
   listAddresses,

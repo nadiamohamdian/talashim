@@ -23,7 +23,7 @@ import { PaginationBar } from '@/widgets/admin/pagination-bar';
 import { formatToman } from '@/features/finance/lib/labels';
 import { UsersPageShell } from './users-page-shell';
 import { UserContactEditForm } from './user-contact-edit-form';
-import { KYC_STATUS_FA } from '../lib/labels';
+import { KYC_STATUS_FA, formatUserEmailDisplay } from '../lib/labels';
 
 interface UserDetailPanelProps {
   userId: string;
@@ -70,7 +70,7 @@ export function UserDetailPanel({ userId }: UserDetailPanelProps) {
               <div>
                 <h2 className="text-lg font-semibold text-foreground">{data.user.fullName}</h2>
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]" dir="ltr">
-                  {data.user.email}
+                  {formatUserEmailDisplay(data.user.email, data.user.phone)}
                 </p>
                 {data.user.phone ? (
                   <p className="mt-1 text-sm text-[var(--muted-foreground)]" dir="ltr">

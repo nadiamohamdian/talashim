@@ -44,5 +44,11 @@ export const AUTH_COOKIE_NAME = 'sg-access-token';
 
 export const LOGIN_PATH = '/login';
 
+/** First-time account setup after phone OTP registration. */
+export const ACCOUNT_SETUP_PATH = '/login/setup';
+
+/** Collect email and profile details inside the account panel. */
+export const PROFILE_ONBOARDING_PATH = '/profile/info';
+
 /** After login when `next` is absent. */
 export const DEFAULT_POST_LOGIN_PATH = '/';

@@ -26,6 +26,9 @@ export class UserProfileDto {
   requiresPasswordSetup!: boolean;
 
   @ApiProperty()
+  requiresEmailSetup!: boolean;
+
+  @ApiProperty()
   role!: string;
 
   @ApiProperty()

@@ -13,6 +13,12 @@ export class AuthUserDto {
 
   @ApiProperty({ enum: Role, example: Role.CUSTOMER })
   role!: Role;
+
+  @ApiProperty({ example: true })
+  requiresPasswordSetup!: boolean;
+
+  @ApiProperty({ example: true })
+  requiresEmailSetup!: boolean;
 }
 
 export class AuthTokensDto {
