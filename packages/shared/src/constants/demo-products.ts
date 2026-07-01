@@ -7,7 +7,8 @@ export type CatalogDemoProductCategory =
   | 'bracelet'
   | 'earring'
   | 'wedding_ring'
-  | 'coin';
+  | 'coin'
+  | 'set_and_half_set';
 
 export interface CatalogDemoProduct {
   sku: string;
@@ -162,7 +163,7 @@ export const CATALOG_DEMO_PRODUCTS: CatalogDemoProduct[] = [
     sku: 'DEMO-SET-LIQ',
     slug: 'demo-jewelry-set',
     title: 'ست زیورآلات طلای مایع',
-    category: 'bracelet',
+    category: 'set_and_half_set',
     karat: 18,
     weightGram: 12.4,
     makingFeePercent: 22,
@@ -179,7 +180,7 @@ export const CATALOG_DEMO_PRODUCTS: CatalogDemoProduct[] = [
     sku: 'DEMO-SET-CLASSIC',
     slug: 'demo-set-classic',
     title: 'ست کلاسیک طلا ۱۸ عیار',
-    category: 'necklace',
+    category: 'set_and_half_set',
     karat: 18,
     weightGram: 15.8,
     makingFeePercent: 21,
@@ -196,7 +197,7 @@ export const CATALOG_DEMO_PRODUCTS: CatalogDemoProduct[] = [
     sku: 'DEMO-HALF-ELEGANT',
     slug: 'demo-half-set-elegant',
     title: 'نیم ست ظریف طلا',
-    category: 'ring',
+    category: 'set_and_half_set',
     karat: 18,
     weightGram: 8.6,
     makingFeePercent: 20,
@@ -212,7 +213,7 @@ export const CATALOG_DEMO_PRODUCTS: CatalogDemoProduct[] = [
     sku: 'DEMO-SET-WEDDING',
     slug: 'demo-set-wedding-luxury',
     title: 'ست عروسی لوکس',
-    category: 'wedding_ring',
+    category: 'set_and_half_set',
     karat: 18,
     weightGram: 14.2,
     makingFeePercent: 19,
@@ -229,7 +230,7 @@ export const CATALOG_DEMO_PRODUCTS: CatalogDemoProduct[] = [
     sku: 'DEMO-HALF-MINIMAL',
     slug: 'demo-half-set-minimal',
     title: 'نیم ست مینیمال مروارید',
-    category: 'necklace',
+    category: 'set_and_half_set',
     karat: 18,
     weightGram: 7.4,
     makingFeePercent: 22,
@@ -350,7 +351,7 @@ export const CATALOG_DEMO_PRODUCTS: CatalogDemoProduct[] = [
     sku: 'DEMO-GIFT-SET',
     slug: 'demo-gift-set',
     title: 'ست هدیه لوکس طلا',
-    category: 'bracelet',
+    category: 'set_and_half_set',
     karat: 18,
     weightGram: 5.4,
     makingFeePercent: 19,
@@ -376,14 +377,15 @@ export function findCatalogDemoProduct(slug: string): CatalogDemoProduct | undef
 
 export function mapCatalogDemoCategoryToPrisma(
   category: CatalogDemoProductCategory,
-): 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING' {
-  const map: Record<CatalogDemoProductCategory, 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING'> = {
+): 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING' | 'SET_AND_HALF_SET' {
+  const map: Record<CatalogDemoProductCategory, 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING' | 'SET_AND_HALF_SET'> = {
     ring: 'RING',
     necklace: 'NECKLACE',
     bracelet: 'BRACELET',
     earring: 'EARRING',
     coin: 'COIN',
     wedding_ring: 'WEDDING_RING',
+    set_and_half_set: 'SET_AND_HALF_SET',
   };
   return map[category];
 }

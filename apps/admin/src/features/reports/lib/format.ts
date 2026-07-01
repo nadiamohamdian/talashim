@@ -56,4 +56,5 @@ export const PRODUCT_CATEGORY_FA: Record<string, string> = {
   COIN: 'سکه',
   WEDDING_RING: 'حلقه ازدواج',
   CHILDREN: 'کودکانه',
+  SET_AND_HALF_SET: 'ست و نیم ست',
 };

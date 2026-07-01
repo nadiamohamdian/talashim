@@ -30,6 +30,7 @@ const PRODUCT_CATEGORY_OPTIONS = [
   { value: 'COIN', label: 'سکه' },
   { value: 'WEDDING_RING', label: 'حلقه ازدواج' },
   { value: 'CHILDREN', label: 'کودکانه' },
+  { value: 'SET_AND_HALF_SET', label: 'ست و نیم ست' },
 ];
 
 const MAX_HERO_IMAGES = 8;

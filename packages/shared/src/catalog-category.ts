@@ -8,10 +8,10 @@ export const CATALOG_CATEGORY_SLUG_MAP: Record<string, string> = {
   bracelets: 'bracelet',
   earring: 'earring',
   earrings: 'earring',
-  set: 'set',
-  sets: 'set',
-  'half-set': 'set',
-  half_set: 'set',
+  set: 'set_and_half_set',
+  sets: 'set_and_half_set',
+  'half-set': 'set_and_half_set',
+  half_set: 'set_and_half_set',
   coin: 'coin',
   coins: 'coin',
   'wedding-ring': 'wedding_ring',
@@ -30,6 +30,7 @@ const PRISMA_CATEGORY_SLUG_MAP: Record<string, string> = {
   coin: 'coin',
   wedding_ring: 'wedding_ring',
   children: 'children',
+  set_and_half_set: 'set_and_half_set',
 };
 
 export function resolveCatalogCategoryKey(
@@ -77,6 +78,10 @@ export function resolveCatalogApiCategoryQuery(
 
   if (key === 'wedding_ring') {
     return 'wedding-ring';
+  }
+
+  if (key === 'set_and_half_set') {
+    return 'sets';
   }
 
   return key;

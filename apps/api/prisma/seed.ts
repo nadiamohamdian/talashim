@@ -129,6 +129,8 @@ async function main() {
     [ProductCategory.EARRING]: STOREFRONT_PRODUCT_IMAGES.earring,
     [ProductCategory.COIN]: STOREFRONT_PRODUCT_IMAGES.coin,
     [ProductCategory.WEDDING_RING]: STOREFRONT_PRODUCT_IMAGES.wedding_ring,
+    [ProductCategory.CHILDREN]: STOREFRONT_PRODUCT_IMAGES.ring,
+    [ProductCategory.SET_AND_HALF_SET]: STOREFRONT_PRODUCT_IMAGES.jewelrySet,
   };
 
   const products = [

@@ -71,7 +71,7 @@ export interface DefaultCatalogCategorySeed {
   slug: string;
   title: string;
   subtitle: string;
-  productCategory: 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING' | 'CHILDREN' | null;
+  productCategory: 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING' | 'CHILDREN' | 'SET_AND_HALF_SET' | null;
   sortOrder: number;
 }
 
@@ -108,7 +108,7 @@ export const DEFAULT_CATALOG_CATEGORY_SEEDS: DefaultCatalogCategorySeed[] = [
     slug: 'sets',
     title: 'ست و نیم‌ست زنانه',
     subtitle: 'خرید ست و نیم‌ست طلا با ضمانت اصالت و ارسال سریع',
-    productCategory: null,
+    productCategory: 'SET_AND_HALF_SET',
     sortOrder: 4,
   },
   {

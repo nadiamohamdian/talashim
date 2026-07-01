@@ -8,4 +8,5 @@ export type CouponProductCategory =
   | 'EARRING'
   | 'COIN'
   | 'WEDDING_RING'
-  | 'CHILDREN';
+  | 'CHILDREN'
+  | 'SET_AND_HALF_SET';

@@ -27,7 +27,8 @@ export type ProductCategory =
   | 'earring'
   | 'coin'
   | 'wedding_ring'
-  | 'children';
+  | 'children'
+  | 'set_and_half_set';
 
 export type ProductStatus = 'draft' | 'active' | 'archived' | 'out_of_stock';
 

@@ -70,6 +70,7 @@ export class CatalogService {
       COIN: 'سکه',
       WEDDING_RING: 'حلقه ازدواج',
       CHILDREN: 'کودکانه',
+      SET_AND_HALF_SET: 'ست و نیم ست',
     };
     return rows.map((row) => ({
       slug: this.categoryToPublicSlug(row.category),
@@ -210,6 +211,8 @@ export class CatalogService {
         return 'wedding-rings';
       case ProductCategory.CHILDREN:
         return 'kids';
+      case ProductCategory.SET_AND_HALF_SET:
+        return 'sets';
       default:
         return category.toLowerCase();
     }
@@ -232,6 +235,8 @@ export class CatalogService {
       wedding_ring: ProductCategory.WEDDING_RING,
       children: ProductCategory.CHILDREN,
       kids: ProductCategory.CHILDREN,
+      set_and_half_set: ProductCategory.SET_AND_HALF_SET,
+      sets: ProductCategory.SET_AND_HALF_SET,
     };
 
     const fromSlug = map[canonical];

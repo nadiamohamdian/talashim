@@ -6,6 +6,7 @@ export const STOREFRONT_PRODUCT_IMAGES = {
   earring: '/images/categories/earrings.png',
   wedding_ring: '/images/home/wedding-ring.png',
   coin: '/images/home/krugerrand-coin.png',
+  jewelrySet: '/images/products/jewelry-set-lifestyle.png',
 } as const;
 
 export function resolveStorefrontCategoryImage(category?: string | null): string {
@@ -31,6 +32,13 @@ export function resolveStorefrontCategoryImage(category?: string | null): string
   }
   if (normalized === 'coin' || normalized === 'coins') {
     return STOREFRONT_PRODUCT_IMAGES.coin;
+  }
+  if (
+    normalized === 'set_and_half_set' ||
+    normalized === 'set' ||
+    normalized === 'sets'
+  ) {
+    return STOREFRONT_PRODUCT_IMAGES.jewelrySet;
   }
 
   return STOREFRONT_PRODUCT_IMAGES.default;

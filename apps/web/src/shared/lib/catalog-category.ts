@@ -129,7 +129,7 @@ function uniqueSizeKinds(kinds: ProductJewelrySizeKind[]): ProductJewelrySizeKin
 export function isJewelrySetOrHalfSetProduct(product: ProductJewelrySizeSource): boolean {
   const normalized = normalizeProductCategory(product.category);
   const resolved = resolveCatalogCategorySlug(normalized) ?? normalized;
-  if (resolved === 'set') {
+  if (resolved === 'set' || resolved === 'set_and_half_set') {
     return true;
   }
 
@@ -241,8 +241,12 @@ export function filterProductsByCategory<T extends Pick<ProductSummary, 'categor
     );
   }
 
-  if (resolved === 'set') {
-    return products.filter((product) => isJewelrySetOrHalfSetProduct(product));
+  if (resolved === 'set' || resolved === 'set_and_half_set') {
+    return products.filter(
+      (product) =>
+        normalizeProductCategory(product.category) === 'set_and_half_set' ||
+        isJewelrySetOrHalfSetProduct(product),
+    );
   }
 
   return products.filter(

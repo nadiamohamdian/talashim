@@ -24,6 +24,7 @@ enum ProductCategory {
   COIN
   WEDDING_RING
   CHILDREN
+  SET_AND_HALF_SET
 }
 
 enum CartStatus {
