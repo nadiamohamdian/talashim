@@ -14,6 +14,7 @@ const JEWELRY_CATEGORIES = new Set([
   'wedding_ring',
   'children',
   'set',
+  'set_and_half_set',
 ]);
 
 const COIN_CATEGORIES = new Set(['coin']);

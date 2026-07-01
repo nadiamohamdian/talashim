@@ -50,6 +50,11 @@ const CATEGORY_META: Record<string, { parent: string; title: string; subtitle: s
     title: 'ست و نیم‌ست زنانه',
     subtitle: 'خرید ست و نیم‌ست طلا با ضمانت اصالت و ارسال سریع',
   },
+  set_and_half_set: {
+    parent: 'زنانه',
+    title: 'ست و نیم‌ست زنانه',
+    subtitle: 'خرید ست و نیم‌ست طلا با ضمانت اصالت و ارسال سریع',
+  },
 };
 
 export function resolveCatalogCategorySlug(slug: string | undefined | null): string | undefined {

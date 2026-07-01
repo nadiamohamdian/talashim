@@ -20,6 +20,7 @@ export const CATALOG_CATEGORY_SLUG_MAP: Record<string, string> = {
   wedding_rings: 'wedding_ring',
   kids: 'children',
   children: 'children',
+  set_and_half_set: 'set_and_half_set',
 };
 
 const PRISMA_CATEGORY_SLUG_MAP: Record<string, string> = {
