@@ -23,6 +23,8 @@
     "prisma:migrate:deploy": "node --max-old-space-size=4096 ./node_modules/prisma/build/index.js migrate deploy",
     "prisma:seed": "node --max-old-space-size=4096 ./node_modules/prisma/build/index.js db seed",
     "smoke:roles": "node scripts/smoke-role-apis.mjs",
+    "media:cleanup-duplicates": "tsx scripts/cleanup-duplicate-media.ts",
+    "media:cleanup-duplicates:dry": "tsx scripts/cleanup-duplicate-media.ts --dry-run",
     "test": "jest",
     "typecheck": "prisma generate && tsc --noEmit",
     "test:watch": "jest --watch",

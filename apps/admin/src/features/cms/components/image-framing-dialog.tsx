@@ -131,8 +131,9 @@ export function ImageFramingDialog({
         <div className="border-b border-border bg-[var(--surface)] px-5 py-4">
           <h2 className="text-base font-bold text-foreground">{title}</h2>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-            تصویر را داخل کادر بکشید تا جایگاه دقیق نمایش در سایت تنظیم شود. خروجی با همان ابعاد
-            کادر ذخیره می‌شود.
+            تصویر را داخل کادر بکشید تا جایگاه دقیق نمایش تنظیم شود. با تأیید، نسخه برش‌خورده در
+            کتابخانه ذخیره می‌شود — برای استفاده مستقیم از همان فایل، از دکمه «انتخاب از کتابخانه»
+            استفاده کنید.
           </p>
         </div>
 

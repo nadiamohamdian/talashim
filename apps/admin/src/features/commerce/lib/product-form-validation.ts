@@ -153,14 +153,12 @@ export function validateProductForm(
   const mode = options?.mode ?? 'create';
   const originalImageUrl = options?.originalImageUrl?.trim() ?? '';
   const originalHoverImageUrl = options?.originalHoverImageUrl?.trim() ?? '';
-  const coverImageChanged =
-    mode === 'edit' && originalImageUrl.length > 0 && form.imageUrl.trim() === originalImageUrl;
-  const hoverImageChanged =
-    mode === 'edit' &&
-    originalHoverImageUrl.length > 0 &&
-    form.hoverImageUrl.trim() === originalHoverImageUrl;
+  const coverImageUnchanged =
+    mode === 'edit' && form.imageUrl.trim() === originalImageUrl;
+  const hoverImageUnchanged =
+    mode === 'edit' && form.hoverImageUrl.trim() === originalHoverImageUrl;
 
-  if (form.sku.trim().length < 2) {
+  if (mode === 'create' && form.sku.trim().length < 2) {
     errors.push('SKU محصول را وارد کنید (حداقل ۲ کاراکتر).');
   }
   if (form.title.trim().length < 2) {
@@ -170,15 +168,15 @@ export function validateProductForm(
     errors.push('توضیحات باید حداقل ۱۰ کاراکتر باشد.');
   }
 
-  if (!coverImageChanged) {
+  if (!coverImageUnchanged) {
     const coverImageError = validateLibraryImageUrl(form.imageUrl, 'تصویر شاخص محصول');
     if (coverImageError) {
       errors.push(coverImageError);
     }
   }
 
-  const resolvedHoverImageUrl = resolveProductHoverImageUrl(form.imageUrl, form.hoverImageUrl);
-  if (!hoverImageChanged) {
+  if (!hoverImageUnchanged) {
+    const resolvedHoverImageUrl = resolveProductHoverImageUrl(form.imageUrl, form.hoverImageUrl);
     const hoverImageError = validateLibraryImageUrl(
       resolvedHoverImageUrl,
       'تصویر هاور محصول',

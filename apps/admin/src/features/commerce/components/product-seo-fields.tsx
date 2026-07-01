@@ -81,13 +81,13 @@ export function ProductSeoFields({
       <div className="md:col-span-2" data-span="full">
         <div className="flex items-center justify-between gap-2">
           <Label className="admin-field-label mb-0">توضیح متا (Meta Description)</Label>
-          <CharCounter current={value.seoDescription.length} max={160} min={50} />
+          <CharCounter current={value.seoDescription.length} max={160} />
         </div>
         <textarea
           className="mt-1.5 min-h-[6.5rem] w-full rounded-xl border border-[var(--border)] bg-[var(--input-bg)] p-3.5 text-[0.9375rem] leading-7 text-[var(--foreground)] shadow-[var(--shadow-xs)] transition-[border-color,box-shadow] focus:border-[var(--primary)] focus:outline-none focus:ring-[3px] focus:ring-[var(--primary-muted)]"
           value={value.seoDescription}
           maxLength={160}
-          placeholder="خلاصه جذاب ۵۰–۱۶۰ کاراکتری برای نتایج جستجو"
+          placeholder="خلاصه برای نتایج جستجو (پیشنهاد: ۵۰–۱۶۰ کاراکتر)"
           onChange={(e) => patch({ seoDescription: e.target.value.slice(0, 160) })}
         />
       </div>
@@ -152,9 +152,6 @@ export function validateProductSeo(seo: ProductSeoFormValues): string[] {
     errors.push('عنوان سئو حداکثر ۶۰ کاراکتر باشد.');
   }
   const descLen = seo.seoDescription.trim().length;
-  if (descLen > 0 && descLen < 50) {
-    errors.push('توضیح متا باید حداقل ۵۰ کاراکتر باشد (یا خالی بماند).');
-  }
   if (descLen > 160) {
     errors.push('توضیح متا حداکثر ۱۶۰ کاراکتر باشد.');
   }

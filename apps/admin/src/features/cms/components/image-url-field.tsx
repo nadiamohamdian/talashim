@@ -48,15 +48,9 @@ export function ImageUrlField({
 
   const handleImagePicked = useCallback(
     (url: string) => {
-      if (enableFraming) {
-        setPendingImageUrl(url);
-        setFramingOpen(true);
-        return;
-      }
-
       onChange(url);
     },
-    [enableFraming, onChange],
+    [onChange],
   );
 
   useEffect(() => {
@@ -107,7 +101,7 @@ export function ImageUrlField({
         </button>
         {value && enableFraming ? (
           <Button type="button" variant="outline" onClick={openFramingForCurrentValue}>
-            تنظیم جایگاه در کادر
+            برش و ذخیره در کادر
           </Button>
         ) : null}
         {value ? (

@@ -81,8 +81,10 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const hydratedSlugRef = useRef<string | null>(null);
+  const originalSkuRef = useRef('');
   const originalImageUrlRef = useRef('');
   const originalHoverImageUrlRef = useRef('');
+  const [isFormHydrated, setIsFormHydrated] = useState(mode === 'create');
   const validationAlertRef = useRef<HTMLDivElement>(null);
 
   const detailQuery = useQuery({
@@ -94,14 +96,18 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
   useEffect(() => {
     if (mode !== 'edit' || !slug) {
       hydratedSlugRef.current = null;
+      originalSkuRef.current = '';
       originalImageUrlRef.current = '';
       originalHoverImageUrlRef.current = '';
+      setIsFormHydrated(mode === 'create');
       return;
     }
     if (hydratedSlugRef.current !== slug) {
       hydratedSlugRef.current = null;
+      originalSkuRef.current = '';
       originalImageUrlRef.current = '';
       originalHoverImageUrlRef.current = '';
+      setIsFormHydrated(false);
     }
   }, [mode, slug]);
 
@@ -111,9 +117,11 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
     }
 
     const p = detailQuery.data;
+    originalSkuRef.current = p.sku;
     originalImageUrlRef.current = p.imageUrl;
     originalHoverImageUrlRef.current = p.hoverImageUrl;
     hydratedSlugRef.current = slug ?? null;
+    setIsFormHydrated(true);
     setForm({
         sku: p.sku,
         slug: p.slug,
@@ -205,7 +213,7 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
 
   const runClientValidation = () => {
     const formValues: ProductFormValues = {
-      sku: form.sku,
+      sku: mode === 'edit' ? originalSkuRef.current || form.sku : form.sku,
       title: form.title,
       description: form.description,
       imageUrl: form.imageUrl,
@@ -334,11 +342,16 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
           <div>
             <Label className="admin-field-label">SKU *</Label>
             <Input
-              className="mt-1.5"
-              value={form.sku}
+              className="mt-1.5 font-mono"
+              dir="ltr"
+              value={mode === 'edit' ? originalSkuRef.current || form.sku : form.sku}
+              readOnly={mode === 'edit'}
               disabled={mode === 'edit'}
               onChange={(e) => setForm({ ...form, sku: e.target.value })}
             />
+            {mode === 'edit' ? (
+              <p className="admin-field-hint">SKU پس از ایجاد محصول قابل تغییر نیست.</p>
+            ) : null}
           </div>
           <div>
             <Label className="admin-field-label">اسلاگ</Label>
@@ -548,8 +561,12 @@ export function ProductFormPanel({ mode, slug }: ProductFormPanelProps) {
         <div className="product-form-actions">
           <Button
             className="btn-luxury h-11 px-5"
-            disabled={saveMutation.isPending}
+            disabled={saveMutation.isPending || (mode === 'edit' && !isFormHydrated)}
             onClick={() => {
+              if (mode === 'edit' && !isFormHydrated) {
+                setSubmitError('اطلاعات محصول هنوز بارگذاری نشده است. لطفاً چند لحظه صبر کنید.');
+                return;
+              }
               const errors = runClientValidation();
               if (errors.length > 0) {
                 setValidationErrors(errors);

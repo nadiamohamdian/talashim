@@ -207,7 +207,7 @@ export function ProductsListPanel() {
                         {product.inventory?.available ?? 0}
                       </Badge>
                     </TableCell>
-                    <TableCell className="space-x-2 space-x-reverse">
+                    <TableCell className="flex items-center justify-center space-x-2 space-x-reverse">
                       <Link
                         href={`/products/${product.slug}`}
                         className="text-xs text-gold-dark hover:underline"
