@@ -61,6 +61,7 @@ export const queryKeys = {
     list: () => [...queryKeys.blog.all, 'list'] as const,
     faq: () => [...queryKeys.blog.all, 'faq'] as const,
     detail: (slug: string) => [...queryKeys.blog.all, 'detail', slug] as const,
+    reviews: (slug: string) => [...queryKeys.blog.all, 'reviews', slug] as const,
   },
 
   market: {

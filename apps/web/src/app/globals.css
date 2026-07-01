@@ -2753,6 +2753,9 @@ body:has(.home-hero-fullscreen) .site-header-menu {
   /* Figma artboard — scaled responsively via container queries on hero */
   --ls-art-hero-w: 691;
   --ls-art-hero-h: 263;
+  --ls-art-hero-media-shift-x: 42;
+  --ls-art-hero-media-shift-y: 11;
+  --ls-art-hero-media-expand-w: 6;
   --ls-art-chip-w: 334;
   --ls-art-chip-h: 119;
   --ls-art-chip-thumb-w: 106;
@@ -5547,8 +5550,12 @@ body:has(.home-hero-fullscreen) .site-header-menu {
 
   .lens-sets-showcase-hero-media {
     position: absolute;
-    inset: 0;
+    inset: auto;
+    left: calc(-100cqw * var(--ls-art-hero-media-shift-x) / var(--ls-art-hero-w));
+    top: calc(-100% * var(--ls-art-hero-media-shift-y) / var(--ls-art-hero-h));
     z-index: 0;
+    width: calc(100% + 100cqw * var(--ls-art-hero-media-expand-w) / var(--ls-art-hero-w));
+    height: calc(100% + 100% * var(--ls-art-hero-media-shift-y) / var(--ls-art-hero-h));
     overflow: hidden;
     background: #d9d9d9;
   }
@@ -9197,7 +9204,7 @@ body:has(.product-detail-page) main.container-store {
   }
 }
 
-/* Product review wizard — Figma nodes 1755:8439–8464 */
+/* Product review wizard — Figma nodes 1755:8439–8464, blog 3552:4578 */
 .product-review-wizard {
   position: fixed;
   inset: 0;
@@ -9205,7 +9212,7 @@ body:has(.product-detail-page) main.container-store {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 20px;
 }
 
 .product-review-wizard-overlay {
@@ -9219,20 +9226,20 @@ body:has(.product-detail-page) main.container-store {
 .product-review-wizard-card {
   position: relative;
   box-sizing: border-box;
-  width: min(100%, 335px);
-  min-height: 220px;
-  padding: 28px 24px 24px;
+  width: min(100%, 371px);
+  min-height: 185px;
+  padding: 18px 21px 20px;
   border: 0;
   background: #ffffff;
   direction: rtl;
 }
 
 .product-review-wizard-title {
-  margin: 0 0 20px;
-  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.7;
+  margin: 0 0 14px;
+  font-family: 'Yekan Bakh', var(--pd-font, sans-serif);
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 25px;
   color: #000000;
   text-align: right;
 }
@@ -9240,44 +9247,45 @@ body:has(.product-detail-page) main.container-store {
 .product-review-wizard-textarea {
   display: block;
   width: 100%;
-  min-height: 140px;
+  min-height: 70px;
   box-sizing: border-box;
-  padding: 14px 16px;
+  padding: 7px 12px;
   border: 0;
   border-radius: 0;
-  background: #f2f2f2;
-  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
-  font-size: 12px;
+  background: #faf9f8;
+  font-family: 'Yekan Bakh', var(--pd-font, sans-serif);
+  font-size: 10px;
   font-weight: 300;
-  line-height: 1.7;
+  line-height: 15px;
   color: #000000;
   resize: vertical;
 }
 
 .product-review-wizard-textarea::placeholder {
-  color: #b3b3b3;
+  color: #6d5945;
+  opacity: 0.4;
 }
 
 .product-review-wizard-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .product-review-wizard-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 88px;
-  height: 36px;
-  padding: 0 20px;
+  min-width: 52px;
+  height: 30px;
+  padding: 0 10px;
   border: 0;
-  background: #6d5945;
-  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1;
-  color: #ffffff;
+  background: #564739;
+  font-family: 'Yekan Bakh', var(--pd-font, sans-serif);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 22px;
+  color: #efe9e3;
   cursor: pointer;
 }
 
@@ -9290,9 +9298,15 @@ body:has(.product-detail-page) main.container-store {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 6px;
+  margin-top: 4px;
   direction: ltr;
+}
+
+.product-review-wizard-star {
+  display: block;
+  width: 28px;
+  height: 28px;
 }
 
 .product-review-wizard-star-btn {
@@ -9307,36 +9321,42 @@ body:has(.product-detail-page) main.container-store {
   display: flex;
   align-items: stretch;
   gap: 0;
-  margin-top: 4px;
+  margin-top: 16px;
   direction: ltr;
 }
 
 .product-review-wizard-phone-input {
   flex: 1;
   min-width: 0;
-  height: 40px;
+  height: 30px;
   box-sizing: border-box;
   padding: 0 12px;
-  border: 1px solid #e5e5e5;
-  border-left: 0;
-  background: #ffffff;
-  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
-  font-size: 13px;
+  border: 0;
+  background: #faf9f8;
+  font-family: 'Yekan Bakh', var(--pd-font, sans-serif);
+  font-size: 10px;
   font-weight: 300;
+  line-height: 15px;
   color: #000000;
   text-align: left;
 }
 
+.product-review-wizard-phone-input::placeholder {
+  color: #6d5945;
+  opacity: 0.4;
+}
+
 .product-review-wizard-btn-send {
   flex-shrink: 0;
-  min-width: 72px;
-  height: 40px;
+  min-width: 51px;
+  width: 51px;
+  height: 30px;
   border-radius: 0;
 }
 
 .product-review-wizard-error {
-  margin: 12px 0 0;
-  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
+  margin: 10px 0 0;
+  font-family: 'Yekan Bakh', var(--pd-font, sans-serif);
   font-size: 11px;
   font-weight: 300;
   line-height: 1.5;
@@ -9346,31 +9366,57 @@ body:has(.product-detail-page) main.container-store {
 
 .product-review-wizard-close {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 9px;
+  left: 7px;
   display: inline-flex;
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: 0;
   background: transparent;
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
-  color: #6d5945;
+  color: #564739;
   cursor: pointer;
 }
 
 .product-review-wizard-success {
-  margin: 24px 0 8px;
-  padding: 0 8px;
-  font-family: var(--pd-font, 'Yekan Bakh', sans-serif);
-  font-size: 13px;
+  margin: 0;
+  padding: 0;
+  font-family: 'Yekan Bakh', var(--pd-font, sans-serif);
+  font-size: 16px;
   font-weight: 300;
-  line-height: 1.9;
+  line-height: 25px;
   color: #000000;
   text-align: center;
+}
+
+.product-review-wizard-success-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 16px 8px;
+}
+
+.product-review-wizard-success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: #efe9e3;
+  font-size: 22px;
+  line-height: 1;
+  color: #564739;
+}
+
+.product-review-wizard-btn-success {
+  min-width: 120px;
+  margin-top: 4px;
 }
 
 /* Jewelry size guides — Figma nodes 1752:7108, 1752:7163, 1752:7217 */

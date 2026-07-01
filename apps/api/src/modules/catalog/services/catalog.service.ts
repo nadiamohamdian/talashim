@@ -69,12 +69,10 @@ export class CatalogService {
       EARRING: 'گوشواره',
       COIN: 'سکه',
       WEDDING_RING: 'حلقه ازدواج',
+      CHILDREN: 'کودکانه',
     };
     return rows.map((row) => ({
-      slug:
-        row.category === ProductCategory.WEDDING_RING
-          ? 'wedding-rings'
-          : row.category.toLowerCase(),
+      slug: this.categoryToPublicSlug(row.category),
       label: labels[row.category] ?? row.category,
       productCount: row._count.id,
     }));
@@ -206,6 +204,17 @@ export class CatalogService {
     }
   }
 
+  private categoryToPublicSlug(category: ProductCategory): string {
+    switch (category) {
+      case ProductCategory.WEDDING_RING:
+        return 'wedding-rings';
+      case ProductCategory.CHILDREN:
+        return 'kids';
+      default:
+        return category.toLowerCase();
+    }
+  }
+
   private resolveCategory(raw?: string): ProductCategory | undefined {
     if (!raw?.trim()) {
       return undefined;
@@ -221,6 +230,8 @@ export class CatalogService {
       earring: ProductCategory.EARRING,
       coin: ProductCategory.COIN,
       wedding_ring: ProductCategory.WEDDING_RING,
+      children: ProductCategory.CHILDREN,
+      kids: ProductCategory.CHILDREN,
     };
 
     const fromSlug = map[canonical];

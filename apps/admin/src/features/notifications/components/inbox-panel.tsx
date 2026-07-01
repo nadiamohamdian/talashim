@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { formatPersianDateTime } from '@/shared/lib/format-date';
 
 import { useState } from 'react';
@@ -31,6 +32,13 @@ import {
   selectFieldClass,
   STAFF_ROLE_FA,
 } from '../lib/labels';
+
+function resolveNotificationActionHref(
+  metadata: Record<string, unknown> | null | undefined,
+): string | null {
+  const adminPath = metadata?.adminPath;
+  return typeof adminPath === 'string' && adminPath.startsWith('/') ? adminPath : null;
+}
 
 export function InboxPanel() {
   const canManage = useAdminAuthStore((s) =>
@@ -184,7 +192,10 @@ export function InboxPanel() {
               اعلانی نیست.
             </li>
           ) : (
-            data?.items.map((item) => (
+            data?.items.map((item) => {
+              const actionHref = resolveNotificationActionHref(item.metadata);
+
+              return (
               <li
                 key={item.id}
                 className={`rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--card)] p-4 ${item.readAt ? 'opacity-75' : ''}`}
@@ -193,6 +204,14 @@ export function InboxPanel() {
                   <div>
                     <p className="font-medium">{item.title}</p>
                     <p className="mt-1 text-sm text-[var(--muted-foreground)]">{item.body}</p>
+                    {actionHref ? (
+                      <Link
+                        href={actionHref}
+                        className="mt-2 inline-flex text-sm text-[var(--primary)] underline-offset-4 hover:underline"
+                      >
+                        مشاهده در پنل مدیریت
+                      </Link>
+                    ) : null}
                     <div className="mt-2 flex flex-wrap gap-2">
                       <Badge className="bg-nude-100 text-[var(--muted-foreground)]">
                         {NOTIFICATION_CHANNEL_FA[item.channel] ?? item.channel}
@@ -221,7 +240,8 @@ export function InboxPanel() {
                   </div>
                 </div>
               </li>
-            ))
+              );
+            })
           )}
         </ul>
       )}

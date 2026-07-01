@@ -12,6 +12,7 @@ const JEWELRY_CATEGORIES = new Set([
   'bracelet',
   'earring',
   'wedding_ring',
+  'children',
   'set',
 ]);
 

@@ -3,7 +3,7 @@ export type ProductType = 'melted_gold' | 'gold_jewelry' | 'coins' | 'investment
 /** Browse taxonomy (navigation / SEO landing pages). */
 export type ProductCategorySlug = 'rings' | 'necklaces' | 'bracelets' | 'earrings' | 'wedding-rings' | 'coins' | 'bars' | 'melted' | 'investment' | 'wholesale';
 /** Legacy API category enum (migrate → ProductCategorySlug). */
-export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'earring' | 'coin' | 'wedding_ring';
+export type ProductCategory = 'ring' | 'necklace' | 'bracelet' | 'earring' | 'coin' | 'wedding_ring' | 'children';
 export type ProductStatus = 'draft' | 'active' | 'archived' | 'out_of_stock';
 export interface ProductSeoMetadata {
     title: string;

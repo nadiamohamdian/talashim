@@ -38,6 +38,7 @@ import { AddressesModule } from './modules/addresses/addresses.module';
 import { WishlistModule } from './modules/wishlist/wishlist.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { MediaModule } from './infrastructure/media/media.module';
+import { NotificationsModule } from './infrastructure/notifications/notifications.module';
 import { SiteModule } from './modules/site/site.module';
 import { CmsModule } from './modules/cms/cms.module';
 import { DiscountsModule } from './modules/discounts/discounts.module';
@@ -72,6 +73,7 @@ import { DiscountsModule } from './modules/discounts/discounts.module';
     WishlistModule,
     ContactModule,
     MediaModule,
+    NotificationsModule,
     SiteModule,
     CmsModule,
     DiscountsModule,

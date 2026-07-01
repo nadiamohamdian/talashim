@@ -40,15 +40,15 @@ const CATEGORY_META: Record<string, { parent: string; title: string; subtitle: s
     title: 'حلقه ازدواج',
     subtitle: 'خرید حلقه ازدواج طلا با ضمانت اصالت و ارسال سریع',
   },
+  children: {
+    parent: 'کودکانه',
+    title: 'طلای کودکانه',
+    subtitle: 'انگشتر، دستبند، گردنبند و گوشواره طلا با طراحی ایمن و سبک برای کودکان',
+  },
   set: {
     parent: 'زنانه',
     title: 'ست و نیم‌ست زنانه',
     subtitle: 'خرید ست و نیم‌ست طلا با ضمانت اصالت و ارسال سریع',
-  },
-  kids: {
-    parent: 'کودکانه',
-    title: 'طلای کودکانه',
-    subtitle: 'انگشتر، دستبند، گردنبند و گوشواره طلا با طراحی ایمن و سبک برای کودکان',
   },
 };
 
@@ -231,9 +231,10 @@ export function filterProductsByCategory<T extends Pick<ProductSummary, 'categor
     return [];
   }
 
-  if (resolved === 'kids') {
+  if (resolved === 'children') {
     return products.filter(
       (product) =>
+        normalizeProductCategory(product.category) === 'children' ||
         /کودک/u.test(product.title) ||
         product.slug.toLowerCase().includes('kids') ||
         product.slug.toLowerCase().includes('koodak'),

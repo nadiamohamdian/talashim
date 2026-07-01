@@ -117,7 +117,7 @@ export function BlogPostPageView({
         </div>
 
         <section className="blog-post-section blog-post-section--reviews blog-post-section--full" aria-labelledby="blog-post-reviews-title">
-          <BlogPostReviewSection title={BLOG_POST_SECTION_TITLES.reviews} />
+          <BlogPostReviewSection title={BLOG_POST_SECTION_TITLES.reviews} blogPostSlug={post.slug} />
         </section>
 
         <section

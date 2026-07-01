@@ -292,3 +292,67 @@ export function uploadMediaVideo(file: File, options?: { folder?: string }) {
     })
     .then((r) => r.data);
 }
+
+export function fetchBlogPostReviews(params?: {
+  page?: number;
+  status?: string;
+  search?: string;
+  groupByBlogPost?: boolean;
+}) {
+  const { groupByBlogPost, ...rest } = params ?? {};
+
+  return axiosClient
+    .get<
+      PaginatedResponse<import('@talashim/types').AdminBlogPostReviewItem> |
+        import('@talashim/types').AdminBlogPostReviewsGroupedResponse
+    >('/admin/blog-post-reviews', {
+      params: {
+        ...rest,
+        ...(groupByBlogPost ? { groupByBlogPost: true } : {}),
+      },
+    })
+    .then((r) => r.data);
+}
+
+export function reviewBlogPostReview(
+  id: string,
+  payload: { status: 'APPROVED' | 'REJECTED' },
+) {
+  return axiosClient
+    .patch<import('@talashim/types').AdminBlogPostReviewItem>(
+      `/admin/blog-post-reviews/${id}/review`,
+      payload,
+    )
+    .then((r) => r.data);
+}
+
+export function createAdminBlogPostReview(body: {
+  blogPostSlug: string;
+  body: string;
+  rating: number;
+  authorName?: string;
+  phone?: string;
+  status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+}) {
+  return axiosClient
+    .post<import('@talashim/types').AdminBlogPostReviewItem>('/admin/blog-post-reviews', body)
+    .then((r) => r.data);
+}
+
+export function updateAdminBlogPostReview(
+  id: string,
+  body: {
+    body?: string;
+    rating?: number;
+    authorName?: string;
+    status?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  },
+) {
+  return axiosClient
+    .patch<import('@talashim/types').AdminBlogPostReviewItem>(`/admin/blog-post-reviews/${id}`, body)
+    .then((r) => r.data);
+}
+
+export function deleteAdminBlogPostReview(id: string) {
+  return axiosClient.delete(`/admin/blog-post-reviews/${id}`).then((r) => r.data);
+}

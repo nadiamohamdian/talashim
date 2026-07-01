@@ -571,6 +571,18 @@ export const ADMIN_ROUTES: AdminRouteDefinition[] = [
     parentId: 'dashboard',
   }),
   r({
+    id: 'cms.blog.reviews',
+    path: '/cms/blog/reviews',
+    label: 'نظرات مقالات',
+    sectionId: 'content',
+    sectionLabel: 'محتوا و رسانه',
+    template: 'list',
+    permission: ADMIN_PERMISSIONS.cms.read,
+    availability: 'live',
+    parentId: 'cms.blog',
+    navOrder: 5,
+  }),
+  r({
     id: 'cms.homepage',
     path: '/cms/homepage',
     label: 'صفحه اصلی',

@@ -10,6 +10,7 @@ import { PageHeader } from '@/widgets/admin/page-header';
 
 const DESCRIPTIONS: Record<string, string> = {
   'cms.blog': 'مدیریت مقالات، راهنماها و انتشار محتوا.',
+  'cms.blog.reviews': 'بررسی، تأیید یا رد نظرات کاربران روی مقالات وبلاگ.',
   'cms.homepage': 'ویرایش هیرو و بخش‌های صفحه اصلی فروشگاه.',
   'cms.banners': 'بنرهای تبلیغاتی صفحه اصلی و دسته‌بندی‌ها.',
   'cms.lens': 'ویدیوهای بخش لنز طلاشیم در صفحه اصلی موبایل.',

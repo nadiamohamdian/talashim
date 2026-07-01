@@ -72,6 +72,8 @@ export class CatalogCategoryPageRepository {
       WEDDING_RING: ProductCategory.WEDDING_RING,
       'WEDDING-RING': ProductCategory.WEDDING_RING,
       'WEDDING-RINGS': ProductCategory.WEDDING_RING,
+      CHILDREN: ProductCategory.CHILDREN,
+      KIDS: ProductCategory.CHILDREN,
     };
 
     return map[normalized] ?? null;

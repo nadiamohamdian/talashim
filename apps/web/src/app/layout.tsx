@@ -48,7 +48,10 @@ body { min-height: 100%; background-color: inherit; color: inherit; }
         />
         <StorefrontThemeInitScript />
       </head>
-      <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
+      <body
+        className="flex min-h-full flex-col bg-background font-sans text-foreground"
+        suppressHydrationWarning
+      >
         {seo?.googleAnalyticsId ? (
           <GoogleAnalytics measurementId={seo.googleAnalyticsId} />
         ) : null}

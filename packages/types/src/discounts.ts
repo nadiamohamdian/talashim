@@ -7,4 +7,5 @@ export type CouponProductCategory =
   | 'BRACELET'
   | 'EARRING'
   | 'COIN'
-  | 'WEDDING_RING';
+  | 'WEDDING_RING'
+  | 'CHILDREN';

@@ -29,6 +29,7 @@ const PRODUCT_CATEGORY_OPTIONS = [
   { value: 'EARRING', label: 'گوشواره' },
   { value: 'COIN', label: 'سکه' },
   { value: 'WEDDING_RING', label: 'حلقه ازدواج' },
+  { value: 'CHILDREN', label: 'کودکانه' },
 ];
 
 const MAX_HERO_IMAGES = 8;

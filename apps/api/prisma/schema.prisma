@@ -23,6 +23,7 @@ enum ProductCategory {
   EARRING
   COIN
   WEDDING_RING
+  CHILDREN
 }
 
 enum CartStatus {
@@ -97,6 +98,7 @@ model User {
   inventoryMovements InventoryMovement[]
   staffNotifications StaffNotification[] @relation("StaffNotificationRecipient")
   productReviews      ProductReview[]
+  blogPostReviews     BlogPostReview[]
   createdCoupons      DiscountCoupon[] @relation("CouponCreator")
   updatedCoupons      DiscountCoupon[] @relation("CouponUpdater")
   couponUsages      CouponUsage[]
@@ -438,22 +440,41 @@ model BlogCategory {
 }
 
 model BlogPost {
-  id            String        @id @default(cuid())
+  id            String           @id @default(cuid())
   categoryId    String?
-  slug          String        @unique
+  slug          String           @unique
   title         String
   excerpt       String
   content       String
   coverImageUrl String
   publishedAt   DateTime
-  isPublished   Boolean       @default(true)
-  sortOrder     Int           @default(0)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  category      BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  isPublished   Boolean          @default(true)
+  sortOrder     Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  category      BlogCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  reviews       BlogPostReview[]
 
   @@index([categoryId, sortOrder])
   @@index([isPublished, publishedAt])
+}
+
+model BlogPostReview {
+  id         String              @id @default(cuid())
+  blogPostId String
+  userId     String?
+  authorName String?
+  phone      String
+  body       String
+  rating     Int
+  status     ProductReviewStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  blogPost   BlogPost            @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  user       User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([blogPostId, status, createdAt])
+  @@index([phone, createdAt])
 }
 
 enum CmsBannerPlacement {

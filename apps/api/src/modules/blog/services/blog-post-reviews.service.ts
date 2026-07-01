@@ -6,23 +6,23 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@/infrastructure/database/prisma.service';
 import { StaffInboxNotifierService } from '@/infrastructure/notifications/staff-inbox-notifier.service';
-import type { SubmitProductReviewDto } from '../dto/submit-product-review.dto';
-import { ProductReviewsRepository } from '../repositories/product-reviews.repository';
+import type { SubmitBlogPostReviewDto } from '../dto/submit-blog-post-review.dto';
+import { BlogPostReviewsRepository } from '../repositories/blog-post-reviews.repository';
 
 const DUPLICATE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
-export class ProductReviewsService {
+export class BlogPostReviewsService {
   constructor(
-    private readonly productReviewsRepository: ProductReviewsRepository,
+    private readonly blogPostReviewsRepository: BlogPostReviewsRepository,
     private readonly prisma: PrismaService,
     private readonly staffInboxNotifier: StaffInboxNotifierService,
   ) {}
 
-  async submit(slug: string, payload: SubmitProductReviewDto) {
-    const product = await this.productReviewsRepository.findProductIdBySlug(slug);
-    if (!product) {
-      throw new NotFoundException('Product not found');
+  async submit(slug: string, payload: SubmitBlogPostReviewDto) {
+    const blogPost = await this.blogPostReviewsRepository.findBlogPostIdBySlug(slug);
+    if (!blogPost) {
+      throw new NotFoundException('Blog post not found');
     }
 
     const body = payload.body.trim();
@@ -32,8 +32,8 @@ export class ProductReviewsService {
 
     const phone = payload.phone.trim();
     const since = new Date(Date.now() - DUPLICATE_WINDOW_MS);
-    const duplicate = await this.productReviewsRepository.findRecentPendingByPhone(
-      product.id,
+    const duplicate = await this.blogPostReviewsRepository.findRecentPendingByPhone(
+      blogPost.id,
       phone,
       since,
     );
@@ -41,8 +41,8 @@ export class ProductReviewsService {
       throw new ConflictException('دیدگاه شما در انتظار بررسی است');
     }
 
-    const review = await this.productReviewsRepository.createReview({
-      productId: product.id,
+    const review = await this.blogPostReviewsRepository.createReview({
+      blogPostId: blogPost.id,
       phone,
       body,
       rating: payload.rating,
@@ -50,21 +50,21 @@ export class ProductReviewsService {
 
     await this.prisma.auditLog.create({
       data: {
-        action: 'product.review_submitted',
+        action: 'blog.review_submitted',
         context: {
-          productId: product.id,
-          productSlug: slug,
+          blogPostId: blogPost.id,
+          blogPostSlug: slug,
           reviewId: review.id,
           rating: review.rating,
         },
       },
     });
 
-    await this.staffInboxNotifier.notifyProductReviewPending({
+    await this.staffInboxNotifier.notifyBlogPostReviewPending({
       reviewId: review.id,
-      productId: product.id,
-      productSlug: slug,
-      productTitle: product.title,
+      blogPostId: blogPost.id,
+      blogPostSlug: slug,
+      blogPostTitle: blogPost.title,
       rating: review.rating,
     });
 
@@ -76,13 +76,13 @@ export class ProductReviewsService {
   }
 
   async listApproved(slug: string, limit = 10) {
-    const product = await this.productReviewsRepository.findProductIdBySlug(slug);
-    if (!product) {
-      throw new NotFoundException('Product not found');
+    const blogPost = await this.blogPostReviewsRepository.findBlogPostIdBySlug(slug);
+    if (!blogPost) {
+      throw new NotFoundException('Blog post not found');
     }
 
-    const reviews = await this.productReviewsRepository.findApprovedByProductId(
-      product.id,
+    const reviews = await this.blogPostReviewsRepository.findApprovedByBlogPostId(
+      blogPost.id,
       limit,
     );
 

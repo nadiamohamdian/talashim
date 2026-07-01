@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type TouchEvent,
@@ -12,15 +13,18 @@ import {
   BLOG_POST_FEATURED_REVIEW,
 } from '@/shared/config/blog-post-page';
 import type { ProductReviewDemo } from '@/shared/config/product-detail-demo';
+import { useBlogPostReviews } from '@/lib/api/hooks/use-blog-reviews';
 import { toPersianDigits } from '@/shared/lib/to-persian-digits';
 import { BlogPostCarouselArrow } from '@/widgets/blog/blog-post-carousel-arrow';
+import { ProductReviewWizard } from '@/features/catalog/components/product-review-wizard';
 
 interface BlogPostReviewCardProps {
   review: ProductReviewDemo;
   contentClassName?: string;
+  onSubmitClick: () => void;
 }
 
-function BlogPostReviewCard({ review, contentClassName = '' }: BlogPostReviewCardProps) {
+function BlogPostReviewCard({ review, contentClassName = '', onSubmitClick }: BlogPostReviewCardProps) {
   return (
     <article className="blog-post-review-frame">
       <span className="blog-post-review-line blog-post-review-line-top" aria-hidden />
@@ -45,7 +49,7 @@ function BlogPostReviewCard({ review, contentClassName = '' }: BlogPostReviewCar
           </div>
         </div>
 
-        <button type="button" className="blog-post-review-submit">
+        <button type="button" className="blog-post-review-submit" onClick={onSubmitClick}>
           ثبت نظر جدید
         </button>
       </div>
@@ -53,8 +57,27 @@ function BlogPostReviewCard({ review, contentClassName = '' }: BlogPostReviewCar
   );
 }
 
-export function BlogPostReviewSection({ title }: { title: string }) {
-  const reviews = BLOG_POST_DEMO_REVIEWS;
+export function BlogPostReviewSection({
+  title,
+  blogPostSlug,
+}: {
+  title: string;
+  blogPostSlug: string;
+}) {
+  const { data: apiReviews = [] } = useBlogPostReviews(blogPostSlug);
+  const reviews = useMemo(() => {
+    if (apiReviews.length > 0) {
+      return apiReviews.map((review) => ({
+        id: review.id,
+        author: review.author,
+        body: review.body,
+        rating: review.rating,
+      }));
+    }
+
+    return BLOG_POST_DEMO_REVIEWS;
+  }, [apiReviews]);
+  const [reviewWizardOpen, setReviewWizardOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'next' | 'prev'>('next');
@@ -229,6 +252,7 @@ export function BlogPostReviewSection({ title }: { title: string }) {
             key={review.id}
             review={review}
             contentClassName={mobileContentClassName}
+            onSubmitClick={() => setReviewWizardOpen(true)}
           />
         </div>
       </div>
@@ -236,10 +260,21 @@ export function BlogPostReviewSection({ title }: { title: string }) {
       <div className="blog-post-review-desktop" role="region" aria-label="نظرات کاربران">
         <div ref={trackRef} className="blog-post-review-track">
           {reviews.map((item) => (
-            <BlogPostReviewCard key={item.id} review={item} />
+            <BlogPostReviewCard
+              key={item.id}
+              review={item}
+              onSubmitClick={() => setReviewWizardOpen(true)}
+            />
           ))}
         </div>
       </div>
+
+      <ProductReviewWizard
+        open={reviewWizardOpen}
+        variant="blog"
+        blogPostSlug={blogPostSlug}
+        onClose={() => setReviewWizardOpen(false)}
+      />
     </>
   );
 }

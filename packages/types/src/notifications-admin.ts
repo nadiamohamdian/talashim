@@ -8,6 +8,7 @@ export interface StaffNotificationDto {
   targetRole: string | null;
   readAt: string | null;
   createdAt: string;
+  metadata?: Record<string, unknown> | null;
 }
 
 export interface NotificationTemplateDto {

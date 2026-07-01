@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MediaModule } from '@/infrastructure/media/media.module';
 import { CatalogModule } from '@/modules/catalog/catalog.module';
+import { BlogModule } from '@/modules/blog/blog.module';
 import { MarketModule } from '@/modules/market/market.module';
 import { PricingModule } from '@/modules/pricing/pricing.module';
 import { TradingModule } from '@/modules/trading/trading.module';
@@ -14,6 +15,7 @@ import { AdminInventoryController } from './controllers/admin-inventory.controll
 import { AdminOrdersController } from './controllers/admin-orders.controller';
 import { AdminProductsController } from './controllers/admin-products.controller';
 import { AdminProductReviewsController } from './controllers/admin-product-reviews.controller';
+import { AdminBlogPostReviewsController } from './controllers/admin-blog-post-reviews.controller';
 import { AdminNotificationsController } from './controllers/admin-notifications.controller';
 import { AdminCatalogCategoriesController } from './controllers/admin-catalog-categories.controller';
 import { AdminController } from './controllers/admin.controller';
@@ -36,6 +38,7 @@ import { AdminInventoryService } from './services/admin-inventory.service';
 import { AdminOrdersService } from './services/admin-orders.service';
 import { AdminProductsService } from './services/admin-products.service';
 import { AdminProductReviewsService } from './services/admin-product-reviews.service';
+import { AdminBlogPostReviewsService } from './services/admin-blog-post-reviews.service';
 import { AdminNotificationsService } from './services/admin-notifications.service';
 import { AdminTradingService } from './services/admin-trading.service';
 import { AdminReportsService } from './services/admin-reports.service';
@@ -48,6 +51,7 @@ import { AdminService } from './services/admin.service';
   imports: [
     MediaModule,
     CatalogModule,
+    BlogModule,
     PricingModule,
     MarketModule,
     TradingModule,
@@ -65,6 +69,7 @@ import { AdminService } from './services/admin.service';
     AdminProductsController,
     AdminCatalogCategoriesController,
     AdminProductReviewsController,
+    AdminBlogPostReviewsController,
     AdminInventoryController,
     AdminOrdersController,
     AdminNotificationsController,
@@ -90,6 +95,7 @@ import { AdminService } from './services/admin.service';
     AdminProductsService,
     AdminCatalogCategoriesService,
     AdminProductReviewsService,
+    AdminBlogPostReviewsService,
     AdminInventoryService,
     AdminOrdersService,
     AdminNotificationsService,

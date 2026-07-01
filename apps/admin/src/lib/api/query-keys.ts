@@ -89,6 +89,8 @@ export const adminQueryKeys = {
     blogCategories: ['admin', 'cms', 'blog', 'categories'] as const,
     blog: (page: number, search: string, published: string) =>
       ['admin', 'cms', 'blog', page, search, published] as const,
+    blogReviews: (page: number, status: string, search: string, groupByBlogPost = false) =>
+      ['admin', 'cms', 'blog-reviews', page, status, search, groupByBlogPost] as const,
     faq: (page: number, search: string) => ['admin', 'cms', 'faq', page, search] as const,
     homepage: ['admin', 'cms', 'homepage'] as const,
     about: ['admin', 'cms', 'about'] as const,

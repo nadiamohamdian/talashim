@@ -281,6 +281,10 @@ export interface HomeProductCarouselItem {
 const DEMO_CAROUSEL_HOVER_LIFESTYLE =
   '/images/products/964bdc1347006a50cdc0ea4b2ec46ea4-removebg-preview%201.png';
 
+/** Lifestyle image shown on carousel card hover when product has no distinct hover asset */
+export const HOME_PRODUCT_CAROUSEL_FALLBACK_HOVER_IMAGE =
+  '/images/home/new-arrival-lifestyle.png';
+
 const DEMO_CAROUSEL_PRODUCTS: HomeProductCarouselItem[] = [
   {
     id: 'demo-carousel-ring',

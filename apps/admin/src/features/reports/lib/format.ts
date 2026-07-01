@@ -55,4 +55,5 @@ export const PRODUCT_CATEGORY_FA: Record<string, string> = {
   EARRING: 'گوشواره',
   COIN: 'سکه',
   WEDDING_RING: 'حلقه ازدواج',
+  CHILDREN: 'کودکانه',
 };

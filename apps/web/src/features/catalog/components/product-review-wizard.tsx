@@ -4,16 +4,30 @@ import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { submitProductReview } from '@/features/catalog/api/product-review-api';
-import { getApiErrorMessage } from '@/lib/api/client';
+import { submitBlogPostReview } from '@/features/blog/api/blog-review-api';
+import { ApiClientError, getApiErrorMessage } from '@/lib/api/client';
 import { queryKeys } from '@/lib/api/query-keys';
 
 type WizardStep = 'comment' | 'rating' | 'phone' | 'success';
 
+type ReviewWizardVariant = 'product' | 'blog';
+
 interface ProductReviewWizardProps {
   open: boolean;
-  productSlug: string;
+  productSlug?: string;
+  blogPostSlug?: string;
+  variant?: ReviewWizardVariant;
   onClose: () => void;
 }
+
+const SUCCESS_MESSAGES: Record<ReviewWizardVariant, string> = {
+  product:
+    'دیدگاه شما با موفقیت ثبت شد. پس از بررسی و تأیید مدیر، در صفحه محصول نمایش داده می‌شود.',
+  blog: 'نظر شما با موفقیت ثبت شد. پس از بررسی و تأیید مدیر، در این صفحه نمایش داده می‌شود.',
+};
+
+const PENDING_REVIEW_MESSAGE =
+  'دیدگاه شما قبلاً ثبت شده و در انتظار تأیید است. پس از تأیید مدیر، نمایش داده می‌شود.';
 
 const IR_MOBILE_REGEX = /^09\d{9}$/;
 
@@ -21,8 +35,8 @@ function StarIcon({ filled }: { filled: boolean }) {
   return (
     <svg
       className="product-review-wizard-star"
-      width="32"
-      height="32"
+      width="28"
+      height="28"
       viewBox="0 0 32 32"
       fill="none"
       aria-hidden
@@ -41,6 +55,8 @@ function StarIcon({ filled }: { filled: boolean }) {
 export function ProductReviewWizard({
   open,
   productSlug,
+  blogPostSlug,
+  variant = 'product',
   onClose,
 }: ProductReviewWizardProps) {
   const queryClient = useQueryClient();
@@ -51,6 +67,7 @@ export function ProductReviewWizard({
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const reset = useCallback(() => {
     setStep('comment');
@@ -59,6 +76,7 @@ export function ProductReviewWizard({
     setPhone('');
     setError(null);
     setSubmitting(false);
+    setSuccessMessage(null);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -72,14 +90,24 @@ export function ProductReviewWizard({
 
   useEffect(() => {
     if (!open) {
-      return;
+      return undefined;
     }
+
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !submitting) {
+        handleClose();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
     };
-  }, [open]);
+  }, [handleClose, open, submitting]);
 
   const handleContinueComment = () => {
     if (comment.trim().length < 10) {
@@ -94,6 +122,12 @@ export function ProductReviewWizard({
     setRating(value);
     setError(null);
     setStep('phone');
+  };
+
+  const showSuccess = (message: string) => {
+    setSuccessMessage(message);
+    setError(null);
+    setStep('success');
   };
 
   const handleSubmit = async () => {
@@ -111,16 +145,45 @@ export function ProductReviewWizard({
     setSubmitting(true);
     setError(null);
     try {
-      await submitProductReview(productSlug, {
+      if (variant === 'blog') {
+        const slug = blogPostSlug?.trim();
+        if (!slug) {
+          setError('امکان ثبت دیدگاه در حال حاضر وجود ندارد');
+          return;
+        }
+
+        const response = await submitBlogPostReview(slug, {
+          body: comment.trim(),
+          rating,
+          phone: normalizedPhone,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.blog.reviews(slug),
+        });
+        showSuccess(response.message || SUCCESS_MESSAGES.blog);
+        return;
+      }
+
+      const slug = productSlug?.trim();
+      if (!slug) {
+        setError('امکان ثبت دیدگاه در حال حاضر وجود ندارد');
+        return;
+      }
+
+      const response = await submitProductReview(slug, {
         body: comment.trim(),
         rating,
         phone: normalizedPhone,
       });
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.products.reviews(productSlug),
+        queryKey: queryKeys.products.reviews(slug),
       });
-      setStep('success');
+      showSuccess(response.message || SUCCESS_MESSAGES.product);
     } catch (err) {
+      if (err instanceof ApiClientError && err.status === 409) {
+        showSuccess(PENDING_REVIEW_MESSAGE);
+        return;
+      }
       setError(getApiErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -155,9 +218,21 @@ export function ProductReviewWizard({
             >
               ×
             </button>
-            <p id="product-review-wizard-title" className="product-review-wizard-success">
-              دیدگاه شما ثبت شد. پس از بررسی و تأیید تیم طلاشیم در صفحه محصول نمایش داده می‌شود.
-            </p>
+            <div className="product-review-wizard-success-panel">
+              <span className="product-review-wizard-success-icon" aria-hidden>
+                ✓
+              </span>
+              <p id="product-review-wizard-title" className="product-review-wizard-success">
+                {successMessage ?? SUCCESS_MESSAGES[variant]}
+              </p>
+              <button
+                type="button"
+                className="product-review-wizard-btn product-review-wizard-btn-success"
+                onClick={handleClose}
+              >
+                متوجه شدم
+              </button>
+            </div>
           </>
         ) : null}
 

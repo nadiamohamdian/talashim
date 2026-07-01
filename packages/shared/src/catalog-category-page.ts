@@ -71,7 +71,7 @@ export interface DefaultCatalogCategorySeed {
   slug: string;
   title: string;
   subtitle: string;
-  productCategory: 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING' | null;
+  productCategory: 'RING' | 'NECKLACE' | 'BRACELET' | 'EARRING' | 'COIN' | 'WEDDING_RING' | 'CHILDREN' | null;
   sortOrder: number;
 }
 
@@ -129,7 +129,7 @@ export const DEFAULT_CATALOG_CATEGORY_SEEDS: DefaultCatalogCategorySeed[] = [
     slug: 'kids',
     title: 'طلای کودکانه',
     subtitle: 'انگشتر، دستبند، گردنبند و گوشواره طلا با طراحی ایمن برای کودکان',
-    productCategory: null,
+    productCategory: 'CHILDREN',
     sortOrder: 7,
   },
 ];

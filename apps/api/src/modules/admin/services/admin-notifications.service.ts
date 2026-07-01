@@ -292,6 +292,10 @@ export class AdminNotificationsService {
       targetRole: n.targetRole,
       readAt: n.readAt?.toISOString() ?? null,
       createdAt: n.createdAt.toISOString(),
+      metadata:
+        n.metadata && typeof n.metadata === 'object' && !Array.isArray(n.metadata)
+          ? (n.metadata as Record<string, unknown>)
+          : null,
     };
   }
 

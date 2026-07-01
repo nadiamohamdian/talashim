@@ -18,7 +18,8 @@ export const CATALOG_CATEGORY_SLUG_MAP: Record<string, string> = {
   'wedding-rings': 'wedding_ring',
   wedding_ring: 'wedding_ring',
   wedding_rings: 'wedding_ring',
-  kids: 'kids',
+  kids: 'children',
+  children: 'children',
 };
 
 const PRISMA_CATEGORY_SLUG_MAP: Record<string, string> = {
@@ -28,6 +29,7 @@ const PRISMA_CATEGORY_SLUG_MAP: Record<string, string> = {
   earring: 'earring',
   coin: 'coin',
   wedding_ring: 'wedding_ring',
+  children: 'children',
 };
 
 export function resolveCatalogCategoryKey(
@@ -46,7 +48,7 @@ export function normalizeStorefrontProductCategory(category: string): string {
 }
 
 export function isVirtualCatalogCategory(categoryKey: string | undefined): boolean {
-  return categoryKey === 'set' || categoryKey === 'kids';
+  return categoryKey === 'set';
 }
 
 /** Query param for GET /catalog — undefined for virtual categories (set/kids). */

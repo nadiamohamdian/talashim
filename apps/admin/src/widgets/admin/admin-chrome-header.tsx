@@ -1,9 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { Bell, ExternalLink, Menu, PanelLeft, PanelLeftClose } from '@/shared/ui/icons';
 import { adminEnv } from '@/shared/config/env';
 import { useAdminUiStore } from '@/shared/model/admin-ui-store';
+import { fetchNotificationInbox } from '@/features/notifications/api/notifications-api';
+import { adminQueryKeys } from '@/lib/api/query-keys';
 import { AdminBreadcrumbs } from './admin-breadcrumbs';
 import { AdminGoldPill } from './admin-gold-pill';
 import { AdminNavSearch } from './admin-nav-search';
@@ -18,6 +21,12 @@ export function AdminChromeHeader({ onOpenSidebar }: AdminChromeHeaderProps) {
   const sidebarMode = useAdminUiStore((s) => s.sidebarMode);
   const toggleSidebarMini = useAdminUiStore((s) => s.toggleSidebarMini);
   const toggleSidebarCollapsed = useAdminUiStore((s) => s.toggleSidebarCollapsed);
+  const { data: inboxSummary } = useQuery({
+    queryKey: adminQueryKeys.notifications.inbox(1, true, ''),
+    queryFn: () => fetchNotificationInbox({ page: 1, limit: 1, unreadOnly: true }),
+    refetchInterval: 60_000,
+  });
+  const unreadCount = inboxSummary?.summary.unreadCount ?? 0;
 
   return (
     <header className="admin-chrome-header">
@@ -66,10 +75,12 @@ export function AdminChromeHeader({ onOpenSidebar }: AdminChromeHeaderProps) {
           <Link
             href="/notifications"
             className="admin-icon-btn admin-icon-btn--notify relative"
-            aria-label="اعلان‌ها"
+            aria-label={unreadCount > 0 ? `اعلان‌ها — ${unreadCount} خوانده‌نشده` : 'اعلان‌ها'}
           >
             <Bell className="size-4" strokeWidth={1.5} />
-            <span className="admin-notify-dot" aria-hidden />
+            {unreadCount > 0 ? (
+              <span className="admin-notify-dot" aria-hidden />
+            ) : null}
           </Link>
           <Link
             href="http://localhost:3000"
