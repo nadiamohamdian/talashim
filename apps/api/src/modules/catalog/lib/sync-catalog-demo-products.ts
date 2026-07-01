@@ -17,7 +17,6 @@ const PRISMA_CATEGORY_MAP: Record<
   EARRING: ProductCategory.EARRING,
   COIN: ProductCategory.COIN,
   WEDDING_RING: ProductCategory.WEDDING_RING,
-  CHILDREN: ProductCategory.CHILDREN,
 };
 
 export type SyncCatalogDemoProductsResult = {
